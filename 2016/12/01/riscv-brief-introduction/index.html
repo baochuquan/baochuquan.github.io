@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="RISC-V," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="对于大多数计算设备来说Linux已经成为了标准的操作系统，伯克利的研究者希望RISC-V也能够像Linux一样成为所有计算设备的标准ISA   片上系统（systems-on-a-chip, SoCs)，集成了处理器和cache，如今已经被越来越广泛的运用到各个领域之中。因此有越来越多的公司加入到了芯片制造这个领域之中。鉴于业界已经通过开放标准和开源软件进行了革命——如TCP/IP和Linux">
+<meta name="keywords" content="RISC-V">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RISC-V——针对SoC的一套开放标准">
+<meta property="og:url" content="http://chuquan.me/2016/12/01/riscv-brief-introduction/index.html">
+<meta property="og:site_name" content="包楚权的博客">
+<meta property="og:description" content="对于大多数计算设备来说Linux已经成为了标准的操作系统，伯克利的研究者希望RISC-V也能够像Linux一样成为所有计算设备的标准ISA   片上系统（systems-on-a-chip, SoCs)，集成了处理器和cache，如今已经被越来越广泛的运用到各个领域之中。因此有越来越多的公司加入到了芯片制造这个领域之中。鉴于业界已经通过开放标准和开源软件进行了革命——如TCP/IP和Linux">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/riscv-logo.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/RISC-ISA-compare.gif">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/google.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/microsoft_logo.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ibmpos_blurgb.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/NVIDIA.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/amd_logo.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/huawei.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/westerndigital.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/oracle.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/uc_berkeley_logo.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/microsemi.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/lowrisc.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/nxp.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/minima_logo.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/codasip.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/eth_zurich_logo.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/grayresearch.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/esperanto_logo.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/cortus_logo.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/roalogic.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/lattice.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ultra_soc.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/mircon.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/sifive.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/bluespec.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/baesystems.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/espressif.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ict-logo.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/rumble.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/IDT.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/syntacore.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/andes_logo.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/antmicro.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/blockstream_logo.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/iit_madras_logo.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/technolution.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/Mellanox_logo.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/Rambus-Cryptography-Research.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/draper.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/intrinsix.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/runtime.png">
+<meta property="og:updated_time" content="2018-02-07T05:08:33.376Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RISC-V——针对SoC的一套开放标准">
+<meta name="twitter:description" content="对于大多数计算设备来说Linux已经成为了标准的操作系统，伯克利的研究者希望RISC-V也能够像Linux一样成为所有计算设备的标准ISA   片上系统（systems-on-a-chip, SoCs)，集成了处理器和cache，如今已经被越来越广泛的运用到各个领域之中。因此有越来越多的公司加入到了芯片制造这个领域之中。鉴于业界已经通过开放标准和开源软件进行了革命——如TCP/IP和Linux">
+<meta name="twitter:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/riscv-logo.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2016/12/01/riscv-brief-introduction/"/>
+
+
+
+
+
+  <title>RISC-V——针对SoC的一套开放标准 | 包楚权的博客</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">包楚权的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/index.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2016/12/01/riscv-brief-introduction/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="包楚权">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/slamdunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="包楚权的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RISC-V——针对SoC的一套开放标准</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-12-01T16:47:17+08:00">
+                2016-12-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/翻译/" itemprop="url" rel="index">
+                    <span itemprop="name">翻译</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/riscv-logo.png" alt=""></div>
+
+<p><strong>对于大多数计算设备来说Linux已经成为了标准的操作系统，伯克利的研究者希望RISC-V也能够像Linux一样成为所有计算设备的标准ISA</strong>  </p>
+<p>片上系统（systems-on-a-chip, SoCs)，集成了处理器和cache，如今已经被越来越广泛的运用到各个领域之中。因此有越来越多的公司加入到了芯片制造这个领域之中。鉴于业界已经通过开放标准和开源软件进行了革命——如TCP/IP和Linux。那么作为最重要的接口之一的指令系统（instruction set architecture，ISA）为什么不对所有人开放呢？  </p>
+<p>尽管指令系统由于历史或商业原因变得专利化了，但是从技术角度来看，必须要有免费的、开放的ISA。  </p>
+<p><em>这并不是一个遗漏的错误</em>。一些拥有很成功ISA的公司，如ARM，IBM，Intel，MIPS都拥有针对他们自己的ISA的专利，而这使得我们这些没有license的学术机构和小公司根本无法使用这些ISA，除非付出巨额的费用。</p>
+<p>而ARM的license甚至还不允许你设计自己的ARM核；而是只能使用其设计。目前世界上大约只有10家大公司才拥有修改其设计自己的ARM核的license。这就是商业，通过阻止别人进行设计改造从而扼杀了竞争和创新。  </p>
+<p><em>也不是因为公司做大部分的软件开发</em>。虽然围绕这些流行ISA的软件生态系统有着非常高价值，但这几乎都是外人构建了所有的软件。  </p>
+<p><em>并不只有公司具备设计合格的ISA的能力</em>。虽然设计ISA涉及到大量工作，但是今天有很多机构或公司有能力设计ISA。  </p>
+<p><em>最流行的ISA并不见得是完美的ISA</em>。ARM和80x86不被视为完美的ISA。  </p>
+<p><em>也不是只有设计ISA的公司才能验证它们</em>。很久以前，开放组织开发了可以确保与诸如浮点单元（IEEE 754），网络芯片和交换机（以太网）和I/O总线（PCIe）的硬件标准兼容的机制。如果没有这样的组织，开放的IT标准也不会那么受欢迎。  </p>
+<p><em>最后，专有ISA不能保证永远存活下去</em>。如果一个公司倒闭了，它的ISA也会随之消亡。Digital Equipment公司的消亡导致Alpha和VAX ISA也一起终结了。注意，ISA实际上是一个接口规范，而不是实现。  </p>
+<p>其实有应该三种类型的ISA实现：<br>(1) 私有的闭源，如AppleiOS<br>(2) 许可的开源，如Wind River VxWorks<br>(3) 免费的开源，用户可以修改、共享，如Linux</p>
+<p>拥有专利的ISA实际上允许前两种类型，但是我们还需要一种免费开放的ISA。  </p>
+<p>我们的结论是，业界将受益于可行的，免费开放的ISA，就像它从免费开放的软件栈中获益。例如，它将实现一个真正的，自由，开放的处理器设计市场，拥有专利的ISA阻止了这样一个市场的诞生。这样的市场会具有： </p>
+<ul>
+<li><strong>更强大的创新能力</strong>: 通过源自更多设计师的自由市场竞争，包括开放ISA与专有的ISA的竞争。  </li>
+<li><strong>共享的、开放的核心设计</strong>: 这意味着更短的上市时间，更低的成本（由于重复使用），更少的错误（因为有更多人的关注），比如这将使政府机构加入涉密后门更困难。  </li>
+<li><strong>负担得起的处理器</strong>: 更多的设备能够负担得起处理器的费用，这将有助于扩大物联网，其目标成本可能只有1美元。</li>
+</ul>
+<p>要想让开源社区拥抱如此的开源ISA，我们认为它需要一个可靠的商业记录。第一个问题是，哪种风格的ISA有成功的历史？  </p>
+<p>在30年来没有这样的成功的ISA。除了DSP市场的一部分，VLIW已经失败了：Multiflow也不行，Itanium破产了，尽管惠普和英特尔投资了数十亿美元。没有新的CISC ISA可以成功数十年。幸存的CISC从复杂的ISA转换为更容易执行的ISA，这对于制定有价值的遗留代码基础是非常有意义的。  </p>
+<p>一套新的ISA不会有任何遗留代码，所以额外的硬件成本和翻译的开销成本很难证明：为什么不是只使用易于执行的ISA在第一位？ RISC风格load-store ISA可以追溯到至少50年到Seymour Cray的CDC 6600.虽然80x86赢得了PC战争，RISC主导后PC时代的平板电脑和智能手机; 在2013年超过100亿基于ARM的SoC出货，相比之下，80x86芯片只有3亿。  </p>
+<p>鉴于ISA可以存活数十年，我们预测未来的技术景观，看看哪些功能对于基于RISC的免费开放ISA可能是重要的。 三个平台可能占据主导地位：物联网，个人移动设备和仓库规模计算机（WSC）。 这个蓝图式的建议有四个关键要求：<br>(1) <strong>基本、扩展ISA</strong>: 为了匹配SoC的需求，同时保持稳定的软件基础，自由的，开放的ISA应该具有：</p>
+<ul>
+<li>编译器和操作系统可以依赖的一小组核心指令  </li>
+<li>标准且可扩展的ISA，可以为应用程序定制SoC  </li>
+<li>可调用特定应用程序加速器的全新操作码的空间<br>这符合当今SoC经常使用自定义应用程序特定加速器的做法。  </li>
+</ul>
+<p>(2) <strong>紧凑指令集编码</strong>: 考虑到IoT的成本敏感性和对小容量存储器的期望，较小代码是可取的。<br>(3) <strong>四精度（QP）以及单精度和双精度浮点</strong>: 在WSC中运行的一些应用程序处理这样的大数据集，这依靠软件库进行QP运算。<br>(4) <strong>128位寻址以及32位和64位</strong>: 物联网上的节点的有限内存大小意味着32位寻址在未来几十年将是非常重要的，而64位寻址是更高要求的标准。尽管WSC行业不需要128位的运算，但是在十年内，WSC可能需要超过64位（16艾字节）来寻址所有的固态，非易失性存储器。  </p>
+<p>这些都是需要很多年才能确认是否正确的细节，所以似乎使用现有的ISA起步是更聪明的做法，而不是成立委员会，从头开始。 RISC ISAs都很相似，所以其中很多都可能是很好的选择。好消息是，已经有三个开源RISC ISA：SPARC，OpenRISC和RISC-V。  </p>
+<p>只有RISC-V满足上述所有四个要求（见下表）。 RISC-V也是10到20岁的年轻人，所以我们可以从以前的RISC ISA的错误中学习和修复——例如，SPARC和OpenRISC延迟分支——这就是为什么RISC-V是如此简单和干净。 此外，SPARC（V9）的64位地址版本是专有的，而OpenRISC可能失去了动力。  </p>
+<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/RISC-ISA-compare.gif" alt=""></div>
+
+<p>RISC-V有很大的发展势头，到目前为止，它有来自Berkeley的8个芯片实现，以及在印度，英国和美国的外部项目。 由于开源Chisel硬件设计系统，一个64位RISC-V核要比类似过程制造的32位ARM内核快，且功耗和速度均为后者的一半。  </p>
+<p>虽然很难摒弃我们的偏见，但我们认为RISC-V是自由，开放RISC ISA的最好的、最安全的选择。为了扩大这个免费的，开放的ISA的社区，我们将提供研讨会和创建一个非营利基础，以验证实施和维护和发展RISC-V。</p>
+<p>虽然RISC-V的第一个首要目标是物联网，但我们有着更为远大的目标：正如Linux已成为大多数计算设备的标准操作系统一样，我们设想RISC-V成为所有计算设备的标准ISA。  </p>
+<p>目前已经有大量公司和机构加入并关注着RISC-V的发展。  </p>
+<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/google.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/microsoft_logo.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ibmpos_blurgb.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/NVIDIA.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/amd_logo.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/huawei.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/westerndigital.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/oracle.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/uc_berkeley_logo.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/microsemi.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/lowrisc.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/nxp.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/minima_logo.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/codasip.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/eth_zurich_logo.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/grayresearch.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/esperanto_logo.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/cortus_logo.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/roalogic.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/lattice.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ultra_soc.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/mircon.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/sifive.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/bluespec.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/baesystems.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/espressif.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ict-logo.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/rumble.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/IDT.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/syntacore.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/andes_logo.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/antmicro.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/blockstream_logo.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/iit_madras_logo.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/technolution.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/Mellanox_logo.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/Rambus-Cryptography-Research.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/draper.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/intrinsix.png" alt=""></div><br><div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/runtime.png" alt=""></div>
+
+<p>（完）</p>
+<p><strong>参考</strong><br>[1] <a href="http://www.eetimes.com/author.asp?doc_id=1323406&amp;page_number=1" target="_blank" rel="noopener">RISC-V: An Open Standard for SoCs</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="包楚权 WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="包楚权 Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/RISC-V/" rel="tag"># RISC-V</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/10/advanced-chisel/" rel="next" title="Chisel高级参数化详解">
+                <i class="fa fa-chevron-left"></i> Chisel高级参数化详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/12/14/computer-boot-process/" rel="prev" title="计算机那些事(1)——开机启动过程">
+                计算机那些事(1)——开机启动过程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/slamdunk.png"
+               alt="包楚权" />
+          <p class="site-author-name" itemprop="name">包楚权</p>
+           
+              <p class="site-description motion-element" itemprop="description">吸收、沉淀、积累</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">包楚权</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

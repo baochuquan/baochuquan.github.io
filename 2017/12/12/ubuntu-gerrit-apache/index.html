@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="工具," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="我们公司采用Gerrit作为代码审核服务器并结合JIRA、Jenkins等开源工具，组成了一个完整项目管理平台。某天，我兴致来了，也想在自己的服务器上搭建一个Gerrit。于是，便有了以下内容… 一、Gerrit介绍Gerrit的目的是提供一个轻量级的框架来review每一个commit，review通过之后，commit会被合入代码库。 Gerrit是一个中间区域，可以看到提交至Gerrit上的">
+<meta name="keywords" content="工具">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ubuntu + Gerrit + Apache 搭建代码审核服务器">
+<meta property="og:url" content="http://chuquan.me/2017/12/12/ubuntu-gerrit-apache/index.html">
+<meta property="og:site_name" content="包楚权的博客">
+<meta property="og:description" content="我们公司采用Gerrit作为代码审核服务器并结合JIRA、Jenkins等开源工具，组成了一个完整项目管理平台。某天，我兴致来了，也想在自己的服务器上搭建一个Gerrit。于是，便有了以下内容… 一、Gerrit介绍Gerrit的目的是提供一个轻量级的框架来review每一个commit，review通过之后，commit会被合入代码库。 Gerrit是一个中间区域，可以看到提交至Gerrit上的">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/central-source-repository.png?x-oss-process=image/resize,w_570">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gerrit-in-place-of-central-repository.png?x-oss-process=image/resize,w_570">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/proxy-both.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/apache-gerrit-blog.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/gerrit-configure-error.png">
+<meta property="og:updated_time" content="2018-02-07T05:08:33.376Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ubuntu + Gerrit + Apache 搭建代码审核服务器">
+<meta name="twitter:description" content="我们公司采用Gerrit作为代码审核服务器并结合JIRA、Jenkins等开源工具，组成了一个完整项目管理平台。某天，我兴致来了，也想在自己的服务器上搭建一个Gerrit。于是，便有了以下内容… 一、Gerrit介绍Gerrit的目的是提供一个轻量级的框架来review每一个commit，review通过之后，commit会被合入代码库。 Gerrit是一个中间区域，可以看到提交至Gerrit上的">
+<meta name="twitter:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/central-source-repository.png?x-oss-process=image/resize,w_570">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2017/12/12/ubuntu-gerrit-apache/"/>
+
+
+
+
+
+  <title>Ubuntu + Gerrit + Apache 搭建代码审核服务器 | 包楚权的博客</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">包楚权的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/index.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2017/12/12/ubuntu-gerrit-apache/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="包楚权">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/slamdunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="包楚权的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Ubuntu + Gerrit + Apache 搭建代码审核服务器</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-12T23:23:33+08:00">
+                2017-12-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/软件/" itemprop="url" rel="index">
+                    <span itemprop="name">软件</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我们公司采用Gerrit作为代码审核服务器并结合JIRA、Jenkins等开源工具，组成了一个完整项目管理平台。某天，我兴致来了，也想在自己的服务器上搭建一个Gerrit。于是，便有了以下内容…</p>
+<h1 id="一、Gerrit介绍"><a href="#一、Gerrit介绍" class="headerlink" title="一、Gerrit介绍"></a>一、Gerrit介绍</h1><p>Gerrit的目的是提供一个轻量级的框架来review每一个commit，review通过之后，commit会被合入代码库。</p>
+<p>Gerrit是一个中间区域，可以看到提交至Gerrit上的代码相对于服务器代码仓库中代码的差异，从而便于检查代码的改动。Gerrit也是整个代码review的推动者。</p>
+<p>任何拥有多个成员的团队都应该有一个中央代码仓库。 Git在理论上可以在没有这样的中心位置的情况下工作，但实际上通常有一个中央仓库库作为项目实际内容的权威副本。 开发者从该中央仓库fetch和push</p>
+<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/central-source-repository.png?x-oss-process=image/resize,w_570" alt=""></div>
+
+<p>Gerrit被部署在上图的中央仓库的位置，并增加一个新的概念：<strong>a store of pending changes（未决的修改）</strong>。每个人仍然可以从中央仓库fetch，但是push操作则有所变化，push操作会直接push到中央仓库，而是push到了<strong>pending changes location</strong>，以供review。只有在commit通过了review之后，才会被submit到中央仓库。如下图所示。</p>
+<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gerrit-in-place-of-central-repository.png?x-oss-process=image/resize,w_570" alt=""></div>
+
+<p>Gerrit具有强大的访问控制模型。用户可以被授予访问权限，绕过review，直接推送到中央仓库。Gerrit甚至可以在没有代码review的情况下使用，只用于托管仓库和访问控制。</p>
+<h1 id="二、应用场景"><a href="#二、应用场景" class="headerlink" title="二、应用场景"></a>二、应用场景</h1><p>在安装gerrit之前，我使用<code>node</code>在服务器上部署了一个站点，也就是本博客，其占用了<code>80</code>端口。</p>
+<p>在安装gerrit之后，我的服务器又将多出一个站点，用户该如何访问？我又该如何部署呢？这时候，我们就需要了解一下<code>反向代理</code>和<code>端口转发</code>了。</p>
+<h2 id="1-正向代理与反向代理"><a href="#1-正向代理与反向代理" class="headerlink" title="1. 正向代理与反向代理"></a>1. 正向代理与反向代理</h2><p>如下所示为正向代理和反向代理的示意图。一般来说，我们会把正向代理是与客户端划为一体，把反向代理和服务器划为一体。</p>
+<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/proxy-both.png" alt=""></div>
+
+<p>此时，重新思考一下我们的应用场景：博客是一个web服务器，gerrit是一个web服务器，apache作为反向代理，这样就可以满足我们的需求了。</p>
+<p>那么反向代理到底是如何做到的呢？答案就是<code>端口转发</code>。</p>
+<p>我们知道在浏览器输入网址后，它会在解析后的IP地址之后加上一个默认的端口号<code>80</code>。所以，我们访问<code>chuquan.me</code>时就不需要输入完整的地址<code>chuquan.me:80</code>了。正因为如此，绝大多数服务器软件（包括apache）的默认监听端口也是<code>80</code>。</p>
+<p>在安装了apache之后，<code>80</code>端口被apache占用了。因此，gerrit和博客都不能使用<code>80</code>端口了。这时候，我们需要给这两个站点配置使用其他的端口号，如：gerrit的HTTP协议使用<code>8081</code>端口，博客使用<code>8082</code>端口。它们与apache之间使用<code>端口转发</code>来实现<code>反向代理</code>。</p>
+<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/apache-gerrit-blog.png" alt=""></div>
+
+<h1 id="三、开发环境"><a href="#三、开发环境" class="headerlink" title="三、开发环境"></a>三、开发环境</h1><ul>
+<li>Ubuntu 14.04.5 LTS</li>
+<li>Java 1.8.0_151</li>
+<li>Git 1.9.1</li>
+<li>Apache/2.4.7 </li>
+</ul>
+<h1 id="四、安装Gerrit"><a href="#四、安装Gerrit" class="headerlink" title="四、安装Gerrit"></a>四、安装Gerrit</h1><h2 id="1-新建专用用户"><a href="#1-新建专用用户" class="headerlink" title="1. 新建专用用户"></a>1. 新建专用用户</h2><p>新建一个用户来专门管理Gerrit相关内容。在root用户下新建一个gerrit用户。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ adduser gerrit</span><br><span class="line">$ su gerrit</span><br></pre></td></tr></table></figure></p>
+<h2 id="2-下载Gerrit安装包"><a href="#2-下载Gerrit安装包" class="headerlink" title="2. 下载Gerrit安装包"></a>2. 下载Gerrit安装包</h2><p>Gerrit下载地址：<a href="https://www.gerritcodereview.com/releases/2.14.md" target="_blank" rel="noopener">https://www.gerritcodereview.com/releases/2.14.md</a></p>
+<p>我安装的Gerrit版本是2.14.6。在Linux环境下使用<code>wget</code>进行下载，最终得到一个<code>war</code>包，位于<code>/home/gerrit/</code>目录下。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wget https://gerrit-releases.storage.googleapis.com/gerrit-2.14.6.war</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-安装Gerrit"><a href="#3-安装Gerrit" class="headerlink" title="3. 安装Gerrit"></a>3. 安装Gerrit</h2><p>在<code>/home/gerrit/</code>目录下，进行安装：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ java -jar gerrit-2.14.6.war init -d review_site</span><br></pre></td></tr></table></figure></p>
+<p>上述命令会在当前目录下创建一个<code>review_site</code>目录。接下来就开始进行对话式安装，我们可以直接回车，表示采用默认安装选项。之后还可以通过配置文件进行详细配置。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">*** Gerrit Code Review 2.14.6</span><br><span class="line">***</span><br><span class="line">*** Git Repositories  </span><br><span class="line">***  </span><br><span class="line">Location of Git repositories   [git]:   </span><br><span class="line">*** SQL Database  </span><br><span class="line">***  </span><br><span class="line">Database server type           [h2]:   </span><br><span class="line">*** User Authentication  </span><br><span class="line">***  </span><br><span class="line">Authentication method          [OPENID/?]: http  </span><br><span class="line">Get username from custom HTTP header [y/N]?  </span><br><span class="line">SSO logout URL                 :  </span><br><span class="line">*** Email Delivery  </span><br><span class="line">***  </span><br><span class="line">SMTP server hostname           [localhost]:  </span><br><span class="line">SMTP server port               [(default)]:  </span><br><span class="line">SMTP encryption                [NONE/?]:  </span><br><span class="line">SMTP username                  :  </span><br><span class="line">*** Container Process  </span><br><span class="line">***  </span><br><span class="line">Run as                         [gerrit]:  </span><br><span class="line">Java runtime                   [/usr/lib/jvm/java-7-openjdk-amd64/jre]:  </span><br><span class="line">Copy gerrit-2.13.4.war to /home/gerrit/review/bin/gerrit.war [Y/n]?  </span><br><span class="line">Copying gerrit-2.13.4.war to /home/gerrit/review/bin/gerrit.war  </span><br><span class="line">*** SSH Daemon  </span><br><span class="line">***  </span><br><span class="line">Listen on address              [*]:  </span><br><span class="line">Listen on port                 [29418]:  </span><br><span class="line">*** HTTP Daemon  </span><br><span class="line">***  </span><br><span class="line">Behind reverse proxy           [y/N]?   </span><br><span class="line">Proxy uses SSL (https://)      [y/N]?  </span><br><span class="line">Subdirectory on proxy server   [/]:  </span><br><span class="line">Listen on address              [*]:  </span><br><span class="line">Listen on port                 [8080]:</span><br><span class="line">*** Plugins  </span><br><span class="line">***  </span><br><span class="line">Installing plugins.  </span><br><span class="line">Install plugin download-commands version v2.11 [y/N]?  </span><br><span class="line">Install plugin reviewnotes version v2.11 [y/N]?  </span><br><span class="line">Install plugin singleusergroup version v2.11 [y/N]?  </span><br><span class="line">Install plugin replication version v2.11 [y/N]?  </span><br><span class="line">Install plugin commit-message-length-validator version v2.11 [y/N]?  </span><br><span class="line">Initializing plugins.  </span><br><span class="line">No plugins found with init steps.  </span><br><span class="line">Initialized /home/gerrit/review_site</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>安装完毕，Gerrit会自动启动，不过我们大概率会启动失败，因为默认的配置并不一定与你当前的环境相匹配。不过，没关系，我们可以根据系统环境对gerrit进行配置。</p>
+<h2 id="4-Gerrit配置"><a href="#4-Gerrit配置" class="headerlink" title="4. Gerrit配置"></a>4. Gerrit配置</h2><p>Gerrit安装完成后，会在<code>review_site</code>目录下生成多个目录。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ ll review_site</span><br><span class="line">./</span><br><span class="line">../</span><br><span class="line">bin/</span><br><span class="line">cache/</span><br><span class="line">data/</span><br><span class="line">db/</span><br><span class="line">etc/</span><br><span class="line">git/</span><br><span class="line">index/</span><br><span class="line">lib/</span><br><span class="line">logs/</span><br><span class="line">plugins/</span><br><span class="line">static/</span><br><span class="line">tmp/</span><br></pre></td></tr></table></figure></p>
+<p>其中<code>etc/</code>目录下存放着gerrit的配置文件<code>gerrit.config</code>，其中已有的内容是根据安装时的选择生成的。我们可以编辑<code>gerrit.config</code>来进行配置更改。其中<code>115.28.168.118</code>是服务器的公网IP地址。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">[gerrit]</span><br><span class="line">        basePath = git</span><br><span class="line">        serverId = 084efaf9-3bf6-401c-a4b1-8778c998bde2</span><br><span class="line">        canonicalWebUrl = http://115.28.168.118 # 指定web访问Gerrit的网址或IP地址</span><br><span class="line">[database]</span><br><span class="line">        type = h2</span><br><span class="line">        database = /home/gerrit/review_site/db/ReviewDB</span><br><span class="line">[index]</span><br><span class="line">        type = LUCENE</span><br><span class="line">[auth]</span><br><span class="line">        type = HTTP # 默认是OPENID，改成HTTP后，才能通过浏览器进行访问</span><br><span class="line">[receive]</span><br><span class="line">        enableSignedPush = true</span><br><span class="line">[sendemail]</span><br><span class="line">        smtpServer = localhost</span><br><span class="line">[container]</span><br><span class="line">        user = gerrit</span><br><span class="line">        javaHome = /usr/lib/jvm/java-8-oracle/jre</span><br><span class="line">[sshd]</span><br><span class="line">        listenAddress = *:29418</span><br><span class="line">[httpd]</span><br><span class="line">        listenUrl = proxy-http://115.28.168.118:8081/ # HTTP代理地址及端口，这里我们配置成8081</span><br><span class="line">[cache]</span><br><span class="line">        directory = cache</span><br></pre></td></tr></table></figure></p>
+<h1 id="四、配置Apache"><a href="#四、配置Apache" class="headerlink" title="四、配置Apache"></a>四、配置Apache</h1><p>不同系统以及不同版本的Apache的配置文件可能会不一样，无外乎两种：<code>httpd.conf</code>、<code>apache2.conf</code>。本环境的配置文件是<code>apache2.conf</code>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cd /etc/apache2/</span><br><span class="line">$ vim apache2.conf</span><br></pre></td></tr></table></figure></p>
+<p>在配置文件的末尾添加apache的端口转发配置。如下所示<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"># Blog相关配置</span><br><span class="line">&lt;VirtualHost *:80&gt;</span><br><span class="line">	ServerName www.chuquan.me       # 用于Apache过滤检测的域名</span><br><span class="line">	ServerAlias chuquan.me</span><br><span class="line">    ProxyPass / http://115.28.168.118:8082/     # Blog正向代理转发的端口</span><br><span class="line">    ProxyPassReverse / http://localhost:8082/   # Blog反向代理转发的端口</span><br><span class="line">&lt;/VirtualHost&gt;</span><br><span class="line"># Gerrit相关配置</span><br><span class="line">&lt;VirtualHost *:80&gt;</span><br><span class="line">    ServerName gerrit.chuquan.me    # 用户Apache过滤检测的域名    </span><br><span class="line">    ProxyRequests Off</span><br><span class="line">    ProxyVia Off</span><br><span class="line">    ProxyPreserveHost On</span><br><span class="line">    &lt;Proxy *&gt;</span><br><span class="line">          Order deny,allow</span><br><span class="line">          Allow from all</span><br><span class="line">    &lt;/Proxy&gt;</span><br><span class="line">    &lt;Location /login/&gt;</span><br><span class="line">        AuthType Basic</span><br><span class="line">        AuthName &quot;Gerrit Code Review&quot;</span><br><span class="line">        Require valid-user</span><br><span class="line">        AuthBasicProvider file</span><br><span class="line">        AuthUserFile /home/gerrit/review_site/etc/passwords</span><br><span class="line">    &lt;/Location&gt;</span><br><span class="line">    AllowEncodedSlashes On</span><br><span class="line">    ProxyPass / http://115.28.168.118:8081/         # Gerrit正向代理转发的端口</span><br><span class="line">    ProxyPassReverse / http://115.28.168.118:8081/  # Gerrit反向代理转发端口，应该与ProxyPass一致</span><br><span class="line">&lt;/VirtualHost&gt;</span><br></pre></td></tr></table></figure></p>
+<h1 id="五、服务重启"><a href="#五、服务重启" class="headerlink" title="五、服务重启"></a>五、服务重启</h1><p>Apache和Gerrit配置（当然也包括blog的端口）完之后，我们需要重启服务，包括apache、gerrit，其重启命令分别如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ /etc/init.d/apache2 restart</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cd /home/gerrit/</span><br><span class="line">$ ./bin/gerrit.sh restart</span><br></pre></td></tr></table></figure>
+<h2 id="1-Gerrit启动失败"><a href="#1-Gerrit启动失败" class="headerlink" title="1. Gerrit启动失败"></a>1. Gerrit启动失败</h2><p>在执行重启Gerrit的命令后，shell很可能会出现如下的信息：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Starting Gerrit Code Review: FAILED</span><br></pre></td></tr></table></figure></p>
+<p>我在安装过程中页出现了这个问题，于是，我通过在<code>./bin/gerrit.sh</code>脚本中的首行添加了一个<code>-x</code>选项，以打印脚本执行的相关信息。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/sh -x</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>然后再执行该脚本，发现打印信息是一组循环信息。其中，当<code>TIMEOUT</code>的值递减至0时，启动失败。  </p>
+<p>经过调研发现：  </p>
+<blockquote>
+<p>Gerrit启动慢是因为java程序启动慢，导致Gerrit启动非常慢，大概需要10分钟左右，而默认的超时时间（TIMEOUT）是90秒，导致一直提示“Starting Gerrit Code Review: FAILEDStarting Gerrit Code Review: FAILED”。对此有如下两种解决方案。</p>
+</blockquote>
+<p>第一种解决方案是：修改java的<code>java.security</code>文件。首先，根据<code>gerrit.config</code>中配置<code>javaHome = /user/lib/jvm/java-8-oracle/jre</code>，找到并进入该目录，然后再进入<code>lib/security/</code>目录，修改<code>java.security</code>文件。将<code>securerandom.source=file:/dev/random</code>改为<code>securerandom.source=file:/dev/urandom</code>。由此，解决gerrit启动慢的问题。</p>
+<p>第二种解决方案是：在gerrit.conf文件中的<code>[container]</code>字段下增加`startupTimeout = 900。</p>
+<h2 id="2-反向代理异常"><a href="#2-反向代理异常" class="headerlink" title="2. 反向代理异常"></a>2. 反向代理异常</h2><p>当我们配置结束并重启之后，在浏览器中访问很有可能会得到如下的页面：<br><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/gerrit-configure-error.png" alt=""></p>
+<p>这个页面在安装过程中，出现次数不下于10次。主要是两种情况，一种是Gerrit配置文件和Apache配置文件可能配置有误。另一种情况是配置没有生效，需要多试试重启。</p>
+<h2 id="3-创建第一个Gerrit账户"><a href="#3-创建第一个Gerrit账户" class="headerlink" title="3. 创建第一个Gerrit账户"></a>3. 创建第一个Gerrit账户</h2><p>当所有问题解决完之后，通过浏览器访问Gerrit，将不会出现上面的Error界面，而是会弹出输入对话框，需要你填写账户和密码。</p>
+<p>这时候，我们需要为Gerrit创建一个账户，默认第一个创建的账户是管理员。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ touch /home/gerrit/review_site/etc/passwords</span><br><span class="line">$ htpasswd /home/gerrit/review_site/etc/passwords &quot;admin&quot;</span><br><span class="line">New password:</span><br><span class="line">Re-type new password:</span><br><span class="line">Adding password for user root</span><br></pre></td></tr></table></figure></p>
+<p>重启服务后，再用浏览器打开，登录后就出现久违的界面了！</p>
+<p>（完）</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="包楚权 WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="包楚权 Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/工具/" rel="tag"># 工具</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/10/git-rebase-merge/" rel="next" title="Git rebase与merge的区别">
+                <i class="fa fa-chevron-left"></i> Git rebase与merge的区别
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/27/ssh-protocol-practice/" rel="prev" title="SSH 协议实践">
+                SSH 协议实践 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/slamdunk.png"
+               alt="包楚权" />
+          <p class="site-author-name" itemprop="name">包楚权</p>
+           
+              <p class="site-description motion-element" itemprop="description">吸收、沉淀、积累</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一、Gerrit介绍"><span class="nav-number">1.</span> <span class="nav-text">一、Gerrit介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、应用场景"><span class="nav-number">2.</span> <span class="nav-text">二、应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-正向代理与反向代理"><span class="nav-number">2.1.</span> <span class="nav-text">1. 正向代理与反向代理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、开发环境"><span class="nav-number">3.</span> <span class="nav-text">三、开发环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#四、安装Gerrit"><span class="nav-number">4.</span> <span class="nav-text">四、安装Gerrit</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-新建专用用户"><span class="nav-number">4.1.</span> <span class="nav-text">1. 新建专用用户</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-下载Gerrit安装包"><span class="nav-number">4.2.</span> <span class="nav-text">2. 下载Gerrit安装包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-安装Gerrit"><span class="nav-number">4.3.</span> <span class="nav-text">3. 安装Gerrit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-Gerrit配置"><span class="nav-number">4.4.</span> <span class="nav-text">4. Gerrit配置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#四、配置Apache"><span class="nav-number">5.</span> <span class="nav-text">四、配置Apache</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#五、服务重启"><span class="nav-number">6.</span> <span class="nav-text">五、服务重启</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Gerrit启动失败"><span class="nav-number">6.1.</span> <span class="nav-text">1. Gerrit启动失败</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-反向代理异常"><span class="nav-number">6.2.</span> <span class="nav-text">2. 反向代理异常</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-创建第一个Gerrit账户"><span class="nav-number">6.3.</span> <span class="nav-text">3. 创建第一个Gerrit账户</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">包楚权</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

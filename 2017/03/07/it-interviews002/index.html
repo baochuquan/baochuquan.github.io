@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="HTML," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="Doctype  作用  (1) 对文档进行有效性验证： 告诉用户代理和校验器该文档的DTD  (2) 决定浏览器的呈现模式：通知浏览器读取文档时采用何种解析算法。浏览器有三种方式解析HTML文档(标准模式、怪异模式、部分怪异模式)   种类  (1) HTML 4.01: Strict, Transitional, Framset  (2) XHTML 1.0: Strict, Transiti">
+<meta name="keywords" content="HTML">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IT面试整理(2)——HTML">
+<meta property="og:url" content="http://chuquan.me/2017/03/07/it-interviews002/index.html">
+<meta property="og:site_name" content="包楚权的博客">
+<meta property="og:description" content="Doctype  作用  (1) 对文档进行有效性验证： 告诉用户代理和校验器该文档的DTD  (2) 决定浏览器的呈现模式：通知浏览器读取文档时采用何种解析算法。浏览器有三种方式解析HTML文档(标准模式、怪异模式、部分怪异模式)   种类  (1) HTML 4.01: Strict, Transitional, Framset  (2) XHTML 1.0: Strict, Transiti">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-02-07T05:08:33.376Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="IT面试整理(2)——HTML">
+<meta name="twitter:description" content="Doctype  作用  (1) 对文档进行有效性验证： 告诉用户代理和校验器该文档的DTD  (2) 决定浏览器的呈现模式：通知浏览器读取文档时采用何种解析算法。浏览器有三种方式解析HTML文档(标准模式、怪异模式、部分怪异模式)   种类  (1) HTML 4.01: Strict, Transitional, Framset  (2) XHTML 1.0: Strict, Transiti">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2017/03/07/it-interviews002/"/>
+
+
+
+
+
+  <title>IT面试整理(2)——HTML | 包楚权的博客</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">包楚权的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/index.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2017/03/07/it-interviews002/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="包楚权">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/slamdunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="包楚权的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">IT面试整理(2)——HTML</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-07T17:00:49+08:00">
+                2017-03-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/面试/" itemprop="url" rel="index">
+                    <span itemprop="name">面试</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Doctype"><a href="#Doctype" class="headerlink" title="Doctype"></a><strong>Doctype</strong></h2><hr>
+<ul>
+<li><strong>作用</strong><br>  (1) 对文档进行有效性验证： 告诉用户代理和校验器该文档的DTD<br>  (2) 决定浏览器的呈现模式：通知浏览器读取文档时采用何种解析算法。浏览器有三种方式解析HTML文档(标准模式、怪异模式、部分怪异模式)  </li>
+<li><strong>种类</strong><br>  (1) HTML 4.01: Strict, Transitional, Framset<br>  (2) XHTML 1.0: Strict, Transitional, Framset</li>
+</ul>
+<h2 id="标准模式、怪异模式"><a href="#标准模式、怪异模式" class="headerlink" title="标准模式、怪异模式"></a><strong>标准模式、怪异模式</strong></h2><hr>
+<ul>
+<li><strong>标准模式</strong>：页面按照HTML与CSS的定义渲染</li>
+<li><strong>怪异模式</strong>：浏览器为了了兼容很早之前针对旧版本浏览器设计、并未严格遵循W3C标准的网页而产生的一种页面渲染模式</li>
+</ul>
+<h2 id="语义化"><a href="#语义化" class="headerlink" title="语义化"></a><strong>语义化</strong></h2><hr>
+<p>(1) 去掉或丢失样式时能够让页面呈现出清晰的结构<br>(2) 有利于SEO：爬虫依赖于标签来确定上下文和各个关键字的权重<br>(3) 方便其他设备解析以意义的方式来渲染网页<br>(4) 可读性更好，方便团队开发</p>
+<h2 id="XHTML"><a href="#XHTML" class="headerlink" title="XHTML"></a><strong>XHTML</strong></h2><hr>
+<p>(1) 所有的标记都必须要有一个相应的结束标记<br>(2) 所有标签的元素和属性的名字都必须使用小写<br>(3) 所有的XML标记都必须合理嵌套<br>(4) 所有的属性必须用引号””括起来<br>(5) 把所有&lt;和&amp;特殊符号用编码表示<br>(6) 给所有属性赋一个值<br>(7) 不要在注释内容中使“–”<br>(8) 图片必须有说明文字</p>
+<h2 id="data-属性"><a href="#data-属性" class="headerlink" title="data-属性"></a><strong>data-属性</strong></h2><hr>
+<p>自定义属性，可通过对象的dataset属性获取，或通过getAttribute方法获取：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">data-author</span>=<span class="string">"baochuquan"</span> <span class="attr">data-time</span>=<span class="string">"2016-06-20"</span> <span class="attr">data-comment</span>=<span class="string">"10"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div.dataset.commentNum;<span class="comment">//10</span></span><br></pre></td></tr></table></figure>
+<h2 id="input的type属性【参考】"><a href="#input的type属性【参考】" class="headerlink" title="input的type属性【参考】"></a><strong>input的type属性</strong><a href="http://www.w3school.com.cn/html5/att_input_type.asp" target="_blank" rel="noopener">【参考】</a></h2><hr>
+<ul>
+<li>button</li>
+<li>checkbox</li>
+<li>color</li>
+<li>date</li>
+<li>datetime</li>
+<li>datetime-local</li>
+<li>month</li>
+<li>week</li>
+<li>time</li>
+<li>email</li>
+<li>file</li>
+<li>hidden</li>
+<li>image</li>
+<li>number</li>
+<li>password</li>
+<li>radio</li>
+<li>range</li>
+<li>reset</li>
+<li>search</li>
+<li>submit</li>
+<li>tel</li>
+<li>text</li>
+<li>url</li>
+</ul>
+<h2 id="iframe的优缺点"><a href="#iframe的优缺点" class="headerlink" title="iframe的优缺点"></a><strong>iframe的优缺点</strong></h2><hr>
+<ul>
+<li><strong>优点</strong><br>(1) 解决加载缓慢的第三方内容(如图标和广告等)的加载问题<br>(2) Security sandbox<br>(3) 并行加载脚本  </li>
+<li><strong>缺点</strong><br>(1) iframe会阻塞主页面的onload事件<br>(2) 即使内容为空，加载也需要时间<br>(3) 没有语义  </li>
+</ul>
+<h2 id="HTML表单元素【参考】"><a href="#HTML表单元素【参考】" class="headerlink" title="HTML表单元素【参考】"></a><strong>HTML表单元素</strong><a href="http://www.w3school.com.cn/html/html_form_elements.asp" target="_blank" rel="noopener">【参考】</a></h2><hr>
+<ul>
+<li>input</li>
+<li>select</li>
+<li>option</li>
+<li>textarea</li>
+<li>button</li>
+</ul>
+<h2 id="HTMl5表单元素【参考】"><a href="#HTMl5表单元素【参考】" class="headerlink" title="HTMl5表单元素【参考】"></a><strong>HTMl5表单元素</strong><a href="http://www.w3school.com.cn/html5/html_5_form_elements.asp" target="_blank" rel="noopener">【参考】</a></h2><hr>
+<ul>
+<li><code>datalist</code>: datalist元素规定输入域的选项列表，列表是通过datalist内的option元素创建的</li>
+<li><code>keygen</code>: keygen元素的作用是提供一种验证用户的可靠方法</li>
+<li><code>output</code>: output元素用于不同类型的输出，如计算或脚本输出</li>
+</ul>
+<h2 id="head标签及其内容【参考】"><a href="#head标签及其内容【参考】" class="headerlink" title="head标签及其内容【参考】"></a><strong>head标签及其内容</strong><a href="http://blog.csdn.net/puppylpg/article/details/47953181" target="_blank" rel="noopener">【参考】</a></h2><hr>
+<ul>
+<li><strong>作用</strong>: 描述了文档的各种属性和信息，包括文档的标题、在web中的位置以及和其它文档的关系等</li>
+<li><strong>内容</strong><ul>
+<li>title: 定义文档的标题，是head部分中唯一必需的元素</li>
+<li>base: 为页面上的所有链接规定默认地址或默认目标<ul>
+<li>必选: href</li>
+<li>可选: target</li>
+</ul>
+</li>
+<li>meta: 可提供有关页面的元信息，比如针对搜索引擎和更新频度的描述和关键词<ul>
+<li>必选: content</li>
+<li>可选<ul>
+<li>http-equiv(Content-Type, expires, Refresh, set-cookie)</li>
+<li>name: author, description, keywords, generator, revised, others</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>link: 链接一个外部样式表<ul>
+<li>rel, href, type, charset</li>
+</ul>
+</li>
+<li>script: 直接包含脚本，或者通过src属性指向外部脚本文件</li>
+<li>style: 为HTML文档定义样式信息</li>
+</ul>
+</li>
+</ul>
+<h2 id="块级元素、行内元素、空元素"><a href="#块级元素、行内元素、空元素" class="headerlink" title="块级元素、行内元素、空元素"></a><strong>块级元素、行内元素、空元素</strong></h2><hr>
+<ul>
+<li>块级元素<ul>
+<li>div、dl、dt、dd、ul、li、ol、p、h1-6、table、fieldset、form</li>
+</ul>
+</li>
+<li>行内元素<ul>
+<li>a、em、strong、i、img、b、label、select、textarea、sub、sup、q</li>
+</ul>
+</li>
+<li>空元素<ul>
+<li>br、hr</li>
+</ul>
+</li>
+</ul>
+<h2 id="自闭合元素"><a href="#自闭合元素" class="headerlink" title="自闭合元素"></a><strong>自闭合元素</strong></h2><hr>
+<ul>
+<li>自闭合标签不加斜杠，如: br, link</li>
+</ul>
+<h2 id="HTML5新特性"><a href="#HTML5新特性" class="headerlink" title="HTML5新特性"></a><strong>HTML5新特性</strong></h2><hr>
+<ul>
+<li>新的文档类型：&lt;!DOCTYPR html&gt;</li>
+<li>脚本和链接不需要type：</li>
+<li>语义标签：header、footer</li>
+<li>hgroup</li>
+<li>标记元素：mark</li>
+<li>图形元素：figure</li>
+<li>必要属性：require</li>
+<li>音频视频：video, audio</li>
+<li>正则表达式：pattern属性</li>
+<li>canvas API：栅格图形API</li>
+<li>SVG：矢量图形API</li>
+<li>Geolocation API</li>
+<li>Communication API</li>
+<li>WebSockets API</li>
+<li>Form API</li>
+<li>Web Works API</li>
+<li>Web Storage API</li>
+</ul>
+<h2 id="置换元素、不可置换元素"><a href="#置换元素、不可置换元素" class="headerlink" title="置换元素、不可置换元素"></a><strong>置换元素、不可置换元素</strong></h2><hr>
+<ul>
+<li>置换元素<ul>
+<li>定义：浏览器根据元素的标签和属性，来决定元素的具体显示内容</li>
+<li>如：imt, input, textarea, select, object</li>
+</ul>
+</li>
+<li>不可替换元素<ul>
+<li>定义：其内容直接呈现给用户</li>
+</ul>
+</li>
+</ul>
+<h2 id="meta标签【参考】"><a href="#meta标签【参考】" class="headerlink" title="meta标签【参考】"></a><strong>meta标签</strong><a href="http://www.jb51.net/web/158860.html" target="_blank" rel="noopener">【参考】</a></h2><hr>
+<ul>
+<li><strong>作用</strong><ul>
+<li>通常用来为搜索引擎robots定义页面主题，或者是定义用户浏览器上的cookie；</li>
+<li>可以用于鉴别作者，设定页面格式，标注内容提要和关键字；</li>
+<li>可以设置页面使其可以根据自己定义的时间间隔刷新自己</li>
+<li>设置RASC内容等级</li>
+</ul>
+</li>
+<li><strong>分类</strong><br>  (1) http-equiv: HTTP标题信息<pre><code>- Content-Type、Content-Language
+    - 说明: 设定页面使用的字符集，用以说明主页只做所使用的文字及语言
+    - 用法
+        - &lt;meta http-equiv=&quot;Content-Type&quot; Content=&quot;text/html; Charset=gb2312&quot;&gt;
+        - &lt;meta http-equiv=&quot;Content-Language&quot; Content=&quot;zh-CN&quot;&gt;
+- Refresh
+    - 说明: 让网页多长时间刷新自己，或在多长时间后让网页自动链接到其他网页
+    - 用法
+        - &lt;meta http-equiv=&quot;Refresh&quot; Content=&quot;30&quot;&gt;
+        - &lt;meta http-equiv=&quot;Refresh&quot; Content=&quot;5;Url=&quot;http://www.baidu.com&quot;&gt;
+- Expires
+    - 说明: 指定网页在缓存中的过期时间，一旦网页过期，必须到服务器上重新调整
+        - &lt;meta http-equiv=&quot;Expires&quot; Content=&quot;0&quot;&gt;
+        - &lt;meta http-equiv=&quot;Expires&quot; Content=&quot;Wed, 26 Feb 1997 08:21:57 GMT&quot;&gt;
+- Pragma(cache模式)
+    - 说明: 禁止浏览器从本地机的缓存中调阅页面内容
+- Set-Cookie(cookie设定)
+</code></pre>  (2) name: 页面描述信息</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="包楚权 WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="包楚权 Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/HTML/" rel="tag"># HTML</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/02/it-interviews001/" rel="next" title="IT面试整理(1)——网络">
+                <i class="fa fa-chevron-left"></i> IT面试整理(1)——网络
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/17/it-interviews003/" rel="prev" title="IT面试整理(3)——CSS">
+                IT面试整理(3)——CSS <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/slamdunk.png"
+               alt="包楚权" />
+          <p class="site-author-name" itemprop="name">包楚权</p>
+           
+              <p class="site-description motion-element" itemprop="description">吸收、沉淀、积累</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Doctype"><span class="nav-number">1.</span> <span class="nav-text">Doctype</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#标准模式、怪异模式"><span class="nav-number">2.</span> <span class="nav-text">标准模式、怪异模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#语义化"><span class="nav-number">3.</span> <span class="nav-text">语义化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XHTML"><span class="nav-number">4.</span> <span class="nav-text">XHTML</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#data-属性"><span class="nav-number">5.</span> <span class="nav-text">data-属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#input的type属性【参考】"><span class="nav-number">6.</span> <span class="nav-text">input的type属性【参考】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iframe的优缺点"><span class="nav-number">7.</span> <span class="nav-text">iframe的优缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTML表单元素【参考】"><span class="nav-number">8.</span> <span class="nav-text">HTML表单元素【参考】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTMl5表单元素【参考】"><span class="nav-number">9.</span> <span class="nav-text">HTMl5表单元素【参考】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#head标签及其内容【参考】"><span class="nav-number">10.</span> <span class="nav-text">head标签及其内容【参考】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#块级元素、行内元素、空元素"><span class="nav-number">11.</span> <span class="nav-text">块级元素、行内元素、空元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自闭合元素"><span class="nav-number">12.</span> <span class="nav-text">自闭合元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTML5新特性"><span class="nav-number">13.</span> <span class="nav-text">HTML5新特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#置换元素、不可置换元素"><span class="nav-number">14.</span> <span class="nav-text">置换元素、不可置换元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#meta标签【参考】"><span class="nav-number">15.</span> <span class="nav-text">meta标签【参考】</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">包楚权</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

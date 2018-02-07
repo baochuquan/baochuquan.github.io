@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="CSS," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="盒子模型【参考】  组成: content、padding、border、margin 标准盒模型 width/height = content   IE盒模型 width/height = content + padding + border    行级元素、块级元素的区别  块级元素: margin、padding可设置 行级元素: margin、padding水平方向可设置；竖直方向不可设置">
+<meta name="keywords" content="CSS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IT面试整理(3)——CSS">
+<meta property="og:url" content="http://chuquan.me/2017/03/17/it-interviews003/index.html">
+<meta property="og:site_name" content="包楚权的博客">
+<meta property="og:description" content="盒子模型【参考】  组成: content、padding、border、margin 标准盒模型 width/height = content   IE盒模型 width/height = content + padding + border    行级元素、块级元素的区别  块级元素: margin、padding可设置 行级元素: margin、padding水平方向可设置；竖直方向不可设置">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-02-07T05:08:33.376Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="IT面试整理(3)——CSS">
+<meta name="twitter:description" content="盒子模型【参考】  组成: content、padding、border、margin 标准盒模型 width/height = content   IE盒模型 width/height = content + padding + border    行级元素、块级元素的区别  块级元素: margin、padding可设置 行级元素: margin、padding水平方向可设置；竖直方向不可设置">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2017/03/17/it-interviews003/"/>
+
+
+
+
+
+  <title>IT面试整理(3)——CSS | 包楚权的博客</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">包楚权的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/index.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2017/03/17/it-interviews003/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="包楚权">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/slamdunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="包楚权的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">IT面试整理(3)——CSS</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-17T17:38:00+08:00">
+                2017-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/面试/" itemprop="url" rel="index">
+                    <span itemprop="name">面试</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="盒子模型【参考】"><a href="#盒子模型【参考】" class="headerlink" title="盒子模型【参考】"></a><strong>盒子模型</strong><a href="http://www.cnblogs.com/cchyao/archive/2010/07/12/1775846.html" target="_blank" rel="noopener">【参考】</a></h2><hr>
+<ul>
+<li>组成: content、padding、border、margin</li>
+<li>标准盒模型<ul>
+<li>width/height = content</li>
+</ul>
+</li>
+<li>IE盒模型<ul>
+<li>width/height = content + padding + border</li>
+</ul>
+</li>
+</ul>
+<h2 id="行级元素、块级元素的区别"><a href="#行级元素、块级元素的区别" class="headerlink" title="行级元素、块级元素的区别"></a><strong>行级元素、块级元素的区别</strong></h2><hr>
+<ul>
+<li>块级元素: margin、padding可设置</li>
+<li>行级元素: margin、padding水平方向可设置；竖直方向不可设置</li>
+</ul>
+<h2 id="浮动及其原理"><a href="#浮动及其原理" class="headerlink" title="浮动及其原理"></a><strong>浮动及其原理</strong></h2><hr>
+<ul>
+<li>脱离文档流，不占据空间。浮动元素碰到包含它的边框或者浮动元素的边框停留</li>
+<li>缺点<br>  (1) 父元素的高度无法被撑开，影响与父元素同级的元素<br>  (2) 与浮动元素同级的非浮动元素（内联元素）会跟随其后<br>  (3) 若非第一个元素浮动，则该元素之前的元素也需要浮动，否则会影响页面显示的结构</li>
+<li>清除方法<br>  (1) clear:both清除浮动<br>  (2) 父级div定义overflow:auto<pre><code>overflow有三个值: hidden, auto, visible; hidden, auto可用来清除浮动, auto对SEO更友好
+</code></pre>  (3) :after方法</li>
+</ul>
+<h2 id="line-height"><a href="#line-height" class="headerlink" title="line-height"></a><strong>line-height</strong></h2><hr>
+<h2 id="CSS-hack"><a href="#CSS-hack" class="headerlink" title="CSS hack"></a><strong>CSS hack</strong></h2><hr>
+<ul>
+<li>定义: 针对不同浏览器/版本而写CSS的过程叫做CSS hack</li>
+<li>三种方法<br>  (1) IE条件注释法: 即在正常代码之外添加判断IE浏览器或对应版本的条件注释，符合条件的浏览器或版本号才会执行里面的代码。<pre><code>- &lt;!-- [if IE]&gt;要执行的代码&lt;![endif]--&gt;
+- &lt;!-- [if lt LE 8]&gt;要执行的代码&lt;![endif]--&gt;
+- &lt;!-- [if ! IE 8]&gt;要执行的代码&lt;![endif]--&gt;
+</code></pre>  (2) CSS属性前缀法: 即给CSS的属性添加前缀。比如: <em>可以被IE6/IE7识别，_只能被IE6识别，”\9”可以被IE6-IE10识别，IE6不能识别!important，Firefox不能识别</em>,_,\9<pre><code>- #example{ color: #111; color: #222\9; *color: #333; _color: #444; }
+</code></pre>  (3) 选择器前缀法: 即给选择器加上前缀<pre><code>- *div{ color: red; }
+- *+div{ color: red; }
+</code></pre></li>
+</ul>
+<h2 id="background-属性"><a href="#background-属性" class="headerlink" title="background-属性"></a><strong>background-属性</strong></h2><hr>
+<ul>
+<li>background-color: 规定要使用的背景颜色<ul>
+<li>color-name</li>
+<li>hex-number</li>
+<li>rgb-number</li>
+<li>transparent</li>
+<li>inherit</li>
+</ul>
+</li>
+<li>background-position: 规定背景图像的位置<ul>
+<li>top/left/bottom/right/center</li>
+<li>x% y%</li>
+<li>xpos ypos</li>
+</ul>
+</li>
+<li>background-size: 规定背景图片尺寸<ul>
+<li>length</li>
+<li>percentage</li>
+<li>cover</li>
+<li>contain</li>
+</ul>
+</li>
+<li>background-repeat: 规定如何重复背景图像<ul>
+<li>repeat</li>
+<li>repeat-x</li>
+<li>repeat-y</li>
+<li>no-repeat</li>
+<li>inherit</li>
+</ul>
+</li>
+<li>background-origin: 规定背景的定位区域<ul>
+<li>padding-box</li>
+<li>border-box</li>
+<li>content-box</li>
+</ul>
+</li>
+<li>background-clip: 规定背景的绘制区域<ul>
+<li>border-box</li>
+<li>padding-box</li>
+<li>content-box</li>
+</ul>
+</li>
+<li>background-attachment: 规定背景图像是否固定或者随着页面的其余部分滚动<ul>
+<li>scroll</li>
+<li>fixed</li>
+<li>inherit</li>
+</ul>
+</li>
+<li>background-image: 规定要使用的背景图像<ul>
+<li>url(‘URL’)</li>
+<li>none</li>
+<li>inherit</li>
+</ul>
+</li>
+</ul>
+<h2 id="display-none和visibility-hidden的区别"><a href="#display-none和visibility-hidden的区别" class="headerlink" title="display:none和visibility: hidden的区别"></a><strong>display:none和visibility: hidden的区别</strong></h2><hr>
+<ul>
+<li>display: none 隐藏对应的元素，在文档布局中不分配空间；   </li>
+<li>visibility: hidden 隐藏对应的元素，但是在文档布局中仍然保留员阿里的空间</li>
+</ul>
+<h2 id="link、-import"><a href="#link、-import" class="headerlink" title="link、@import"></a><strong>link、@import</strong></h2><hr>
+<ul>
+<li>link属于HTML标签；而@import是CSS提供的</li>
+<li>页面被加载时，link会被同时加载，而@import引用的CSS会等到页面被加载完再加载</li>
+<li>link方式的样式的权重高于@import的权重</li>
+</ul>
+<h2 id="position-absolute和float的区别"><a href="#position-absolute和float的区别" class="headerlink" title="position: absolute和float的区别"></a><strong>position: absolute和float的区别</strong></h2><hr>
+<ul>
+<li>共同点: 对内联元素<code>float</code>和<code>absolute</code>属性，可以让元素脱离文档流，并且可以设置其宽高  </li>
+<li>不同点: <code>float</code>仍会占据位置，<code>position</code>会覆盖文档流中的其他元素</li>
+</ul>
+<h2 id="relative、absolute、fixed、static"><a href="#relative、absolute、fixed、static" class="headerlink" title="relative、absolute、fixed、static"></a><strong>relative、absolute、fixed、static</strong></h2><hr>
+<p>absolute: 生成绝对定位的元素，相对于最近一级的定位不是<code>static</code>的父元素来进行定位<br>fixed: 生成绝对定位的元素，相对于浏览器窗口进行定位<br>relative: 生成相对定位的元素，相对于其在普通流中的位置进行定位<br>static: 默认值。没有定位，元素出现在正常的流中</p>
+<h2 id="box-sizing"><a href="#box-sizing" class="headerlink" title="box-sizing"></a><strong>box-sizing</strong></h2><hr>
+<p>content-box: 让元素维持W3C的标准盒模型<br>border-box: 让元素位置IE传统盒模型</p>
+<h2 id="CSS选择器"><a href="#CSS选择器" class="headerlink" title="CSS选择器"></a><strong>CSS选择器</strong></h2><hr>
+<p>(1) id选择器(#myId)<br>(2) 类选择器(.myclassname)<br>(3) 标签选择器(div, h1, p)<br>(4) 相邻选择器(h1 + p)<br>(5) 子选择器(ul &gt; li)<br>(6) 后代选择器(li a)<br>(7) 通配符选择器(*)<br>(8) 属性选择器(a[rel=”external”])<br>(9) 伪类选择器(a: hover, li:nth-child)  </p>
+<h2 id="CSS选择器【参考】"><a href="#CSS选择器【参考】" class="headerlink" title="CSS选择器【参考】"></a><strong>CSS选择器</strong><a href="http://www.w3school.com.cn/cssref/css_selectors.asp" target="_blank" rel="noopener">【参考】</a></h2><h2 id="CSS伪类、伪元素"><a href="#CSS伪类、伪元素" class="headerlink" title="CSS伪类、伪元素"></a><strong>CSS伪类、伪元素</strong></h2><hr>
+<ul>
+<li><strong>伪类</strong><ul>
+<li>定义: 基于当前元素所处的状态，或者说元素所具有的特性，而不是元素的id、class、属性等静态的标志。</li>
+<li>:link</li>
+<li>:visited</li>
+<li>:hover</li>
+<li>:active</li>
+<li>:focus</li>
+<li>:first-child</li>
+<li>:lang</li>
+</ul>
+</li>
+<li><strong>伪元素</strong><ul>
+<li>定义: 目的是获取诸如元素内容第一个字、第一行，获取某些内容前面或后面这种普通的选择器无法完成的工作。  </li>
+<li>:first-letter</li>
+<li>:first-line</li>
+<li>:before</li>
+<li>:after</li>
+</ul>
+</li>
+</ul>
+<h2 id="CSS可被继承、不可被继承的样式"><a href="#CSS可被继承、不可被继承的样式" class="headerlink" title="CSS可被继承、不可被继承的样式"></a><strong>CSS可被继承、不可被继承的样式</strong></h2><hr>
+<p><strong>可继承</strong>: font-size, font-family, color, text-indent<br><strong>不可继承</strong>: border, padding, margin, width, height</p>
+<h2 id="CSS优先级"><a href="#CSS优先级" class="headerlink" title="CSS优先级"></a><strong>CSS优先级</strong></h2><hr>
+<p>!important &gt; 内联 &gt; id &gt; class &gt; tag &gt; 默认样式</p>
+<h2 id="class属性覆盖"><a href="#class属性覆盖" class="headerlink" title="class属性覆盖"></a><strong>class属性覆盖</strong></h2><hr>
+<p>当存在多个类名时，类名的位置不会对属性的渲染产生影响。只有在style中定义的位置才会有影响，同一条属性，后面的定义会覆盖前面的定义</p>
+<h2 id="CSS选择器权重"><a href="#CSS选择器权重" class="headerlink" title="CSS选择器权重"></a><strong>CSS选择器权重</strong></h2><hr>
+<ul>
+<li>通用选择器: 0-0-0</li>
+<li>标签选择器，伪元素: 0-0-1</li>
+<li>类选择器，属性选择器，伪类: 0-1-0</li>
+<li>ID选择器: 1-0-0</li>
+</ul>
+<h2 id="em-rem-px【参考】"><a href="#em-rem-px【参考】" class="headerlink" title="em, rem, px【参考】"></a><strong>em, rem, px</strong><a href="http://www.cnblogs.com/leejersey/p/3662612.html" target="_blank" rel="noopener">【参考】</a></h2><hr>
+<ul>
+<li>px: 像素。相对长度单位。像素px是相对显示器屏幕分辨率而言的</li>
+<li>em: 相对长度单位。相对于当前对象内文本的字体尺寸。如果当前对内文本的字体尺寸未被人为设置，则相对于浏览器的默认字体尺寸。</li>
+<li>rem: 相对长度单位。相对于HTML根元素。既可以做到只修改根元素就成比例地调整所有字体大小，又可以避免字体大小逐层复合的连锁反应</li>
+</ul>
+<h2 id="CSS3新特性"><a href="#CSS3新特性" class="headerlink" title="CSS3新特性"></a><strong>CSS3新特性</strong></h2><hr>
+<ul>
+<li>边框：border-radius、box-shadow、border-image</li>
+<li>背景：background-size、background-origin</li>
+<li>文本：text-shadow、word-wrap</li>
+<li>字体：@font-face</li>
+<li>2D转换：transform、translate()、rotate()、scale()、skew()、matrix()</li>
+<li>3D转换：rotateX()、rotateY()</li>
+<li>过度：transition</li>
+<li>动画：@keyframes、animation<h2 id="水平垂直居中【参考】"><a href="#水平垂直居中【参考】" class="headerlink" title="水平垂直居中【参考】"></a><strong>水平垂直居中</strong><a href="https://segmentfault.com/a/1190000006245264" target="_blank" rel="noopener">【参考】</a></h2></li>
+</ul>
+<hr>
+<p>(1) 绝对定位 + 负margin</p>
+<pre><code>- 优点: 兼容性好
+- 缺点: 需要知道宽高，不够灵活
+</code></pre><p>(2) 绝对定位 + Transform</p>
+<pre><code>- 优点: 不需要知道宽高，灵活
+- 缺点: 兼容性不好，在移动设备上建议使用
+</code></pre><p>(3) 绝对定位 + 自动margin</p>
+<pre><code>- 优点: 灵活性兼容性好
+- 缺点: 适用于本身有尺寸的元素，如图片，对于段落等必须显示设置其宽高
+</code></pre><p>(4) CSS3 flexbox </p>
+<pre><code>- 优点: 不需要知道宽高
+- 缺点: 兼容性不好，在移动设备上建议使用
+</code></pre><p>(5) table display</p>
+<pre><code>- 优点: 兼容性好    
+- 缺点: 增加了无用的html结构
+</code></pre><h2 id="两列布局"><a href="#两列布局" class="headerlink" title="两列布局"></a><strong>两列布局</strong></h2><hr>
+<p>(1) 左浮动 + 右margin<br>(2) 左绝对定位 + 右margin<br>(3) flex实现两列布局: 设置为flex布局后，子元素的float、clear、 vertical-align属性将失效<br>(4) calc实现两列布局: 使用百分比、em、px、rem单位值计算出其宽度或者高度。通过对右div设置width: calc(100%-100px)来实现自适应布局<br>(5) float + margin负值</p>
+<pre><code>- 给右边的div外面套上一个父div，然后让父div的宽度设为100%。对父div的宽度设为100%
+</code></pre><h2 id="水平居中【参考】"><a href="#水平居中【参考】" class="headerlink" title="水平居中【参考】"></a><strong>水平居中</strong><a href="https://segmentfault.com/a/1190000005353303" target="_blank" rel="noopener">【参考】</a></h2><hr>
+<ul>
+<li>行内元素<ul>
+<li>对父元素设置文本居中，如: text-align: center</li>
+<li>适用于inline, inline-block, inline-table, inline-flex</li>
+</ul>
+</li>
+<li>块级元素<ul>
+<li>margin: 0 auto</li>
+</ul>
+</li>
+<li>浮动元素</li>
+</ul>
+<h2 id="Box、Formatting-Context【参考】"><a href="#Box、Formatting-Context【参考】" class="headerlink" title="Box、Formatting Context【参考】"></a><strong>Box、Formatting Context</strong><a href="http://www.cnblogs.com/lhb25/p/inside-block-formatting-ontext.html" target="_blank" rel="noopener">【参考】</a></h2><hr>
+<ul>
+<li>Box: CSS布局的基本单位，一个页面由多个Box组成。元素的类型和display属性，决定了Box的类型。不同类型的Box，会参与不同的Formatting Context（一个决定如何渲染文档的容器），即Box内的元素会以不同的方式渲染。<br>  (1) block-level box: display属性为block、list-item、table的元素<br>  (2) inline-level box: display属性为inline、inline-block、inline-table的元素<br>  (3) run-in box: CSS3存在</li>
+<li>Formatting context: 页面中的一块渲染区域，并且有一套渲染规则，其决定了其子元素将如何定位，以及和其他元素的    关系和相互作用<br>  (1) BFC: Block Formatting Context<br>  (2) IFC: Inline Formatting Context<br>  (3) GFC: CSS3<br>  (4) FFC: CSS3</li>
+</ul>
+<h2 id="BFC【参考】"><a href="#BFC【参考】" class="headerlink" title="BFC【参考】"></a><strong>BFC</strong><a href="http://www.cnblogs.com/lhb25/p/inside-block-formatting-ontext.html" target="_blank" rel="noopener">【参考】</a></h2><hr>
+<ul>
+<li>定义: 块级格式化上下文。一个独立的渲染区域，只有block-level box参与，规定了内部的 block-level box如何布局。</li>
+<li>BFC布局规则<br>  (1) 内部的box会在垂直方向一个个进行放置<br>  (2) box垂直方向的距离由margin决定。属于同一个BFC的两个相邻box的margin会发生重叠<br>  (3) 每个元素的margin box的左边，与包含块border box的左边相接触。即使存在浮动也是如此。<br>  (4) BFC的区域不会与float box重叠<br>  (5) BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素<br>  (6)  计算BFC的高度时，浮动元素也参与计算</li>
+<li>生成BFC的元素<ul>
+<li>根元素</li>
+<li>float属性不为none</li>
+<li>position为absolute或fixed</li>
+<li>display为 inline-block，table-cell，table-caption，flex，inline-flex</li>
+<li>overflow不为visible</li>
+</ul>
+</li>
+</ul>
+<h2 id="边界塌陷-amp-边界重叠"><a href="#边界塌陷-amp-边界重叠" class="headerlink" title="边界塌陷 &amp; 边界重叠"></a><strong>边界塌陷 &amp; 边界重叠</strong></h2><hr>
+<p><strong>定义</strong>: CSS中存在一个margin collapse， 即边界塌陷或边界重叠。对于上下两个并列的div，上面的div的margin-bottom和下面的div的margin-top会塌陷，取两者margin的最大值</p>
+<h2 id="CSS-sprite"><a href="#CSS-sprite" class="headerlink" title="CSS sprite"></a><strong>CSS sprite</strong></h2><hr>
+<p>把网页中的一些背景图片整合到一张图片中，再利用CSS的<code>background-repeat</code>,<code>background-image</code>,<code>background-position</code>的组合进行定位</p>
+<h2 id="CSS-媒体查询【参考】"><a href="#CSS-媒体查询【参考】" class="headerlink" title="CSS 媒体查询【参考】"></a><strong>CSS 媒体查询</strong><a href="http://www.runoob.com/cssref/css3-pr-mediaquery.html" target="_blank" rel="noopener">【参考】</a></h2><hr>
+<ul>
+<li>作用: @media可以针对不同的屏幕尺寸设置不同的样式，特别是设置响应式的页面</li>
+<li>语法<ul>
+<li>@media mediatype and|not|only (mediafeature){ CSS-Code; }<ul>
+<li>如: @media screen and (max-width: 300px) { … }, @media</li>
+</ul>
+</li>
+<li>mediatype<ul>
+<li>all: 用于所有设备</li>
+<li>print: 用于打印机和打印预览</li>
+<li>screen: 用于电脑屏幕，平板电脑，智能手机等</li>
+<li>speech: 应用于屏幕阅读器等发声设备</li>
+</ul>
+</li>
+<li>mediafeature<ul>
+<li>aspect-ratio: 定义输出设备中的页面可见区域宽度和高度的比率</li>
+<li>color: 定义输出设备每一组彩色原件的个数</li>
+<li>color-index</li>
+<li>device-aspect-ratio</li>
+<li>device-height</li>
+<li>device-width</li>
+<li>grid</li>
+<li>height</li>
+<li>max-aspect-ratio</li>
+<li>max-color</li>
+<li>max-device-s</li>
+<li>…</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="font-face【参考】"><a href="#font-face【参考】" class="headerlink" title="@font-face【参考】"></a><strong>@font-face</strong><a href="http://www.runoob.com/cssref/css3-pr-font-face-rule.html" target="_blank" rel="noopener">【参考】</a></h2><hr>
+<ul>
+<li>语法: @font-face { font-properties }</li>
+<li>font-properties<ul>
+<li>font-family: 定义字体的名称(必须)</li>
+<li>src: 定义字体的下载地址(必须)</li>
+<li>font-stretch: 定义字体该如何被拉长</li>
+<li>font-style: 定义字体该是怎样的样式</li>
+<li>font-weight: 定义字体的粗细</li>
+<li>unicode-range: 定义字体支持Unicode字符的范围</li>
+</ul>
+</li>
+</ul>
+<h2 id="CSS3画一个旋转的3-4的圆环"><a href="#CSS3画一个旋转的3-4的圆环" class="headerlink" title="CSS3画一个旋转的3/4的圆环"></a><strong>CSS3画一个旋转的3/4的圆环</strong></h2><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.circle</span> &#123;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100px</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">    <span class="attribute">border-radius</span>: <span class="number">50%</span>;</span><br><span class="line">    <span class="attribute">border</span>: <span class="number">20px</span> solid black;</span><br><span class="line">    <span class="attribute">border-left-color</span>: transparent;</span><br><span class="line">    <span class="attribute">-webkit-animation</span>: mycircle <span class="number">1s</span> infinite linear;</span><br><span class="line">&#125;</span><br><span class="line">@<span class="keyword">keyframes</span> mycircle &#123;</span><br><span class="line">    <span class="selector-tag">from</span> &#123; <span class="attribute">transform</span>: <span class="built_in">rotate</span>(0deg); &#125;</span><br><span class="line">    <span class="selector-tag">to</span> &#123; <span class="attribute">transform</span>: <span class="built_in">rotate</span>(-360deg); &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="包楚权 WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="包楚权 Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/CSS/" rel="tag"># CSS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/07/it-interviews002/" rel="next" title="IT面试整理(2)——HTML">
+                <i class="fa fa-chevron-left"></i> IT面试整理(2)——HTML
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/27/it-interviews004/" rel="prev" title="IT面试整理(4)——Javascript">
+                IT面试整理(4)——Javascript <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/slamdunk.png"
+               alt="包楚权" />
+          <p class="site-author-name" itemprop="name">包楚权</p>
+           
+              <p class="site-description motion-element" itemprop="description">吸收、沉淀、积累</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#盒子模型【参考】"><span class="nav-number">1.</span> <span class="nav-text">盒子模型【参考】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#行级元素、块级元素的区别"><span class="nav-number">2.</span> <span class="nav-text">行级元素、块级元素的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#浮动及其原理"><span class="nav-number">3.</span> <span class="nav-text">浮动及其原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#line-height"><span class="nav-number">4.</span> <span class="nav-text">line-height</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSS-hack"><span class="nav-number">5.</span> <span class="nav-text">CSS hack</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#background-属性"><span class="nav-number">6.</span> <span class="nav-text">background-属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#display-none和visibility-hidden的区别"><span class="nav-number">7.</span> <span class="nav-text">display:none和visibility: hidden的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#link、-import"><span class="nav-number">8.</span> <span class="nav-text">link、@import</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#position-absolute和float的区别"><span class="nav-number">9.</span> <span class="nav-text">position: absolute和float的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#relative、absolute、fixed、static"><span class="nav-number">10.</span> <span class="nav-text">relative、absolute、fixed、static</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#box-sizing"><span class="nav-number">11.</span> <span class="nav-text">box-sizing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSS选择器"><span class="nav-number">12.</span> <span class="nav-text">CSS选择器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSS选择器【参考】"><span class="nav-number">13.</span> <span class="nav-text">CSS选择器【参考】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSS伪类、伪元素"><span class="nav-number">14.</span> <span class="nav-text">CSS伪类、伪元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSS可被继承、不可被继承的样式"><span class="nav-number">15.</span> <span class="nav-text">CSS可被继承、不可被继承的样式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSS优先级"><span class="nav-number">16.</span> <span class="nav-text">CSS优先级</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#class属性覆盖"><span class="nav-number">17.</span> <span class="nav-text">class属性覆盖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSS选择器权重"><span class="nav-number">18.</span> <span class="nav-text">CSS选择器权重</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#em-rem-px【参考】"><span class="nav-number">19.</span> <span class="nav-text">em, rem, px【参考】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSS3新特性"><span class="nav-number">20.</span> <span class="nav-text">CSS3新特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#水平垂直居中【参考】"><span class="nav-number">21.</span> <span class="nav-text">水平垂直居中【参考】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#两列布局"><span class="nav-number">22.</span> <span class="nav-text">两列布局</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#水平居中【参考】"><span class="nav-number">23.</span> <span class="nav-text">水平居中【参考】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Box、Formatting-Context【参考】"><span class="nav-number">24.</span> <span class="nav-text">Box、Formatting Context【参考】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BFC【参考】"><span class="nav-number">25.</span> <span class="nav-text">BFC【参考】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#边界塌陷-amp-边界重叠"><span class="nav-number">26.</span> <span class="nav-text">边界塌陷 &amp; 边界重叠</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSS-sprite"><span class="nav-number">27.</span> <span class="nav-text">CSS sprite</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSS-媒体查询【参考】"><span class="nav-number">28.</span> <span class="nav-text">CSS 媒体查询【参考】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#font-face【参考】"><span class="nav-number">29.</span> <span class="nav-text">@font-face【参考】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSS3画一个旋转的3-4的圆环"><span class="nav-number">30.</span> <span class="nav-text">CSS3画一个旋转的3/4的圆环</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">包楚权</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
