@@ -84,28 +84,30 @@
 
 
 
-
-
-
-  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
-
+  <link rel="alternate" href="/atom.xml" title="Bao Chuquan的博客" type="application/atom+xml" />
 
 
 
 
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
 
-<meta name="description" content="一、SSH概述类似于HTTP，SSH（Secure Shell）是一种加密的网络传输协议，常用于加密远程登录。 1995年，芬兰赫尔辛基理工大学的塔图·于勒宁因为发现自己学校存在嗅探密码的网络攻击，设计了一套保护信息传输的程序，即Secure Shell（简称SSH），其目标是取代先前的rlogin、Telnet、FTP、rsh等安全性不足的协议。如今，最为广泛使用的OpenSSH便是SSH协议的">
+
+
+
+
+
+<meta name="description" content="SSH概述类似于HTTP，SSH（Secure Shell）是一种加密的网络传输协议，常用于加密远程登录。 1995年，芬兰赫尔辛基理工大学的塔图·于勒宁因为发现自己学校存在嗅探密码的网络攻击，设计了一套保护信息传输的程序，即Secure Shell（简称SSH），其目标是取代先前的rlogin、Telnet、FTP、rsh等安全性不足的协议。如今，最为广泛使用的OpenSSH便是SSH协议的一种">
 <meta name="keywords" content="工具">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SSH 协议实践">
 <meta property="og:url" content="http://chuquan.me/2017/12/27/ssh-protocol-practice/index.html">
-<meta property="og:site_name" content="包楚权的博客">
-<meta property="og:description" content="一、SSH概述类似于HTTP，SSH（Secure Shell）是一种加密的网络传输协议，常用于加密远程登录。 1995年，芬兰赫尔辛基理工大学的塔图·于勒宁因为发现自己学校存在嗅探密码的网络攻击，设计了一套保护信息传输的程序，即Secure Shell（简称SSH），其目标是取代先前的rlogin、Telnet、FTP、rsh等安全性不足的协议。如今，最为广泛使用的OpenSSH便是SSH协议的">
+<meta property="og:site_name" content="Bao Chuquan的博客">
+<meta property="og:description" content="SSH概述类似于HTTP，SSH（Secure Shell）是一种加密的网络传输协议，常用于加密远程登录。 1995年，芬兰赫尔辛基理工大学的塔图·于勒宁因为发现自己学校存在嗅探密码的网络攻击，设计了一套保护信息传输的程序，即Secure Shell（简称SSH），其目标是取代先前的rlogin、Telnet、FTP、rsh等安全性不足的协议。如今，最为广泛使用的OpenSSH便是SSH协议的一种">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-02-07T05:08:33.376Z">
+<meta property="og:updated_time" content="2018-02-07T05:37:07.631Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SSH 协议实践">
-<meta name="twitter:description" content="一、SSH概述类似于HTTP，SSH（Secure Shell）是一种加密的网络传输协议，常用于加密远程登录。 1995年，芬兰赫尔辛基理工大学的塔图·于勒宁因为发现自己学校存在嗅探密码的网络攻击，设计了一套保护信息传输的程序，即Secure Shell（简称SSH），其目标是取代先前的rlogin、Telnet、FTP、rsh等安全性不足的协议。如今，最为广泛使用的OpenSSH便是SSH协议的">
+<meta name="twitter:description" content="SSH概述类似于HTTP，SSH（Secure Shell）是一种加密的网络传输协议，常用于加密远程登录。 1995年，芬兰赫尔辛基理工大学的塔图·于勒宁因为发现自己学校存在嗅探密码的网络攻击，设计了一套保护信息传输的程序，即Secure Shell（简称SSH），其目标是取代先前的rlogin、Telnet、FTP、rsh等安全性不足的协议。如今，最为广泛使用的OpenSSH便是SSH协议的一种">
 
 
 
@@ -140,7 +142,7 @@
 
 
 
-  <title>SSH 协议实践 | 包楚权的博客</title>
+  <title>SSH 协议实践 | Bao Chuquan的博客</title>
   
 
 
@@ -177,7 +179,7 @@
 
   <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
-
+	<a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
       <div class="header-inner"><div class="site-brand-wrapper">
   <div class="site-meta ">
@@ -186,7 +188,7 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">包楚权的博客</span>
+        <span class="site-title">Bao Chuquan的博客</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -342,11 +344,11 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="包楚权">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/slamdunk.png">
+      <meta itemprop="image" content="/images/SlamDunk.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="包楚权的博客">
+      <meta itemprop="name" content="Bao Chuquan的博客">
     </span>
 
     
@@ -366,13 +368,25 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-27T01:09:02+08:00">
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2017-12-27T01:09:02+08:00">
                 2017-12-27
               </time>
             
 
             
+              <span class="post-meta-divider">|</span>
+            
 
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2018-02-07T13:37:07+08:00">
+                2018-02-07
+              </time>
             
           </span>
 
@@ -408,6 +422,11 @@
           
 
           
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
 
           
 
@@ -426,32 +445,32 @@
       
 
       
-        <h1 id="一、SSH概述"><a href="#一、SSH概述" class="headerlink" title="一、SSH概述"></a>一、SSH概述</h1><p>类似于HTTP，SSH（Secure Shell）是一种加密的网络传输协议，常用于加密远程登录。</p>
+        <h1 id="SSH概述"><a href="#SSH概述" class="headerlink" title="SSH概述"></a>SSH概述</h1><p>类似于HTTP，SSH（Secure Shell）是一种加密的网络传输协议，常用于加密远程登录。</p>
 <p>1995年，芬兰赫尔辛基理工大学的塔图·于勒宁因为发现自己学校存在嗅探密码的网络攻击，设计了一套保护信息传输的程序，即Secure Shell（简称SSH），其目标是取代先前的<code>rlogin</code>、<code>Telnet</code>、<code>FTP</code>、<code>rsh</code>等安全性不足的协议。如今，最为广泛使用的<code>OpenSSH</code>便是SSH协议的一种免费开源实现。</p>
-<h1 id="二、基本原理"><a href="#二、基本原理" class="headerlink" title="二、基本原理"></a>二、基本原理</h1><p>SSH使用非对称加密算法实现身份验证，即采用<strong>公钥-私钥对</strong>来进行加密网络连接。私钥由用户（本地主机）自行保管，公钥由远程主机（如：服务器）保管。</p>
-<h1 id="三、应用实践"><a href="#三、应用实践" class="headerlink" title="三、应用实践"></a>三、应用实践</h1><p>下面使用<code>OpenSSH</code>进行具体实践。</p>
-<h2 id="1-SSH协议语法格式"><a href="#1-SSH协议语法格式" class="headerlink" title="1. SSH协议语法格式"></a>1. SSH协议语法格式</h2><p>SSH主要用于远程登录，如下所示为SSH协议的语法格式。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh [&lt;username&gt;@]&lt;server&gt;[:&lt;port&gt;]</span><br></pre></td></tr></table></figure></p>
-<h2 id="2-关于SSH公钥认证"><a href="#2-关于SSH公钥认证" class="headerlink" title="2. 关于SSH公钥认证"></a>2. 关于SSH公钥认证</h2><p>为实现公钥认证，作为认证的客户端一方需要拥有两个文件，即<strong>公钥-私钥对</strong>。一般公钥-私钥对文件创建在用户的主目录下的<code>.ssh</code>目录中。如果用户主目录下不存在<code>.ssh</code>目录，说明SSH公钥-私钥对尚未创建。</p>
-<h3 id="（1）创建公钥-私钥对"><a href="#（1）创建公钥-私钥对" class="headerlink" title="（1）创建公钥-私钥对"></a>（1）创建公钥-私钥对</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-keygen</span><br></pre></td></tr></table></figure>
+<h1 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h1><p>SSH使用非对称加密算法实现身份验证，即采用<strong>公钥-私钥对</strong>来进行加密网络连接。私钥由用户（本地主机）自行保管，公钥由远程主机（如：服务器）保管。</p>
+<h1 id="应用实践"><a href="#应用实践" class="headerlink" title="应用实践"></a>应用实践</h1><p>下面使用<code>OpenSSH</code>进行具体实践。</p>
+<h2 id="SSH协议语法格式"><a href="#SSH协议语法格式" class="headerlink" title="SSH协议语法格式"></a>SSH协议语法格式</h2><p>SSH主要用于远程登录，如下所示为SSH协议的语法格式。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh [&lt;username&gt;@]&lt;server&gt;[:&lt;port&gt;]</span><br></pre></td></tr></table></figure></p>
+<h2 id="关于SSH公钥认证"><a href="#关于SSH公钥认证" class="headerlink" title="关于SSH公钥认证"></a>关于SSH公钥认证</h2><p>为实现公钥认证，作为认证的客户端一方需要拥有两个文件，即<strong>公钥-私钥对</strong>。一般公钥-私钥对文件创建在用户的主目录下的<code>.ssh</code>目录中。如果用户主目录下不存在<code>.ssh</code>目录，说明SSH公钥-私钥对尚未创建。</p>
+<h3 id="创建公钥-私钥对"><a href="#创建公钥-私钥对" class="headerlink" title="创建公钥-私钥对"></a>创建公钥-私钥对</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-keygen</span><br></pre></td></tr></table></figure>
 <p>该命令会在用户主目录下创建<code>.ssh</code>目录，并在其中创建两个文件：</p>
 <ul>
 <li><code>id_rsa</code>：私钥文件。是基于RSA算法创建的。</li>
 <li><code>id_rsa.pub</code>：公钥文件。</li>
 </ul>
-<h3 id="（2）分发公钥"><a href="#（2）分发公钥" class="headerlink" title="（2）分发公钥"></a>（2）分发公钥</h3><p>创建了公钥-私钥对后，需要将公钥交给远程主机保管，这样才能在之后的登录实现无口令登录。如下命令，会将<code>.ssh</code>目录下指定的公钥文件拷贝至远程服务器。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-copy-id -i .ssh/id_rsa.pub &lt;user&gt;@&lt;server&gt;</span><br></pre></td></tr></table></figure></p>
+<h3 id="分发公钥"><a href="#分发公钥" class="headerlink" title="分发公钥"></a>分发公钥</h3><p>创建了公钥-私钥对后，需要将公钥交给远程主机保管，这样才能在之后的登录实现无口令登录。如下命令，会将<code>.ssh</code>目录下指定的公钥文件拷贝至远程服务器。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-copy-id -i .ssh/id_rsa.pub &lt;user&gt;@&lt;server&gt;</span><br></pre></td></tr></table></figure></p>
 <ul>
 <li>该命令会提示输入用户user在server上的SSH登录口令  </li>
 <li>此命令执行成功后，再以user用户用ssh命令登录server远程主机时，不必输入口令可直接登录</li>
 <li>该命令实际上是<code>.ssh/id_rsa.pub</code>公钥文件拷贝到远程主机server的user主目录下的<code>.ssh/authorized_keys</code>文件中，内容类似如下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHJu4oVxIbLS2LBH5wI7htvDxuIMZ5IFUaZjbWI8z...M4yGEWcr7OVPdQa4DIEbrrl8MzsAZ baochuquan@baochuquandeMacBoo    k-Pro.local</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<h2 id="3-关于SSH主机别名"><a href="#3-关于SSH主机别名" class="headerlink" title="3. 关于SSH主机别名"></a>3. 关于SSH主机别名</h2><p>在实际应用中，有时需要使用多套公钥/私钥对。然而，上述创建公钥-私钥对的命令只会生成默认名为<code>id_rsa</code>的密钥对。</p>
-<h3 id="（1）创建公钥-私钥对-1"><a href="#（1）创建公钥-私钥对-1" class="headerlink" title="（1）创建公钥-私钥对"></a>（1）创建公钥-私钥对</h3><p>为了创建不同的公钥/私钥对，在使用<code>ssh-keygen</code>命令时就需要通过<code>-f</code>参数指定不同的私钥名称。用法如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-keygen -f ~/.ssh/&lt;filename&gt;</span><br></pre></td></tr></table></figure></p>
+<h2 id="关于SSH主机别名"><a href="#关于SSH主机别名" class="headerlink" title="关于SSH主机别名"></a>关于SSH主机别名</h2><p>在实际应用中，有时需要使用多套公钥/私钥对。然而，上述创建公钥-私钥对的命令只会生成默认名为<code>id_rsa</code>的密钥对。</p>
+<h3 id="创建公钥-私钥对-1"><a href="#创建公钥-私钥对-1" class="headerlink" title="创建公钥-私钥对"></a>创建公钥-私钥对</h3><p>为了创建不同的公钥/私钥对，在使用<code>ssh-keygen</code>命令时就需要通过<code>-f</code>参数指定不同的私钥名称。用法如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-keygen -f ~/.ssh/&lt;filename&gt;</span><br></pre></td></tr></table></figure></p>
 <p>命令会在<code>.ssh/</code>目录下创建指定的公钥/私钥对：文件<code>&lt;filename&gt;</code>是私钥，文件<code>&lt;filename&gt;.pub</code>是公钥。</p>
-<h3 id="（2）分发公钥-1"><a href="#（2）分发公钥-1" class="headerlink" title="（2）分发公钥"></a>（2）分发公钥</h3><p>将新生成的公钥添加到远程主机登录用户主目录下的<code>.ssh/authorized_keys</code>文件中，就可以使用新创建的公钥建立到远程主机<server>的<user>账户的无口令登录：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-copy-id -i .ssh/&lt;filename&gt;.pub &lt;user&gt;@&lt;server&gt;</span><br></pre></td></tr></table></figure></user></server></p>
+<h3 id="分发公钥-1"><a href="#分发公钥-1" class="headerlink" title="分发公钥"></a>分发公钥</h3><p>将新生成的公钥添加到远程主机登录用户主目录下的<code>.ssh/authorized_keys</code>文件中，就可以使用新创建的公钥建立到远程主机<server>的<user>账户的无口令登录：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-copy-id -i .ssh/&lt;filename&gt;.pub &lt;user&gt;@&lt;server&gt;</span><br></pre></td></tr></table></figure></user></server></p>
 <p>在有多个公钥/私钥对时，默认使用<code>~/.ssh/id_rsa.pub</code>。那么如何使用新建的公钥连接server呢？</p>
-<h3 id="（3）管理本地私钥"><a href="#（3）管理本地私钥" class="headerlink" title="（3）管理本地私钥"></a>（3）管理本地私钥</h3><p>SSH的客户端配置文件<code>~/.ssh/config</code>可以通过创建主机别名，连接主机时选择用指定的私钥。例如<code>/.ssh/config</code>文件中的下列配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"># 使用默认的id_rsa私钥</span><br><span class="line">Host gerrit.zhenguanyu.com</span><br><span class="line">    Hostname gerrit.zhenguanyu.com</span><br><span class="line">    Port 29418</span><br><span class="line">    User baocq</span><br><span class="line">    </span><br><span class="line"># 使用指定的chuquan01私钥</span><br><span class="line">Host chuquan</span><br><span class="line">  user root</span><br><span class="line">  hostname 115.28.167.128</span><br><span class="line">  port 22</span><br><span class="line">  identityfile ~/.ssh/chuquan01</span><br><span class="line">      </span><br><span class="line"># 使用指定的gerrit01私钥</span><br><span class="line">Host gerrit</span><br><span class="line">  user gerrit</span><br><span class="line">  hostname 115.28.167.128</span><br><span class="line">  port 22</span><br><span class="line">  identityfile ~/.ssh/gerrit01</span><br></pre></td></tr></table></figure></p>
-<h3 id="（4）无口令远程登录"><a href="#（4）无口令远程登录" class="headerlink" title="（4）无口令远程登录"></a>（4）无口令远程登录</h3><p>执行下面的SSH登录命令，即可登录Host为<code>chuquan</code>的主机：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh chuquan</span><br></pre></td></tr></table></figure></p>
+<h3 id="管理本地私钥"><a href="#管理本地私钥" class="headerlink" title="管理本地私钥"></a>管理本地私钥</h3><p>SSH的客户端配置文件<code>~/.ssh/config</code>可以通过创建主机别名，连接主机时选择用指定的私钥。例如<code>/.ssh/config</code>文件中的下列配置<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用默认的id_rsa私钥</span></span><br><span class="line">Host gerrit.zhenguanyu.com</span><br><span class="line">    Hostname gerrit.zhenguanyu.com</span><br><span class="line">    Port 29418</span><br><span class="line">    User baocq</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 使用指定的chuquan01私钥</span></span><br><span class="line">Host chuquan</span><br><span class="line">  user root</span><br><span class="line">  hostname 115.28.167.128</span><br><span class="line">  port 22</span><br><span class="line">  identityfile ~/.ssh/chuquan01</span><br><span class="line">      </span><br><span class="line"><span class="comment"># 使用指定的gerrit01私钥</span></span><br><span class="line">Host gerrit</span><br><span class="line">  user gerrit</span><br><span class="line">  hostname 115.28.167.128</span><br><span class="line">  port 22</span><br><span class="line">  identityfile ~/.ssh/gerrit01</span><br></pre></td></tr></table></figure></p>
+<h3 id="无口令远程登录"><a href="#无口令远程登录" class="headerlink" title="无口令远程登录"></a>无口令远程登录</h3><p>执行下面的SSH登录命令，即可登录Host为<code>chuquan</code>的主机：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh chuquan</span><br></pre></td></tr></table></figure></p>
 <p>（完）</p>
 <p><strong>参考</strong><br>[1] <a href="https://zh.wikipedia.org/wiki/Secure_Shell" target="_blank" rel="noopener">Secure Shell</a><br>[2] <a href="http://www.ruanyifeng.com/blog/2011/12/ssh_remote_login.html" target="_blank" rel="noopener">SSH原理与运用（一）：远程登录</a><br>[3] <a href="http://www.ruanyifeng.com/blog/2011/12/ssh_port_forwarding.html" target="_blank" rel="noopener">SSH原理与运用（二）：远程操作与端口转发</a><br>[4] 《Git权威指南》，蒋鑫</p>
 
@@ -544,6 +563,29 @@
 
     <div class="post-spread">
       
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
@@ -592,11 +634,11 @@
       <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="/images/slamdunk.png"
+               src="/images/SlamDunk.png"
                alt="包楚权" />
           <p class="site-author-name" itemprop="name">包楚权</p>
            
-              <p class="site-description motion-element" itemprop="description">吸收、沉淀、积累</p>
+              <p class="site-description motion-element" itemprop="description">积累，沉淀，吸收，转换</p>
           
         </div>
         <nav class="site-state motion-element">
@@ -604,7 +646,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-count">30</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -626,7 +668,7 @@
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
@@ -634,6 +676,13 @@
 
         </nav>
 
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
         
 
         <div class="links-of-author motion-element">
@@ -657,6 +706,28 @@
                   
                     
                       微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
                     
                 </a>
               </span>
@@ -685,7 +756,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一、SSH概述"><span class="nav-number">1.</span> <span class="nav-text">一、SSH概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、基本原理"><span class="nav-number">2.</span> <span class="nav-text">二、基本原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、应用实践"><span class="nav-number">3.</span> <span class="nav-text">三、应用实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-SSH协议语法格式"><span class="nav-number">3.1.</span> <span class="nav-text">1. SSH协议语法格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-关于SSH公钥认证"><span class="nav-number">3.2.</span> <span class="nav-text">2. 关于SSH公钥认证</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#（1）创建公钥-私钥对"><span class="nav-number">3.2.1.</span> <span class="nav-text">（1）创建公钥-私钥对</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#（2）分发公钥"><span class="nav-number">3.2.2.</span> <span class="nav-text">（2）分发公钥</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-关于SSH主机别名"><span class="nav-number">3.3.</span> <span class="nav-text">3. 关于SSH主机别名</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#（1）创建公钥-私钥对-1"><span class="nav-number">3.3.1.</span> <span class="nav-text">（1）创建公钥-私钥对</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#（2）分发公钥-1"><span class="nav-number">3.3.2.</span> <span class="nav-text">（2）分发公钥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#（3）管理本地私钥"><span class="nav-number">3.3.3.</span> <span class="nav-text">（3）管理本地私钥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#（4）无口令远程登录"><span class="nav-number">3.3.4.</span> <span class="nav-text">（4）无口令远程登录</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SSH概述"><span class="nav-number">1.</span> <span class="nav-text">SSH概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基本原理"><span class="nav-number">2.</span> <span class="nav-text">基本原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#应用实践"><span class="nav-number">3.</span> <span class="nav-text">应用实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SSH协议语法格式"><span class="nav-number">3.1.</span> <span class="nav-text">SSH协议语法格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于SSH公钥认证"><span class="nav-number">3.2.</span> <span class="nav-text">关于SSH公钥认证</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建公钥-私钥对"><span class="nav-number">3.2.1.</span> <span class="nav-text">创建公钥-私钥对</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分发公钥"><span class="nav-number">3.2.2.</span> <span class="nav-text">分发公钥</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于SSH主机别名"><span class="nav-number">3.3.</span> <span class="nav-text">关于SSH主机别名</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建公钥-私钥对-1"><span class="nav-number">3.3.1.</span> <span class="nav-text">创建公钥-私钥对</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分发公钥-1"><span class="nav-number">3.3.2.</span> <span class="nav-text">分发公钥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#管理本地私钥"><span class="nav-number">3.3.3.</span> <span class="nav-text">管理本地私钥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#无口令远程登录"><span class="nav-number">3.3.4.</span> <span class="nav-text">无口令远程登录</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
@@ -728,7 +799,28 @@
 </div>
 
 
+
         
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
 
         
       </div>
@@ -766,6 +858,9 @@
 
 
 
+  
+  
+
 
 
 
@@ -794,6 +889,12 @@
 
   
   <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+  
+  <script type="text/javascript" src="/lib/three/three.min.js"></script>
+
+  
+  <script type="text/javascript" src="/lib/three/three-waves.min.js"></script>
 
 
   
@@ -1200,6 +1301,36 @@
   
 
   
+
+
+  
+<div id="hexo-helper-live2d">
+  <canvas id="live2dcanvas" width="150" height="300"></canvas>
+</div>
+<style>
+  #live2dcanvas{
+    position: fixed;
+    width: 150px;
+    height: 300px;
+    opacity:0.7;
+    right: 0px;
+    z-index: 999;
+    pointer-events: none;
+    bottom: -20px;
+  }
+</style>
+<script type="text/javascript" src="/live2d/device.min.js"></script>
+<script type="text/javascript">
+const loadScript = function loadScript(c,b){var a=document.createElement("script");a.type="text/javascript";"undefined"!=typeof b&&(a.readyState?a.onreadystatechange=function(){if("loaded"==a.readyState||"complete"==a.readyState)a.onreadystatechange=null,b()}:a.onload=function(){b()});a.src=c;document.body.appendChild(a)};
+(function(){
+  if((typeof(device) != 'undefined') && (device.mobile())){
+    document.getElementById("live2dcanvas").style.width = '75px';
+    document.getElementById("live2dcanvas").style.height = '150px';
+  }else
+    if (typeof(device) === 'undefined') console.error('Cannot find current-device script.');
+  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/z16.model.json", 0.5);});
+})();
+</script>
 
 </body>
 </html>
