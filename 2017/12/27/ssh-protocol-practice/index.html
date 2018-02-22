@@ -78,13 +78,13 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="工具," />
+  <meta name="keywords" content="SSH,公钥/私钥," />
 
 
 
 
 
-  <link rel="alternate" href="/atom.xml" title="Bao Chuquan的博客" type="application/atom+xml" />
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
 
 
 
@@ -97,14 +97,14 @@
 
 
 <meta name="description" content="SSH概述类似于HTTP，SSH（Secure Shell）是一种加密的网络传输协议，常用于加密远程登录。 1995年，芬兰赫尔辛基理工大学的塔图·于勒宁因为发现自己学校存在嗅探密码的网络攻击，设计了一套保护信息传输的程序，即Secure Shell（简称SSH），其目标是取代先前的rlogin、Telnet、FTP、rsh等安全性不足的协议。如今，最为广泛使用的OpenSSH便是SSH协议的一种">
-<meta name="keywords" content="工具">
+<meta name="keywords" content="SSH,公钥&#x2F;私钥">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SSH 协议实践">
 <meta property="og:url" content="http://chuquan.me/2017/12/27/ssh-protocol-practice/index.html">
-<meta property="og:site_name" content="Bao Chuquan的博客">
+<meta property="og:site_name" content="楚权的世界">
 <meta property="og:description" content="SSH概述类似于HTTP，SSH（Secure Shell）是一种加密的网络传输协议，常用于加密远程登录。 1995年，芬兰赫尔辛基理工大学的塔图·于勒宁因为发现自己学校存在嗅探密码的网络攻击，设计了一套保护信息传输的程序，即Secure Shell（简称SSH），其目标是取代先前的rlogin、Telnet、FTP、rsh等安全性不足的协议。如今，最为广泛使用的OpenSSH便是SSH协议的一种">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-02-07T05:37:07.631Z">
+<meta property="og:updated_time" content="2018-02-09T03:30:34.497Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SSH 协议实践">
 <meta name="twitter:description" content="SSH概述类似于HTTP，SSH（Secure Shell）是一种加密的网络传输协议，常用于加密远程登录。 1995年，芬兰赫尔辛基理工大学的塔图·于勒宁因为发现自己学校存在嗅探密码的网络攻击，设计了一套保护信息传输的程序，即Secure Shell（简称SSH），其目标是取代先前的rlogin、Telnet、FTP、rsh等安全性不足的协议。如今，最为广泛使用的OpenSSH便是SSH协议的一种">
@@ -142,7 +142,7 @@
 
 
 
-  <title>SSH 协议实践 | Bao Chuquan的博客</title>
+  <title>SSH 协议实践 | 楚权的世界</title>
   
 
 
@@ -188,7 +188,7 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">Bao Chuquan的博客</span>
+        <span class="site-title">楚权的世界</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -223,6 +223,16 @@
         </li>
       
         
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-categories">
           <a href="/categories" rel="section">
             
@@ -234,7 +244,7 @@
       
         
         <li class="menu-item menu-item-about">
-          <a href="/about/index.html" rel="section">
+          <a href="/about" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
             
@@ -342,13 +352,13 @@
     <link itemprop="mainEntityOfPage" href="http://chuquan.me/2017/12/27/ssh-protocol-practice/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="包楚权">
+      <meta itemprop="name" content="Bao Chuquan">
       <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/SlamDunk.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Bao Chuquan的博客">
+      <meta itemprop="name" content="楚权的世界">
     </span>
 
     
@@ -384,8 +394,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-02-07T13:37:07+08:00">
-                2018-02-07
+              <time title="更新于" itemprop="dateModified" datetime="2018-02-09T11:30:34+08:00">
+                2018-02-09
               </time>
             
           </span>
@@ -472,7 +482,12 @@
 <h3 id="管理本地私钥"><a href="#管理本地私钥" class="headerlink" title="管理本地私钥"></a>管理本地私钥</h3><p>SSH的客户端配置文件<code>~/.ssh/config</code>可以通过创建主机别名，连接主机时选择用指定的私钥。例如<code>/.ssh/config</code>文件中的下列配置<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用默认的id_rsa私钥</span></span><br><span class="line">Host gerrit.zhenguanyu.com</span><br><span class="line">    Hostname gerrit.zhenguanyu.com</span><br><span class="line">    Port 29418</span><br><span class="line">    User baocq</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 使用指定的chuquan01私钥</span></span><br><span class="line">Host chuquan</span><br><span class="line">  user root</span><br><span class="line">  hostname 115.28.167.128</span><br><span class="line">  port 22</span><br><span class="line">  identityfile ~/.ssh/chuquan01</span><br><span class="line">      </span><br><span class="line"><span class="comment"># 使用指定的gerrit01私钥</span></span><br><span class="line">Host gerrit</span><br><span class="line">  user gerrit</span><br><span class="line">  hostname 115.28.167.128</span><br><span class="line">  port 22</span><br><span class="line">  identityfile ~/.ssh/gerrit01</span><br></pre></td></tr></table></figure></p>
 <h3 id="无口令远程登录"><a href="#无口令远程登录" class="headerlink" title="无口令远程登录"></a>无口令远程登录</h3><p>执行下面的SSH登录命令，即可登录Host为<code>chuquan</code>的主机：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh chuquan</span><br></pre></td></tr></table></figure></p>
 <p>（完）</p>
-<p><strong>参考</strong><br>[1] <a href="https://zh.wikipedia.org/wiki/Secure_Shell" target="_blank" rel="noopener">Secure Shell</a><br>[2] <a href="http://www.ruanyifeng.com/blog/2011/12/ssh_remote_login.html" target="_blank" rel="noopener">SSH原理与运用（一）：远程登录</a><br>[3] <a href="http://www.ruanyifeng.com/blog/2011/12/ssh_port_forwarding.html" target="_blank" rel="noopener">SSH原理与运用（二）：远程操作与端口转发</a><br>[4] 《Git权威指南》，蒋鑫</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a href="https://zh.wikipedia.org/wiki/Secure_Shell" target="_blank" rel="noopener">Secure Shell</a>  </li>
+<li><a href="http://www.ruanyifeng.com/blog/2011/12/ssh_remote_login.html" target="_blank" rel="noopener">SSH原理与运用（一）：远程登录</a>  </li>
+<li><a href="http://www.ruanyifeng.com/blog/2011/12/ssh_port_forwarding.html" target="_blank" rel="noopener">SSH原理与运用（二）：远程操作与端口转发</a>  </li>
+<li>《Git权威指南》，蒋鑫</li>
+</ol>
 
       
     </div>
@@ -493,14 +508,14 @@
 
     
       <div id="wechat" style="display: inline-block">
-        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="包楚权 WeChat Pay"/>
+        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="Bao Chuquan WeChat Pay"/>
         <p>WeChat Pay</p>
       </div>
     
 
     
       <div id="alipay" style="display: inline-block">
-        <img id="alipay_qr" src="/images/alipay.png" alt="包楚权 Alipay"/>
+        <img id="alipay_qr" src="/images/alipay.png" alt="Bao Chuquan Alipay"/>
         <p>Alipay</p>
       </div>
     
@@ -519,7 +534,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/工具/" rel="tag"># 工具</a>
+            <a href="/tags/SSH/" rel="tag"># SSH</a>
+          
+            <a href="/tags/公钥-私钥/" rel="tag"># 公钥/私钥</a>
           
         </div>
       
@@ -635,8 +652,8 @@
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/SlamDunk.png"
-               alt="包楚权" />
-          <p class="site-author-name" itemprop="name">包楚权</p>
+               alt="Bao Chuquan" />
+          <p class="site-author-name" itemprop="name">Bao Chuquan</p>
            
               <p class="site-description motion-element" itemprop="description">积累，沉淀，吸收，转换</p>
           
@@ -646,7 +663,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-count">31</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -656,10 +673,10 @@
             
             
             <div class="site-state-item site-state-categories">
-              
+              <a href="/categories/index.html">
                 <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">分类</span>
-              
+              </a>
             </div>
           
 
@@ -667,10 +684,10 @@
             
             
             <div class="site-state-item site-state-tags">
-              
-                <span class="site-state-item-count">44</span>
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">49</span>
                 <span class="site-state-item-name">标签</span>
-              
+              </a>
             </div>
           
 
@@ -756,7 +773,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SSH概述"><span class="nav-number">1.</span> <span class="nav-text">SSH概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基本原理"><span class="nav-number">2.</span> <span class="nav-text">基本原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#应用实践"><span class="nav-number">3.</span> <span class="nav-text">应用实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SSH协议语法格式"><span class="nav-number">3.1.</span> <span class="nav-text">SSH协议语法格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于SSH公钥认证"><span class="nav-number">3.2.</span> <span class="nav-text">关于SSH公钥认证</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建公钥-私钥对"><span class="nav-number">3.2.1.</span> <span class="nav-text">创建公钥-私钥对</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分发公钥"><span class="nav-number">3.2.2.</span> <span class="nav-text">分发公钥</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于SSH主机别名"><span class="nav-number">3.3.</span> <span class="nav-text">关于SSH主机别名</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建公钥-私钥对-1"><span class="nav-number">3.3.1.</span> <span class="nav-text">创建公钥-私钥对</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分发公钥-1"><span class="nav-number">3.3.2.</span> <span class="nav-text">分发公钥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#管理本地私钥"><span class="nav-number">3.3.3.</span> <span class="nav-text">管理本地私钥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#无口令远程登录"><span class="nav-number">3.3.4.</span> <span class="nav-text">无口令远程登录</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SSH概述"><span class="nav-number">1.</span> <span class="nav-text">SSH概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基本原理"><span class="nav-number">2.</span> <span class="nav-text">基本原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#应用实践"><span class="nav-number">3.</span> <span class="nav-text">应用实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SSH协议语法格式"><span class="nav-number">3.1.</span> <span class="nav-text">SSH协议语法格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于SSH公钥认证"><span class="nav-number">3.2.</span> <span class="nav-text">关于SSH公钥认证</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建公钥-私钥对"><span class="nav-number">3.2.1.</span> <span class="nav-text">创建公钥-私钥对</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分发公钥"><span class="nav-number">3.2.2.</span> <span class="nav-text">分发公钥</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于SSH主机别名"><span class="nav-number">3.3.</span> <span class="nav-text">关于SSH主机别名</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建公钥-私钥对-1"><span class="nav-number">3.3.1.</span> <span class="nav-text">创建公钥-私钥对</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分发公钥-1"><span class="nav-number">3.3.2.</span> <span class="nav-text">分发公钥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#管理本地私钥"><span class="nav-number">3.3.3.</span> <span class="nav-text">管理本地私钥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#无口令远程登录"><span class="nav-number">3.3.4.</span> <span class="nav-text">无口令远程登录</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>
@@ -783,7 +800,7 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">包楚权</span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
 </div>
 
 
@@ -1328,7 +1345,7 @@ const loadScript = function loadScript(c,b){var a=document.createElement("script
     document.getElementById("live2dcanvas").style.height = '150px';
   }else
     if (typeof(device) === 'undefined') console.error('Cannot find current-device script.');
-  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/miku.model.json", 0.5);});
+  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/hijiki.model.json", 0.5);});
 })();
 </script>
 

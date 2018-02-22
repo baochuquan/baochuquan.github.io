@@ -78,13 +78,13 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Chisel,硬件描述语言," />
+  <meta name="keywords" content="硬件描述语言,Chisel," />
 
 
 
 
 
-  <link rel="alternate" href="/atom.xml" title="Bao Chuquan的博客" type="application/atom+xml" />
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
 
 
 
@@ -97,11 +97,11 @@
 
 
 <meta name="description" content="原文链接 Introduce本文档是Chisel的手册（在Scala嵌入语言中构建硬件）。Chisel是嵌入在高级编程语言Scala中的硬件构造语言。单独的Chisel教程文档提供了使用Chisel的简单介绍，建议首先阅读。本手册提供了Chisel语言的全面概述和规范，它只是一组特殊的类定义，预定义对象和Scala中的使用约定。当你写一个Chisel程序时，你实际上是在写一个Scala程序。在本手">
-<meta name="keywords" content="Chisel,硬件描述语言">
+<meta name="keywords" content="硬件描述语言,Chisel">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Chisel手册">
 <meta property="og:url" content="http://chuquan.me/2016/12/18/chisel-manual/index.html">
-<meta property="og:site_name" content="Bao Chuquan的博客">
+<meta property="og:site_name" content="楚权的世界">
 <meta property="og:description" content="原文链接 Introduce本文档是Chisel的手册（在Scala嵌入语言中构建硬件）。Chisel是嵌入在高级编程语言Scala中的硬件构造语言。单独的Chisel教程文档提供了使用Chisel的简单介绍，建议首先阅读。本手册提供了Chisel语言的全面概述和规范，它只是一组特殊的类定义，预定义对象和Scala中的使用约定。当你写一个Chisel程序时，你实际上是在写一个Scala程序。在本手">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/chisel-node.png">
@@ -148,7 +148,7 @@
 
 
 
-  <title>Chisel手册 | Bao Chuquan的博客</title>
+  <title>Chisel手册 | 楚权的世界</title>
   
 
 
@@ -194,7 +194,7 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">Bao Chuquan的博客</span>
+        <span class="site-title">楚权的世界</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -229,6 +229,16 @@
         </li>
       
         
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-categories">
           <a href="/categories" rel="section">
             
@@ -240,7 +250,7 @@
       
         
         <li class="menu-item menu-item-about">
-          <a href="/about/index.html" rel="section">
+          <a href="/about" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
             
@@ -348,13 +358,13 @@
     <link itemprop="mainEntityOfPage" href="http://chuquan.me/2016/12/18/chisel-manual/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="包楚权">
+      <meta itemprop="name" content="Bao Chuquan">
       <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/SlamDunk.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Bao Chuquan的博客">
+      <meta itemprop="name" content="楚权的世界">
     </span>
 
     
@@ -629,14 +639,14 @@
 
     
       <div id="wechat" style="display: inline-block">
-        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="包楚权 WeChat Pay"/>
+        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="Bao Chuquan WeChat Pay"/>
         <p>WeChat Pay</p>
       </div>
     
 
     
       <div id="alipay" style="display: inline-block">
-        <img id="alipay_qr" src="/images/alipay.png" alt="包楚权 Alipay"/>
+        <img id="alipay_qr" src="/images/alipay.png" alt="Bao Chuquan Alipay"/>
         <p>Alipay</p>
       </div>
     
@@ -655,9 +665,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Chisel/" rel="tag"># Chisel</a>
-          
             <a href="/tags/硬件描述语言/" rel="tag"># 硬件描述语言</a>
+          
+            <a href="/tags/Chisel/" rel="tag"># Chisel</a>
           
         </div>
       
@@ -773,8 +783,8 @@
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/SlamDunk.png"
-               alt="包楚权" />
-          <p class="site-author-name" itemprop="name">包楚权</p>
+               alt="Bao Chuquan" />
+          <p class="site-author-name" itemprop="name">Bao Chuquan</p>
            
               <p class="site-description motion-element" itemprop="description">积累，沉淀，吸收，转换</p>
           
@@ -784,7 +794,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-count">31</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -794,10 +804,10 @@
             
             
             <div class="site-state-item site-state-categories">
-              
+              <a href="/categories/index.html">
                 <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">分类</span>
-              
+              </a>
             </div>
           
 
@@ -805,10 +815,10 @@
             
             
             <div class="site-state-item site-state-tags">
-              
-                <span class="site-state-item-count">44</span>
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">49</span>
                 <span class="site-state-item-name">标签</span>
-              
+              </a>
             </div>
           
 
@@ -921,7 +931,7 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">包楚权</span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
 </div>
 
 
@@ -1466,7 +1476,7 @@ const loadScript = function loadScript(c,b){var a=document.createElement("script
     document.getElementById("live2dcanvas").style.height = '150px';
   }else
     if (typeof(device) === 'undefined') console.error('Cannot find current-device script.');
-  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/miku.model.json", 0.5);});
+  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/hijiki.model.json", 0.5);});
 })();
 </script>
 

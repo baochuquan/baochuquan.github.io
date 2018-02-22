@@ -78,13 +78,13 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="工具," />
+  <meta name="keywords" content="Gerrit," />
 
 
 
 
 
-  <link rel="alternate" href="/atom.xml" title="Bao Chuquan的博客" type="application/atom+xml" />
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
 
 
 
@@ -97,11 +97,11 @@
 
 
 <meta name="description" content="我们公司采用Gerrit作为代码审核服务器并结合JIRA、Jenkins等开源工具，组成了一个完整项目管理平台。某天，我兴致来了，也想在自己的服务器上搭建一个Gerrit。于是，便有了以下内容… 一、Gerrit介绍Gerrit的目的是提供一个轻量级的框架来review每一个commit，review通过之后，commit会被合入代码库。 Gerrit是一个中间区域，可以看到提交至Gerrit上的">
-<meta name="keywords" content="工具">
+<meta name="keywords" content="Gerrit">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Ubuntu + Gerrit + Apache 搭建代码审核服务器">
 <meta property="og:url" content="http://chuquan.me/2017/12/12/ubuntu-gerrit-apache/index.html">
-<meta property="og:site_name" content="Bao Chuquan的博客">
+<meta property="og:site_name" content="楚权的世界">
 <meta property="og:description" content="我们公司采用Gerrit作为代码审核服务器并结合JIRA、Jenkins等开源工具，组成了一个完整项目管理平台。某天，我兴致来了，也想在自己的服务器上搭建一个Gerrit。于是，便有了以下内容… 一、Gerrit介绍Gerrit的目的是提供一个轻量级的框架来review每一个commit，review通过之后，commit会被合入代码库。 Gerrit是一个中间区域，可以看到提交至Gerrit上的">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/central-source-repository.png?x-oss-process=image/resize,w_570">
@@ -109,7 +109,7 @@
 <meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/proxy-both.png">
 <meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/apache-gerrit-blog.png">
 <meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/gerrit-configure-error.png">
-<meta property="og:updated_time" content="2018-02-07T05:11:36.090Z">
+<meta property="og:updated_time" content="2018-02-09T03:31:00.917Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Ubuntu + Gerrit + Apache 搭建代码审核服务器">
 <meta name="twitter:description" content="我们公司采用Gerrit作为代码审核服务器并结合JIRA、Jenkins等开源工具，组成了一个完整项目管理平台。某天，我兴致来了，也想在自己的服务器上搭建一个Gerrit。于是，便有了以下内容… 一、Gerrit介绍Gerrit的目的是提供一个轻量级的框架来review每一个commit，review通过之后，commit会被合入代码库。 Gerrit是一个中间区域，可以看到提交至Gerrit上的">
@@ -148,7 +148,7 @@
 
 
 
-  <title>Ubuntu + Gerrit + Apache 搭建代码审核服务器 | Bao Chuquan的博客</title>
+  <title>Ubuntu + Gerrit + Apache 搭建代码审核服务器 | 楚权的世界</title>
   
 
 
@@ -194,7 +194,7 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">Bao Chuquan的博客</span>
+        <span class="site-title">楚权的世界</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -229,6 +229,16 @@
         </li>
       
         
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-categories">
           <a href="/categories" rel="section">
             
@@ -240,7 +250,7 @@
       
         
         <li class="menu-item menu-item-about">
-          <a href="/about/index.html" rel="section">
+          <a href="/about" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
             
@@ -348,13 +358,13 @@
     <link itemprop="mainEntityOfPage" href="http://chuquan.me/2017/12/12/ubuntu-gerrit-apache/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="包楚权">
+      <meta itemprop="name" content="Bao Chuquan">
       <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/SlamDunk.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Bao Chuquan的博客">
+      <meta itemprop="name" content="楚权的世界">
     </span>
 
     
@@ -390,8 +400,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-02-07T13:11:36+08:00">
-                2018-02-07
+              <time title="更新于" itemprop="dateModified" datetime="2018-02-09T11:31:00+08:00">
+                2018-02-09
               </time>
             
           </span>
@@ -525,14 +535,14 @@
 
     
       <div id="wechat" style="display: inline-block">
-        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="包楚权 WeChat Pay"/>
+        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="Bao Chuquan WeChat Pay"/>
         <p>WeChat Pay</p>
       </div>
     
 
     
       <div id="alipay" style="display: inline-block">
-        <img id="alipay_qr" src="/images/alipay.png" alt="包楚权 Alipay"/>
+        <img id="alipay_qr" src="/images/alipay.png" alt="Bao Chuquan Alipay"/>
         <p>Alipay</p>
       </div>
     
@@ -551,7 +561,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/工具/" rel="tag"># 工具</a>
+            <a href="/tags/Gerrit/" rel="tag"># Gerrit</a>
           
         </div>
       
@@ -667,8 +677,8 @@
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/SlamDunk.png"
-               alt="包楚权" />
-          <p class="site-author-name" itemprop="name">包楚权</p>
+               alt="Bao Chuquan" />
+          <p class="site-author-name" itemprop="name">Bao Chuquan</p>
            
               <p class="site-description motion-element" itemprop="description">积累，沉淀，吸收，转换</p>
           
@@ -678,7 +688,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-count">31</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -688,10 +698,10 @@
             
             
             <div class="site-state-item site-state-categories">
-              
+              <a href="/categories/index.html">
                 <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">分类</span>
-              
+              </a>
             </div>
           
 
@@ -699,10 +709,10 @@
             
             
             <div class="site-state-item site-state-tags">
-              
-                <span class="site-state-item-count">44</span>
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">49</span>
                 <span class="site-state-item-name">标签</span>
-              
+              </a>
             </div>
           
 
@@ -815,7 +825,7 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">包楚权</span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
 </div>
 
 
@@ -1360,7 +1370,7 @@ const loadScript = function loadScript(c,b){var a=document.createElement("script
     document.getElementById("live2dcanvas").style.height = '150px';
   }else
     if (typeof(device) === 'undefined') console.error('Cannot find current-device script.');
-  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/miku.model.json", 0.5);});
+  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/hijiki.model.json", 0.5);});
 })();
 </script>
 
