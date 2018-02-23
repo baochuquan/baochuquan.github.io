@@ -475,7 +475,7 @@
 <h2 id="JSONP"><a href="#JSONP" class="headerlink" title="JSONP"></a><strong>JSONP</strong></h2><hr>
 <ul>
 <li><p>原理<br>  利用script标签没有跨域限制的”漏洞”来达到与第三方通信的目的。当本站需要通信时，本站脚本创建一个script元素，地址指向第三方的API，形如:   </p>
-  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script src=<span class="string">"http://www.example.net/api?param1=1&amp;param2=2"</span>&gt;&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script src=<span class="string">"http://www.example.net/api?param1=1&amp;param2=2"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
 <p>  并提供了一个回调函数来接收数据（函数名可约定，或通过地址参数传递）。<br>  第三方产生的响应为json数据的包装(json with padding)，形如：</p>
   <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">callback(&#123;<span class="string">"name"</span>: <span class="string">"baochuquan"</span>, <span class="string">"gender"</span>: <span class="string">"male"</span>&#125;);</span><br></pre></td></tr></table></figure>
 <p>  这样浏览器就会调用callback函数，并传递解析后json对象作为参数。本站脚本可在callback函数里处理所传入的数据。</p>
@@ -958,7 +958,7 @@ popup.postMessge(data, url);
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-count">32</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -969,7 +969,7 @@ popup.postMessge(data, url);
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -980,7 +980,7 @@ popup.postMessge(data, url);
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">49</span>
+                <span class="site-state-item-count">51</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
