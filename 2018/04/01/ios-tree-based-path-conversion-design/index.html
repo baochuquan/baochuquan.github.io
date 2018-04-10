@@ -107,7 +107,7 @@
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-vcs-lifecycle.png?x-oss-process=image/resize,w_570">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-multisubvcs-structure.png?x-oss-process=image/resize,w_250">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/tree-based-path-conversion-design.png">
-<meta property="og:updated_time" content="2018-04-01T06:39:28.711Z">
+<meta property="og:updated_time" content="2018-04-01T06:43:29.342Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="基于树的iOS页面路径转换设计">
 <meta name="twitter:description" content="需求场景在iOS客户端采集用户操作页面的完整路径，如：”首页” -&amp;gt; “搜题历史页” -&amp;gt; “题目详情页1” -&amp;gt; “名师大招”。 设计原则 易用性 可靠性  方案分析考虑到上述两个设计原则，路径转换在每个页面中的使用都不应该受限于其相对于其他页面的位置或关系。简而言之，即具备独立性和通用性。以view controller为例，路径转换在特定的生命周期阶段使用，就是符合设计原则">
@@ -398,7 +398,7 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-04-01T14:39:28+08:00">
+              <time title="更新于" itemprop="dateModified" datetime="2018-04-01T14:43:29+08:00">
                 2018-04-01
               </time>
             
@@ -460,13 +460,13 @@
 
       
         <h1 id="需求场景"><a href="#需求场景" class="headerlink" title="需求场景"></a>需求场景</h1><p>在iOS客户端采集用户操作页面的完整路径，如：”首页” -&gt; “搜题历史页” -&gt; “题目详情页1” -&gt; “名师大招”。</p>
-<h2 id="设计原则"><a href="#设计原则" class="headerlink" title="设计原则"></a>设计原则</h2><ol>
+<h1 id="设计原则"><a href="#设计原则" class="headerlink" title="设计原则"></a>设计原则</h1><ol>
 <li>易用性</li>
 <li>可靠性</li>
 </ol>
-<h2 id="方案分析"><a href="#方案分析" class="headerlink" title="方案分析"></a>方案分析</h2><p>考虑到上述两个设计原则，路径转换在每个页面中的使用都不应该受限于其相对于其他页面的位置或关系。简而言之，即具备独立性和通用性。以view controller为例，路径转换在特定的生命周期阶段使用，就是符合设计原则的。</p>
+<h1 id="方案分析"><a href="#方案分析" class="headerlink" title="方案分析"></a>方案分析</h1><p>考虑到上述两个设计原则，路径转换在每个页面中的使用都不应该受限于其相对于其他页面的位置或关系。简而言之，即具备独立性和通用性。以view controller为例，路径转换在特定的生命周期阶段使用，就是符合设计原则的。</p>
 <p>以下有两种方案：基于栈的设计、基于多叉树的设计。下面依次进行分析。</p>
-<h3 id="基于栈的设计"><a href="#基于栈的设计" class="headerlink" title="基于栈的设计"></a>基于栈的设计</h3><p>下图所示为两个View Controller切换时，各个VC的生命周期的切换顺序，其中A为父VC，B为子VC。为遵循上述设计原则，我们希望能够在特定生命周期进行push/pop操作。合法的push/pop组合应该遵循如下的调用顺序：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">A push -&gt; B push -&gt; B pop -&gt; A pop</span><br></pre></td></tr></table></figure></p>
+<h2 id="基于栈的设计"><a href="#基于栈的设计" class="headerlink" title="基于栈的设计"></a>基于栈的设计</h2><p>下图所示为两个View Controller切换时，各个VC的生命周期的切换顺序，其中A为父VC，B为子VC。为遵循上述设计原则，我们希望能够在特定生命周期进行push/pop操作。合法的push/pop组合应该遵循如下的调用顺序：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">A push -&gt; B push -&gt; B pop -&gt; A pop</span><br></pre></td></tr></table></figure></p>
 <p>然而，我们在下图中找不到一个合法的push/pop组合，除了【<code>init</code>/<code>viewDidLoad</code>时push，<code>dealloc</code>时pop】这种情况。</p>
 <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-vcs-lifecycle.png?x-oss-process=image/resize,w_570" alt=""></p>
 <p>那么，在【<code>init</code>/<code>viewDidLoad</code>时push，<code>dealloc</code>时pop】是不是真能应对所有场景呢？</p>
@@ -474,7 +474,7 @@
 <p>然而在很多情况下，A会在<code>init</code>/<code>viewDidLoad</code>阶段初始化多有VC对象。这时候如果使用的是【<code>init</code>/<code>viewDidLoad</code>时push，<code>dealloc</code>时pop】这种组合，在E中得到的路径会是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">A -&gt; B -&gt; C -&gt; D -&gt; E</span><br></pre></td></tr></table></figure></p>
 <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-multisubvcs-structure.png?x-oss-process=image/resize,w_250" alt=""></p>
 <p>综合上述，使用栈结构很难实现一种易用、可靠的设计方案。</p>
-<h3 id="基于树的设计"><a href="#基于树的设计" class="headerlink" title="基于树的设计"></a>基于树的设计</h3><p>于是，我们使用多叉树实现了一个易用、可靠的路径转换方案。如下左图所示，为一个app经常会面临的vc结构。我们使用多叉树来描述app的vc结构。在任何时候，页面总是能够返回到根页面（tab页），所以树节点不会形成环，即可以使用树结构来进行描述，如右图所示。</p>
+<h2 id="基于树的设计"><a href="#基于树的设计" class="headerlink" title="基于树的设计"></a>基于树的设计</h2><p>于是，我们使用多叉树实现了一个易用、可靠的路径转换方案。如下左图所示，为一个app经常会面临的vc结构。我们使用多叉树来描述app的vc结构。在任何时候，页面总是能够返回到根页面（tab页），所以树节点不会形成环，即可以使用树结构来进行描述，如右图所示。</p>
 <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/tree-based-path-conversion-design.png" alt=""></p>
 <p>其中，树节点包括四个属性：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@interface TreeNode : NSObject</span><br><span class="line"></span><br><span class="line">@property (nonatomic, assign) NSInteger parentId;   // 记录创建本节点的父节点ID</span><br><span class="line">@property (nonatomic, assign) NSInteger nodeId;     // 本节点ID</span><br><span class="line">@property (nonatomic, strong) NSString *keyfrom;      // 节点信息</span><br><span class="line">@property (nonatomic, strong, nullable) NSMutableArray&lt;TreeNode *&gt; *subNodes;   // 子节点指针</span><br><span class="line"></span><br><span class="line">@end</span><br></pre></td></tr></table></figure></p>
 <p>使用单例来保存一个全局的根节点（<code>root</code>）以及一个动态变更的全局父节点ID（<code>parentId</code>）。</p>
@@ -492,7 +492,8 @@
 - (void)setParentNodeWithNodeId:(NSInteger)nodeId;
 
 // 向树中添加子节点（keyfromType，param用于描述节点信息）
-- (TreeNode *)addKeyfromNodeWithKeyfromType:(KeyfromType)keyfromType param:(nullable NSString *)param;
+- (TreeNode *)addKeyfromNodeWithKeyfromType:(KeyfromType)keyfromType 
+                                      param:(nullable NSString *)param;
 
 // 从树中删除子节点
 - (void)removeKeyfromNodeWithNodeId:(NSInteger)nodeId;
@@ -585,6 +586,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/11/mvc-mvp-mvvm/" rel="prev" title="MVC、MVP、MVVM的演化">
+                MVC、MVP、MVVM的演化 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -686,7 +691,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-count">34</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -708,7 +713,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-count">57</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -796,7 +801,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#需求场景"><span class="nav-number">1.</span> <span class="nav-text">需求场景</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#设计原则"><span class="nav-number">1.1.</span> <span class="nav-text">设计原则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方案分析"><span class="nav-number">1.2.</span> <span class="nav-text">方案分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基于栈的设计"><span class="nav-number">1.2.1.</span> <span class="nav-text">基于栈的设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基于树的设计"><span class="nav-number">1.2.2.</span> <span class="nav-text">基于树的设计</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#需求场景"><span class="nav-number">1.</span> <span class="nav-text">需求场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设计原则"><span class="nav-number">2.</span> <span class="nav-text">设计原则</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#方案分析"><span class="nav-number">3.</span> <span class="nav-text">方案分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基于栈的设计"><span class="nav-number">3.1.</span> <span class="nav-text">基于栈的设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于树的设计"><span class="nav-number">3.2.</span> <span class="nav-text">基于树的设计</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
