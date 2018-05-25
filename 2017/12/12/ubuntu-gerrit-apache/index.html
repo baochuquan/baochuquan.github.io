@@ -104,16 +104,16 @@
 <meta property="og:site_name" content="楚权的世界">
 <meta property="og:description" content="我们公司采用Gerrit作为代码审核服务器并结合JIRA、Jenkins等开源工具，组成了一个完整项目管理平台。某天，我兴致来了，也想在自己的服务器上搭建一个Gerrit。于是，便有了以下内容… 一、Gerrit介绍Gerrit的目的是提供一个轻量级的框架来review每一个commit，review通过之后，commit会被合入代码库。 Gerrit是一个中间区域，可以看到提交至Gerrit上的">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/central-source-repository.png?x-oss-process=image/resize,w_570">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gerrit-in-place-of-central-repository.png?x-oss-process=image/resize,w_570">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/gerrit-central-source-repository.png?x-oss-process=image/resize,w_570">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/gerrit-in-place-of-central-repository.png?x-oss-process=image/resize,w_570">
 <meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/proxy-both.png">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/apache-gerrit-blog.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/apache-gerrit-blog.png">
 <meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/gerrit-configure-error.png">
-<meta property="og:updated_time" content="2018-02-09T03:31:00.917Z">
+<meta property="og:updated_time" content="2018-04-27T16:48:34.717Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Ubuntu + Gerrit + Apache 搭建代码审核服务器">
 <meta name="twitter:description" content="我们公司采用Gerrit作为代码审核服务器并结合JIRA、Jenkins等开源工具，组成了一个完整项目管理平台。某天，我兴致来了，也想在自己的服务器上搭建一个Gerrit。于是，便有了以下内容… 一、Gerrit介绍Gerrit的目的是提供一个轻量级的框架来review每一个commit，review通过之后，commit会被合入代码库。 Gerrit是一个中间区域，可以看到提交至Gerrit上的">
-<meta name="twitter:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/central-source-repository.png?x-oss-process=image/resize,w_570">
+<meta name="twitter:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/gerrit-central-source-repository.png?x-oss-process=image/resize,w_570">
 
 
 
@@ -400,8 +400,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-02-09T11:31:00+08:00">
-                2018-02-09
+              <time title="更新于" itemprop="dateModified" datetime="2018-04-28T00:48:34+08:00">
+                2018-04-28
               </time>
             
           </span>
@@ -438,11 +438,6 @@
           
 
           
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
-          
 
           
 
@@ -465,10 +460,10 @@
 <h1 id="一、Gerrit介绍"><a href="#一、Gerrit介绍" class="headerlink" title="一、Gerrit介绍"></a>一、Gerrit介绍</h1><p>Gerrit的目的是提供一个轻量级的框架来review每一个commit，review通过之后，commit会被合入代码库。</p>
 <p>Gerrit是一个中间区域，可以看到提交至Gerrit上的代码相对于服务器代码仓库中代码的差异，从而便于检查代码的改动。Gerrit也是整个代码review的推动者。</p>
 <p>任何拥有多个成员的团队都应该有一个中央代码仓库。 Git在理论上可以在没有这样的中心位置的情况下工作，但实际上通常有一个中央仓库库作为项目实际内容的权威副本。 开发者从该中央仓库fetch和push</p>
-<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/central-source-repository.png?x-oss-process=image/resize,w_570" alt=""></div>
+<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/gerrit-central-source-repository.png?x-oss-process=image/resize,w_570" alt=""></div>
 
 <p>Gerrit被部署在上图的中央仓库的位置，并增加一个新的概念：<strong>a store of pending changes（未决的修改）</strong>。每个人仍然可以从中央仓库fetch，但是push操作则有所变化，push操作会直接push到中央仓库，而是push到了<strong>pending changes location</strong>，以供review。只有在commit通过了review之后，才会被submit到中央仓库。如下图所示。</p>
-<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gerrit-in-place-of-central-repository.png?x-oss-process=image/resize,w_570" alt=""></div>
+<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/gerrit-in-place-of-central-repository.png?x-oss-process=image/resize,w_570" alt=""></div>
 
 <p>Gerrit具有强大的访问控制模型。用户可以被授予访问权限，绕过review，直接推送到中央仓库。Gerrit甚至可以在没有代码review的情况下使用，只用于托管仓库和访问控制。</p>
 <h1 id="二、应用场景"><a href="#二、应用场景" class="headerlink" title="二、应用场景"></a>二、应用场景</h1><p>在安装gerrit之前，我使用<code>node</code>在服务器上部署了一个站点，也就是本博客，其占用了<code>80</code>端口。</p>
@@ -480,7 +475,7 @@
 <p>那么反向代理到底是如何做到的呢？答案就是<code>端口转发</code>。</p>
 <p>我们知道在浏览器输入网址后，它会在解析后的IP地址之后加上一个默认的端口号<code>80</code>。所以，我们访问<code>chuquan.me</code>时就不需要输入完整的地址<code>chuquan.me:80</code>了。正因为如此，绝大多数服务器软件（包括apache）的默认监听端口也是<code>80</code>。</p>
 <p>在安装了apache之后，<code>80</code>端口被apache占用了。因此，gerrit和博客都不能使用<code>80</code>端口了。这时候，我们需要给这两个站点配置使用其他的端口号，如：gerrit的HTTP协议使用<code>8081</code>端口，博客使用<code>8082</code>端口。它们与apache之间使用<code>端口转发</code>来实现<code>反向代理</code>。</p>
-<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/apache-gerrit-blog.png" alt=""></div>
+<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/apache-gerrit-blog.png" alt=""></div>
 
 <h1 id="三、开发环境"><a href="#三、开发环境" class="headerlink" title="三、开发环境"></a>三、开发环境</h1><ul>
 <li>Ubuntu 14.04.5 LTS</li>
@@ -688,7 +683,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">34</span>
+                <span class="site-state-item-count">35</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -710,7 +705,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-count">59</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

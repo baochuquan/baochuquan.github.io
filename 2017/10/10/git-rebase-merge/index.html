@@ -104,17 +104,17 @@
 <meta property="og:site_name" content="楚权的世界">
 <meta property="og:description" content="Git场景在基于Git版本控制的团队协作开发中，当同伴先于自己将新的提交push到远程分支上时，如果要想将自己新的提交push的远程分支，则需要先执行git pull来获取同伴的提交，如果有冲突则先处理完冲突，然后才能将自己的提交push到远程分支。这种情形是非常常见的。   然而执行git pull，在默认情况下，如果远程分支与本地分支的提交线图有分叉（即不是fast-forward，如上述这种">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/git-rebase-merge-example.png">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/git-rebase-merge-example-merge.png">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/git-rebase-merge-example-rebase.png">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-rebase-merge-example.png">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-rebase-merge-example-merge.png">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-rebase-merge-example-rebase.png">
 <meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/git-rebase-merge-example01.png">
 <meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/git-rebase-merge-example03.png">
 <meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/git-rebase-merge-example02.png">
-<meta property="og:updated_time" content="2018-02-09T03:27:36.495Z">
+<meta property="og:updated_time" content="2018-04-27T16:06:51.245Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Git rebase与merge的区别">
 <meta name="twitter:description" content="Git场景在基于Git版本控制的团队协作开发中，当同伴先于自己将新的提交push到远程分支上时，如果要想将自己新的提交push的远程分支，则需要先执行git pull来获取同伴的提交，如果有冲突则先处理完冲突，然后才能将自己的提交push到远程分支。这种情形是非常常见的。   然而执行git pull，在默认情况下，如果远程分支与本地分支的提交线图有分叉（即不是fast-forward，如上述这种">
-<meta name="twitter:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/git-rebase-merge-example.png">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-rebase-merge-example.png">
 
 
 
@@ -401,8 +401,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-02-09T11:27:36+08:00">
-                2018-02-09
+              <time title="更新于" itemprop="dateModified" datetime="2018-04-28T00:06:51+08:00">
+                2018-04-28
               </time>
             
           </span>
@@ -439,11 +439,6 @@
           
 
           
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
-          
 
           
 
@@ -469,14 +464,14 @@
 <h1 id="分析对比"><a href="#分析对比" class="headerlink" title="分析对比"></a>分析对比</h1><p>这时候，我们可能就会想：既然merge操作会生成无意义的提交，那它是不是没有什么价值了呢？是不是任何场景下都应该使用rebase操作？  </p>
 <p>所以，我们对rebase和merge进行分析和对比。了解清楚了两者的区别，我们才能更好地运用这两个策略。</p>
 <h2 id="场景设想"><a href="#场景设想" class="headerlink" title="场景设想"></a>场景设想</h2><p>假设在执行pull之前的提交线图如下所示：</p>
-<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/git-rebase-merge-example.png" alt=""></div>
+<div align="center"><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-rebase-merge-example.png" alt=""></div>
 
 <h2 id="Merge操作"><a href="#Merge操作" class="headerlink" title="Merge操作"></a>Merge操作</h2><p>如果执行<code>git pull</code>（git默认会执行<code>git pull --merge</code>），提交线图会变成如下所示：</p>
-<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/git-rebase-merge-example-merge.png" alt=""></div>
+<div align="center"><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-rebase-merge-example-merge.png" alt=""></div>
 
 <p><strong>分析</strong><br>提交线图中多出了一个没有必要的提交<code>H</code></p>
 <h2 id="Rebase操作"><a href="#Rebase操作" class="headerlink" title="Rebase操作"></a>Rebase操作</h2><p>如果执行<code>git pull --rebase</code>，提交线图会变成如下所示：</p>
-<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/git-rebase-merge-example-rebase.png" alt=""></div>
+<div align="center"><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-rebase-merge-example-rebase.png" alt=""></div>
 
 <p><strong>分析</strong><br>提交线图中，本地的新提交<code>F</code>，<code>G</code>变成了两个新的提交<code>F&#39;</code>，<code>G&#39;</code>，拼接在了<code>C</code>后面，多余的分叉也删除了。提交线变得非常清晰。</p>
 <h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>从上述对比可以看出，rebase操作会将本分支的新提交删除并生成新的提交。所以rebase操作比较适用于将一些零碎的提交进行合并清理。比如：在push之前进行整理。</p>
@@ -669,7 +664,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">34</span>
+                <span class="site-state-item-count">35</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -691,7 +686,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-count">59</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

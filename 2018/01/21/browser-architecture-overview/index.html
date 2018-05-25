@@ -104,14 +104,14 @@
 <meta property="og:site_name" content="楚权的世界">
 <meta property="og:description" content="序这些天在考虑选择什么主题在即将来临的公司技术分享会上进行分享。思来想去，也没找到什么比较好的主题。逆向？已经有人分享过了…框架？不是针对特定需求的框架，介绍起来感觉也没有太大的意义… 恍惚间，想起之前@展哥在调高考真题Hybrid页面时，似乎在前端代码方面遇到一些麻烦。于是，我就想到了UIWebView。就此进行思维发散，感觉可以介绍一下浏览器的工作原理。毕竟，iOS和前端同属于大客户端。对于i">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/browser-architecture001.png">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/browser-architecture002.png">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/browser-architecture003.png">
-<meta property="og:updated_time" content="2018-02-09T03:47:13.599Z">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/browser-architecture001.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/browser-architecture002.png">
+<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/browser-architecture003.png">
+<meta property="og:updated_time" content="2018-04-27T17:53:21.237Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="现代浏览器工作原理（一）">
 <meta name="twitter:description" content="序这些天在考虑选择什么主题在即将来临的公司技术分享会上进行分享。思来想去，也没找到什么比较好的主题。逆向？已经有人分享过了…框架？不是针对特定需求的框架，介绍起来感觉也没有太大的意义… 恍惚间，想起之前@展哥在调高考真题Hybrid页面时，似乎在前端代码方面遇到一些麻烦。于是，我就想到了UIWebView。就此进行思维发散，感觉可以介绍一下浏览器的工作原理。毕竟，iOS和前端同属于大客户端。对于i">
-<meta name="twitter:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/browser-architecture001.png">
+<meta name="twitter:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/browser-architecture001.png">
 
 
 
@@ -398,8 +398,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-02-09T11:47:13+08:00">
-                2018-02-09
+              <time title="更新于" itemprop="dateModified" datetime="2018-04-28T01:53:21+08:00">
+                2018-04-28
               </time>
             
           </span>
@@ -435,11 +435,6 @@
           
           
 
-          
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
           
 
           
@@ -482,7 +477,7 @@
 <li><strong>开发者工具</strong><br>  开发者工具是浏览器提供给网页开发者的工具，可以帮助审查HTML元素、调试JavaScript代码、改善网页性能等。</li>
 </ul>
 <h1 id="浏览器结构"><a href="#浏览器结构" class="headerlink" title="浏览器结构"></a>浏览器结构</h1><p>目前，常用的浏览器主要有：Chrome、IE（Edge）、Safari、Firefox等。不同的浏览器在结构方面虽然有所差异，但是整体的设计理念是相似的。因此，可以抽象得到如下图所示的参考结构：</p>
-<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/browser-architecture001.png" alt=""></div>
+<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/browser-architecture001.png" alt=""></div>
 
 <p>浏览器的抽象分层结构图中将浏览器分成了以下8个子系统：</p>
 <ul>
@@ -520,7 +515,7 @@
 </tbody>
 </table>
 <h2 id="渲染引擎工作流程"><a href="#渲染引擎工作流程" class="headerlink" title="渲染引擎工作流程"></a>渲染引擎工作流程</h2><p>如下图所示为渲染引擎的渲染流程示意图，其以HTML/JavaScript/CSS等文件作为输入，以可视化内容作为输出。</p>
-<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/browser-architecture002.png" alt=""></div>
+<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/browser-architecture002.png" alt=""></div>
 
 <ol>
 <li><p><strong>Parsing HTML to Construct DOM Tree</strong><br>渲染引擎使用HTML解析器（调用XML解析器）解析HTML（XML）文档，将各个HTML（XML）元素逐个转化成DOM节点，从而生成DOM树。<br>同时，渲染引擎使用CSS解析器解析外部CSS文件以及HTML（XML）元素中的样式规则。元素中带有视觉指令的样式规则将用于下一步，以创建另一个树结构：渲染树。  </p>
@@ -533,7 +528,7 @@
 </li>
 </ol>
 <h2 id="渲染引擎组成模块"><a href="#渲染引擎组成模块" class="headerlink" title="渲染引擎组成模块"></a>渲染引擎组成模块</h2><p>下图所示为渲染引擎工作流程中各个步骤所对应的模块，其中第1步和第2步涉及到多个模块，并且耦合程度较高。这样的设计会为了达到更好的用户体验，渲染引擎尽快将内容显示在屏幕上。它不必等到整个HTML文档解析完毕之后，就可以开始渲染树构建和布局设置。在不断接收和处理来自网络的其余内容的同时，渲染引擎会将部分内容解析并显示出来。</p>
-<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/browser-architecture003.png" alt=""></div>
+<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/browser-architecture003.png" alt=""></div>
 
 <p>从图中可以看出，渲染引擎主要包含（或调用）的模块有：</p>
 <ul>
@@ -730,7 +725,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">34</span>
+                <span class="site-state-item-count">35</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -752,7 +747,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-count">59</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
