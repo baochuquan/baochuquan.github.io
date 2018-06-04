@@ -109,7 +109,7 @@
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-syntax-tree.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-commented-syntax-tree.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-optimized-syntax-tree.png">
-<meta property="og:updated_time" content="2018-06-03T13:36:31.636Z">
+<meta property="og:updated_time" content="2018-06-04T13:00:31.572Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="计算机那些事(2)——初探程序构建及编译原理">
 <meta name="twitter:description" content="最近在看《程序员的自我修养——链接、装载与库》一书，这本书以前看过一部分，由于难啃，当时没有坚持下去。现在工作了，每天接触的都是业务开发，对底层的一些东西感觉越来越陌生。于是，又把此书翻了出来拜读。为了加深阅读的印象，打算对书中的一些有价值的内容进行整理，也方便后续回顾。 程序构建流程下面以“Hello World”程序为例，来介绍程序的编译与链接过程。1234567// hello.c#incl">
@@ -400,8 +400,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-06-03T21:36:31+08:00">
-                2018-06-03
+              <time title="更新于" itemprop="dateModified" datetime="2018-06-04T21:00:31+08:00">
+                2018-06-04
               </time>
             
           </span>
@@ -475,12 +475,12 @@
 <li>将所有的“#define”删除，并且展开所有的宏定义。</li>
 <li>处理所有条件预编译指令，如：“#if”、“#ifdef”、“#else”、“#endif”。</li>
 <li>处理“#include”预编译指令，将被包含的文件插入到该预编译指令的位置。该过程是递归进行的，因为被包含的文件可能还包含其他文件。</li>
-<li>删除所有的注释“//”和“/* */”。</li>
+<li>删除所有的注释“//”和“/<em> </em>/”。</li>
 <li>添加行号和文件名标识，比如#2 “hello.c” 2，以便于编译时编译器产生调试试用的行号信息以及用于编译时产生编译错误或警告时能够显示行号。</li>
 <li>保留所有的#pragma编译器指令，因为编译器须要试用他们。</li>
 </ul>
 <p>预编译生成的.i文件不包含任何宏定义，因为所有的宏已经被展开，并且包含的文件也已经被插入到.i文件中。所以当我们无法判断宏定义是否正确或头文件包含是否正确时，可以查看预编译后的文件来确定问题。</p>
-<h2 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h2><p><strong>编译</strong>就是把预处理生成的文件进行一系列词法分析、语法分析、语义分析、优化，生成响应的汇编代码文件。这个过程是整个程序构建的核心部分，也是最复杂的部分之一。</p>
+<h2 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h2><p><strong>编译</strong>就是把预处理生成的文件进行一系列词法分析、语法分析、语义分析、优化，生成相应的汇编代码文件。这个过程是整个程序构建的核心部分，也是最复杂的部分之一。</p>
 <p>编译步骤相当于执行如下命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -S hello.i -o hello.s</span><br></pre></td></tr></table></figure></p>
 <p>或<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -S hello.c -o hello.s</span><br></pre></td></tr></table></figure></p>
 <p>现在版本的GCC把预编译和编译两个步骤合并成了一个步骤，使用一个叫cc1的程序来完成。该程序位于“<code>/usr/lib/gcc/x86_64-linux-gnu/4.8/</code>”，我们可以直接调用cc1来完成它：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ /usr/lib/gcc/x86_64-linux-gnu/4.8/cc1 hello.c</span><br></pre></td></tr></table></figure></p>
@@ -597,13 +597,13 @@
 <p>静态语义通常包括声明和类型的匹配，类型的转换。比如当一个浮点型的表达式赋值给一个整型的表达式时，其中隐含了一个浮点型到整型的转换过程，语义分析过程中需要完成该步骤。比如讲一个浮点赋值给一个指针时，语义分析程序会发现这个类型不匹配，编译器将会报错。动态语义一般是指在运行期出现的语义相关的问题，比如将0作为除数是一个运行期语义错误。</p>
 <p>经过语义分析阶段之后，整个语法树的表达式都被标识了类型，如果有些类型需要做隐式转换，语义分析程序会在语法树中插入相应的转换节点。下图所示为标记语义后的语法树。</p>
 <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-commented-syntax-tree.png" alt=""></p>
-<h2 id="源代码优化"><a href="#源代码优化" class="headerlink" title="源代码优化"></a>源代码优化</h2><p>现代编译器有着很多层次的优化，<strong>源码优化器（Source Code Optimizer）</strong>则是在源代码级别进行优化。上述例子中，（2 + 6）这个表达式可以被优化掉。因为它的值在编译期就可以被确定。下图所示为优化后的语法树。</p>
+<h2 id="源代码优化（中间代码生成）"><a href="#源代码优化（中间代码生成）" class="headerlink" title="源代码优化（中间代码生成）"></a>源代码优化（中间代码生成）</h2><p>现代编译器有着很多层次的优化，<strong>源码优化器（Source Code Optimizer）</strong>则是在源代码级别进行优化。上述例子中，（2 + 6）这个表达式可以被优化掉。因为它的值在编译期就可以被确定。下图所示为优化后的语法树。</p>
 <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-optimized-syntax-tree.png" alt=""></p>
 <p>事实上，直接在语法树上作优化比较困难，所以源代码优化器往往将整个语法树转换成<strong>中间代码（Intermediate Code）</strong>，它是语法树的顺序表示，其实它已经非常接近目标代码了。但它一般与目标机器和运行时环境是无关的，比如它不包含数据的尺寸、变量地址和寄存器的名字等。</p>
 <p>中间代码有很多种类型，在不同的编译器中有着不同的形式，比较常见的有：<strong>三地址码（Three-address Code）</strong>、<strong>P-代码（P-Code）</strong>。以三地址码为例，最基本的三地址码如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = y op z</span><br><span class="line"># 表示将变量y和z进行op操作后，赋值给x。</span><br></pre></td></tr></table></figure></p>
 <p>因此，可以将上述例子的代码翻译成三地址码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">t1 = 2 + 6</span><br><span class="line">t2 = index + 4</span><br><span class="line">t3 = t2 * t1</span><br><span class="line">array[index] = t3</span><br></pre></td></tr></table></figure></p>
 <p>为了使所有的操作符合三地址码形式，这里使用了几个临时变量：t1、t2和t3。在三地址码的基础上进行优化时，优化程序会将2+6的结果计算出来，得到t1 = 6。因此，进一步优化后可以得到如下的代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">t2 = index + 4</span><br><span class="line">t2 = t2 * 8</span><br><span class="line">array[index] = t2</span><br></pre></td></tr></table></figure></p>
-<p>中间代码将编译器分为<strong>前端（Front End）</strong>和<strong>后端（Back End）</strong>。编译器前端负责产生机器无关的中间代码，编译器后端负责将中间代码转换成目标机器代码。这样，对于一些可跨平台的编译器，它们可以针对不同的平台使用同一个前端和针对不同机器平台的数个后端。</p>
+<p>中间代码将编译器分为<strong>前端（Front End）</strong>和<strong>后端（Back End）</strong>。编译器前端负责产生机器无关的中间代码，编译器后端负责将中间代码转换成目标机器代码。这样，对于一些可跨平台的编译器，它们可以针对不同的平台使用同一个前端和针对不同机器平台的数个后端。比如clange就是一个前端工具，而LLVM则负责后端处理。GCC则是一个套装，包揽了前后端的所有任务。</p>
 <hr>
 <h2 id="目标代码生成"><a href="#目标代码生成" class="headerlink" title="目标代码生成"></a>目标代码生成</h2><p>目标代码生成主要由<strong>代码生成器（Code Generator）</strong>完成。代码生成器将中间代码转换成目标机器代码，该过程十分依赖目标机器，因为不同的机器有着不同的字长、寄存器、整数数据类型和浮点数数据类型等。</p>
 <p>上述例子的中间代码，经过代码生成器的处理之后可能会生成如下所示的代码序列（以x86汇编为例，假设index的类型为int型，array的类型为int型数组）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">movl index, %ecx            ; value of index to ecx</span><br><span class="line">addl $4, %ecx               ; ecx = ecx + 4</span><br><span class="line">mull $8, %ecx               ; ecx = ecx * 8</span><br><span class="line">movl index, %eax            ; value of index to eax</span><br><span class="line">movl %ecx, array(,%eax,4)    ; array[index] = ecx</span><br></pre></td></tr></table></figure></p>
@@ -896,7 +896,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#程序构建流程"><span class="nav-number">1.</span> <span class="nav-text">程序构建流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#预编译"><span class="nav-number">1.1.</span> <span class="nav-text">预编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译"><span class="nav-number">1.2.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#汇编"><span class="nav-number">1.3.</span> <span class="nav-text">汇编</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#链接"><span class="nav-number">1.4.</span> <span class="nav-text">链接</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译器工作原理"><span class="nav-number">2.</span> <span class="nav-text">编译器工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#扫描（词法分析）"><span class="nav-number">2.1.</span> <span class="nav-text">扫描（词法分析）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#语法分析"><span class="nav-number">2.2.</span> <span class="nav-text">语法分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#语义分析"><span class="nav-number">2.3.</span> <span class="nav-text">语义分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源代码优化"><span class="nav-number">2.4.</span> <span class="nav-text">源代码优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目标代码生成"><span class="nav-number">2.5.</span> <span class="nav-text">目标代码生成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目标代码优化"><span class="nav-number">2.6.</span> <span class="nav-text">目标代码优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结尾"><span class="nav-number">3.</span> <span class="nav-text">结尾</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#程序构建流程"><span class="nav-number">1.</span> <span class="nav-text">程序构建流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#预编译"><span class="nav-number">1.1.</span> <span class="nav-text">预编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译"><span class="nav-number">1.2.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#汇编"><span class="nav-number">1.3.</span> <span class="nav-text">汇编</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#链接"><span class="nav-number">1.4.</span> <span class="nav-text">链接</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译器工作原理"><span class="nav-number">2.</span> <span class="nav-text">编译器工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#扫描（词法分析）"><span class="nav-number">2.1.</span> <span class="nav-text">扫描（词法分析）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#语法分析"><span class="nav-number">2.2.</span> <span class="nav-text">语法分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#语义分析"><span class="nav-number">2.3.</span> <span class="nav-text">语义分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源代码优化（中间代码生成）"><span class="nav-number">2.4.</span> <span class="nav-text">源代码优化（中间代码生成）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目标代码生成"><span class="nav-number">2.5.</span> <span class="nav-text">目标代码生成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目标代码优化"><span class="nav-number">2.6.</span> <span class="nav-text">目标代码优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结尾"><span class="nav-number">3.</span> <span class="nav-text">结尾</span></a></li></ol></div>
             
 
           </div>
