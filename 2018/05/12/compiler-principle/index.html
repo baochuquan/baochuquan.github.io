@@ -99,7 +99,7 @@
 <meta name="description" content="最近在看《程序员的自我修养——链接、装载与库》一书，这本书以前看过一部分，由于难啃，当时没有坚持下去。现在工作了，每天接触的都是业务开发，对底层的一些东西感觉越来越陌生。于是，又把此书翻了出来拜读。为了加深阅读的印象，打算对书中的一些有价值的内容进行整理，也方便后续回顾。 程序构建流程下面以“Hello World”程序为例，来介绍程序的编译与链接过程。1234567// hello.c#incl">
 <meta name="keywords" content="编译原理">
 <meta property="og:type" content="article">
-<meta property="og:title" content="计算机那些事(2)——初探程序构建及编译原理">
+<meta property="og:title" content="计算机那些事(2)——程序构建及编译原理">
 <meta property="og:url" content="http://chuquan.me/2018/05/12/compiler-principle/index.html">
 <meta property="og:site_name" content="楚权的世界">
 <meta property="og:description" content="最近在看《程序员的自我修养——链接、装载与库》一书，这本书以前看过一部分，由于难啃，当时没有坚持下去。现在工作了，每天接触的都是业务开发，对底层的一些东西感觉越来越陌生。于是，又把此书翻了出来拜读。为了加深阅读的印象，打算对书中的一些有价值的内容进行整理，也方便后续回顾。 程序构建流程下面以“Hello World”程序为例，来介绍程序的编译与链接过程。1234567// hello.c#incl">
@@ -109,9 +109,9 @@
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-syntax-tree.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-commented-syntax-tree.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-optimized-syntax-tree.png">
-<meta property="og:updated_time" content="2018-06-04T13:00:31.572Z">
+<meta property="og:updated_time" content="2018-06-04T13:21:27.318Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="计算机那些事(2)——初探程序构建及编译原理">
+<meta name="twitter:title" content="计算机那些事(2)——程序构建及编译原理">
 <meta name="twitter:description" content="最近在看《程序员的自我修养——链接、装载与库》一书，这本书以前看过一部分，由于难啃，当时没有坚持下去。现在工作了，每天接触的都是业务开发，对底层的一些东西感觉越来越陌生。于是，又把此书翻了出来拜读。为了加深阅读的印象，打算对书中的一些有价值的内容进行整理，也方便后续回顾。 程序构建流程下面以“Hello World”程序为例，来介绍程序的编译与链接过程。1234567// hello.c#incl">
 <meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/code-compile-process.png">
 
@@ -148,7 +148,7 @@
 
 
 
-  <title>计算机那些事(2)——初探程序构建及编译原理 | 楚权的世界</title>
+  <title>计算机那些事(2)——程序构建及编译原理 | 楚权的世界</title>
   
 
 
@@ -372,7 +372,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">计算机那些事(2)——初探程序构建及编译原理</h1>
+          <h1 class="post-title" itemprop="name headline">计算机那些事(2)——程序构建及编译原理</h1>
         
 
         <div class="post-meta">
@@ -400,7 +400,7 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-06-04T21:00:31+08:00">
+              <time title="更新于" itemprop="dateModified" datetime="2018-06-04T21:21:27+08:00">
                 2018-06-04
               </time>
             
@@ -616,6 +616,9 @@
 <p>如果我们把目标代码使用汇编器编译成真正能够在机器上运行的指令，那么index和array的地址来自哪里？<br>如果index和array定义在跟上面的源代码同一个编译单元里，那么编译器可以为index和array分配空间，确定地址；但如果是定义在其他的程序模块呢？</p>
 <p>事实上，定义其他模块的全局变量和函数在最终运行时的绝对地址都要在最终链接的时候才能确定。所以现代编译器可以将一个源文件编译成一个未链接的目标文件，然后由编译器最终将这些目标文件链接起来形成可执行文件。</p>
 <p>后面，我们将继而探讨链接的原理。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li>《程序员的自我修养——链接、装载与库》</li>
+</ol>
 <p>（完）</p>
 
       
@@ -685,6 +688,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/21/elf-introduce/" rel="prev" title="计算机那些事(3)——ELF文件结构">
+                计算机那些事(3)——ELF文件结构 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -786,7 +793,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">36</span>
+                <span class="site-state-item-count">37</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -808,7 +815,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">60</span>
+                <span class="site-state-item-count">63</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -896,7 +903,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#程序构建流程"><span class="nav-number">1.</span> <span class="nav-text">程序构建流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#预编译"><span class="nav-number">1.1.</span> <span class="nav-text">预编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译"><span class="nav-number">1.2.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#汇编"><span class="nav-number">1.3.</span> <span class="nav-text">汇编</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#链接"><span class="nav-number">1.4.</span> <span class="nav-text">链接</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译器工作原理"><span class="nav-number">2.</span> <span class="nav-text">编译器工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#扫描（词法分析）"><span class="nav-number">2.1.</span> <span class="nav-text">扫描（词法分析）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#语法分析"><span class="nav-number">2.2.</span> <span class="nav-text">语法分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#语义分析"><span class="nav-number">2.3.</span> <span class="nav-text">语义分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源代码优化（中间代码生成）"><span class="nav-number">2.4.</span> <span class="nav-text">源代码优化（中间代码生成）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目标代码生成"><span class="nav-number">2.5.</span> <span class="nav-text">目标代码生成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目标代码优化"><span class="nav-number">2.6.</span> <span class="nav-text">目标代码优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结尾"><span class="nav-number">3.</span> <span class="nav-text">结尾</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#程序构建流程"><span class="nav-number">1.</span> <span class="nav-text">程序构建流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#预编译"><span class="nav-number">1.1.</span> <span class="nav-text">预编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译"><span class="nav-number">1.2.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#汇编"><span class="nav-number">1.3.</span> <span class="nav-text">汇编</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#链接"><span class="nav-number">1.4.</span> <span class="nav-text">链接</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译器工作原理"><span class="nav-number">2.</span> <span class="nav-text">编译器工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#扫描（词法分析）"><span class="nav-number">2.1.</span> <span class="nav-text">扫描（词法分析）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#语法分析"><span class="nav-number">2.2.</span> <span class="nav-text">语法分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#语义分析"><span class="nav-number">2.3.</span> <span class="nav-text">语义分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源代码优化（中间代码生成）"><span class="nav-number">2.4.</span> <span class="nav-text">源代码优化（中间代码生成）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目标代码生成"><span class="nav-number">2.5.</span> <span class="nav-text">目标代码生成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目标代码优化"><span class="nav-number">2.6.</span> <span class="nav-text">目标代码优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结尾"><span class="nav-number">3.</span> <span class="nav-text">结尾</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>

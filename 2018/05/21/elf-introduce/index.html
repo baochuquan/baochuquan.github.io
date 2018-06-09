@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="ELF文件,目标文件,可执行文件," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="前文结尾说到编译器编译源代码后生成的文件叫做目标文件，而目标文件经过编译器链接之后得到的就是可执行文件。那么目标文件到底是什么？它和可执行文件又有什么区别？链接到底又做了什么呢？接下来，我们将探索一下目标文件的本质。 目标文件的格式目前，PC平台流行的 可执行文件格式（Executable） 主要包含如下两种，它们都是 COFF（Common File Format） 格式的变种。  Window">
+<meta name="keywords" content="ELF文件,目标文件,可执行文件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机那些事(3)——ELF文件结构">
+<meta property="og:url" content="http://chuquan.me/2018/05/21/elf-introduce/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="前文结尾说到编译器编译源代码后生成的文件叫做目标文件，而目标文件经过编译器链接之后得到的就是可执行文件。那么目标文件到底是什么？它和可执行文件又有什么区别？链接到底又做了什么呢？接下来，我们将探索一下目标文件的本质。 目标文件的格式目前，PC平台流行的 可执行文件格式（Executable） 主要包含如下两种，它们都是 COFF（Common File Format） 格式的变种。  Window">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/elf-file-format.png">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/elf-symtab-strtab.png">
+<meta property="og:updated_time" content="2018-06-09T14:53:49.623Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="计算机那些事(3)——ELF文件结构">
+<meta name="twitter:description" content="前文结尾说到编译器编译源代码后生成的文件叫做目标文件，而目标文件经过编译器链接之后得到的就是可执行文件。那么目标文件到底是什么？它和可执行文件又有什么区别？链接到底又做了什么呢？接下来，我们将探索一下目标文件的本质。 目标文件的格式目前，PC平台流行的 可执行文件格式（Executable） 主要包含如下两种，它们都是 COFF（Common File Format） 格式的变种。  Window">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/elf-file-format.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2018/05/21/elf-introduce/"/>
+
+
+
+
+
+  <title>计算机那些事(3)——ELF文件结构 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2018/05/21/elf-introduce/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Bao Chuquan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">计算机那些事(3)——ELF文件结构</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2018-05-21T22:45:18+08:00">
+                2018-05-21
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2018-06-09T22:53:49+08:00">
+                2018-06-09
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/计算机原理/" itemprop="url" rel="index">
+                    <span itemprop="name">计算机原理</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="http://chuquan.me/2018/05/12/compiler-principle/#more">前文</a>结尾说到编译器编译源代码后生成的文件叫做<strong>目标文件</strong>，而目标文件经过编译器链接之后得到的就是<strong>可执行文件</strong>。那么目标文件到底是什么？它和可执行文件又有什么区别？链接到底又做了什么呢？接下来，我们将探索一下目标文件的本质。</p>
+<h1 id="目标文件的格式"><a href="#目标文件的格式" class="headerlink" title="目标文件的格式"></a>目标文件的格式</h1><p>目前，PC平台流行的 <strong>可执行文件格式（Executable）</strong> 主要包含如下两种，它们都是 <strong>COFF（Common File Format）</strong> 格式的变种。</p>
+<ul>
+<li>Windows下的 <strong>PE（Portable Executable）</strong> </li>
+<li>Linux下的 <strong>ELF（Executable Linkable Format）</strong> </li>
+</ul>
+<p><strong>目标文件就是源代码经过编译后但未进行连接的那些中间文件（Windows的<code>.obj</code>和Linux的<code>.o</code>），它与可执行文件的格式非常相似，所以一般跟可执行文件格式一起采用同一种格式存储</strong>。在Windows下采用<strong>PE-COFF</strong>文件格式；Linux下采用<strong>ELF</strong>文件格式。</p>
+<p>事实上，除了<strong>可执行文件</strong>外，<strong>动态链接库（DDL，Dynamic Linking Library）</strong>、<strong>静态链接库（Static Linking Library）</strong> 均采用可执行文件格式存储。它们在Window下均按照PE-COFF格式存储；Linux下均按照ELF格式存储。只是文件名后缀不同而已。</p>
+<ul>
+<li>动态链接库：Windows的<code>.dll</code>、Linux的<code>.so</code></li>
+<li>静态链接库：Windows的<code>.lib</code>、Linux的<code>.a</code></li>
+</ul>
+<p>下面，我们将以ELF文件为例进行介绍。</p>
+<h1 id="ELF文件结构"><a href="#ELF文件结构" class="headerlink" title="ELF文件结构"></a>ELF文件结构</h1><p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/elf-file-format.png" alt=""></p>
+<p><strong>注意：段（<code>Segment</code>）与节（<code>Section</code>）的区别。很多地方对两者有所混淆。段是程序执行的必要组成，当多个目标文件链接成一个可执行文件时，会将相同权限的节合并到一个段中。相比而言，节的粒度更小。</strong></p>
+<p>如图所示，为ELF文件的基本结构，其主要由四部分组成：</p>
+<ul>
+<li>ELF Header</li>
+<li>ELF Program Header Table (或称Program Headers、程序头)</li>
+<li>ELF Section Header Table (或称Section Headers、节头表)</li>
+<li>ELF Sections</li>
+</ul>
+<p>从图中，我们就能看出它们各自的数据结构以及相互之间的索引关系。下面我们依次进行介绍。</p>
+<hr>
+<h2 id="ELF-Header"><a href="#ELF-Header" class="headerlink" title="ELF Header"></a>ELF Header</h2><p>我们可以使用readelf工具来查看ELF Header。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">$ readelf -h hello.o</span><br><span class="line"></span><br><span class="line">ELF Header:</span><br><span class="line">  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00</span><br><span class="line">  Class:                             ELF64</span><br><span class="line">  Data:                              2&apos;s complement, little endian</span><br><span class="line">  Version:                           1 (current)</span><br><span class="line">  OS/ABI:                            UNIX - System V</span><br><span class="line">  ABI Version:                       0</span><br><span class="line">  Type:                              REL (Relocatable file)</span><br><span class="line">  Machine:                           Advanced Micro Devices X86-64</span><br><span class="line">  Version:                           0x1</span><br><span class="line">  Entry point address:               0x0</span><br><span class="line">  Start of program headers:          0 (bytes into file)</span><br><span class="line">  Start of section headers:          672 (bytes into file)</span><br><span class="line">  Flags:                             0x0</span><br><span class="line">  Size of this header:               64 (bytes)</span><br><span class="line">  Size of program headers:           0 (bytes)</span><br><span class="line">  Number of program headers:         0</span><br><span class="line">  Size of section headers:           64 (bytes)</span><br><span class="line">  Number of section headers:         13</span><br><span class="line">  Section header string table index: 10</span><br></pre></td></tr></table></figure></p>
+<p>ELF文件结构示意图中定义的<code>Elf_Ehdr</code>的各个成员的含义与readelf具有对应关系。如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">成员</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">e_ident</td>
+<td style="text-align:left">Magic: 7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Class: ELF32</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Data:  2’s complement, little end</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Version: 1(current)</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">OS/ABI: UNIX - System V</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">ABI Version: 0</td>
+</tr>
+<tr>
+<td style="text-align:left">e_type</td>
+<td style="text-align:left">Type: REL (Relocatable file)</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">ELF文件类型</td>
+</tr>
+<tr>
+<td style="text-align:left">e_machine</td>
+<td style="text-align:left">Machine: Advanced Micro Devices X86-64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">ELF文件的CPI平台属性</td>
+</tr>
+<tr>
+<td style="text-align:left">e_version</td>
+<td style="text-align:left">Version: 0x1</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">ELF版本号。一般为常数1</td>
+</tr>
+<tr>
+<td style="text-align:left">e_entry</td>
+<td style="text-align:left">Entry point address: 0x0</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><strong>入口地址，规定ELF程序的入口虚拟地址，操作系统在加载完该程序后从这个地址开始执行进程的指令。可重定位指令一般没有入口地址，则该值为0</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">e_phoff</td>
+<td style="text-align:left">Start of program headers: 0(bytes into file)</td>
+</tr>
+<tr>
+<td style="text-align:left">e_shoff</td>
+<td style="text-align:left">Start of section headers: 672 (bytes into file)</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Section Header Table 在文件中的偏移</td>
+</tr>
+<tr>
+<td style="text-align:left">e_word</td>
+<td style="text-align:left">Flags: 0x0</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">ELF标志位，用来标识一些ELF文件平台相关的属性。</td>
+</tr>
+<tr>
+<td style="text-align:left">e_ehsize</td>
+<td style="text-align:left">Size of this header: 64 (bytes)</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">ELF Header本身的大小</td>
+</tr>
+<tr>
+<td style="text-align:left">e_phentsize</td>
+<td style="text-align:left">Size of program headers: 0 (bytes)</td>
+</tr>
+<tr>
+<td style="text-align:left">e_phnum</td>
+<td style="text-align:left">Number of program headers: 0</td>
+</tr>
+<tr>
+<td style="text-align:left">e_shentsize</td>
+<td style="text-align:left">Size of section headers: 64 (bytes)</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">单个Section Header大小</td>
+</tr>
+<tr>
+<td style="text-align:left">e_shnum</td>
+<td style="text-align:left">Number of section headers: 13</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Section Header的数量</td>
+</tr>
+<tr>
+<td style="text-align:left">e_shstrndx</td>
+<td style="text-align:left">Section header string table index: 10</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Section Header字符串表在Section Header Table中的索引</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ELF魔数"><a href="#ELF魔数" class="headerlink" title="ELF魔数"></a>ELF魔数</h3><p>每种可执行文件的格式的开头几个字节都是很特殊的，特别是开头4个字节，通常被称为<strong>魔数（Magic Number）</strong>。通过对魔数的判断可以确定文件的格式和类型。如：ELF的可执行文件格式的头4个字节为<code>0x7F</code>、<code>e</code>、<code>l</code>、<code>f</code>；Java的可执行文件格式的头4个字节为<code>c</code>、<code>a</code>、<code>f</code>、<code>e</code>；如果被执行的是Shell脚本或perl、python等解释型语言的脚本，那么它的第一行往往是<code>#!/bin/sh</code>或<code>#!/usr/bin/perl</code>或<code>#!/usr/bin/python</code>，此时前两个字节<code>#</code>和<code>!</code>就构成了魔数，系统一旦判断到这两个字节，就对后面的字符串进行解析，以确定具体的解释程序路径。</p>
+<h3 id="ELF文件类型"><a href="#ELF文件类型" class="headerlink" title="ELF文件类型"></a>ELF文件类型</h3><p>ELF文件主要有三种类型，可以通过ELF Header中的<code>e_type</code>成员进行区分。</p>
+<ul>
+<li><strong>可重定位文件（Relocatable File）</strong>：<code>ETL_REL</code>。一般为<code>.o</code>文件。可以被链接成可执行文件或共享目标文件。静态链接库属于可重定位文件。</li>
+<li><strong>可执行文件（Executable File）</strong>：<code>ET_EXEC</code>。可以直接执行的程序。</li>
+<li><strong>共享目标文件（Shared Object File）</strong>：<code>ET_DYN</code>。一般为<code>.so</code>文件。有两种情况可以使用。<ul>
+<li>链接器将其与其他可重定位文件、共享目标文件链接成新的目标文件；</li>
+<li>动态链接器将其与其他共享目标文件、结合一个可执行文件，创建进程映像。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="ELF-Section-Header-Table"><a href="#ELF-Section-Header-Table" class="headerlink" title="ELF Section Header Table"></a>ELF Section Header Table</h2><p>ELF 节头表是一个节头数组。每一个节头都描述了其所对应的节的信息，如节名、节大小、在文件中的偏移、读写权限等。<strong>编译器、链接器、装载器都是通过节头表来定位和访问各个节的属性的。</strong></p>
+<p>我们可以使用readelf工具来查看节头表。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">$ readelf -S hello.o</span><br><span class="line"></span><br><span class="line">There are 13 section headers, starting at offset 0x2a0:</span><br><span class="line"></span><br><span class="line">Section Headers:</span><br><span class="line">  [Nr] Name              Type             Address           Offset</span><br><span class="line">       Size              EntSize          Flags  Link  Info  Align</span><br><span class="line">  [ 0]                   NULL             0000000000000000  00000000</span><br><span class="line">       0000000000000000  0000000000000000           0     0     0</span><br><span class="line">  [ 1] .text             PROGBITS         0000000000000000  00000040</span><br><span class="line">       0000000000000015  0000000000000000  AX       0     0     1</span><br><span class="line">  [ 2] .rela.text        RELA             0000000000000000  000001f0</span><br><span class="line">       0000000000000030  0000000000000018   I      11     1     8</span><br><span class="line">  [ 3] .data             PROGBITS         0000000000000000  00000055</span><br><span class="line">       0000000000000000  0000000000000000  WA       0     0     1</span><br><span class="line">  [ 4] .bss              NOBITS           0000000000000000  00000055</span><br><span class="line">       0000000000000000  0000000000000000  WA       0     0     1</span><br><span class="line">  [ 5] .rodata           PROGBITS         0000000000000000  00000055</span><br><span class="line">       000000000000000d  0000000000000000   A       0     0     1</span><br><span class="line">  [ 6] .comment          PROGBITS         0000000000000000  00000062</span><br><span class="line">       0000000000000035  0000000000000001  MS       0     0     1</span><br><span class="line">  [ 7] .note.GNU-stack   PROGBITS         0000000000000000  00000097</span><br><span class="line">       0000000000000000  0000000000000000           0     0     1</span><br><span class="line">  [ 8] .eh_frame         PROGBITS         0000000000000000  00000098</span><br><span class="line">       0000000000000038  0000000000000000   A       0     0     8</span><br><span class="line">  [ 9] .rela.eh_frame    RELA             0000000000000000  00000220</span><br><span class="line">       0000000000000018  0000000000000018   I      11     8     8</span><br><span class="line">  [10] .shstrtab         STRTAB           0000000000000000  00000238</span><br><span class="line">       0000000000000061  0000000000000000           0     0     1</span><br><span class="line">  [11] .symtab           SYMTAB           0000000000000000  000000d0</span><br><span class="line">       0000000000000108  0000000000000018          12     9     8</span><br><span class="line">  [12] .strtab           STRTAB           0000000000000000  000001d8</span><br><span class="line">       0000000000000013  0000000000000000           0     0     1</span><br><span class="line">Key to Flags:</span><br><span class="line">  W (write), A (alloc), X (execute), M (merge), S (strings), l (large)</span><br><span class="line">  I (info), L (link order), G (group), T (TLS), E (exclude), x (unknown)</span><br><span class="line">  O (extra OS processing required) o (OS specific), p (processor specific)</span><br></pre></td></tr></table></figure></p>
+<p>ELF文件结构示意图中定义的<code>Elf_Shdr</code>的各个成员的含义与readelf具有对应关系。如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">成员</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">sh_name</td>
+<td style="text-align:left">节名</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">节名是一个字符串，保存在一个名为<code>.shstrtab</code>的字符串表（可通过Section Header索引到）。sh_name的值实际上是其节名字符串在<code>.shstrtab</code>中的偏移值</td>
+</tr>
+<tr>
+<td style="text-align:left">sh_type</td>
+<td style="text-align:left">节类型</td>
+</tr>
+<tr>
+<td style="text-align:left">sh_flags</td>
+<td style="text-align:left">节标志位</td>
+</tr>
+<tr>
+<td style="text-align:left">sh_addr</td>
+<td style="text-align:left">节地址：节的虚拟地址</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">如果该节可以被加载，则sh_addr为该节被加载后在进程地址空间中的虚拟地址；否则sh_addr为0</td>
+</tr>
+<tr>
+<td style="text-align:left">sh_offset</td>
+<td style="text-align:left">节偏移</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><strong>如果该节存在于文件中，则表示该节在文件中的偏移；否则无意义，如sh_offset对于BSS 节来说是没有意义的</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">sh_size</td>
+<td style="text-align:left">节大小</td>
+</tr>
+<tr>
+<td style="text-align:left">sh_link、sh_info</td>
+<td style="text-align:left">节链接信息</td>
+</tr>
+<tr>
+<td style="text-align:left">sh_addralign</td>
+<td style="text-align:left">节地址对齐方式</td>
+</tr>
+<tr>
+<td style="text-align:left">sh_entsize</td>
+<td style="text-align:left">节项大小</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">有些节包含了一些固定大小的项，如符号表，其包含的每个符号所在的大小都一样的，对于这种节，sh_entsize表示每个项的大小。<strong>如果为0，则表示该节不包含固定大小的项。</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="节类型（sh-type）"><a href="#节类型（sh-type）" class="headerlink" title="节类型（sh_type）"></a>节类型（sh_type）</h3><p>节名是一个字符串，只是在链接和编译过程中有意义，但它并不能真正地表示节的类型。对于编译器和链接器来说，主要决定节的属性是节的类型（<code>sh_type</code>）和节的标志位（<code>sh_flags</code>）。</p>
+<p>节的类型相关常量以<code>SHT_</code>开头，上述<code>readelf -S</code>命令执行的结果省略了该前缀。常见的节类型如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">常量</th>
+<th style="text-align:left">值</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">SHT_NULL</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">无效节</td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_PROGBITS</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left"><strong>程序节</strong>。代码节、数据节都是这种类型。</td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_SYMTAB</td>
+<td style="text-align:left">2</td>
+<td style="text-align:left"><strong>符号表</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_STRTAB</td>
+<td style="text-align:left">3</td>
+<td style="text-align:left"><strong>字符串表</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_RELA</td>
+<td style="text-align:left">4</td>
+<td style="text-align:left"><strong>重定位表</strong>。该节包含了重定位信息。</td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_HASH</td>
+<td style="text-align:left">5</td>
+<td style="text-align:left"><strong>符号表的哈希表</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_DYNAMIC</td>
+<td style="text-align:left">6</td>
+<td style="text-align:left">动态链接信息</td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_NOTE</td>
+<td style="text-align:left">7</td>
+<td style="text-align:left">提示性信息</td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_NOBITS</td>
+<td style="text-align:left">8</td>
+<td style="text-align:left">表示该节在文件中没有内容。如<code>.bss</code>节</td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_REL</td>
+<td style="text-align:left">9</td>
+<td style="text-align:left">该节包含了重定位信息</td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_SHLIB</td>
+<td style="text-align:left">10</td>
+<td style="text-align:left">保留</td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_DNYSYM</td>
+<td style="text-align:left">11</td>
+<td style="text-align:left"><strong>动态链接的符号表</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="节标志位（sh-flag）"><a href="#节标志位（sh-flag）" class="headerlink" title="节标志位（sh_flag）"></a>节标志位（sh_flag）</h3><p>节标志位表示该节在进程虚拟地址空间中的属性。如是否可写、是否可执行等。相关常量以<code>SHF_</code>开头。常见的节标志位如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">常量</th>
+<th style="text-align:left">值</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">SHF_WRITE</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">表示该节在进程空间中可写</td>
+</tr>
+<tr>
+<td style="text-align:left">SHF_ALLOC</td>
+<td style="text-align:left">2</td>
+<td style="text-align:left">表示该节在进程空间中需要分配空间。有些包含指示或控制信息的节不需要在进程空间中分配空间，就不会有这个标志。</td>
+</tr>
+<tr>
+<td style="text-align:left">SHF_EXECINSTR</td>
+<td style="text-align:left">4</td>
+<td style="text-align:left">表示该节在进程空间中可以被执行</td>
+</tr>
+</tbody>
+</table>
+<h3 id="节链接信息（sh-link、sh-info）"><a href="#节链接信息（sh-link、sh-info）" class="headerlink" title="节链接信息（sh_link、sh_info）"></a>节链接信息（sh_link、sh_info）</h3><p>如果节的类型是与链接相关的（无论是动态链接还是静态链接），如<strong>重定位表、符号表、</strong>等，则<code>sh_link</code>、<code>sh_info</code>两个成员所包含的意义如下所示。其他类型的节，这两个成员没有意义。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">sh_type</th>
+<th style="text-align:left">sh_link</th>
+<th style="text-align:left">sh_info</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">SHT_DYNAMIC</td>
+<td style="text-align:left">该节所使用的<strong>字符串表</strong>在节头表中的下标</td>
+<td style="text-align:left">0</td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_HASH</td>
+<td style="text-align:left">该节所使用的<strong>符号表</strong>在节头表中的下标</td>
+<td style="text-align:left">0</td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_REL</td>
+<td style="text-align:left">该节所使用的<strong>相应符号表</strong>在节头表中的下标</td>
+<td style="text-align:left">该重定位表所作用的节在节头表中的下标</td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_RELA</td>
+<td style="text-align:left">该节所使用的<strong>相应符号表</strong>在节头表中的下标</td>
+<td style="text-align:left">该重定位表所作用的节在节头表中的下标</td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_SYMTAB</td>
+<td style="text-align:left">操作系统相关</td>
+<td style="text-align:left">操作系统相关</td>
+</tr>
+<tr>
+<td style="text-align:left">SHT_DYNSYM</td>
+<td style="text-align:left">操作系统相关</td>
+<td style="text-align:left">操作系统相关</td>
+</tr>
+<tr>
+<td style="text-align:left">other</td>
+<td style="text-align:left">SHN_UNDEF</td>
+<td style="text-align:left">0</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="ELF-Sections"><a href="#ELF-Sections" class="headerlink" title="ELF Sections"></a>ELF Sections</h2><h3 id="节的分类"><a href="#节的分类" class="headerlink" title="节的分类"></a>节的分类</h3><p>上述ELF Section Header Table部分已经简单介绍了节类型。接下来我们来介绍详细一些比较重要的节。</p>
+<h4 id="text节"><a href="#text节" class="headerlink" title=".text节"></a>.text节</h4><p><code>.text</code>节是保存了程序代码指令的<strong>代码节</strong>。<strong>一段可执行程序，如果存在Phdr，则<code>.text</code>节就会存在于<code>text</code>段中</strong>。由于<code>.text</code>节保存了程序代码，所以节类型为<code>SHT_PROGBITS</code>。</p>
+<h4 id="rodata节"><a href="#rodata节" class="headerlink" title=".rodata节"></a>.rodata节</h4><p><code>rodata</code>节保存了只读的数据，如一行C语言代码中的字符串。由于<code>.rodata</code>节是只读的，所以只能存在于一个可执行文件的<strong>只读段</strong>中。因此，只能在<code>text</code>段（不是<code>data</code>段）中找到<code>.rodata</code>节。由于<code>.rodata</code>节是只读的，所以节类型为<code>SHT_PROGBITS</code>。</p>
+<h4 id="plt节（过程链接表）"><a href="#plt节（过程链接表）" class="headerlink" title=".plt节（过程链接表）"></a>.plt节（过程链接表）</h4><p><code>.plt</code>节也称为<strong>过程链接表（Procedure Linkage Table）</strong>，<strong>其包含了动态链接器调用从共享库导入的函数所必需的相关代码</strong>。由于<code>.plt</code>节保存了代码，所以节类型为<code>SHT_PROGBITS</code>。</p>
+<h4 id="data节"><a href="#data节" class="headerlink" title=".data节"></a>.data节</h4><p><code>.data</code>节存在于<code>data</code>段中，<strong>其保存了初始化的全局变量等数据</strong>。由于<code>.data</code>节保存了程序的变量数据，所以节类型为<code>SHT_PROGBITS</code>。</p>
+<h4 id="bss节"><a href="#bss节" class="headerlink" title=".bss节"></a>.bss节</h4><p><code>.bss</code>节存在于<code>data</code>段中，占用空间不超过4字节，仅表示这个节本省的空间。<strong><code>.bss</code>节保存了未进行初始化的全局数据</strong>。程序加载时数据被初始化为0，在程序执行期间可以进行赋值。由于<code>.bss</code>节未保存实际的数据，所以节类型为<code>SHT_NOBITS</code>。</p>
+<h4 id="got-plt节（全局偏移表-过程链接表）"><a href="#got-plt节（全局偏移表-过程链接表）" class="headerlink" title=".got.plt节（全局偏移表-过程链接表）"></a>.got.plt节（全局偏移表-过程链接表）</h4><p><code>.got</code>节保存了<strong>全局偏移表</strong>。<strong><code>.got</code>节和<code>.plt</code>节一起提供了对导入的共享库函数的访问入口，由动态链接器在运行时进行修改</strong>。由于<code>.got.plt</code>节与程序执行有关，所以节类型为<code>SHT_PROGBITS</code>。</p>
+<h4 id="dynsym节（动态链接符号表）"><a href="#dynsym节（动态链接符号表）" class="headerlink" title=".dynsym节（动态链接符号表）"></a>.dynsym节（动态链接符号表）</h4><p><code>.dynsym</code>节保存在<code>text</code>段中。<strong>其保存了从共享库导入的动态符号表</strong>。节类型为<code>SHT_DYNSYM</code>。</p>
+<h4 id="dynstr节（动态链接字符串表）"><a href="#dynstr节（动态链接字符串表）" class="headerlink" title=".dynstr节（动态链接字符串表）"></a>.dynstr节（动态链接字符串表）</h4><p><code>.dynstr</code>保存了动态链接字符串表，表中存放了一系列字符串，这些字符串代表了符号名称，以空字符作为终止符。</p>
+<h4 id="rel-节（重定位表）"><a href="#rel-节（重定位表）" class="headerlink" title=".rel.*节（重定位表）"></a>.rel.*节（重定位表）</h4><p>重定位表保存了重定位相关的信息，<strong>这些信息描述了如何在链接或运行时，对ELF目标文件的某部分或者进程镜像进行补充或修改</strong>。由于重定位表保存了重定位相关的数据，所以节类型为<code>SHT_REL</code>。</p>
+<h4 id="hash节"><a href="#hash节" class="headerlink" title=".hash节"></a>.hash节</h4><p><code>.hash</code>节也称为<code>.gnu.hash</code>，其保存了一个用于查找符号的散列表。</p>
+<h4 id="symtab节（符号表）"><a href="#symtab节（符号表）" class="headerlink" title=".symtab节（符号表）"></a>.symtab节（符号表）</h4><p><code>.symtab</code>节是一个<code>ElfN_Sym</code>的数组，保存了符号信息。节类型为<code>SHT_SYMTAB</code>。</p>
+<h4 id="strtab节（字符串表）"><a href="#strtab节（字符串表）" class="headerlink" title=".strtab节（字符串表）"></a>.strtab节（字符串表）</h4><p><code>.strtab</code>节保存的是符号字符串表，表中的内容会被<code>.symtab</code>的<code>ElfN_Sym</code>结构中的<code>st_name</code>引用。节类型为<code>SHT_STRTAB</code>。</p>
+<h4 id="ctors节和-dtors节"><a href="#ctors节和-dtors节" class="headerlink" title=".ctors节和.dtors节"></a>.ctors节和.dtors节</h4><p><code>.ctors</code>（<strong>构造器</strong>）节和<code>.dtors</code>（<strong>析构器</strong>）节分别保存了指向构造函数和析构函数的函数指针，<strong>构造函数是在main函数执行之前需要执行的代码；析构函数是在main函数之后需要执行的代码</strong>。</p>
+<h3 id="符号表"><a href="#符号表" class="headerlink" title="符号表"></a>符号表</h3><p>节的分类中我们介绍了<code>.dynsym</code>节和<code>.symtab</code>节，两者都是符号表。那么它们到底有什么区别呢？存在什么关系呢？</p>
+<p><strong>符号是对某些类型的数据或代码（如全局变量或函数）的符号引用，函数名或变量名就是符号名</strong>。例如，<code>printf()</code>函数会在动态链接符号表<code>.dynsym</code>中存有一个指向该函数的符号项（以<code>Elf_Sym</code>数据结构表示）。在大多数共享库和动态链接可执行文件中，存在两个符号表。即<code>.dynsym</code>和<code>.symtab</code>。</p>
+<p><strong><code>.dynsym</code>保存了引用来自外部文件符号的全局符号</strong>。如<code>printf</code>库函数。<strong><code>.dynsym</code>保存的符号是<code>.symtab</code>所保存符合的子集，<code>.symtab</code>中还保存了可执行文件的本地符号</strong>。如全局变量，代码中定义的本地函数等。</p>
+<p>既然<code>.dynsym</code>是<code>.symtab</code>的子集，那为何要同时存在两个符号表呢？</p>
+<p>通过<code>readelf -S</code>命令可以查看可执行文件的输出，一部分节标志位（<code>sh_flags</code>）被标记为了<strong>A（ALLOC）、WA（WRITE/ALLOC）、AX（ALLOC/EXEC）</strong>。其中，<code>.dynsym</code>被标记为ALLOC，而<code>.symtab</code>则没有标记。</p>
+<p>ALLOC表示有该标记的节会在运行时分配并装载进入内存，而<code>.symtab</code>不是在运行时必需的，因此不会被装载到内存中。<strong><code>.dynsym</code>保存的符号只能在运行时被解析，因此是运行时动态链接器所需的唯一符号</strong>。<code>.dynsym</code>对于动态链接可执行文件的执行是必需的，而<code>.symtab</code>只是用来进行调试和链接的。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/elf-symtab-strtab.png" alt=""></p>
+<p>上图所示为通过符号表索引字符串表的示意图。符号表中的每一项都是一个<code>Elf_Sym</code>结构，对应可以在字符串表中索引得到一个字符串。该数据结构中成员的含义如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">成员</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">st_name</td>
+<td style="text-align:left">符号名。该值为该符号名在字符串表中的偏移地址。</td>
+</tr>
+<tr>
+<td style="text-align:left">st_value</td>
+<td style="text-align:left">符号对应的值。存放符号的值（可能是地址或位置偏移量）。</td>
+</tr>
+<tr>
+<td style="text-align:left">st_size</td>
+<td style="text-align:left">符号的大小。</td>
+</tr>
+<tr>
+<td style="text-align:left">st_other</td>
+<td style="text-align:left">0</td>
+</tr>
+<tr>
+<td style="text-align:left">st_shndx</td>
+<td style="text-align:left">符号所在的节</td>
+</tr>
+<tr>
+<td style="text-align:left">st_info</td>
+<td style="text-align:left">符号类型及绑定属性</td>
+</tr>
+</tbody>
+</table>
+<p>使用readelf工具我们也能够看到符号表的相关信息。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ readelf -s hello.o</span><br><span class="line"></span><br><span class="line">Symbol table &apos;.symtab&apos; contains 11 entries:</span><br><span class="line">   Num:    Value          Size Type    Bind   Vis      Ndx Name</span><br><span class="line">     0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT  UND</span><br><span class="line">     1: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS hello.c</span><br><span class="line">     2: 0000000000000000     0 SECTION LOCAL  DEFAULT    1</span><br><span class="line">     3: 0000000000000000     0 SECTION LOCAL  DEFAULT    3</span><br><span class="line">     4: 0000000000000000     0 SECTION LOCAL  DEFAULT    4</span><br><span class="line">     5: 0000000000000000     0 SECTION LOCAL  DEFAULT    5</span><br><span class="line">     6: 0000000000000000     0 SECTION LOCAL  DEFAULT    7</span><br><span class="line">     7: 0000000000000000     0 SECTION LOCAL  DEFAULT    8</span><br><span class="line">     8: 0000000000000000     0 SECTION LOCAL  DEFAULT    6</span><br><span class="line">     9: 0000000000000000    21 FUNC    GLOBAL DEFAULT    1 main</span><br><span class="line">    10: 0000000000000000     0 NOTYPE  GLOBAL DEFAULT  UND puts</span><br></pre></td></tr></table></figure></p>
+<h3 id="字符串表"><a href="#字符串表" class="headerlink" title="字符串表"></a>字符串表</h3><p>类似于符号表，在大多数共享库和动态链接可执行文件中，也存在两个字符串表。即<code>.dynstr</code>和<code>.strtab</code>，分别对应于<code>.dynsym</code>和<code>symtab</code>。此外，还有一个<code>.shstrtab</code>的节头字符串表，用于保存节头表中用到的字符串，可通过<code>sh_name</code>进行索引。</p>
+<p>ELF文件中所有字符表的结构基本一致，如上图所示。</p>
+<h3 id="重定位表"><a href="#重定位表" class="headerlink" title="重定位表"></a>重定位表</h3><p><strong>重定位就是将符号定义和符号引用进行连接的过程</strong>。可重定位文件需要包含描述如何修改节内容的相关信息，从而使可执行文件和共享目标文件能够保存进程的程序镜像所需要的正确信息。</p>
+<p>重定位表是进行重定位的重要依据。我们可以使用objdump工具查看目标文件的重定位表：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ objdump -r hello.o</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">hello.o:     file format elf64-x86-64</span><br><span class="line"></span><br><span class="line">RELOCATION RECORDS FOR [.text]:</span><br><span class="line">OFFSET           TYPE              VALUE</span><br><span class="line">0000000000000005 R_X86_64_32       .rodata</span><br><span class="line">000000000000000a R_X86_64_PC32     puts-0x0000000000000004</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">RELOCATION RECORDS FOR [.eh_frame]:</span><br><span class="line">OFFSET           TYPE              VALUE</span><br><span class="line">0000000000000020 R_X86_64_PC32     .text</span><br></pre></td></tr></table></figure></p>
+<p>重定位表是一个<code>Elf_Rel</code>类型的数组结构，每一项对应一个需要进行重定位的项。<br>其成员含义如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">成员</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">r_offset</td>
+<td style="text-align:left">重定位入口的偏移。</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">对于<strong>可重定位文件</strong>来说，这个值是该重定位入口所要修正的位置的第一个字节相对于节起始的偏移</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">对于<strong>可执行文件或共享对象文件</strong>来说，这个值是该重定位入口所要修正的位置的第一个字节的虚拟地址</td>
+</tr>
+<tr>
+<td style="text-align:left">r_info</td>
+<td style="text-align:left">重定位入口的类型和符号</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">因为不同处理器的指令系统不一样，所以重定位所要修正的指令地址格式也不一样。每种处理器都有自己的一套重定位入口的类型。</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">对于<strong>可执行文件和共享目标文件</strong>来说，它们的重定位入口是动态链接类型的。</td>
+</tr>
+</tbody>
+</table>
+<p>重定位是目标文件链接成为可执行文件的关键。我们将在后面的进行介绍。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li>Executable and Linkable Format (ELF)</li>
+<li>《Linux 二进制分析》</li>
+<li>《程序员的自我修养——链接、装载与库》</li>
+<li><a href="https://en.wikipedia.org/wiki/Executable_and_Linkable_Format" target="_blank" rel="noopener">Executable and Linkable Format</a></li>
+</ol>
+<p>(完)</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="Bao Chuquan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Bao Chuquan Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ELF文件/" rel="tag"># ELF文件</a>
+          
+            <a href="/tags/目标文件/" rel="tag"># 目标文件</a>
+          
+            <a href="/tags/可执行文件/" rel="tag"># 可执行文件</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/12/compiler-principle/" rel="next" title="计算机那些事(2)——程序构建及编译原理">
+                <i class="fa fa-chevron-left"></i> 计算机那些事(2)——程序构建及编译原理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="Bao Chuquan" />
+          <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+           
+              <p class="site-description motion-element" itemprop="description">积累，沉淀，吸收，转换</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">37</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">63</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#目标文件的格式"><span class="nav-number">1.</span> <span class="nav-text">目标文件的格式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ELF文件结构"><span class="nav-number">2.</span> <span class="nav-text">ELF文件结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ELF-Header"><span class="nav-number">2.1.</span> <span class="nav-text">ELF Header</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ELF魔数"><span class="nav-number">2.1.1.</span> <span class="nav-text">ELF魔数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ELF文件类型"><span class="nav-number">2.1.2.</span> <span class="nav-text">ELF文件类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ELF-Section-Header-Table"><span class="nav-number">2.2.</span> <span class="nav-text">ELF Section Header Table</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#节类型（sh-type）"><span class="nav-number">2.2.1.</span> <span class="nav-text">节类型（sh_type）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#节标志位（sh-flag）"><span class="nav-number">2.2.2.</span> <span class="nav-text">节标志位（sh_flag）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#节链接信息（sh-link、sh-info）"><span class="nav-number">2.2.3.</span> <span class="nav-text">节链接信息（sh_link、sh_info）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ELF-Sections"><span class="nav-number">2.3.</span> <span class="nav-text">ELF Sections</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#节的分类"><span class="nav-number">2.3.1.</span> <span class="nav-text">节的分类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#text节"><span class="nav-number">2.3.1.1.</span> <span class="nav-text">.text节</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rodata节"><span class="nav-number">2.3.1.2.</span> <span class="nav-text">.rodata节</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#plt节（过程链接表）"><span class="nav-number">2.3.1.3.</span> <span class="nav-text">.plt节（过程链接表）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#data节"><span class="nav-number">2.3.1.4.</span> <span class="nav-text">.data节</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bss节"><span class="nav-number">2.3.1.5.</span> <span class="nav-text">.bss节</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#got-plt节（全局偏移表-过程链接表）"><span class="nav-number">2.3.1.6.</span> <span class="nav-text">.got.plt节（全局偏移表-过程链接表）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dynsym节（动态链接符号表）"><span class="nav-number">2.3.1.7.</span> <span class="nav-text">.dynsym节（动态链接符号表）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dynstr节（动态链接字符串表）"><span class="nav-number">2.3.1.8.</span> <span class="nav-text">.dynstr节（动态链接字符串表）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rel-节（重定位表）"><span class="nav-number">2.3.1.9.</span> <span class="nav-text">.rel.*节（重定位表）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hash节"><span class="nav-number">2.3.1.10.</span> <span class="nav-text">.hash节</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#symtab节（符号表）"><span class="nav-number">2.3.1.11.</span> <span class="nav-text">.symtab节（符号表）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#strtab节（字符串表）"><span class="nav-number">2.3.1.12.</span> <span class="nav-text">.strtab节（字符串表）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ctors节和-dtors节"><span class="nav-number">2.3.1.13.</span> <span class="nav-text">.ctors节和.dtors节</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#符号表"><span class="nav-number">2.3.2.</span> <span class="nav-text">符号表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字符串表"><span class="nav-number">2.3.3.</span> <span class="nav-text">字符串表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重定位表"><span class="nav-number">2.3.4.</span> <span class="nav-text">重定位表</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+  
+  <script type="text/javascript" src="/lib/three/three.min.js"></script>
+
+  
+  <script type="text/javascript" src="/lib/three/three-waves.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+<div id="hexo-helper-live2d">
+  <canvas id="live2dcanvas" width="150" height="300"></canvas>
+</div>
+<style>
+  #live2dcanvas{
+    position: fixed;
+    width: 150px;
+    height: 300px;
+    opacity:0.7;
+    right: 0px;
+    z-index: 999;
+    pointer-events: none;
+    bottom: -20px;
+  }
+</style>
+<script type="text/javascript" src="/live2d/device.min.js"></script>
+<script type="text/javascript">
+const loadScript = function loadScript(c,b){var a=document.createElement("script");a.type="text/javascript";"undefined"!=typeof b&&(a.readyState?a.onreadystatechange=function(){if("loaded"==a.readyState||"complete"==a.readyState)a.onreadystatechange=null,b()}:a.onload=function(){b()});a.src=c;document.body.appendChild(a)};
+(function(){
+  if((typeof(device) != 'undefined') && (device.mobile())){
+    document.getElementById("live2dcanvas").style.width = '75px';
+    document.getElementById("live2dcanvas").style.height = '150px';
+  }else
+    if (typeof(device) === 'undefined') console.error('Cannot find current-device script.');
+  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/hijiki.model.json", 0.5);});
+})();
+</script>
+
+</body>
+</html>
