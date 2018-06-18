@@ -96,22 +96,22 @@
 
 
 
-<meta name="description" content="首先用一张图来大致了解一下计算机启动的整个过程。   上电按下主机的电源键后，计算机开始启动，主板上电后开始初始化其固件（firmware）。固件是一些固化在芯片组上的程序，它会试图去启动CPU。如果启动失败（例如CPU坏了或没插好），计算机就会死机并给出错误提示（如某些版本的主板固件会发出蜂鸣警告）。这种状态称为“zoombie-with-fans”。   如果前一个阶段未出错，就开始加电工作，">
+<meta name="description" content="首先用一张图来大致了解一下计算机启动的整个过程。 上电按下主机的电源键后，计算机开始启动，主板上电后开始初始化其固件（firmware）。固件是一些固化在芯片组上的程序，它会试图去启动CPU。如果启动失败（例如CPU坏了或没插好），计算机就会死机并给出错误提示（如某些版本的主板固件会发出蜂鸣警告）。这种状态称为“zoombie-with-fans”。   如果前一个阶段未出错，就开始加电工作，在多">
 <meta name="keywords" content="开机原理,BIOS">
 <meta property="og:type" content="article">
 <meta property="og:title" content="计算机那些事(1)——开机启动过程">
 <meta property="og:url" content="http://chuquan.me/2016/12/14/computer-boot-process/index.html">
 <meta property="og:site_name" content="楚权的世界">
-<meta property="og:description" content="首先用一张图来大致了解一下计算机启动的整个过程。   上电按下主机的电源键后，计算机开始启动，主板上电后开始初始化其固件（firmware）。固件是一些固化在芯片组上的程序，它会试图去启动CPU。如果启动失败（例如CPU坏了或没插好），计算机就会死机并给出错误提示（如某些版本的主板固件会发出蜂鸣警告）。这种状态称为“zoombie-with-fans”。   如果前一个阶段未出错，就开始加电工作，">
+<meta property="og:description" content="首先用一张图来大致了解一下计算机启动的整个过程。 上电按下主机的电源键后，计算机开始启动，主板上电后开始初始化其固件（firmware）。固件是一些固化在芯片组上的程序，它会试图去启动CPU。如果启动失败（例如CPU坏了或没插好），计算机就会死机并给出错误提示（如某些版本的主板固件会发出蜂鸣警告）。这种状态称为“zoombie-with-fans”。   如果前一个阶段未出错，就开始加电工作，在多">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/computer-boot-up-timeline.png">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/computer-boot-memory.jpg">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/computer-boot-MBR.png">
-<meta property="og:updated_time" content="2018-02-08T10:24:11.923Z">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/computer-boot-process.png">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/real-mode-memory.png">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/computer-boot-mbr.png">
+<meta property="og:updated_time" content="2018-06-10T05:24:04.029Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="计算机那些事(1)——开机启动过程">
-<meta name="twitter:description" content="首先用一张图来大致了解一下计算机启动的整个过程。   上电按下主机的电源键后，计算机开始启动，主板上电后开始初始化其固件（firmware）。固件是一些固化在芯片组上的程序，它会试图去启动CPU。如果启动失败（例如CPU坏了或没插好），计算机就会死机并给出错误提示（如某些版本的主板固件会发出蜂鸣警告）。这种状态称为“zoombie-with-fans”。   如果前一个阶段未出错，就开始加电工作，">
-<meta name="twitter:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/computer-boot-up-timeline.png">
+<meta name="twitter:description" content="首先用一张图来大致了解一下计算机启动的整个过程。 上电按下主机的电源键后，计算机开始启动，主板上电后开始初始化其固件（firmware）。固件是一些固化在芯片组上的程序，它会试图去启动CPU。如果启动失败（例如CPU坏了或没插好），计算机就会死机并给出错误提示（如某些版本的主板固件会发出蜂鸣警告）。这种状态称为“zoombie-with-fans”。   如果前一个阶段未出错，就开始加电工作，在多">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/computer-boot-process.png">
 
 
 
@@ -398,8 +398,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-02-08T18:24:11+08:00">
-                2018-02-08
+              <time title="更新于" itemprop="dateModified" datetime="2018-06-10T13:24:04+08:00">
+                2018-06-10
               </time>
             
           </span>
@@ -454,9 +454,7 @@
       
 
       
-        <p>首先用一张图来大致了解一下计算机启动的整个过程。</p>
-<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/computer-boot-up-timeline.png" alt=""></div>
-
+        <p>首先用一张图来大致了解一下计算机启动的整个过程。<br><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/computer-boot-process.png" alt=""></p>
 <h1 id="上电"><a href="#上电" class="headerlink" title="上电"></a>上电</h1><p>按下主机的电源键后，计算机开始启动，主板上电后开始初始化其固件（firmware）。固件是一些固化在芯片组上的程序，它会试图去启动CPU。如果启动失败（例如CPU坏了或没插好），计算机就会死机并给出错误提示（如某些版本的主板固件会发出蜂鸣警告）。这种状态称为“zoombie-with-fans”。  </p>
 <p>如果前一个阶段未出错，就开始加电工作，在多CPU或多核CPU情况下，某一个CPU会被随机选取作为启动CPU（bootstrap processor，BSP）运行BIOS内部的程序。其余的CPU（application processor，AP）保持停机直到操作系统内核显式地使用它们。  </p>
 <blockquote>
@@ -466,9 +464,7 @@
 <blockquote>
 <p>Intel CPU用三种运行模式: 实模式、32位保护模式、64位保护模式。实模式: Intel 8086的寻址方案，为了商业连续性，兼容了这古老的方案；保护模式: 采用了虚实地址转换方案。</p>
 </blockquote>
-<p>BIOS启动之初，内存是空的。此时CPU处于实模式，内存的地址映射均为硬连接的设备。内存映射图如下图所示:  </p>
-<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/computer-boot-memory.jpg" alt=""></div>  
-
+<p>BIOS启动之初，内存是空的。此时CPU处于实模式，内存的地址映射均为硬连接的设备。内存映射图如下图所示:<br><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/real-mode-memory.png" alt=""></p>
 <h1 id="重置向量"><a href="#重置向量" class="headerlink" title="重置向量"></a>重置向量</h1><p>CPU启动后其大多数寄存器会被初始化为预定的值，包括指令寄存器（instruction pointer, EIP），它保存着CPU将要执行指令的内存地址。此时CPU会有一个特殊行为，其会对EIP的初始值加上一个基址寄存器的值，生成一个32位的地址0xFFFFFFF0。之所以称为特殊行为，是因为实模式下CPU只能寻址1MB地址空间，而这个32位地址已经大于1MB的内存限制。因此，0xFFFFFFF0也被称为重置向量（reset vector），参考上图0xFFFFFFF0处的标识。  </p>
 <p>于是，CPU开始执行0xFFFFFFF0地址处的指令，该地址处是一条JUMP指令，这条指令清空了基址寄存器的值，并让指令跳回到BIOS开始处（物理地址为0xF0000，参考上图0xF0000处的标识）以执行BIOS。</p>
 <blockquote>
@@ -479,9 +475,7 @@
 <h1 id="BIOS记录系统设定值"><a href="#BIOS记录系统设定值" class="headerlink" title="BIOS记录系统设定值"></a>BIOS记录系统设定值</h1><p>检查完成后，BIOS会根据自己的“系统资源表”，对系统进行进一步确认，从而确定计算机配有哪些资源或设备。例如BIOS支持随插即用，它会检测并配置随插即用设备。<br>然后BIOS会遵循高级配置电源接口（Advanced Configuration Power Interface，ACPI）在内存中设置好一系列的数据来描述硬件信息，以便被操作系统内核利用。</p>
 <h1 id="搜索MBR"><a href="#搜索MBR" class="headerlink" title="搜索MBR"></a>搜索MBR</h1><p>到这一步，BIOS开始尝试加载操作系统。它会从硬盘，光驱，软驱，网络等几个地方依次寻找操作系统（用户可以在BIOS设定中修改查找的优先级）。如果找不到操作系统，BIOS会停机并给出错误信息。  </p>
 <p>假设在硬盘上找到了操作系统，它会首先读取硬盘上的大小为512B的0号扇区，这个扇区被称为<a href="https://zh.wikipedia.org/wiki/%E4%B8%BB%E5%BC%95%E5%AF%BC%E8%AE%B0%E5%BD%95" target="_blank" rel="noopener">主引导记录</a>（master boot record，MBR），其包含三部分：<br>(1) <strong>启动代码</strong><br>(2) <strong>硬盘分区表</strong><br>(3) <strong>结束标志字</strong>  </p>
-<p>BIOS读完磁盘上的MBR之后会把它拷贝到内存0x7C00地址处，然后CPU跳转到该内存地址执行MBR里的指令。下图可以帮助大家理解MBR的结构。  </p>
-<div align="center"><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/computer-boot-MBR.png" alt=""></div>  
-
+<p>BIOS读完磁盘上的MBR之后会把它拷贝到内存0x7C00地址处，然后CPU跳转到该内存地址执行MBR里的指令。下图可以帮助大家理解MBR的结构。<br><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/computer-boot-mbr.png" alt=""></p>
 <blockquote>
 <p><strong>启动代码</strong>中的硬盘引导程序的主要作用是检查分区表是否正确并且在系统硬件完成自检以后将控制权交给硬盘上的引导程序（Windows里面是Windows MBR Loader，Linux的话可能是<a href="https://zh.wikipedia.org/zh-hans/LILO" target="_blank" rel="noopener">LILO</a>或者<a href="https://zh.wikipedia.org/wiki/GNU_GRUB" target="_blank" rel="noopener">GRUB</a>）。<br><strong>磁盘分区表</strong>是固定的，一个64字节的区域，每16字节为一个条目，描述硬盘的分区信息（这样就可以在同一磁盘的不同分区上安装不同的操作系统）。所以采用了MBR格式分区表的文件系统最多能安装四个操作系统。  </p>
 </blockquote>
@@ -492,8 +486,8 @@
 <li>此时引导程序开始引导操作系统内核。它必须能够识别内核所在引导分区的文件系统。在Linux中，这一步是读取一个类似“<a href="https://zh.wikipedia.org/wiki/Vmlinux" target="_blank" rel="noopener">vmlinuz</a>”的文件，加载至内存中并跳转到内核启动代码。</li>
 </ol>
 <p>此时我们回头再看第一张图，从引导程序到早期的内核初始化过程，此时内核解压开始了。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>[1] <a href="http://duartes.org/gustavo/blog/post/how-computers-boot-up/" target="_blank" rel="noopener">How Computers Boot Up</a><br>[2] <a href="http://www.techbang.com/posts/4359" target="_blank" rel="noopener">即将换掉传统BIOS的UEFI</a></p>
 <p>（完）</p>
-<p><strong>参考</strong><br>[1] <a href="http://duartes.org/gustavo/blog/post/how-computers-boot-up/" target="_blank" rel="noopener">How Computers Boot Up</a><br>[2] <a href="http://www.techbang.com/posts/4359" target="_blank" rel="noopener">即将换掉传统BIOS的UEFI</a></p>
 
       
     </div>
@@ -669,7 +663,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">37</span>
+                <span class="site-state-item-count">38</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -691,7 +685,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">63</span>
+                <span class="site-state-item-count">66</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -779,7 +773,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#上电"><span class="nav-number">1.</span> <span class="nav-text">上电</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#重置向量"><span class="nav-number">2.</span> <span class="nav-text">重置向量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BIOS初始化"><span class="nav-number">3.</span> <span class="nav-text">BIOS初始化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BIOS-POST（加电自检）"><span class="nav-number">4.</span> <span class="nav-text">BIOS POST（加电自检）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BIOS记录系统设定值"><span class="nav-number">5.</span> <span class="nav-text">BIOS记录系统设定值</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#搜索MBR"><span class="nav-number">6.</span> <span class="nav-text">搜索MBR</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#引导操作系统"><span class="nav-number">7.</span> <span class="nav-text">引导操作系统</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#上电"><span class="nav-number">1.</span> <span class="nav-text">上电</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#重置向量"><span class="nav-number">2.</span> <span class="nav-text">重置向量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BIOS初始化"><span class="nav-number">3.</span> <span class="nav-text">BIOS初始化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BIOS-POST（加电自检）"><span class="nav-number">4.</span> <span class="nav-text">BIOS POST（加电自检）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BIOS记录系统设定值"><span class="nav-number">5.</span> <span class="nav-text">BIOS记录系统设定值</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#搜索MBR"><span class="nav-number">6.</span> <span class="nav-text">搜索MBR</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#引导操作系统"><span class="nav-number">7.</span> <span class="nav-text">引导操作系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>
