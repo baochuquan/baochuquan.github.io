@@ -108,9 +108,12 @@
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/active-model-MVC.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/traditional-MVC.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/apple-MVC.png">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-MVC.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/MVP.png">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/MVVM-based-on-MVC.png">
-<meta property="og:updated_time" content="2018-04-10T16:25:48.842Z">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-MVP.png">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/MVVM.png">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-MVVM.png">
+<meta property="og:updated_time" content="2018-07-01T12:52:34.396Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MVC、MVP、MVVM的演化">
 <meta name="twitter:description" content="在iOS开发中苹果定义了一套MVC的软件架构。前几天，同事们聊起了MVC、MVP、MVVM等架构的区别。今天，我也来对此给出一些自己的理解。 MVC基本MVC模式如下图所示为基本的MVC（Model-View-Controller）模式结构图，可分为三部分：模型（Model）、视图（View）、控制器（Controller）。其在MVC模式中所扮演的角色分别为：  Model：模型管理应用程序的数">
@@ -401,8 +404,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-04-11T00:25:48+08:00">
-                2018-04-11
+              <time title="更新于" itemprop="dateModified" datetime="2018-07-01T20:52:34+08:00">
+                2018-07-01
               </time>
             
           </span>
@@ -467,7 +470,7 @@
 <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/basic-MVC.png" alt=""></p>
 <p>其中，View和Controller依赖于Model，而Model并不依赖于View和Controller。这种设计模式的优点在于允许Model不受View的影响，从而能够进行独立的构建和测试。</p>
 <p>此外，根据Model的具体实现还可以进一步分为：<strong>主动型Model</strong>、<strong>被动型Model</strong>。</p>
-<h3 id="被动型Model-MVC模式"><a href="#被动型Model-MVC模式" class="headerlink" title="被动型Model MVC模式"></a>被动型Model MVC模式</h3><p>当只有一个Controller操控着Model时可以采用<strong>被动型Model</strong>。Controller定义Model，并在Model发生改变时通知View，后者再进行更新。在这种场景下，Model完全独立于View和Controller。实际上，被动型Model MVC模式就基本的MVC模式。</p>
+<h3 id="被动型Model-MVC模式"><a href="#被动型Model-MVC模式" class="headerlink" title="被动型Model MVC模式"></a>被动型Model MVC模式</h3><p>当只有一个Controller操控着Model时可以采用<strong>被动型Model</strong>。Controller定义Model，并在Model发生改变时通知View，后者再进行更新。在这种场景下，Model完全独立于View和Controller。实际上，被动型Model MVC模式就是基本的MVC模式。</p>
 <h3 id="主动型Model-MVC模式"><a href="#主动型Model-MVC模式" class="headerlink" title="主动型Model MVC模式"></a>主动型Model MVC模式</h3><p>当Model的状态未受Controller干扰的情况下发生变化时，使用<strong>主动型Model</strong>。当其他来源正在更改数据并且必须立刻反应到View中时，可能会发生这种情况。</p>
 <p>为了实现主动型Model，通常使用Observer模式来提供了一种机制来提醒其他对象的状态变化，避免引入依赖关系。各个View实现Observer接口并向Model注册。当Model发生变化时，Model会遍历所有注册的观察者并通知他们相关的变化。这种方法通常被称为“发布 - 订阅”。Model从不需要关于任何View的任何信息。事实上，在Controller需要被告知Model变化的情况下（例如，启用或禁用菜单选项），所有Controller必须通过实现Observer接口并订阅Model的变化。</p>
 <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/active-model-MVC.png" alt=""></p>
@@ -476,11 +479,18 @@
 <p>上图所示为传统MVC设计模式，其通过Composition、Strategy、Observer等基本设计模式协同工作以实现。用户操作在复合结构的某个层次上操作View，生成一个事件。Controller接收事件，并进行解释。这个过程使用Strategy模式实现，可以是通过消息请求一个Model对象来更新其状态或请求一个View对象来更新其行为或外观。Model对象则在其状态改变时通知所有已注册为观察者的对象。如果观察者是对象，则可以相应更新其外观。</p>
 <h2 id="苹果版MVC"><a href="#苹果版MVC" class="headerlink" title="苹果版MVC"></a>苹果版MVC</h2><p>苹果认为传统的MVC模式中，View通过Observer模式直接观察Model对象以获取相关的通知，而这样的设计会导致View和Model对象不能被广泛复用，因为View与其观察的Model之间存在耦合关系。因此，苹果版MVC与传统MVC基本一致，只是隔离了View和Model。</p>
 <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/apple-MVC.png" alt=""></p>
-<h1 id="MVP"><a href="#MVP" class="headerlink" title="MVP"></a>MVP</h1><p>MVP（Modell-View-Presenter）模式其实和苹果版MVC是一样的。两者的优点很明确，解耦View和Model，提高了View和Model的复用程度。缺点也是很明显，即Presenter（Controller）会变得非常臃肿，毕竟其不仅包含了业务逻辑，还负责View和Model之间的通信。</p>
+<p>在iOS中，UIViewController和UIView是一一对应的。随着业务的深入，MVC最终一点点变成了<strong>Massive-View-Controller</strong>。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-MVC.png" alt=""></p>
+<h1 id="MVP"><a href="#MVP" class="headerlink" title="MVP"></a>MVP</h1><p>MVP（Modell-View-Presenter）模式就是为了解决MVC中Controller越来越臃肿的问题，进一步明确代码分工。MVP与苹果版MVC非常相似，但是它们的从属关系有所不同（实线表示持有）。如下图所示，MVP模式中View持有Presenter，Presenter持有Model，View不能直接访问Model；而MVC模式中Controller持有View和Model。</p>
+<p>通过修改从属关系，可以真正意义上实现将UI逻辑和数据逻辑隔离，而隔离之后就可以方便地对数据逻辑部分进行单元测试。</p>
 <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/MVP.png" alt=""></p>
-<h1 id="MVVM"><a href="#MVVM" class="headerlink" title="MVVM"></a>MVVM</h1><p>MVVM（Model View View-Model）就是为了解决MVP中Presenter过于臃肿的问题。MVVM的思想是将Controller中UI控制逻辑与业务逻辑进行分离，并抽离出一个View-Model来完成UI控制的逻辑。而Controller只需要负责业务逻辑即可。如下图便是MVC（MVP）转换成MVVM之后的结构图。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/MVVM-based-on-MVC.png" alt=""></p>
+<p>在iOS中，MVP的实现一般如下图所示。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-MVP.png" alt=""></p>
+<h1 id="MVVM"><a href="#MVVM" class="headerlink" title="MVVM"></a>MVVM</h1><p>MVVM（Model View View-Model）就是为了解决MVP中Presenter过于臃肿的问题。MVVM的思想是将Controller中UI控制逻辑与业务逻辑进行分离，并抽离出一个View-Model来完成UI控制的逻辑。而Controller只需要负责业务逻辑即可。如下图便是MVVM的结构图。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/MVVM.png" alt=""></p>
 <p>通常，View-Model可以调用Model定义的方法，从Model中获取数据以用于View，并对数据进行预处理，使View可以直接使用。View又可以向View-Model发出用户的操作命令，从而更改Model。MVVM实现了一种双向绑定机制。</p>
+<p>在iOS中，MVVM的实现一般如下图所示。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-MVVM.png" alt=""></p>
 <p>MVVM的优点在于：降低了View和Model之间的耦合；分离了业务逻辑和视图逻辑。缺点在于：View和Model双向绑定导致bug难以定位，两者中的任何一方出现问题，另一方也会出现问题；增加了胶水代码。</p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
 <li><a href="https://msdn.microsoft.com/en-us/library/ff649643.aspx" target="_blank" rel="noopener">Model-View-Controller</a></li>
@@ -489,6 +499,7 @@
 <li><a href="https://www.jianshu.com/p/caaa173071f3" target="_blank" rel="noopener">iOS 关于MVC和MVVM设计模式的那些事</a></li>
 <li><a href="http://www.ruanyifeng.com/blog/2015/02/mvcmvp_mvvm.html" target="_blank" rel="noopener">MVC, MVP和MVVM</a></li>
 <li><a href="http://www.infoq.com/cn/articles/rethinking-mvc-mvvm" target="_blank" rel="noopener">被误解的MVC和被神化的MVVM</a></li>
+<li><a href="http://blog.harrisonxi.com/2017/07/iOS%E4%BD%BF%E7%94%A8RAC%E5%AE%9E%E7%8E%B0MVVM%E7%9A%84%E6%AD%A3%E7%BB%8F%E5%A7%BF%E5%8A%BF.html" target="_blank" rel="noopener">iOS使用RAC实现MVVM的正经姿势</a></li>
 </ol>
 <p>（完）</p>
 
