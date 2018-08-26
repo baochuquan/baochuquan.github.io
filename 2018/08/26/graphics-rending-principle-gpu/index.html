@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="GPU,渲染," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="最近在 iOS 开发中做了较多动画相关的编程工作。因此想借此机会深入了解了一下 iOS 动画及渲染相关原理。随着对相关方面的深入了解，发现这里面涉及到从硬件底层到软件框架等一系列相关知识。 本文将从相对底层的角度对计算图形渲染原理进行简要介绍，以作为后续的知识储备。 引言作为程序员，我们或多或少知道可视化应用程序都是由 CPU 和 GPU 协作执行的。那么我们就先来了解一下两者的基本概念：  CP">
+<meta name="keywords" content="GPU,渲染">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图形渲染原理综述(1)——GPU">
+<meta property="og:url" content="http://chuquan.me/2018/08/26/graphics-rending-principle-gpu/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="最近在 iOS 开发中做了较多动画相关的编程工作。因此想借此机会深入了解了一下 iOS 动画及渲染相关原理。随着对相关方面的深入了解，发现这里面涉及到从硬件底层到软件框架等一系列相关知识。 本文将从相对底层的角度对计算图形渲染原理进行简要介绍，以作为后续的知识储备。 引言作为程序员，我们或多或少知道可视化应用程序都是由 CPU 和 GPU 协作执行的。那么我们就先来了解一下两者的基本概念：  CP">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gpu-rasterization-basic-concept.png?x-oss-process=image/resize,w_300">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/opengl-graphics-pipeline.png">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gpu-hierarchy.png?x-oss-process=image/resize,w_400">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gpu-stream-processor.png?x-oss-process=image/resize,w_400">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cpu-gpu-architecture.png">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gpu-management-model.png">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/cuda_processing_flow.png">
+<meta property="og:updated_time" content="2018-08-26T10:09:29.890Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="图形渲染原理综述(1)——GPU">
+<meta name="twitter:description" content="最近在 iOS 开发中做了较多动画相关的编程工作。因此想借此机会深入了解了一下 iOS 动画及渲染相关原理。随着对相关方面的深入了解，发现这里面涉及到从硬件底层到软件框架等一系列相关知识。 本文将从相对底层的角度对计算图形渲染原理进行简要介绍，以作为后续的知识储备。 引言作为程序员，我们或多或少知道可视化应用程序都是由 CPU 和 GPU 协作执行的。那么我们就先来了解一下两者的基本概念：  CP">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gpu-rasterization-basic-concept.png?x-oss-process=image/resize,w_300">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2018/08/26/graphics-rending-principle-gpu/"/>
+
+
+
+
+
+  <title>图形渲染原理综述(1)——GPU | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2018/08/26/graphics-rending-principle-gpu/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Bao Chuquan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">图形渲染原理综述(1)——GPU</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2018-08-26T18:07:41+08:00">
+                2018-08-26
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2018-08-26T18:09:29+08:00">
+                2018-08-26
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/计算机原理/" itemprop="url" rel="index">
+                    <span itemprop="name">计算机原理</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近在 iOS 开发中做了较多动画相关的编程工作。因此想借此机会深入了解了一下 iOS 动画及渲染相关原理。随着对相关方面的深入了解，发现这里面涉及到从硬件底层到软件框架等一系列相关知识。</p>
+<p>本文将从相对底层的角度对计算图形渲染原理进行简要介绍，以作为后续的知识储备。</p>
+<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>作为程序员，我们或多或少知道可视化应用程序都是由 CPU 和 GPU 协作执行的。那么我们就先来了解一下两者的基本概念：</p>
+<ul>
+<li><strong>CPU（Central Processing Unit）</strong>：现代计算机的三大核心部分之一，作为整个系统的运算和控制单元。CPU 内部的流水线结构使其拥有一定程度的并行计算能力。</li>
+<li><strong>GPU（Graphics Processing Unit）</strong>：一种可进行绘图运算工作的专用微处理器。GPU 能够生成 2D/3D 的图形图像和视频，从而能够支持基于窗口的操作系统、图形用户界面、视频游戏、可视化图像应用和视频播放。GPU 具有非常强的并行计算能力。</li>
+</ul>
+<p>这时候可能会产生一个问题：CPU 难道不能代替 GPU 来进行图形渲染吗？答案当然是肯定的，不过在看了下面这个视频就明白为什么要用 GPU 来进行图形渲染了。</p>
+<p><a href="http://ugcydzd.qq.com/uwMRJfz-r5jAYaQXGdGnC2_ppdhgmrDlPaRvaV7F2Ic/a0310ca26r9.m701.mp4?vkey=40961BB7F3520A37C85D4E4B4130DD91374BFB11499862930CE40B3E09D41D06125BC9EFC73A98DDDE2E5A64EAEB896492064C775F5C82ECD1D72D91D30C53F874EF2C404B480B719C6B8FAA1FA012CEF8743749150271333535195D599FE9F4E8E5FADC8C1A4FBEE74E1C81AA4206F408DE82EE359B3193&amp;br=29&amp;platform=2&amp;fmt=auto&amp;level=0&amp;sdtfrom=v1010&amp;guid=f401ea7eb4e13983f11cfe58f689e34d" target="_blank" rel="noopener">GPU CPU 模拟绘图视频</a></p>
+<p>使用 GPU 渲染图形的根本原因就是：速度。GPU 的并行计算能力使其能够快速将图形结果计算出来并在屏幕的所有像素中进行显示。</p>
+<p>那么像素是如何绘制在屏幕上的？计算机将存储在内存中的形状转换成实际绘制在屏幕上的对应的过程称为 <strong>渲染</strong>。渲染过程中最常用的技术就是 <strong>光栅化</strong>。</p>
+<p>关于光栅化的概念，以下图为例，假如有一道绿光与存储在内存中的一堆三角形中的某一个在三维空间坐标中存在相交的关系。那么这些处于相交位置的像素都会被绘制到屏幕上。当然这些三角形在三维空间中的前后关系也会以遮挡或部分遮挡的形式在屏幕上呈现出来。一句话总结：光栅化就是将数据转化成可见像素的过程。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gpu-rasterization-basic-concept.png?x-oss-process=image/resize,w_300" alt=""></p>
+<p>GPU 则是执行转换过程的硬件部件。由于这个过程涉及到屏幕上的每一个像素，所以 GPU 被设计成了一个高度并行化的硬件部件。</p>
+<p>下面，我们来简单了解一下 GPU 的历史。</p>
+<h1 id="GPU-历史"><a href="#GPU-历史" class="headerlink" title="GPU 历史"></a>GPU 历史</h1><p>GPU 还未出现前，PC 上的图形操作是由 <strong>视频图形阵列（VGA，Video Graphics Array）</strong> 控制器完成。VGA 控制器由连接到一定容量的DRAM上的存储控制器和显示产生器构成。</p>
+<p>1997 年，VGA 控制器开始具备一些 3D 加速功能，包括用于 <strong>三角形生成</strong>、<strong>光栅化</strong>、<strong>纹理贴图</strong> 和 <strong>阴影</strong>。</p>
+<p>2000 年，一个单片处图形处理器继承了传统高端工作站图形流水线的几乎每一个细节。因此诞生了一个新的术语 GPU 用来表示图形设备已经变成了一个处理器。</p>
+<p>随着时间的推移，GPU 的可编程能力愈发强大，其作为可编程处理器取代了固定功能的专用逻辑，同时保持了基本的 3D 图形流水线组织。</p>
+<p>近年来，GPU 增加了处理器指令和存储器硬件，以支持通用编程语言，并创立了一种编程环境，从而允许使用熟悉的语言（包括 C/C++）对 GPU 进行编程。</p>
+<p>如今，GPU 及其相关驱动实现了图形处理中的 <code>OpenGL</code> 和 <code>DirectX</code> 模型，从而允许开发者能够轻易地操作硬件。<code>OpenGL</code> 严格来说并不是常规意义上的 API，而是一个第三方标准（由 khronos 组织制定并维护），其严格定义了每个函数该如何执行，以及它们的输出值。至于每个函数内部具体是如何实现的，则由 OpenGL 库的开发者自行决定。实际 OpenGL 库的开发者通常是显卡的生产商。<code>DirectX</code> 则是由 Microsoft 提供一套第三方标准。</p>
+<h1 id="GPU-图形渲染流水线"><a href="#GPU-图形渲染流水线" class="headerlink" title="GPU 图形渲染流水线"></a>GPU 图形渲染流水线</h1><p>GPU 图形渲染流水线的主要工作可以被划分为两个部分：</p>
+<ul>
+<li>把 3D 坐标转换为 2D 坐标</li>
+<li>把 2D 坐标转变为实际的有颜色的像素</li>
+</ul>
+<p>GPU 图形渲染流水线的具体实现可分为六个阶段，如下图所示。</p>
+<ul>
+<li><strong>顶点着色器（Vertex Shader）</strong></li>
+<li><strong>形状装配（Shape Assembly）</strong>，又称 <strong>图元装配</strong></li>
+<li><strong>几何着色器（Geometry Shader）</strong></li>
+<li><strong>光栅化（Rasterization）</strong></li>
+<li><strong>片段着色器（Fragment Shader）</strong></li>
+<li><strong>测试与混合（Tests and Blending）</strong></li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/opengl-graphics-pipeline.png" alt=""></p>
+<p>第一阶段，顶点着色器。该阶段的输入是 <strong>顶点数据（Vertex Data）</strong> 数据，比如以数组的形式传递 3 个 3D 坐标用来表示一个三角形。顶点数据是一系列顶点的集合。顶点着色器主要的目的是把 3D 坐标转为另一种 3D 坐标，同时顶点着色器可以对顶点属性进行一些基本处理。</p>
+<p>第二阶段，形状（图元）装配。该阶段将顶点着色器输出的所有顶点作为输入，并将所有的点装配成指定图元的形状。图中则是一个三角形。<strong>图元（Primitive）</strong> 用于表示如何渲染顶点数据，如：点、线、三角形。</p>
+<p>第三阶段，几何着色器。该阶段把图元形式的一系列顶点的集合作为输入，它可以通过产生新顶点构造出新的（或是其它的）图元来生成其他形状。例子中，它生成了另一个三角形。</p>
+<p>第四阶段，光栅化。该阶段会把图元映射为最终屏幕上相应的像素，生成片段。<strong>片段（Fragment）</strong> 是渲染一个像素所需要的所有数据。</p>
+<p>第五阶段，片段着色器。该阶段首先会对输入的片段进行 <strong>裁切（Clipping）</strong>。裁切会丢弃超出视图以外的所有像素，用来提升执行效率。</p>
+<p>第六阶段，测试与混合。该阶段会检测片段的对应的深度值（<code>z</code> 坐标），判断这个像素位于其它物体的前面还是后面，决定是否应该丢弃。此外，该阶段还会检查 <code>alpha</code> 值（ <code>alpha</code> 值定义了一个物体的透明度），从而对物体进行混合。因此，即使在片段着色器中计算出来了一个像素输出的颜色，在渲染多个三角形的时候最后的像素颜色也可能完全不同。</p>
+<p>上述阶段中的着色器事实上是一些程序，它们运行在 GPU 中成千上万的小处理器核中。这些着色器允许开发者进行配置，从而可以高效地控制图形渲染流水线中的特定部分。由于它们运行在 GPU 中，因此可以降低 CPU 的负荷。着色器可以使用多种语言编写，OpenGL 提供了 GLSL（OpenGL Shading Language） 着色器语言。</p>
+<h1 id="GPU-存储系统"><a href="#GPU-存储系统" class="headerlink" title="GPU 存储系统"></a>GPU 存储系统</h1><p>早期的 GPU，不同的着色器对应有着不同的硬件单元。如今，GPU 流水线则使用一个统一的硬件来运行所有的着色器。此外，nVidia 还提出了 <strong>CUDA（Compute Unified Device Architecture）</strong> 编程模型，可以允许开发者通过编写 C 代码来访问 GPU 中所有的处理器核，从而深度挖掘 GPU 的并行计算能力。</p>
+<p>下图所示为 GPU 内部的层级结构。最底层是计算机的系统内存，其次是 GPU 的内部存储，然后依次是两级 cache：L2 和 L1，每个 L1 cache 连接至一个 <strong>流处理器（SM，stream processor）</strong>。</p>
+<ul>
+<li>SM L1 Cache 的存储容量大约为 16 至 64KB。</li>
+<li>GPU L2 Cache 的存储容量大约为几百 KB。</li>
+<li>GPU 的内存最大为 12GB。</li>
+</ul>
+<p>GPU 上的各级存储系统与对应层级的计算机存储系统相比要小不少。</p>
+<p>此外，GPU 内存并不具有一致性，也就意味着并不支持并发读取和并发写入。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gpu-hierarchy.png?x-oss-process=image/resize,w_400" alt=""></p>
+<h1 id="GPU-流处理器"><a href="#GPU-流处理器" class="headerlink" title="GPU 流处理器"></a>GPU 流处理器</h1><p>下图所示为 GPU 中每个流处理器的内部结构示意图。每个流处理器集成了一个 L1 Cache。顶部是处理器核共享的寄存器堆。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gpu-stream-processor.png?x-oss-process=image/resize,w_400" alt=""></p>
+<h1 id="CPU-GPU-异构系统"><a href="#CPU-GPU-异构系统" class="headerlink" title="CPU-GPU 异构系统"></a>CPU-GPU 异构系统</h1><p>至此，我们大致了解了 GPU 的工作原理和内部结构，那么实际应用中 CPU 和 GPU 又是如何协同工作的呢？</p>
+<p>下图所示为两种常见的 CPU-GPU 异构架构。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cpu-gpu-architecture.png" alt=""></p>
+<p>左图是分离式的结构，CPU 和 GPU 拥有各自的存储系统，两者通过 PCI-e 总线进行连接。这种结构的缺点在于 PCI-e 相对于两者具有低带宽和高延迟，数据的传输成了其中的性能瓶颈。目前使用非常广泛，如PC、智能手机等。</p>
+<p>右图是耦合式的结构，CPU 和 GPU 共享内存和缓存。AMD 的 APU 采用的就是这种结构，目前主要使用在游戏主机中，如 PS4。</p>
+<p>注意，目前很多 SoC 都是集成了CPU 和 GPU，事实上这仅仅是在物理上进行了集成，并不意味着它们使用的就是耦合式结构，大多数采用的还是分离式结构。耦合式结构是在系统上进行了集成。</p>
+<p>在存储管理方面，分离式结构中 CPU 和 GPU 各自拥有独立的内存，两者共享一套虚拟地址空间，必要时会进行内存拷贝。对于耦合式结构，GPU 没有独立的内存，与 GPU 共享系统内存，由 MMU 进行存储管理。</p>
+<p>图形应用程序调用 <code>OpenGL</code> 或 <code>Direct3D</code> API 功能，将 GPU 作为协处理器使用。API 通过面向特殊 GPU 优化的图形设备驱动向 GPU 发送命令、程序、数据。</p>
+<h1 id="GPU-资源管理模型"><a href="#GPU-资源管理模型" class="headerlink" title="GPU 资源管理模型"></a>GPU 资源管理模型</h1><p>下图所示为分离式异构系统中 GPU 的资源管理模型示意图。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gpu-management-model.png" alt=""></p>
+<ol>
+<li><strong>MMIO（Memory-Mapped I/O）</strong></li>
+</ol>
+<ul>
+<li>CPU 通过 MMIO 访问 GPU 的寄存器状态。</li>
+<li>通过 MMIO 传送数据块传输命令，支持 DMA 的硬件可以实现块数据传输。</li>
+</ul>
+<ol>
+<li><strong>GPU Context</strong></li>
+</ol>
+<ul>
+<li>上下文表示 GPU 的计算状态，在 GPU 中占据部分虚拟地址空间。多个活跃态下的上下文可以在 GPU 中并存。</li>
+</ul>
+<ol>
+<li><strong>CPU Channel</strong></li>
+</ol>
+<ul>
+<li>来自 CPU 操作 GPU 的命令存储在内存中，并提交至 GPU channel 硬件单元。</li>
+<li>每个 GPU 上下文可拥有多个 GPU Channel。每个 GPU 上下文都包含 GPU channel 描述符（GPU 内存中的内存对象）。</li>
+<li>每个 GPU Channel 描述符存储了channel 的配置，如：其所在的页表。</li>
+<li>每个 GPU Channel 都有一个专用的命令缓冲区，该缓冲区分配在 GPU 内存中，通过 MMIO 对 CPU 可见。</li>
+</ul>
+<ol>
+<li><strong>GPU 页表</strong></li>
+</ol>
+<ul>
+<li>GPU 上下文使用 GPU 页表进行分配，该表将虚拟地址空间与其他地址空间隔离开来。</li>
+<li>GPU 页表与 CPU 页表分离，其驻留在 GPU 内存中，物理地址位于 GPU 通道描述符中。<br>通过 GPU channel 提交的所有命令和程序都在对应的 GPU 虚拟地址空间中执行。</li>
+<li>GPU 页表将 GPU 虚拟地址不仅转换为 GPU 设备物理地址，还转换为主机物理地址。这使得 GPU 页面表能够将 GPU 存储器和主存储器统一到统一的 GPU 虚拟地址空间中，从而构成一个完成的虚拟地址空间。</li>
+</ul>
+<ol>
+<li><strong>PFIFO Engine</strong></li>
+</ol>
+<ul>
+<li>PFIFO 是一个提交 GPU 命令的特殊引擎。</li>
+<li>PFIFO 维护多个独立的命令队列，即 channel。</li>
+<li>命令队列是带有 put 和 get 指针的环形缓冲器。</li>
+<li>PFIFO 引擎会拦截多有对通道控制区域的访问以供执行。</li>
+<li>GPU 驱动使用一个通道描述符来存储关联通道的设置。</li>
+</ul>
+<ol>
+<li><strong>BO</strong></li>
+</ol>
+<ul>
+<li>缓冲对象（Buffer Object）。一块内存，可以用来存储纹理，渲染对象，着色器代码等等。</li>
+</ul>
+<h1 id="CPU-GPU-工作流"><a href="#CPU-GPU-工作流" class="headerlink" title="CPU-GPU 工作流"></a>CPU-GPU 工作流</h1><p>下图所示为 CPU-GPU 异构系统的工作流，当 CPU 遇到图像处理的需求时，会调用 GPU 进行处理，主要流程可以分为以下四步：</p>
+<ol>
+<li>将主存的处理数据复制到显存中</li>
+<li>CPU 指令驱动 GPU</li>
+<li>GPU 中的每个运算单元并行处理</li>
+<li>GPU 将显存结果传回主存</li>
+</ol>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/cuda_processing_flow.png" alt=""></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a href="https://www.cs.utah.edu/~jeffp/teaching/MCMD/S20-GPU.pdf" target="_blank" rel="noopener">GPU Architecture and Models</a></li>
+<li>计算机组成与设计：硬件、软件接口</li>
+<li><a href="https://learnopengl-cn.readthedocs.io/zh/latest/" target="_blank" rel="noopener">欢迎来到OpenGL的世界</a></li>
+<li><a href="https://pdfs.semanticscholar.org/presentation/52d1/963f6a3409aff1f8d73ba1819a187f39f6e1.pdf" target="_blank" rel="noopener">AMD APU Series</a></li>
+<li><a href="http://m.elecfans.com/article/713834.html" target="_blank" rel="noopener">一文详解GPU结构及工作原理</a></li>
+<li><a href="https://www.slideshare.net/mohamedragabslideshare/p12-29046493" target="_blank" rel="noopener">Revisting Co-Processing for Hash Joins on the Coupled CPU-GPU Architecture</a></li>
+<li><a href="https://insujang.github.io/2017-04-27/gpu-architecture-overview/" target="_blank" rel="noopener">GPU Architecture Overview</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/CUDA" target="_blank" rel="noopener">CUDA</a></li>
+</ol>
+<h1 id="扩展阅读"><a href="#扩展阅读" class="headerlink" title="扩展阅读"></a>扩展阅读</h1><ol>
+<li><a href="https://slideplayer.com/slide/11059244/" target="_blank" rel="noopener">Rendering pipeline: The hardware side</a></li>
+<li><a href="http://meseec.ce.rit.edu/551-projects/spring2015/3-2.pdf" target="_blank" rel="noopener">Graphics Processing Unit(GPU) Memory Hierarchy</a></li>
+<li><a href="http://www.d.umn.edu/~data0003/Talks/gpuarch.pdf" target="_blank" rel="noopener">Graphics Processing Unit Architecture(GPU Arch) With a focus on NVIDIA GeForce 6800 GPU</a></li>
+<li><a href="https://www.jianshu.com/p/d05d19f70bac" target="_blank" rel="noopener">iOS动画篇：核心动画</a></li>
+<li><a href="https://www.anandtech.com/show/7335/the-iphone-5s-review/7" target="_blank" rel="noopener">The iPhone 5s Review</a></li>
+<li><a href="https://www.realworldtech.com/apple-custom-gpu/" target="_blank" rel="noopener">A Look Inside Apple’s Custom GPU for the iPhone</a></li>
+<li><a href="https://appleinsider.com/articles/17/04/17/one-apple-gpu-one-giant-leap-in-graphics-for-iphone-8" target="_blank" rel="noopener">One Apple GPU, one giant leap in graphics for iPhone 8</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="Bao Chuquan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Bao Chuquan Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/GPU/" rel="tag"># GPU</a>
+          
+            <a href="/tags/渲染/" rel="tag"># 渲染</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/10/thread-introduce/" rel="next" title="计算机那些事(6)——线程">
+                <i class="fa fa-chevron-left"></i> 计算机那些事(6)——线程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="Bao Chuquan" />
+          <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+           
+              <p class="site-description motion-element" itemprop="description">积累，沉淀，吸收，转换</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">41</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">72</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-历史"><span class="nav-number">2.</span> <span class="nav-text">GPU 历史</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-图形渲染流水线"><span class="nav-number">3.</span> <span class="nav-text">GPU 图形渲染流水线</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-存储系统"><span class="nav-number">4.</span> <span class="nav-text">GPU 存储系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-流处理器"><span class="nav-number">5.</span> <span class="nav-text">GPU 流处理器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU-GPU-异构系统"><span class="nav-number">6.</span> <span class="nav-text">CPU-GPU 异构系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-资源管理模型"><span class="nav-number">7.</span> <span class="nav-text">GPU 资源管理模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU-GPU-工作流"><span class="nav-number">8.</span> <span class="nav-text">CPU-GPU 工作流</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">9.</span> <span class="nav-text">参考</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展阅读"><span class="nav-number">10.</span> <span class="nav-text">扩展阅读</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+  
+  <script type="text/javascript" src="/lib/three/three.min.js"></script>
+
+  
+  <script type="text/javascript" src="/lib/three/three-waves.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+<div id="hexo-helper-live2d">
+  <canvas id="live2dcanvas" width="150" height="300"></canvas>
+</div>
+<style>
+  #live2dcanvas{
+    position: fixed;
+    width: 150px;
+    height: 300px;
+    opacity:0.7;
+    right: 0px;
+    z-index: 999;
+    pointer-events: none;
+    bottom: -20px;
+  }
+</style>
+<script type="text/javascript" src="/live2d/device.min.js"></script>
+<script type="text/javascript">
+const loadScript = function loadScript(c,b){var a=document.createElement("script");a.type="text/javascript";"undefined"!=typeof b&&(a.readyState?a.onreadystatechange=function(){if("loaded"==a.readyState||"complete"==a.readyState)a.onreadystatechange=null,b()}:a.onload=function(){b()});a.src=c;document.body.appendChild(a)};
+(function(){
+  if((typeof(device) != 'undefined') && (device.mobile())){
+    document.getElementById("live2dcanvas").style.width = '75px';
+    document.getElementById("live2dcanvas").style.height = '150px';
+  }else
+    if (typeof(device) === 'undefined') console.error('Cannot find current-device script.');
+  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/hijiki.model.json", 0.5);});
+})();
+</script>
+
+</body>
+</html>

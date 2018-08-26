@@ -109,7 +109,7 @@
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/thread-one-to-one.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/thread-many-to-one.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/thread-many-to-many.png">
-<meta property="og:updated_time" content="2018-07-09T16:17:10.712Z">
+<meta property="og:updated_time" content="2018-07-09T16:23:56.389Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="计算机那些事(6)——线程">
 <meta name="twitter:description" content="现代软件系统中，除了进程，线程也是一个非常重要的概念。随着CPU频率增长开始出现停滞，处理器逐渐开始想多核方向发展。多线程，作为实现软件并发执行的重要方法之一，也开始被重视。 线程基础线程概念线程（Thread），也称轻量级进程（Lightweight Process，LWP），是程序执行流的最小单元。一个标准的线程由线程ID、当前指令指针（PC）、寄存器集合、堆栈组成。通常，一个进程由一个到多个">
@@ -400,7 +400,7 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-07-10T00:17:10+08:00">
+              <time title="更新于" itemprop="dateModified" datetime="2018-07-10T00:23:56+08:00">
                 2018-07-10
               </time>
             
@@ -472,8 +472,8 @@
 <li><strong>全局变量</strong></li>
 <li><strong>堆数据</strong></li>
 <li><strong>函数里的静态变量</strong></li>
-<li><strong>程序代码</strong></li>
-<li><strong>打开的文件，A线程打开</strong></li>
+<li><strong>程序代码，任何线程都有权利读取并执行任何代码</strong></li>
+<li><strong>打开的文件，A线程打开的文件可以由B线程读取</strong></li>
 </ul>
 <p>当然实际上线程也拥有自己的私有存储空间，包括如下几个方面：</p>
 <ul>
@@ -682,6 +682,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2018/08/26/graphics-rending-principle-gpu/" rel="prev" title="图形渲染原理综述(1)——GPU">
+                图形渲染原理综述(1)——GPU <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -782,7 +786,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">40</span>
+                <span class="site-state-item-count">41</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -804,7 +808,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">70</span>
+                <span class="site-state-item-count">72</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
