@@ -99,7 +99,7 @@
 <meta name="description" content="最近在 iOS 开发中做了较多动画相关的编程工作。因此想借此机会深入了解了一下 iOS 动画及渲染相关原理。随着对相关方面的深入了解，发现这里面涉及到从硬件底层到软件框架等一系列相关知识。 本文将从相对底层的角度对计算图形渲染原理进行简要介绍，以作为后续的知识储备。 引言作为程序员，我们或多或少知道可视化应用程序都是由 CPU 和 GPU 协作执行的。那么我们就先来了解一下两者的基本概念：  CP">
 <meta name="keywords" content="GPU,渲染">
 <meta property="og:type" content="article">
-<meta property="og:title" content="图形渲染原理综述(1)——GPU">
+<meta property="og:title" content="计算机那些事(7)——图形渲染原理">
 <meta property="og:url" content="http://chuquan.me/2018/08/26/graphics-rending-principle-gpu/index.html">
 <meta property="og:site_name" content="楚权的世界">
 <meta property="og:description" content="最近在 iOS 开发中做了较多动画相关的编程工作。因此想借此机会深入了解了一下 iOS 动画及渲染相关原理。随着对相关方面的深入了解，发现这里面涉及到从硬件底层到软件框架等一系列相关知识。 本文将从相对底层的角度对计算图形渲染原理进行简要介绍，以作为后续的知识储备。 引言作为程序员，我们或多或少知道可视化应用程序都是由 CPU 和 GPU 协作执行的。那么我们就先来了解一下两者的基本概念：  CP">
@@ -111,9 +111,13 @@
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cpu-gpu-architecture.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gpu-management-model.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/cuda_processing_flow.png">
-<meta property="og:updated_time" content="2018-08-26T10:09:29.890Z">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-screen-scan.png?x-oss-process=image/resize,w_400">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-renderIng-gpu-internal-structure.png?x-oss-process=image/resize,w_500">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/gpu-double-buffer.png">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-vsync-off.jpg?x-oss-process=image/resize,w_500">
+<meta property="og:updated_time" content="2018-09-22T06:16:41.050Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="图形渲染原理综述(1)——GPU">
+<meta name="twitter:title" content="计算机那些事(7)——图形渲染原理">
 <meta name="twitter:description" content="最近在 iOS 开发中做了较多动画相关的编程工作。因此想借此机会深入了解了一下 iOS 动画及渲染相关原理。随着对相关方面的深入了解，发现这里面涉及到从硬件底层到软件框架等一系列相关知识。 本文将从相对底层的角度对计算图形渲染原理进行简要介绍，以作为后续的知识储备。 引言作为程序员，我们或多或少知道可视化应用程序都是由 CPU 和 GPU 协作执行的。那么我们就先来了解一下两者的基本概念：  CP">
 <meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gpu-rasterization-basic-concept.png?x-oss-process=image/resize,w_300">
 
@@ -150,7 +154,7 @@
 
 
 
-  <title>图形渲染原理综述(1)——GPU | 楚权的世界</title>
+  <title>计算机那些事(7)——图形渲染原理 | 楚权的世界</title>
   
 
 
@@ -374,7 +378,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">图形渲染原理综述(1)——GPU</h1>
+          <h1 class="post-title" itemprop="name headline">计算机那些事(7)——图形渲染原理</h1>
         
 
         <div class="post-meta">
@@ -402,8 +406,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-08-26T18:09:29+08:00">
-                2018-08-26
+              <time title="更新于" itemprop="dateModified" datetime="2018-09-22T14:16:41+08:00">
+                2018-09-22
               </time>
             
           </span>
@@ -500,7 +504,11 @@
 <p>第四阶段，光栅化。该阶段会把图元映射为最终屏幕上相应的像素，生成片段。<strong>片段（Fragment）</strong> 是渲染一个像素所需要的所有数据。</p>
 <p>第五阶段，片段着色器。该阶段首先会对输入的片段进行 <strong>裁切（Clipping）</strong>。裁切会丢弃超出视图以外的所有像素，用来提升执行效率。</p>
 <p>第六阶段，测试与混合。该阶段会检测片段的对应的深度值（<code>z</code> 坐标），判断这个像素位于其它物体的前面还是后面，决定是否应该丢弃。此外，该阶段还会检查 <code>alpha</code> 值（ <code>alpha</code> 值定义了一个物体的透明度），从而对物体进行混合。因此，即使在片段着色器中计算出来了一个像素输出的颜色，在渲染多个三角形的时候最后的像素颜色也可能完全不同。</p>
-<p>上述阶段中的着色器事实上是一些程序，它们运行在 GPU 中成千上万的小处理器核中。这些着色器允许开发者进行配置，从而可以高效地控制图形渲染流水线中的特定部分。由于它们运行在 GPU 中，因此可以降低 CPU 的负荷。着色器可以使用多种语言编写，OpenGL 提供了 GLSL（OpenGL Shading Language） 着色器语言。</p>
+<p>关于混合，GPU 采用如下公式进行计算，并得出最后的颜色。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">R = S + D * (1 - Sa)</span><br></pre></td></tr></table></figure>
+<p>关于公式的含义，假设有两个像素 S(source) 和 D(destination)，S 在 <code>z</code> 轴方向相对靠前（在上面），D 在 <code>z</code> 轴方向相对靠后（在下面），那么最终的颜色值就是 <strong>S（上面像素） 的颜色 + D（下面像素） 的颜色 * （1 - S（上面像素） 颜色的透明度）</strong>。</p>
+<p>上述流水线以绘制一个三角形为进行介绍，可以为每个顶点添加颜色来增加图形的细节，从而创建图像。但是，如果让图形看上去更加真实，需要足够多的顶点和颜色，相应也会产生更大的开销。为了提高生产效率和执行效率，开发者经常会使用 <strong>纹理（Texture）</strong> 来表现细节。<strong>纹理是一个 2D 图片（甚至也有 1D 和 3D 的纹理）</strong>。<strong>纹理一般可以直接作为图形渲染流水线的第五阶段的输入</strong>。</p>
+<p>最后，我们还需要知道上述阶段中的着色器事实上是一些程序，它们运行在 GPU 中成千上万的小处理器核中。这些着色器允许开发者进行配置，从而可以高效地控制图形渲染流水线中的特定部分。由于它们运行在 GPU 中，因此可以降低 CPU 的负荷。着色器可以使用多种语言编写，OpenGL 提供了 GLSL（OpenGL Shading Language） 着色器语言。</p>
 <h1 id="GPU-存储系统"><a href="#GPU-存储系统" class="headerlink" title="GPU 存储系统"></a>GPU 存储系统</h1><p>早期的 GPU，不同的着色器对应有着不同的硬件单元。如今，GPU 流水线则使用一个统一的硬件来运行所有的着色器。此外，nVidia 还提出了 <strong>CUDA（Compute Unified Device Architecture）</strong> 编程模型，可以允许开发者通过编写 C 代码来访问 GPU 中所有的处理器核，从而深度挖掘 GPU 的并行计算能力。</p>
 <p>下图所示为 GPU 内部的层级结构。最底层是计算机的系统内存，其次是 GPU 的内部存储，然后依次是两级 cache：L2 和 L1，每个 L1 cache 连接至一个 <strong>流处理器（SM，stream processor）</strong>。</p>
 <ul>
@@ -577,6 +585,15 @@
 <li>GPU 将显存结果传回主存</li>
 </ol>
 <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/cuda_processing_flow.png" alt=""></p>
+<h1 id="屏幕图像显示原理"><a href="#屏幕图像显示原理" class="headerlink" title="屏幕图像显示原理"></a>屏幕图像显示原理</h1><p>介绍屏幕图像显示的原理，需要先从 CRT 显示器原理说起，如下图所示。CRT 的电子枪从上到下逐行扫描，扫描完成后显示器就呈现一帧画面。然后电子枪回到初始位置进行下一次扫描。为了同步显示器的显示过程和系统的视频控制器，显示器会用硬件时钟产生一系列的定时信号。当电子枪换行进行扫描时，显示器会发出一个水平同步信号（horizonal synchronization），简称 <strong>HSync</strong>；而当一帧画面绘制完成后，电子枪回复到原位，准备画下一帧前，显示器会发出一个垂直同步信号（vertical synchronization），简称 <strong>VSync</strong>。显示器通常以固定频率进行刷新，这个刷新率就是 VSync 信号产生的频率。虽然现在的显示器基本都是液晶显示屏了，但其原理基本一致。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-screen-scan.png?x-oss-process=image/resize,w_400" alt=""></p>
+<p>下图所示为常见的 CPU、GPU、显示器工作方式。CPU 计算好显示内容提交至 GPU，GPU 渲染完成后将渲染结果存入帧缓冲区，视频控制器会按照 <code>VSync</code> 信号逐帧读取帧缓冲区的数据，经过数据转换后最终由显示器进行显示。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-renderIng-gpu-internal-structure.png?x-oss-process=image/resize,w_500" alt=""></p>
+<p>最简单的情况下，帧缓冲区只有一个。此时，帧缓冲区的读取和刷新都都会有比较大的效率问题。为了解决效率问题，GPU 通常会引入两个缓冲区，即 <strong>双缓冲机制</strong>。在这种情况下，GPU 会预先渲染一帧放入一个缓冲区中，用于视频控制器的读取。当下一帧渲染完毕后，GPU 会直接把视频控制器的指针指向第二个缓冲器。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/gpu-double-buffer.png" alt=""></p>
+<p>双缓冲虽然能解决效率问题，但会引入一个新的问题。当视频控制器还未读取完成时，即屏幕内容刚显示一半时，GPU 将新的一帧内容提交到帧缓冲区并把两个缓冲区进行交换后，视频控制器就会把新的一帧数据的下半段显示到屏幕上，造成画面撕裂现象，如下图：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-vsync-off.jpg?x-oss-process=image/resize,w_500" alt=""></p>
+<p>为了解决这个问题，GPU 通常有一个机制叫做垂直同步（简写也是 V-Sync），当开启垂直同步后，GPU 会等待显示器的 VSync 信号发出后，才进行新的一帧渲染和缓冲区更新。这样能解决画面撕裂现象，也增加了画面流畅度，但需要消费更多的计算资源，也会带来部分延迟。</p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
 <li><a href="https://www.cs.utah.edu/~jeffp/teaching/MCMD/S20-GPU.pdf" target="_blank" rel="noopener">GPU Architecture and Models</a></li>
 <li>计算机组成与设计：硬件、软件接口</li>
@@ -586,6 +603,8 @@
 <li><a href="https://www.slideshare.net/mohamedragabslideshare/p12-29046493" target="_blank" rel="noopener">Revisting Co-Processing for Hash Joins on the Coupled CPU-GPU Architecture</a></li>
 <li><a href="https://insujang.github.io/2017-04-27/gpu-architecture-overview/" target="_blank" rel="noopener">GPU Architecture Overview</a></li>
 <li><a href="https://zh.wikipedia.org/wiki/CUDA" target="_blank" rel="noopener">CUDA</a></li>
+<li><a href="https://blog.ibireme.com/2015/11/12/smooth_user_interfaces_for_ios/" target="_blank" rel="noopener">iOS 保持界面流程的技巧</a></li>
+<li><a href="https://segmentfault.com/a/1190000000390012" target="_blank" rel="noopener">iOS 开发：绘制像素到屏幕</a></li>
 </ol>
 <h1 id="扩展阅读"><a href="#扩展阅读" class="headerlink" title="扩展阅读"></a>扩展阅读</h1><ol>
 <li><a href="https://slideplayer.com/slide/11059244/" target="_blank" rel="noopener">Rendering pipeline: The hardware side</a></li>
@@ -666,6 +685,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/25/ios-graphics-render-principle/" rel="prev" title="iOS 图像渲染原理">
+                iOS 图像渲染原理 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -767,7 +790,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">41</span>
+                <span class="site-state-item-count">42</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -789,7 +812,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">72</span>
+                <span class="site-state-item-count">74</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -877,7 +900,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-历史"><span class="nav-number">2.</span> <span class="nav-text">GPU 历史</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-图形渲染流水线"><span class="nav-number">3.</span> <span class="nav-text">GPU 图形渲染流水线</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-存储系统"><span class="nav-number">4.</span> <span class="nav-text">GPU 存储系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-流处理器"><span class="nav-number">5.</span> <span class="nav-text">GPU 流处理器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU-GPU-异构系统"><span class="nav-number">6.</span> <span class="nav-text">CPU-GPU 异构系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-资源管理模型"><span class="nav-number">7.</span> <span class="nav-text">GPU 资源管理模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU-GPU-工作流"><span class="nav-number">8.</span> <span class="nav-text">CPU-GPU 工作流</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">9.</span> <span class="nav-text">参考</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展阅读"><span class="nav-number">10.</span> <span class="nav-text">扩展阅读</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-历史"><span class="nav-number">2.</span> <span class="nav-text">GPU 历史</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-图形渲染流水线"><span class="nav-number">3.</span> <span class="nav-text">GPU 图形渲染流水线</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-存储系统"><span class="nav-number">4.</span> <span class="nav-text">GPU 存储系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-流处理器"><span class="nav-number">5.</span> <span class="nav-text">GPU 流处理器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU-GPU-异构系统"><span class="nav-number">6.</span> <span class="nav-text">CPU-GPU 异构系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPU-资源管理模型"><span class="nav-number">7.</span> <span class="nav-text">GPU 资源管理模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU-GPU-工作流"><span class="nav-number">8.</span> <span class="nav-text">CPU-GPU 工作流</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#屏幕图像显示原理"><span class="nav-number">9.</span> <span class="nav-text">屏幕图像显示原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">10.</span> <span class="nav-text">参考</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展阅读"><span class="nav-number">11.</span> <span class="nav-text">扩展阅读</span></a></li></ol></div>
             
 
           </div>
