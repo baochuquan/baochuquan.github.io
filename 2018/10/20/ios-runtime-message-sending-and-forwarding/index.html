@@ -99,7 +99,7 @@
 <meta name="description" content="概述Objective-C 本质上是一种基于 C 语言的领域特定语言。Objective-C 通过一个用 C 语言和汇编实现的 runtime，在 C 语言的基础上实现了面向对象的功能。在 runtime 中，对象用结构体表示，方法用函数表示。 C 语言是一门静态语言，其在编译时决定调用哪个函数。而 Objective-C 则是一门动态语言，其在编译时不能决定最终执行时调用哪个函数（Objecti">
 <meta name="keywords" content="Objective-C,runtime">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Objective-C runtime 消息传递与转发">
+<meta property="og:title" content="Objective-C Runtime 消息传递与转发">
 <meta property="og:url" content="http://chuquan.me/2018/10/20/ios-runtime-message-sending-and-forwarding/index.html">
 <meta property="og:site_name" content="楚权的世界">
 <meta property="og:description" content="概述Objective-C 本质上是一种基于 C 语言的领域特定语言。Objective-C 通过一个用 C 语言和汇编实现的 runtime，在 C 语言的基础上实现了面向对象的功能。在 runtime 中，对象用结构体表示，方法用函数表示。 C 语言是一门静态语言，其在编译时决定调用哪个函数。而 Objective-C 则是一门动态语言，其在编译时不能决定最终执行时调用哪个函数（Objecti">
@@ -108,9 +108,9 @@
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/oc-time-message-send.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/oc-messaging-framework.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/ios-message-forwarding.png">
-<meta property="og:updated_time" content="2018-11-19T09:56:57.453Z">
+<meta property="og:updated_time" content="2018-11-27T13:04:22.310Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Objective-C runtime 消息传递与转发">
+<meta name="twitter:title" content="Objective-C Runtime 消息传递与转发">
 <meta name="twitter:description" content="概述Objective-C 本质上是一种基于 C 语言的领域特定语言。Objective-C 通过一个用 C 语言和汇编实现的 runtime，在 C 语言的基础上实现了面向对象的功能。在 runtime 中，对象用结构体表示，方法用函数表示。 C 语言是一门静态语言，其在编译时决定调用哪个函数。而 Objective-C 则是一门动态语言，其在编译时不能决定最终执行时调用哪个函数（Objecti">
 <meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/oc-runtime-hierachry.png?x-oss-process=image/resize,w_300">
 
@@ -147,7 +147,7 @@
 
 
 
-  <title>Objective-C runtime 消息传递与转发 | 楚权的世界</title>
+  <title>Objective-C Runtime 消息传递与转发 | 楚权的世界</title>
   
 
 
@@ -371,7 +371,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Objective-C runtime 消息传递与转发</h1>
+          <h1 class="post-title" itemprop="name headline">Objective-C Runtime 消息传递与转发</h1>
         
 
         <div class="post-meta">
@@ -399,8 +399,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-11-19T17:56:57+08:00">
-                2018-11-19
+              <time title="更新于" itemprop="dateModified" datetime="2018-11-27T21:04:22+08:00">
+                2018-11-27
               </time>
             
           </span>
@@ -602,8 +602,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/25/ios-graphics-render-principle/" rel="next" title="iOS 图像渲染原理">
-                <i class="fa fa-chevron-left"></i> iOS 图像渲染原理
+              <a href="/2018/10/06/understand-ios-runloop/" rel="next" title="深入理解 Run Loop">
+                <i class="fa fa-chevron-left"></i> 深入理解 Run Loop
               </a>
             
           </div>
@@ -716,7 +716,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">45</span>
+                <span class="site-state-item-count">47</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -738,7 +738,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">80</span>
+                <span class="site-state-item-count">82</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
