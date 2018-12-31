@@ -99,7 +99,7 @@
 <meta name="description" content="GCD 简介GCD（Grand Central Dispatch）是 Apple 开发的一个多核编程的解决方法。它主要用于优化应用程序以支持多核处理器以及其他对称多处理系统。 GCD 基本概念GCD 主要包含两个核心概念：任务 和 队列。 任务任务：即要在线程中执行的那段代码。GCD 将任务定义在 block 中。 任务的执行主要有两种方式：同步执行（sync） 和 异步执行（async）。两者的">
 <meta name="keywords" content="GCD">
 <meta property="og:type" content="article">
-<meta property="og:title" content="GCD 入门">
+<meta property="og:title" content="GCD 原理详解">
 <meta property="og:url" content="http://chuquan.me/2018/12/01/gcd-introduce/index.html">
 <meta property="og:site_name" content="楚权的世界">
 <meta property="og:description" content="GCD 简介GCD（Grand Central Dispatch）是 Apple 开发的一个多核编程的解决方法。它主要用于优化应用程序以支持多核处理器以及其他对称多处理系统。 GCD 基本概念GCD 主要包含两个核心概念：任务 和 队列。 任务任务：即要在线程中执行的那段代码。GCD 将任务定义在 block 中。 任务的执行主要有两种方式：同步执行（sync） 和 异步执行（async）。两者的">
@@ -113,9 +113,10 @@
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic04.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic05.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic06.png">
-<meta property="og:updated_time" content="2018-12-01T12:56:07.711Z">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic10.png">
+<meta property="og:updated_time" content="2018-12-01T14:07:37.737Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="GCD 入门">
+<meta name="twitter:title" content="GCD 原理详解">
 <meta name="twitter:description" content="GCD 简介GCD（Grand Central Dispatch）是 Apple 开发的一个多核编程的解决方法。它主要用于优化应用程序以支持多核处理器以及其他对称多处理系统。 GCD 基本概念GCD 主要包含两个核心概念：任务 和 队列。 任务任务：即要在线程中执行的那段代码。GCD 将任务定义在 block 中。 任务的执行主要有两种方式：同步执行（sync） 和 异步执行（async）。两者的">
 <meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic07.png">
 
@@ -152,7 +153,7 @@
 
 
 
-  <title>GCD 入门 | 楚权的世界</title>
+  <title>GCD 原理详解 | 楚权的世界</title>
   
 
 
@@ -376,7 +377,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">GCD 入门</h1>
+          <h1 class="post-title" itemprop="name headline">GCD 原理详解</h1>
         
 
         <div class="post-meta">
@@ -404,7 +405,7 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-12-01T20:56:07+08:00">
+              <time title="更新于" itemprop="dateModified" datetime="2018-12-01T22:07:37+08:00">
                 2018-12-01
               </time>
             
@@ -595,6 +596,16 @@
 <li><code>asyncMain</code> 不会被异步任务阻塞。</li>
 </ul>
 <p>执行结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">currentThread---&lt;NSThread: 0x6000014d3700&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">asyncMain---begin</span><br><span class="line">asyncMain---end</span><br><span class="line">1---&lt;NSThread: 0x6000014d3700&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">1---&lt;NSThread: 0x6000014d3700&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">2---&lt;NSThread: 0x6000014d3700&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">2---&lt;NSThread: 0x6000014d3700&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">3---&lt;NSThread: 0x6000014d3700&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">3---&lt;NSThread: 0x6000014d3700&gt;&#123;number = 1, name = main&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="GCD-应用"><a href="#GCD-应用" class="headerlink" title="GCD 应用"></a>GCD 应用</h1><h2 id="线程间通信"><a href="#线程间通信" class="headerlink" title="线程间通信"></a>线程间通信</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 线程间通信</span><br><span class="line"> */</span><br><span class="line">- (void)communication &#123;</span><br><span class="line">    // 获取全局并发队列</span><br><span class="line">    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);</span><br><span class="line">    // 获取主队列</span><br><span class="line">    dispatch_queue_t mainQueue = dispatch_get_main_queue();</span><br><span class="line"></span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        // 异步追加任务</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;1---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 回到主线程</span><br><span class="line">        dispatch_async(mainQueue, ^&#123;</span><br><span class="line">            // 追加在主线程中执行的任务</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;2---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic10.png" alt=""></p>
+<p>上图所示为线程间通信的工作原理。</p>
+<ul>
+<li><code>communication</code> 被添加至主队列中，在主线程执行。</li>
+<li>异步任务被添加至全局队列（并行队列），异步任务能开启新线程，因此异步任务在新线程执行。</li>
+<li><code>communication</code> 不会被异步任务阻塞。</li>
+<li>当异步任务执行完成后，再将一个异步任务添加至主队列，主队列中的任务都在主线程执行，所以该异步任务在主线程执行。从而达到线程间通信的目的。</li>
+</ul>
+<p>执行结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1---&lt;NSThread: 0x60000227ec80&gt;&#123;number = 3, name = (null)&#125;</span><br><span class="line">1---&lt;NSThread: 0x60000227ec80&gt;&#123;number = 3, name = (null)&#125;</span><br><span class="line">2---&lt;NSThread: 0x6000022ddd00&gt;&#123;number = 1, name = main&#125;</span><br></pre></td></tr></table></figure></p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
 <li><a href="https://juejin.im/post/5a90de68f265da4e9b592b40" target="_blank" rel="noopener">iOS多线程：『GCD』详尽总结</a></li>
 <li><a href="https://www.jianshu.com/p/fbe6a654604c" target="_blank" rel="noopener">细说GCD（Grand Central Dispatch）如何用</a></li>
@@ -667,6 +678,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/12/12/kvo-principle/" rel="prev" title="KVO 原理详解">
+                KVO 原理详解 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -768,7 +783,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">47</span>
+                <span class="site-state-item-count">49</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -790,7 +805,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">82</span>
+                <span class="site-state-item-count">83</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -878,7 +893,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GCD-简介"><span class="nav-number">1.</span> <span class="nav-text">GCD 简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GCD-基本概念"><span class="nav-number">2.</span> <span class="nav-text">GCD 基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#任务"><span class="nav-number">2.1.</span> <span class="nav-text">任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#队列"><span class="nav-number">2.2.</span> <span class="nav-text">队列</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GCD-使用方法"><span class="nav-number">3.</span> <span class="nav-text">GCD 使用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#队列的创建-获取"><span class="nav-number">3.1.</span> <span class="nav-text">队列的创建/获取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#任务的创建"><span class="nav-number">3.2.</span> <span class="nav-text">任务的创建</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GCD-使用组合"><span class="nav-number">4.</span> <span class="nav-text">GCD 使用组合</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#同步执行-并发队列"><span class="nav-number">4.1.</span> <span class="nav-text">同步执行 + 并发队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步任务-并发队列"><span class="nav-number">4.2.</span> <span class="nav-text">异步任务 + 并发队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同步任务-串行队列"><span class="nav-number">4.3.</span> <span class="nav-text">同步任务 + 串行队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步任务-串行队列"><span class="nav-number">4.4.</span> <span class="nav-text">异步任务 + 串行队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同步任务-主队列"><span class="nav-number">4.5.</span> <span class="nav-text">同步任务 + 主队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步任务-主队列"><span class="nav-number">4.6.</span> <span class="nav-text">异步任务 + 主队列</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GCD-简介"><span class="nav-number">1.</span> <span class="nav-text">GCD 简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GCD-基本概念"><span class="nav-number">2.</span> <span class="nav-text">GCD 基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#任务"><span class="nav-number">2.1.</span> <span class="nav-text">任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#队列"><span class="nav-number">2.2.</span> <span class="nav-text">队列</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GCD-使用方法"><span class="nav-number">3.</span> <span class="nav-text">GCD 使用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#队列的创建-获取"><span class="nav-number">3.1.</span> <span class="nav-text">队列的创建/获取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#任务的创建"><span class="nav-number">3.2.</span> <span class="nav-text">任务的创建</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GCD-使用组合"><span class="nav-number">4.</span> <span class="nav-text">GCD 使用组合</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#同步执行-并发队列"><span class="nav-number">4.1.</span> <span class="nav-text">同步执行 + 并发队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步任务-并发队列"><span class="nav-number">4.2.</span> <span class="nav-text">异步任务 + 并发队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同步任务-串行队列"><span class="nav-number">4.3.</span> <span class="nav-text">同步任务 + 串行队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步任务-串行队列"><span class="nav-number">4.4.</span> <span class="nav-text">异步任务 + 串行队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同步任务-主队列"><span class="nav-number">4.5.</span> <span class="nav-text">同步任务 + 主队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步任务-主队列"><span class="nav-number">4.6.</span> <span class="nav-text">异步任务 + 主队列</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GCD-应用"><span class="nav-number">5.</span> <span class="nav-text">GCD 应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#线程间通信"><span class="nav-number">5.1.</span> <span class="nav-text">线程间通信</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>

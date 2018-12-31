@@ -99,7 +99,7 @@
 <meta name="description" content="Event Loop通常，一个线程一次只能执行一个任务，任务完成后线程就会退出。但是在很多系统或框架中，需要实现一种这样机制：线程能够随时处理事件或消息，并且不会在执行完成后退出。这种机制称为 Event Loop，其一般逻辑吐下所示： 1234567function main    initialize()    while message != quit        message := g">
 <meta name="keywords" content="Run Loop">
 <meta property="og:type" content="article">
-<meta property="og:title" content="深入理解 Run Loop">
+<meta property="og:title" content="Run Loop 原理详解">
 <meta property="og:url" content="http://chuquan.me/2018/10/06/understand-ios-runloop/index.html">
 <meta property="og:site_name" content="楚权的世界">
 <meta property="og:description" content="Event Loop通常，一个线程一次只能执行一个任务，任务完成后线程就会退出。但是在很多系统或框架中，需要实现一种这样机制：线程能够随时处理事件或消息，并且不会在执行完成后退出。这种机制称为 Event Loop，其一般逻辑吐下所示： 1234567function main    initialize()    while message != quit        message := g">
@@ -107,9 +107,9 @@
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-runloop.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-runloop-mode.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-runloop-internal-logic.png">
-<meta property="og:updated_time" content="2018-11-27T02:25:57.375Z">
+<meta property="og:updated_time" content="2018-12-03T15:56:06.041Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="深入理解 Run Loop">
+<meta name="twitter:title" content="Run Loop 原理详解">
 <meta name="twitter:description" content="Event Loop通常，一个线程一次只能执行一个任务，任务完成后线程就会退出。但是在很多系统或框架中，需要实现一种这样机制：线程能够随时处理事件或消息，并且不会在执行完成后退出。这种机制称为 Event Loop，其一般逻辑吐下所示： 1234567function main    initialize()    while message != quit        message := g">
 <meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-runloop.png">
 
@@ -146,7 +146,7 @@
 
 
 
-  <title>深入理解 Run Loop | 楚权的世界</title>
+  <title>Run Loop 原理详解 | 楚权的世界</title>
   
 
 
@@ -370,7 +370,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">深入理解 Run Loop</h1>
+          <h1 class="post-title" itemprop="name headline">Run Loop 原理详解</h1>
         
 
         <div class="post-meta">
@@ -398,8 +398,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-11-27T10:25:57+08:00">
-                2018-11-27
+              <time title="更新于" itemprop="dateModified" datetime="2018-12-03T23:56:06+08:00">
+                2018-12-03
               </time>
             
           </span>
@@ -717,7 +717,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">47</span>
+                <span class="site-state-item-count">49</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -739,7 +739,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">82</span>
+                <span class="site-state-item-count">83</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
