@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="性能监控,iOS,CPU,Memory,FPS," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="前段时间，在公司的 App 中集成了一个性能监视器，效果如下所示。在这个过程中，扒了一些性能监测开源框架的源码，并学习了其中的原理。本文就对此做一些简要的总结。  概述通常情况下，App 的性能问题并不会导致 App 不可用，但是会潜在地影响用户体验。比如：CPU 占用率过高会导致电量消耗过快，手机发热等问题。为了能够主动、高效地发现性能问题，避免 App 质量进入无人监控的状态，我们需要对 Ap">
+<meta name="keywords" content="性能监控,iOS,CPU,Memory,FPS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 性能监控(1)——CPU、Memory、FPS">
+<meta property="og:url" content="http://chuquan.me/2019/06/10/ios-performance-monitor-cpu-mem-fps/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="前段时间，在公司的 App 中集成了一个性能监视器，效果如下所示。在这个过程中，扒了一些性能监测开源框架的源码，并学习了其中的原理。本文就对此做一些简要的总结。  概述通常情况下，App 的性能问题并不会导致 App 不可用，但是会潜在地影响用户体验。比如：CPU 占用率过高会导致电量消耗过快，手机发热等问题。为了能够主动、高效地发现性能问题，避免 App 质量进入无人监控的状态，我们需要对 Ap">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-performance-monitor.gif?x-oss-process=image/resize,w_400">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/xcode-instruments-overview.jpeg?x-oss-process=image/resize,w_600">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/xcode-instruments-tools.jpeg?x-oss-process=image/resize,w_600">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/mach-task-thread-system.png?x-oss-process=image/resize,w_800">
+<meta property="og:updated_time" content="2019-06-09T16:09:01.759Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS 性能监控(1)——CPU、Memory、FPS">
+<meta name="twitter:description" content="前段时间，在公司的 App 中集成了一个性能监视器，效果如下所示。在这个过程中，扒了一些性能监测开源框架的源码，并学习了其中的原理。本文就对此做一些简要的总结。  概述通常情况下，App 的性能问题并不会导致 App 不可用，但是会潜在地影响用户体验。比如：CPU 占用率过高会导致电量消耗过快，手机发热等问题。为了能够主动、高效地发现性能问题，避免 App 质量进入无人监控的状态，我们需要对 Ap">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-performance-monitor.gif?x-oss-process=image/resize,w_400">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2019/06/10/ios-performance-monitor-cpu-mem-fps/"/>
+
+
+
+
+
+  <title>iOS 性能监控(1)——CPU、Memory、FPS | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2019/06/10/ios-performance-monitor-cpu-mem-fps/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Bao Chuquan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">iOS 性能监控(1)——CPU、Memory、FPS</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2019-06-10T00:07:17+08:00">
+                2019-06-10
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2019-06-10T00:09:01+08:00">
+                2019-06-10
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前段时间，在公司的 App 中集成了一个性能监视器，效果如下所示。在这个过程中，扒了一些性能监测开源框架的源码，并学习了其中的原理。本文就对此做一些简要的总结。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-performance-monitor.gif?x-oss-process=image/resize,w_400" alt=""></p>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>通常情况下，App 的性能问题并不会导致 App 不可用，但是会潜在地影响用户体验。比如：CPU 占用率过高会导致电量消耗过快，手机发热等问题。为了能够主动、高效地发现性能问题，避免 App 质量进入无人监控的状态，我们需要对 App 的性能进行监控。目前，对 App 的性能监控，主要分为 <strong>线下</strong> 和 <strong>线上</strong> 两种监控维度。</p>
+<h1 id="线下性能监控"><a href="#线下性能监控" class="headerlink" title="线下性能监控"></a>线下性能监控</h1><p>关于线下性能监控，Xcode 内置提供了一个性能分析工具 Instruments。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/xcode-instruments-overview.jpeg?x-oss-process=image/resize,w_600" alt=""></p>
+<p>Instruments 集成了非常多的性能检测工具，如：Leaks 可以用来监控内存泄露问题；Energy Log 可以用来监控耗电量。下图所示为 Instruments 中包含的各种性能检测工具。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/xcode-instruments-tools.jpeg?x-oss-process=image/resize,w_600" alt=""></p>
+<p>通常，我们会在提审前使用 Instruments 对 App 进行线下的性能分析。</p>
+<h1 id="线上性能监控"><a href="#线上性能监控" class="headerlink" title="线上性能监控"></a>线上性能监控</h1><p>线上监控一般需要遵循两个原则：</p>
+<ol>
+<li>监控代码与业务代码解耦</li>
+<li>采用性能消耗最小的性能监控方案</li>
+</ol>
+<p>线上性能监控，主要集中在对 CPU 使用率、内存、FPS 帧率等方面的监控。下面分别介绍其各自的监控方法及原理。</p>
+<h2 id="CPU"><a href="#CPU" class="headerlink" title="CPU"></a>CPU</h2><p>CPU 占用率的采集原理其实很简单：<strong>App 作为进程运行时会有多个线程，每个线程对 CPU 的使用率不同。各个线程对 CPU 使用率的总和，就是当前 App 对 CPU 的占用率</strong>。</p>
+<h3 id="相关系统原理"><a href="#相关系统原理" class="headerlink" title="相关系统原理"></a>相关系统原理</h3><p>iOS 是基于 Apple Darwin 内核，由 kernel、XNU 和 Runtime 组成，XNU（X is not UNIX） 是 Darwin 的内核，一个混合内核，由 Mach 微内核和 BSD 组成。Mach 内核是轻量级的平台，只能完成操作系统最基本的职责，如：进程和线程、虚拟内存管理、任务调度、进程通信和消息传递机制。其他的工作，如文件操作和设备访问，都是由 BSD 层实现。</p>
+<p>事实上，Mach 并不能识别 UNIX 中的所有进程，而是采用一种稍微不同的方式，使用了比进程更轻量级的概念：<strong>任务（Task）</strong>。经典的 UNIX 采用了自上而下的方式：最基本的对象是进程，然后进一步划分为一个或多个线程；Mach 则采用了自底向上的方式：最基本的单元是线程，一个或多个线程包含在一个任务中。</p>
+<p><strong>线程</strong></p>
+<ul>
+<li>线程定义了 Mach 中最小的执行单元。线程表示的是底层的机器寄存器状态以及各种调度统计数据，其从设计上提供了调度所需要的大量信息。</li>
+</ul>
+<p><strong>任务</strong></p>
+<ul>
+<li>任务是一种容器对象，虚拟内存空间和其他资源都是通过这个容器对象管理的。这些资源包括设备和其他句柄。资源进一步被抽象为端口。因此，资源的共享实际上相当于允许对对应端口进行访问。</li>
+</ul>
+<p>严格来说，Mach 的任务并不是hi操作系统中所谓的进程，因为 Mach 作为一个微内核的操作系统，并没有提供“进程”的逻辑，而只提供了最基本的实现。在 BSD 模型中，这两个概念有一对一的简单映射，每个 BSD 进程（即 OS X 进程）都在底层关联了一个 Mach 任务对象。实现这种映射的方法是指定一个透明的指针 <code>bsd_info</code>，Mach 对 <code>bsd_info</code> 完全无知。Mach 将内核也用任务表示（全局范围称为 <code>kernel_task</code>），尽管该任务没有对应的 PID，但可以想象 PID 为 0。</p>
+<p>下图所示为权威著作《OS X Internal: A System Approach》中提供的 Mach OS X 中进程子系统组成的概念图。与 Mac OS X 类似，iOS 的线程技术也是基于 Mach 线程技术实现的。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/mach-task-thread-system.png?x-oss-process=image/resize,w_800" alt=""></p>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><p>上述提到线程表示的是底层的机器寄存器状态以及各种给调度统计数据。再来看 Mach 层中的 <code>thread_basic_info</code> 结构体的定义，其成员信息也证实了这一点。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">struct thread_basic_info &#123;</span><br><span class="line">        time_value_t    user_time;      // 用户运行时长</span><br><span class="line">        time_value_t    system_time;    // 系统运行时长</span><br><span class="line">        integer_t       cpu_usage;      // CPU 使用率</span><br><span class="line">        policy_t        policy;         // 调度策略</span><br><span class="line">        integer_t       run_state;      // 运行状态</span><br><span class="line">        integer_t       flags;          // 各种标记</span><br><span class="line">        integer_t       suspend_count;  // 暂停线程的计数</span><br><span class="line">        integer_t       sleep_time;     // 休眠时间</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>每个线程都有这个结构体，所以我们只需要定时去遍历每个线程，累加每个线程的 <code>cpu_usage</code> 字段的值，就可以得到当前 App 所在进程的 CPU 使用率。</p>
+<p>如下所示为 <strong>CPU 占用率</strong> 的代码实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">// 获取 CPU 使用率</span><br><span class="line">+ (CGFloat)cpuUsageForApp &#123;</span><br><span class="line">    kern_return_t           kr;</span><br><span class="line">    thread_array_t          thread_list;</span><br><span class="line">    mach_msg_type_number_t  thread_count;</span><br><span class="line">    thread_info_data_t      thinfo;</span><br><span class="line">    mach_msg_type_number_t  thread_info_count;</span><br><span class="line">    thread_basic_info_t     basic_info_th;</span><br><span class="line"></span><br><span class="line">    // 根据当前 task 获取所有线程</span><br><span class="line">    kr = task_threads(mach_task_self(), &amp;thread_list, &amp;thread_count);</span><br><span class="line">    if (kr != KERN_SUCCESS)</span><br><span class="line">        return -1;</span><br><span class="line"></span><br><span class="line">    float total_cpu_usage = 0;</span><br><span class="line">    // 遍历所有线程</span><br><span class="line">    for (int i = 0; i &lt; thread_count; i++) &#123;</span><br><span class="line">        thread_info_count = THREAD_INFO_MAX;</span><br><span class="line">        // 获取每一个线程信息</span><br><span class="line">        kr = thread_info(thread_list[i], THREAD_BASIC_INFO, (thread_info_t)thinfo, &amp;thread_info_count);</span><br><span class="line">        if (kr != KERN_SUCCESS)</span><br><span class="line">            return -1;</span><br><span class="line"></span><br><span class="line">        basic_info_th = (thread_basic_info_t)thinfo;</span><br><span class="line">        if (!(basic_info_th-&gt;flags &amp; TH_FLAGS_IDLE)) &#123;</span><br><span class="line">            // cpu_usage : Scaled cpu usage percentage. The scale factor is TH_USAGE_SCALE.</span><br><span class="line">            // 宏定义 TH_USAGE_SCALE 返回 CPU 处理总频率：</span><br><span class="line">            total_cpu_usage += basic_info_th-&gt;cpu_usage / (float)TH_USAGE_SCALE;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 注意方法最后要调用 vm_deallocate，防止出现内存泄漏</span><br><span class="line">    kr = vm_deallocate(mach_task_self(), (vm_offset_t)thread_list, thread_count * sizeof(thread_t));</span><br><span class="line">    assert(kr == KERN_SUCCESS);</span><br><span class="line"></span><br><span class="line">    return total_cpu_usage;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码中使用 <code>task_threads</code> API 调用获取指定的 task 的线程列表。<code>task_threads</code> 将 <code>target_task</code> 任务中的所有线程保存在 <code>act_list</code> 数组中，数组包含 <code>act_listCnt</code> 个条目。上述源码中，在调用 <code>task_threads</code> API 时，<code>target_task</code> 参数传入的是 <code>mach_task_self()</code>，表示获取当前的 Mach task。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">kern_return_t task_threads</span><br><span class="line">(</span><br><span class="line">	task_t target_task,</span><br><span class="line">	thread_act_array_t *act_list,</span><br><span class="line">	mach_msg_type_number_t *act_listCnt</span><br><span class="line">);</span><br></pre></td></tr></table></figure></p>
+<p>在获取到线程列表后，代码中使用 <code>thread_info</code> API 调用获取指定线程的线程信息。<code>thread_info</code> 查询 <code>flavor</code> 指定的线程信息，将信息返回到长度为 <code>thread_info_outCnt</code> 字节的 <code>thread_info_out</code> 缓存区中。上述源码，在调用 <code>thread_info</code> API 时，<code>flavor</code> 参数传入的是 <code>THREAD_BASIC_INFO</code>，使用这个类型会返回线程的基本信息，即 <code>thread_basic_info_t</code> 结构体。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">kern_return_t thread_info</span><br><span class="line">(</span><br><span class="line">	thread_act_t target_act,</span><br><span class="line">	thread_flavor_t flavor,</span><br><span class="line">	thread_info_t thread_info_out,</span><br><span class="line">	mach_msg_type_number_t *thread_info_outCnt</span><br><span class="line">);</span><br></pre></td></tr></table></figure></p>
+<p>上述源码的最后，使用 <code>vm_deallocate</code> API 以防止出现内存泄露。</p>
+<p>使用该方法采集到的 CPU 数据与腾讯的 GT、Instruments 数据接近。事实上，GT 也是采用这种方法采集 CPU 数据。</p>
+<h2 id="Memory"><a href="#Memory" class="headerlink" title="Memory"></a>Memory</h2><p>通过上述 CPU 占用率监控原理，我们可以联想：内存使用情况是否也可以通过类似的方式获取到呢？答案是肯定的。</p>
+<h3 id="相关系统原理-1"><a href="#相关系统原理-1" class="headerlink" title="相关系统原理"></a>相关系统原理</h3><p>内存是有限且系统共享的资源，一个程序占用越多，系统和其他程序所能用的就越少。程序启动前都需要先加载到内存中，并且在程序运行过程中的数据操作也会占用一定的内存资源。减少内存占用也能同时减少其对 CPU 时间维度上的消耗，从而使不仅使 App 以及整个系统也都能表现的更好。</p>
+<p>MacOS 和 iOS 都采用了虚拟内存技术来突破物理内存的大小限制，每个进程都有一段由多个大小相同的页（Page）所构成的逻辑地址空间。处理器和内存管理单元（MMU，Memory Management Unit）维护着由逻辑地址到物理地址的 <strong>页面映射表</strong>（简称 <strong>页表</strong>），当程序访问逻辑内存地址时，由 MMU 根据页表将逻辑地址转换为真实的物理地址。在早期的苹果设备中，每个页的大小为 4KB；基于 A7 和 A8 处理器的系统为 64 位程序提供了 16KB 的虚拟内存分页和 4KB 的物理内存分页；在 A9 之后，虚拟内存和物理内存的分页大小都达到了 16KB。</p>
+<p>虚拟内存分页（Virtual Page，VP）有两种类型：</p>
+<ol>
+<li>Clean：指能够被系统清理出内存且在需要时能重新加载的数据，包括：<ul>
+<li>内存映射文件</li>
+<li>Frameworks 中的 __DATA_CONST 部分</li>
+<li>应用的二进制可执行文件</li>
+</ul>
+</li>
+<li>Dirty：指不能被系统回收的内存占用，包括：<ul>
+<li>所有堆上的对象</li>
+<li>图片解码缓冲数据</li>
+<li>Framework 中的 <strong>DATA 和 </strong>DATA_DIRTY 部分</li>
+</ul>
+</li>
+</ol>
+<p>由于内存容量和读写寿命的限制，iOS 上没有 Disk Swap 机制，取而代之使用 <strong>Compressed Memory</strong> 技术。 Disk Swap 是指在 macOS 以及一些其他桌面操作系统中，当内存可用资源紧张时，系统将内存中的内容写入磁盘中的backing store（Swapping out），并且在需要访问时从磁盘中再读入 RAM（Swapping in）。与大多数 UNIX 系统不同的是，macOS 没有预先分配磁盘中的一部分作为 backing store，而是利用引导分区所有可用的磁盘空间。</p>
+<p>苹果最初只是公开了从 OS X Mavericks 开始使用 Compressed Memory 技术，但 iOS 系统也从 iOS 7 开始悄悄地使用。</p>
+<p>Compressed Memory 技术在内存紧张时能够将最近使用过的内存占用压缩至原有大小的一半以下，并且能够在需要时解压复用。它在节省内存的同时提高了系统的响应速度，其特点可以归结为：</p>
+<ul>
+<li>减少了不活跃内存占用</li>
+<li>改善电源效率，通过压缩减少磁盘 IO 带来的损耗</li>
+<li>压缩/解压非常快，能够尽可能减少 CPU 的时间开销</li>
+<li>支持多核操作</li>
+</ul>
+<p>本质上，Compressed Memory 也是 Dirty Memory。因此，<strong>memory footprint = dirty size + compressed size</strong>，这也是我们需要并且能够尝试去减少的内存占用。</p>
+<h3 id="代码实现-1"><a href="#代码实现-1" class="headerlink" title="代码实现"></a>代码实现</h3><p>在 <code>/usr/include/mach/task_info.h</code> 中，我们可以看到 <code>mach_task_basic_info</code> 和 <code>task_basic_info</code> 结构体的定义，分别如下所示。事实上，苹果公司已经不建议再使用 <code>task_basic_info</code> 结构体了。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#define MACH_TASK_BASIC_INFO     20         /* always 64-bit basic info */</span><br><span class="line">struct mach_task_basic_info &#123;</span><br><span class="line">        mach_vm_size_t  virtual_size;       /* virtual memory size (bytes) */</span><br><span class="line">        mach_vm_size_t  resident_size;      /* resident memory size (bytes) */</span><br><span class="line">        mach_vm_size_t  resident_size_max;  /* maximum resident memory size (bytes) */</span><br><span class="line">        time_value_t    user_time;          /* total user run time for</span><br><span class="line">                                               terminated threads */</span><br><span class="line">        time_value_t    system_time;        /* total system run time for</span><br><span class="line">                                               terminated threads */</span><br><span class="line">        policy_t        policy;             /* default policy for new threads */</span><br><span class="line">        integer_t       suspend_count;      /* suspend count for task */</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">/* localized structure - cannot be safely passed between tasks of differing sizes */</span><br><span class="line">/* Don&apos;t use this, use MACH_TASK_BASIC_INFO instead */</span><br><span class="line">struct task_basic_info &#123;</span><br><span class="line">        integer_t       suspend_count;  /* suspend count for task */</span><br><span class="line">        vm_size_t       virtual_size;   /* virtual memory size (bytes) */</span><br><span class="line">        vm_size_t       resident_size;  /* resident memory size (bytes) */</span><br><span class="line">        time_value_t    user_time;      /* total user run time for</span><br><span class="line">                                           terminated threads */</span><br><span class="line">        time_value_t    system_time;    /* total system run time for</span><br><span class="line">                                           terminated threads */</span><br><span class="line">	policy_t	policy;		/* default policy for new threads */</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>mach_task_basic_info</code> 结构体存储了 Mach task 的内存使用信息，其中 <code>resident_size</code> 是 App 使用的驻留内存大小，<code>virtual_size</code> 是 App 使用的虚拟内存大小。</p>
+<p>如下所示为内存使用情况的代码实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 当前 app 内存使用量</span><br><span class="line">+ (NSInteger)useMemoryForApp &#123;</span><br><span class="line">    struct mach_task_basic_info info;</span><br><span class="line">    mach_msg_type_number_t count = MACH_TASK_BASIC_INFO_COUNT;</span><br><span class="line">	</span><br><span class="line">	kern_return_t kr = task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t) &amp;info, &amp;count);</span><br><span class="line">	if (kr == KERN_SUCCESS) &#123;</span><br><span class="line">		return info.resident_size;</span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		return -1;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然而，我用 <strong>通过此方法获取到的内存信息与 Instruments 中的 Activity Monitor 采集到的内存信息进行比较，发现前者要多出将近 100MB</strong>。经过调研发现，苹果使用了上述的 Compressed Memory，我猜测：<code>resident_size</code> 可能是将 Compressed Memory 解压后所统计到的一个数值。<strong>真实的物理内存的值应该是 <code>task_vm_info</code> 结构体中的 <code>pyhs_footprint</code> 成员的值</strong>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">#define TASK_VM_INFO            22</span><br><span class="line">#define TASK_VM_INFO_PURGEABLE  23</span><br><span class="line">struct task_vm_info &#123;</span><br><span class="line">	mach_vm_size_t  virtual_size;       /* virtual memory size (bytes) */</span><br><span class="line">	integer_t       region_count;       /* number of memory regions */</span><br><span class="line">	integer_t       page_size;</span><br><span class="line">	mach_vm_size_t  resident_size;      /* resident memory size (bytes) */</span><br><span class="line">	mach_vm_size_t  resident_size_peak; /* peak resident size (bytes) */</span><br><span class="line"></span><br><span class="line">	mach_vm_size_t  device;</span><br><span class="line">	mach_vm_size_t  device_peak;</span><br><span class="line">	mach_vm_size_t  internal;</span><br><span class="line">	mach_vm_size_t  internal_peak;</span><br><span class="line">	mach_vm_size_t  external;</span><br><span class="line">	mach_vm_size_t  external_peak;</span><br><span class="line">	mach_vm_size_t  reusable;</span><br><span class="line">	mach_vm_size_t  reusable_peak;</span><br><span class="line">	mach_vm_size_t  purgeable_volatile_pmap;</span><br><span class="line">	mach_vm_size_t  purgeable_volatile_resident;</span><br><span class="line">	mach_vm_size_t  purgeable_volatile_virtual;</span><br><span class="line">	mach_vm_size_t  compressed;</span><br><span class="line">	mach_vm_size_t  compressed_peak;</span><br><span class="line">	mach_vm_size_t  compressed_lifetime;</span><br><span class="line"></span><br><span class="line">	/* added for rev1 */</span><br><span class="line">	mach_vm_size_t  phys_footprint;</span><br><span class="line"></span><br><span class="line">	/* added for rev2 */</span><br><span class="line">	mach_vm_address_t       min_address;</span><br><span class="line">	mach_vm_address_t       max_address;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>因此，正确的内存使用情况的代码实现应该如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 当前 app 内存使用量</span><br><span class="line">+ (NSInteger)useMemoryForApp &#123;</span><br><span class="line">    task_vm_info_data_t vmInfo;</span><br><span class="line">    mach_msg_type_number_t count = TASK_VM_INFO_COUNT;</span><br><span class="line">    kern_return_t kernelReturn = task_info(mach_task_self(), TASK_VM_INFO, (task_info_t) &amp;vmInfo, &amp;count);</span><br><span class="line">    if (kernelReturn == KERN_SUCCESS) &#123;</span><br><span class="line">        int64_t memoryUsageInByte = (int64_t) vmInfo.phys_footprint;</span><br><span class="line">        return memoryUsageInByte / 1024 / 1024;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        return -1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="FPS"><a href="#FPS" class="headerlink" title="FPS"></a>FPS</h2><p>FPS（Frames Per Second）是指画面每秒传输的帧数。每秒帧数越多，所显示的动画就越流畅，一般只要保持 FPS 在 50-60，App 就会有流畅的体验，反之会感觉到卡顿。</p>
+<h3 id="相关系统原理-2"><a href="#相关系统原理-2" class="headerlink" title="相关系统原理"></a>相关系统原理</h3><p><code>CADisplayLink</code> 是一个能让我们以和屏幕刷新率相同的频率将内容画到屏幕上的定时器。</p>
+<p>一旦 <code>CADisplayLink</code> 以特定的模式注册到 <code>runloop</code> 之后，每当屏幕需要刷新时，<code>runloop</code> 就会调用 <code>CADisplayLink</code> 绑定的 <code>target</code> 上的 <code>selector</code>，此时 <code>target</code> 可以读取到 <code>CADisplayLink</code> 的每次调用的时间戳，用来准备下一帧显示需要的数据。如：一个视频应用使用时间戳来计算下一帧要显示的视频数据。</p>
+<h3 id="代码实现-2"><a href="#代码实现-2" class="headerlink" title="代码实现"></a>代码实现</h3><p>现阶段，常用的 FPS 监控几乎都是基于 <code>CADisplayLink</code> 实现的。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">// swift</span><br><span class="line">final class FPSMonitor: NSObject &#123;</span><br><span class="line">    private var timer: Timer?</span><br><span class="line">    private var link: CADisplayLink?</span><br><span class="line">    private var count: UInt = 0</span><br><span class="line">    private var lastTime: TimeInterval = 0</span><br><span class="line"></span><br><span class="line">    func enableMonitor() &#123;</span><br><span class="line">        if link == nil &#123;</span><br><span class="line">            link = CADisplayLink(target: self, selector: #selector(fpsInfoCalculate(_:)))</span><br><span class="line">            link?.add(to: RunLoop.main, forMode: .common)</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            link?.isPaused = false</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    func disableMonitor() &#123;</span><br><span class="line">        if let link = link &#123;</span><br><span class="line">            link.isPaused = true</span><br><span class="line">            link.invalidate()</span><br><span class="line">            self.link = nil</span><br><span class="line">            lastTime = 0</span><br><span class="line">            count = 0</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    @objc</span><br><span class="line">    func fpsInfoCalculate(_ link: CADisplayLink) &#123;</span><br><span class="line">        if lastTime == 0 &#123;</span><br><span class="line">            lastTime = link.timestamp</span><br><span class="line">            return</span><br><span class="line">        &#125;</span><br><span class="line">        count += 1</span><br><span class="line">        let delta = link.timestamp - lastTime</span><br><span class="line">        if delta &gt;= 1 &#123;</span><br><span class="line">            // 间隔超过 1 秒</span><br><span class="line">            lastTime = link.timestamp</span><br><span class="line">            let fps = Double(count) / delta</span><br><span class="line">            count = 0</span><br><span class="line"></span><br><span class="line">            let intFps = Int(fps + 0.5)</span><br><span class="line">            print(&quot;帧率：\(intFps)&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>CADisplayLink</code> 实现的 FPS 在生产场景中只有指导意义，不能代表真实的 FPS。因为基于 <code>CADisplayLink</code> 实现的 FPS 无法完全检测出当前 <strong>Core Animation</strong> 的性能情况，只能检测出当前 <strong>RunLoop</strong> 的帧率。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a href="https://github.com/aozhimin/iOS-Monitor-Platform" target="_blank" rel="noopener">iOS 性能监控 SDK —— Wedjat（华狄特）开发过程的调研和整理</a></li>
+<li><a href="">深入解析Mac OS X 与 iOS 操作系统</a></li>
+<li><a href="https://developer.apple.com/videos/play/wwdc2018/416/" target="_blank" rel="noopener">WWDC 2018 Session 416 iOS Memory Deep Dive</a></li>
+<li><a href="https://techblog.toutiao.com/2018/06/19/untitled-40/" target="_blank" rel="noopener">[ WWDC2018 ] - 深入解析iOS内存 iOS Memory Deep Dive</a></li>
+<li><a href="https://github.com/WebKit/webkit/blob/52bc6f0a96a062cb0eb76e9a81497183dc87c268/Source/WTF/wtf/cocoa/MemoryFootprintCocoa.cpp" target="_blank" rel="noopener">WebKit MemoryFootprintCocoa</a></li>
+<li><a href="http://newosxbook.com/articles/MemoryPressure.html" target="_blank" rel="noopener">Handling low memory conditions in iOS and Mavericks</a></li>
+<li><a href="https://developer.apple.com/library/archive/technotes/tn2434/_index.html" target="_blank" rel="noopener">Minimizing your app’s Memory Footprint</a></li>
+<li><a href="https://developer.apple.com/library/archive/documentation/Performance/Conceptual/ManagingMemory/Articles/AboutMemory.html" target="_blank" rel="noopener">About the Virtual Memory System</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/49829766" target="_blank" rel="noopener">iOS 内存管理研究</a></li>
+<li><a href="https://juejin.im/entry/5bbda00ef265da0ac446c970" target="_blank" rel="noopener">iOS Memory Deep Dive</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/34348398" target="_blank" rel="noopener">深入理解 CADisplayLink 和 NSTimer</a></li>
+<li><a href="https://www.jianshu.com/p/c35a81c3b9eb" target="_blank" rel="noopener">CADisplayLink</a></li>
+<li><a href="https://opensource.apple.com/source/CF/CF-1152.14/CFRunLoop.c.auto.html" target="_blank" rel="noopener">CFRunLoop.c</a></li>
+<li><a href="http://chuquan.me/2018/08/26/graphics-rending-principle-gpu/">计算机那些事(8)——图形图像渲染原理</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="Bao Chuquan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Bao Chuquan Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/性能监控/" rel="tag"># 性能监控</a>
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+            <a href="/tags/CPU/" rel="tag"># CPU</a>
+          
+            <a href="/tags/Memory/" rel="tag"># Memory</a>
+          
+            <a href="/tags/FPS/" rel="tag"># FPS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/05/linux-disk-introduce/" rel="next" title="计算机那些事(1)——硬盘">
+                <i class="fa fa-chevron-left"></i> 计算机那些事(1)——硬盘
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/17/ios-performance-monitor-caton/" rel="prev" title="iOS 性能监控(2)——卡顿">
+                iOS 性能监控(2)——卡顿 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="Bao Chuquan" />
+          <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+           
+              <p class="site-description motion-element" itemprop="description">积累，沉淀，吸收，转换</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">56</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">104</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线下性能监控"><span class="nav-number">2.</span> <span class="nav-text">线下性能监控</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线上性能监控"><span class="nav-number">3.</span> <span class="nav-text">线上性能监控</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU"><span class="nav-number">3.1.</span> <span class="nav-text">CPU</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#相关系统原理"><span class="nav-number">3.1.1.</span> <span class="nav-text">相关系统原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码实现"><span class="nav-number">3.1.2.</span> <span class="nav-text">代码实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Memory"><span class="nav-number">3.2.</span> <span class="nav-text">Memory</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#相关系统原理-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">相关系统原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码实现-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">代码实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FPS"><span class="nav-number">3.3.</span> <span class="nav-text">FPS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#相关系统原理-2"><span class="nav-number">3.3.1.</span> <span class="nav-text">相关系统原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码实现-2"><span class="nav-number">3.3.2.</span> <span class="nav-text">代码实现</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+<div id="hexo-helper-live2d">
+  <canvas id="live2dcanvas" width="150" height="300"></canvas>
+</div>
+<style>
+  #live2dcanvas{
+    position: fixed;
+    width: 150px;
+    height: 300px;
+    opacity:0.7;
+    right: 0px;
+    z-index: 999;
+    pointer-events: none;
+    bottom: -20px;
+  }
+</style>
+<script type="text/javascript" src="/live2d/device.min.js"></script>
+<script type="text/javascript">
+const loadScript = function loadScript(c,b){var a=document.createElement("script");a.type="text/javascript";"undefined"!=typeof b&&(a.readyState?a.onreadystatechange=function(){if("loaded"==a.readyState||"complete"==a.readyState)a.onreadystatechange=null,b()}:a.onload=function(){b()});a.src=c;document.body.appendChild(a)};
+(function(){
+  if((typeof(device) != 'undefined') && (device.mobile())){
+    document.getElementById("live2dcanvas").style.width = '75px';
+    document.getElementById("live2dcanvas").style.height = '150px';
+  }else
+    if (typeof(device) === 'undefined') console.error('Cannot find current-device script.');
+  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/hijiki.model.json", 0.5);});
+})();
+</script>
+
+</body>
+</html>

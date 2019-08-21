@@ -99,21 +99,21 @@
 <meta name="description" content="最近在看《程序员的自我修养——链接、装载与库》一书，这本书以前看过一部分，由于难啃，当时没有坚持下去。现在工作了，每天接触的都是业务开发，对底层的一些东西感觉越来越陌生。于是，又把此书翻了出来拜读。为了加深阅读的印象，打算对书中的一些有价值的内容进行整理，也方便后续回顾。 程序构建流程下面以“Hello World”程序为例，来介绍程序的编译与链接过程。1234567// hello.c#incl">
 <meta name="keywords" content="编译原理">
 <meta property="og:type" content="article">
-<meta property="og:title" content="计算机那些事(2)——程序构建及编译原理">
+<meta property="og:title" content="计算机那些事(3)——程序构建及编译原理">
 <meta property="og:url" content="http://chuquan.me/2018/05/12/compiler-principle/index.html">
 <meta property="og:site_name" content="楚权的世界">
 <meta property="og:description" content="最近在看《程序员的自我修养——链接、装载与库》一书，这本书以前看过一部分，由于难啃，当时没有坚持下去。现在工作了，每天接触的都是业务开发，对底层的一些东西感觉越来越陌生。于是，又把此书翻了出来拜读。为了加深阅读的印象，打算对书中的一些有价值的内容进行整理，也方便后续回顾。 程序构建流程下面以“Hello World”程序为例，来介绍程序的编译与链接过程。1234567// hello.c#incl">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/code-compile-process.png">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-detail-process.png">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-syntax-tree.png">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-commented-syntax-tree.png">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-optimized-syntax-tree.png">
-<meta property="og:updated_time" content="2018-06-04T13:21:27.318Z">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/code-compile-process.png?x-oss-process=image/resize,w_600">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-detail-process.png?x-oss-process=image/resize,w_600">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-syntax-tree.png?x-oss-process=image/resize,w_600">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-commented-syntax-tree.png?x-oss-process=image/resize,w_600">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-optimized-syntax-tree.png?x-oss-process=image/resize,w_600">
+<meta property="og:updated_time" content="2019-05-14T14:57:35.024Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="计算机那些事(2)——程序构建及编译原理">
+<meta name="twitter:title" content="计算机那些事(3)——程序构建及编译原理">
 <meta name="twitter:description" content="最近在看《程序员的自我修养——链接、装载与库》一书，这本书以前看过一部分，由于难啃，当时没有坚持下去。现在工作了，每天接触的都是业务开发，对底层的一些东西感觉越来越陌生。于是，又把此书翻了出来拜读。为了加深阅读的印象，打算对书中的一些有价值的内容进行整理，也方便后续回顾。 程序构建流程下面以“Hello World”程序为例，来介绍程序的编译与链接过程。1234567// hello.c#incl">
-<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/code-compile-process.png">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/code-compile-process.png?x-oss-process=image/resize,w_600">
 
 
 
@@ -148,7 +148,7 @@
 
 
 
-  <title>计算机那些事(2)——程序构建及编译原理 | 楚权的世界</title>
+  <title>计算机那些事(3)——程序构建及编译原理 | 楚权的世界</title>
   
 
 
@@ -372,7 +372,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">计算机那些事(2)——程序构建及编译原理</h1>
+          <h1 class="post-title" itemprop="name headline">计算机那些事(3)——程序构建及编译原理</h1>
         
 
         <div class="post-meta">
@@ -400,8 +400,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-06-04T21:21:27+08:00">
-                2018-06-04
+              <time title="更新于" itemprop="dateModified" datetime="2019-05-14T22:57:35+08:00">
+                2019-05-14
               </time>
             
           </span>
@@ -466,7 +466,7 @@
 <li><strong>汇编（Assembly）</strong></li>
 <li><strong>链接（Linking）</strong></li>
 </ul>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/code-compile-process.png" alt=""></p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/code-compile-process.png?x-oss-process=image/resize,w_600" alt=""></p>
 <h2 id="预编译"><a href="#预编译" class="headerlink" title="预编译"></a>预编译</h2><p>预编译步骤将源代码文件<code>hello.c</code>以及相关头文件，如：<code>stdio.h</code>等预编译生成一个.i文件。对于C++程序，其源代码文件的扩展名可能是.cpp或.cxx，头文件的扩展名可能是.hpp，预编译生成.ii文件。</p>
 <p>预编译步骤相当于执行如下命令（选项-E表示只进行预编译）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -E hello.c -o hello.i</span><br></pre></td></tr></table></figure></p>
 <p>或<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cpp hello.c &gt; hello.i</span><br></pre></td></tr></table></figure></p>
@@ -507,7 +507,7 @@
 <li><strong>目标代码生成（Target Code Generation）</strong></li>
 <li><strong>目标代码优化（Target Code Optimization）</strong></li>
 </ul>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-detail-process.png" alt=""></p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-detail-process.png?x-oss-process=image/resize,w_600" alt=""></p>
 <p>下面我们以一行简单的C语言代码为例，简单描述从<strong>源代码（Source Code）</strong>到<strong>最终目标代码</strong>的过程。代码示例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// CompilerExpression.c</span><br><span class="line">array[index] = (index + 4) * (2 + 6)</span><br></pre></td></tr></table></figure></p>
 <h2 id="扫描（词法分析）"><a href="#扫描（词法分析）" class="headerlink" title="扫描（词法分析）"></a>扫描（词法分析）</h2><p>首先源代码被输入到<strong>扫描器（Scanner）</strong>，扫描器的任务很简单，只是简单地进行词法分析，运用一种类似于<strong>有限状态机（Finite State Machine）</strong>的算法将源代码的字符序列分割成一系列的<strong>记号（Token）</strong>。</p>
 <p>以上述代码为例，总共包含了28个非空字符，经过扫描后，产生了16个记号。</p>
@@ -590,15 +590,15 @@
 <p>有一个名为lex的程序可以实现词法扫描，它会按照用户之前描述好的词法规则将输入的字符串分割成一个个记号。正因为有这样一个程序存在，编译器的开发者就无需为每个编译器开发一个独立的词法扫描器，而是根据需要改变词法规则即可。</p>
 <h2 id="语法分析"><a href="#语法分析" class="headerlink" title="语法分析"></a>语法分析</h2><p><strong>语法分析器（Grammar Parser）</strong>将对由扫描器产生的记号进行语法分析。从而产生<strong>语法树（Syntax Tree）</strong>。整个分析过程采用了<strong>上下文无关语法（Context-freeGrammar）</strong>的分析手段。简单地讲，由语法分析器生成的语法树是以<strong>表达式（Expression）</strong>为节点的树。</p>
 <p>以上述代码为例，其中的语句就是一个由赋值表达式、加法表达式、乘法表达式、数组表达式、括号表达式组成的复杂语句，下图所示为该语句经过语法分析器后生成的语法树。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// CompilerExpression.c</span><br><span class="line">array[index] = (index + 4) * (2 + 6)</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-syntax-tree.png" alt=""></p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-syntax-tree.png?x-oss-process=image/resize,w_600" alt=""></p>
 <p>在语法分析的同时，很多运算符号的优先级和含义也被确定下来了。如：乘法表达式的优先级比加法高，圆括号表达式的优先级比乘法高，等等。另外，有些符号具有多重含义，如“*”在C语言中可以表示乘法表达式，也可以表示对指针取内容的表达式，因此语法分析阶段必须对这些内容进行区分。如果出现了表达式不合法，如各种括号不匹配、表达式中缺少操作符等，编译器就会报告语法分析阶段的错误。</p>
 <p>有一个名为yacc（Yet Another Compiler Compiler）的工具可以实现语法分析。其根据用户给定的语法规则对输入的记号序列进行解析，从而构建出语法树。对于不同的编程语言，编译器的开发者只需改变语法规则，而无需为每个编译器编写一个语法分析器。因此，其也称为“编译器编译器（Compiler Compiler）”</p>
 <h2 id="语义分析"><a href="#语义分析" class="headerlink" title="语义分析"></a>语义分析</h2><p>语法分析仅仅完成了对表达式的语法层面的分析，但它并不了解这个语句的真正含义，如：C语言里两个指针做乘法运算是没有意义的，但这个语句在语法上是合法的。编译器所能分析的语义是<strong>静态语义（Static Semantic）</strong>，所谓静态语义是指在编译期间可以确定的语义，与之对应的<strong>动态语义（Dynamic Semantic）</strong>就是只有在运行期才能确定的语义。</p>
 <p>静态语义通常包括声明和类型的匹配，类型的转换。比如当一个浮点型的表达式赋值给一个整型的表达式时，其中隐含了一个浮点型到整型的转换过程，语义分析过程中需要完成该步骤。比如讲一个浮点赋值给一个指针时，语义分析程序会发现这个类型不匹配，编译器将会报错。动态语义一般是指在运行期出现的语义相关的问题，比如将0作为除数是一个运行期语义错误。</p>
 <p>经过语义分析阶段之后，整个语法树的表达式都被标识了类型，如果有些类型需要做隐式转换，语义分析程序会在语法树中插入相应的转换节点。下图所示为标记语义后的语法树。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-commented-syntax-tree.png" alt=""></p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-commented-syntax-tree.png?x-oss-process=image/resize,w_600" alt=""></p>
 <h2 id="源代码优化（中间代码生成）"><a href="#源代码优化（中间代码生成）" class="headerlink" title="源代码优化（中间代码生成）"></a>源代码优化（中间代码生成）</h2><p>现代编译器有着很多层次的优化，<strong>源码优化器（Source Code Optimizer）</strong>则是在源代码级别进行优化。上述例子中，（2 + 6）这个表达式可以被优化掉。因为它的值在编译期就可以被确定。下图所示为优化后的语法树。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-optimized-syntax-tree.png" alt=""></p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-optimized-syntax-tree.png?x-oss-process=image/resize,w_600" alt=""></p>
 <p>事实上，直接在语法树上作优化比较困难，所以源代码优化器往往将整个语法树转换成<strong>中间代码（Intermediate Code）</strong>，它是语法树的顺序表示，其实它已经非常接近目标代码了。但它一般与目标机器和运行时环境是无关的，比如它不包含数据的尺寸、变量地址和寄存器的名字等。</p>
 <p>中间代码有很多种类型，在不同的编译器中有着不同的形式，比较常见的有：<strong>三地址码（Three-address Code）</strong>、<strong>P-代码（P-Code）</strong>。以三地址码为例，最基本的三地址码如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = y op z</span><br><span class="line"># 表示将变量y和z进行op操作后，赋值给x。</span><br></pre></td></tr></table></figure></p>
 <p>因此，可以将上述例子的代码翻译成三地址码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">t1 = 2 + 6</span><br><span class="line">t2 = index + 4</span><br><span class="line">t3 = t2 * t1</span><br><span class="line">array[index] = t3</span><br></pre></td></tr></table></figure></p>
@@ -689,8 +689,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/05/21/elf-introduce/" rel="prev" title="计算机那些事(3)——ELF文件结构">
-                计算机那些事(3)——ELF文件结构 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/05/21/elf-introduce/" rel="prev" title="计算机那些事(4)——ELF文件结构">
+                计算机那些事(4)——ELF文件结构 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -793,7 +793,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">56</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -815,7 +815,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">91</span>
+                <span class="site-state-item-count">104</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

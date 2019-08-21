@@ -107,7 +107,7 @@
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-runloop.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-runloop-mode.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-runloop-internal-logic.png">
-<meta property="og:updated_time" content="2018-12-03T15:56:06.041Z">
+<meta property="og:updated_time" content="2019-06-16T12:39:13.329Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Run Loop 原理详解">
 <meta name="twitter:description" content="Event Loop通常，一个线程一次只能执行一个任务，任务完成后线程就会退出。但是在很多系统或框架中，需要实现一种这样机制：线程能够随时处理事件或消息，并且不会在执行完成后退出。这种机制称为 Event Loop，其一般逻辑吐下所示： 1234567function main    initialize()    while message != quit        message := g">
@@ -398,8 +398,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-12-03T23:56:06+08:00">
-                2018-12-03
+              <time title="更新于" itemprop="dateModified" datetime="2019-06-16T20:39:13+08:00">
+                2019-06-16
               </time>
             
           </span>
@@ -470,12 +470,12 @@
 <p>用户无法创建 Run Loop 对象，但可以获取系统提供的 Run Loop 对象。注意：<strong>只能在一个线程的内部获取其 Run Loop 对象，主线程不受限制</strong>。</p>
 <p>关于 Run Loop 的启动，主线程的 Run Loop 在应用启动时自动启动，其他线程的 Run Loop 默认不会自动启动，需手动启动。</p>
 <h1 id="Run-Loop-Source"><a href="#Run-Loop-Source" class="headerlink" title="Run Loop Source"></a>Run Loop Source</h1><p>从上面 Run Loop 工作模式示意图中可知，Run Loop 有两种接收事件的渠道：Input Source、Timer Source。</p>
-<h2 id="Input-Source"><a href="#Input-Source" class="headerlink" title="Input Source"></a>Input Source</h2><p>Input Source 可分为三类：</p>
+<h2 id="Input-Source"><a href="#Input-Source" class="headerlink" title="Input Source"></a>Input Source</h2><p>Input Source 可分为两类：</p>
 <ul>
-<li><code>Custom Input Sources</code>（<code>Source0</code>）：用户自定义的事件，不会主动触发事件，也不会主动唤醒 Run Loop 的线程。</li>
-<li><code>Port-Based Sources</code>（<code>Source1</code>）：系统底层的 Port 事件（Mac Port），例如 <code>CFSocketRef</code>。一般用于通过内核和其他线程相互发送消息，应用层很少使用。这种 Source 可以主动唤醒 Run Loop 的线程。</li>
+<li><code>Custom Input Sources</code>（<code>Source0</code>）：用户自定义的事件，不会主动触发事件，也不会主动唤醒 Run Loop 的线程。如：<code>UIEvent</code>、<code>CFSocket</code>、普通函数调用、系统调用等。</li>
+<li><code>Port-Based Sources</code>（<code>Source1</code>）：系统底层的 Port 事件（Mac Port），如 <code>CFMachPort</code>，<code>CFMessagePort</code>。一般用于通过内核和其他线程相互发送消息，应用层很少使用。这种 Source 可以主动唤醒 Run Loop 的线程。</li>
 </ul>
-<h2 id="Timer-Source"><a href="#Timer-Source" class="headerlink" title="Timer Source"></a>Timer Source</h2><p>Timer Source 即定时器事件。</p>
+<h2 id="Timer-Source"><a href="#Timer-Source" class="headerlink" title="Timer Source"></a>Timer Source</h2><p>Timer Source 即定时器事件。本质上仍然属于 <code>Port-Based Source</code>，所有的 Timer 都共用一个端口“Mode Timer Port”。</p>
 <h1 id="Run-Loop-Observer"><a href="#Run-Loop-Observer" class="headerlink" title="Run Loop Observer"></a>Run Loop Observer</h1><p>Run Loop 通过监控 Source 来决定是否执行处理程序。而 Runloop Observer 则监控 Runloop 本身的状态。 Runloop Observer 可监控的 runloop 事件如下所示：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/* Run Loop Observer Activities */</span><br><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line">    kCFRunLoopEntry         = (1UL &lt;&lt; 0),   // 即将进入 Loop</span><br><span class="line">    kCFRunLoopBeforeTimers  = (1UL &lt;&lt; 1),   // 即将处理 Timer</span><br><span class="line">    kCFRunLoopBeforeSources = (1UL &lt;&lt; 2),   // 即将处理 Source</span><br><span class="line">    kCFRunLoopBeforeWaiting = (1UL &lt;&lt; 5),   // 即将进入休眠</span><br><span class="line">    kCFRunLoopAfterWaiting  = (1UL &lt;&lt; 6),   // 刚从休眠中唤醒</span><br><span class="line">    kCFRunLoopExit          = (1UL &lt;&lt; 7),   // 即将退出 Loop</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <h1 id="Run-Loop-Mode"><a href="#Run-Loop-Mode" class="headerlink" title="Run Loop Mode"></a>Run Loop Mode</h1><p>Run Loop Mode 即 Run Loop 工作模式。苹果文档中定义了 5 种 Mode：</p>
@@ -717,7 +717,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">56</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -739,7 +739,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">91</span>
+                <span class="site-state-item-count">104</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

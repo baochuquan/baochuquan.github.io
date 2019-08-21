@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="卡顿,性能监控," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="前文 iOS 性能监控(1)——CPU、Memory、FPS 探讨了 iOS 中进行线上监控 CPU、Memory、FPS 等指标的原理以及具体实现方法。本文则继续探讨如何在 iOS 中进行线上监控卡顿的原理及实现。 卡顿相关系统原理那么为什么会出现卡顿呢？为了解释这个问题首先需要了解一下屏幕图像的显示原理。首先从 CRT 显示器原理说起，如下图所示。CRT 的电子枪从上到下逐行扫描，扫描完成后显">
+<meta name="keywords" content="卡顿,性能监控">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 性能监控(2)——卡顿">
+<meta property="og:url" content="http://chuquan.me/2019/06/17/ios-performance-monitor-caton/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="前文 iOS 性能监控(1)——CPU、Memory、FPS 探讨了 iOS 中进行线上监控 CPU、Memory、FPS 等指标的原理以及具体实现方法。本文则继续探讨如何在 iOS 中进行线上监控卡顿的原理及实现。 卡顿相关系统原理那么为什么会出现卡顿呢？为了解释这个问题首先需要了解一下屏幕图像的显示原理。首先从 CRT 显示器原理说起，如下图所示。CRT 的电子枪从上到下逐行扫描，扫描完成后显">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-screen-scan.png?x-oss-process=image/resize,w_400">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-renderIng-gpu-internal-structure.png?x-oss-process=image/resize,w_500">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/gpu-double-buffer.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-vsync-off.jpg?x-oss-process=image/resize,w_500">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios_frame_drop.png?x-oss-process=image/resize,w_500">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-performance-monitor-caton01.png?x-oss-process=image/resize,w_500">
+<meta property="og:updated_time" content="2019-06-17T03:12:00.674Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS 性能监控(2)——卡顿">
+<meta name="twitter:description" content="前文 iOS 性能监控(1)——CPU、Memory、FPS 探讨了 iOS 中进行线上监控 CPU、Memory、FPS 等指标的原理以及具体实现方法。本文则继续探讨如何在 iOS 中进行线上监控卡顿的原理及实现。 卡顿相关系统原理那么为什么会出现卡顿呢？为了解释这个问题首先需要了解一下屏幕图像的显示原理。首先从 CRT 显示器原理说起，如下图所示。CRT 的电子枪从上到下逐行扫描，扫描完成后显">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-screen-scan.png?x-oss-process=image/resize,w_400">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2019/06/17/ios-performance-monitor-caton/"/>
+
+
+
+
+
+  <title>iOS 性能监控(2)——卡顿 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2019/06/17/ios-performance-monitor-caton/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Bao Chuquan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">iOS 性能监控(2)——卡顿</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2019-06-17T00:35:07+08:00">
+                2019-06-17
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2019-06-17T11:12:00+08:00">
+                2019-06-17
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前文 <a href="http://chuquan.me/2019/06/10/ios-performance-monitor-cpu-mem-fps/">iOS 性能监控(1)——CPU、Memory、FPS</a> 探讨了 iOS 中进行线上监控 CPU、Memory、FPS 等指标的原理以及具体实现方法。本文则继续探讨如何在 iOS 中进行线上监控卡顿的原理及实现。</p>
+<h1 id="卡顿"><a href="#卡顿" class="headerlink" title="卡顿"></a>卡顿</h1><h2 id="相关系统原理"><a href="#相关系统原理" class="headerlink" title="相关系统原理"></a>相关系统原理</h2><p>那么为什么会出现卡顿呢？为了解释这个问题首先需要了解一下屏幕图像的显示原理。首先从 CRT 显示器原理说起，如下图所示。CRT 的电子枪从上到下逐行扫描，扫描完成后显示器就呈现一帧画面。然后电子枪回到初始位置进行下一次扫描。为了同步显示器的显示过程和系统的视频控制器，显示器会用硬件时钟产生一系列的定时信号。当电子枪换行进行扫描时，显示器会发出一个水平同步信号（horizonal synchronization），简称 <strong>HSync</strong>；而当一帧画面绘制完成后，电子枪回复到原位，准备画下一帧前，显示器会发出一个垂直同步信号（vertical synchronization），简称 <strong>VSync</strong>。显示器通常以固定频率进行刷新，这个刷新率就是 VSync 信号产生的频率。虽然现在的显示器基本都是液晶显示屏了，但其原理基本一致。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-screen-scan.png?x-oss-process=image/resize,w_400" alt=""></p>
+<p>下图所示为常见的 CPU、GPU、显示器工作方式。CPU 计算好显示内容（如：视图的创建、布局计算、图片解码、文本绘制）提交至 GPU，GPU 渲染完成后将渲染结果存入帧缓冲区，视频控制器会按照 VSync 信号逐帧读取帧缓冲区的数据，经过数据转换后最终由显示器进行显示。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-renderIng-gpu-internal-structure.png?x-oss-process=image/resize,w_500" alt=""></p>
+<p>最简单的情况下，帧缓冲区只有一个。此时，帧缓冲区的读取和刷新都都会有比较大的效率问题。为了解决效率问题，GPU 通常会引入两个缓冲区，即 <strong>双缓冲机制</strong>。事实上，iPhone 使用的就是双缓冲机制。在这种情况下，GPU 会预先渲染一帧放入一个缓冲区中，用于视频控制器的读取。当下一帧渲染完毕后，GPU 会直接把视频控制器的指针指向第二个缓冲器。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/gpu-double-buffer.png?x-oss-process=image/resize,w_800" alt=""></p>
+<p>双缓冲虽然能解决效率问题，但会引入一个新的问题。当视频控制器还未读取完成时，即屏幕内容刚显示一半时，GPU 将新的一帧内容提交到帧缓冲区并把两个缓冲区进行交换后，视频控制器就会把新的一帧数据的下半段显示到屏幕上，造成画面撕裂现象，如下图：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-vsync-off.jpg?x-oss-process=image/resize,w_500" alt=""></p>
+<p>为了解决这个问题，GPU 通常有一个机制叫做垂直同步（简写也是 V-Sync），当开启垂直同步后，GPU 会等待显示器的 VSync 信号发出后，才进行新的一帧渲染和缓冲区更新。这样能解决画面撕裂现象，也增加了画面流畅度，但需要消费更多的计算资源，也会带来部分延迟。当 CPU 和 GPU 计算量比较大时，一旦它们的完成时间错过了下一次 C-Sync 的到来（通常是 1000/6=16.67ms），这样就会出现显示屏还是之前帧的内容，这就是界面卡顿的原因。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios_frame_drop.png?x-oss-process=image/resize,w_500" alt=""></p>
+<h2 id="FPS-卡顿监控方案"><a href="#FPS-卡顿监控方案" class="headerlink" title="FPS 卡顿监控方案"></a>FPS 卡顿监控方案</h2><p>FPS 卡顿监控方案的原理是 <strong>通过一段连续的 FPS 计算丢帧率来衡量当前页面绘制的质量</strong>。</p>
+<p>具体实现方式可以通过 <a href="http://chuquan.me/2019/06/10/ios-performance-monitor-cpu-mem-fps/">iOS 性能监控(1)——CPU、Memory、FPS</a> 一文中的 FPS 监控方法进行 FPS 数据采集，然后处理数据。这里不做多余的介绍。</p>
+<h2 id="主线程卡顿监控方案"><a href="#主线程卡顿监控方案" class="headerlink" title="主线程卡顿监控方案"></a>主线程卡顿监控方案</h2><p>主线程卡顿监控方案的原理是 <strong>通过子线程监控主线程的 RunLoop，判断两个状态区域之间的耗时是否达到一定阈值</strong>。因为主线程绝大部分计算或绘制任务都是以 RunLoop 为单位发生。单次 RunLoop 如果时长超过 16ms，就会导致 UI 体验的卡顿。</p>
+<p>美团的移动端性能监控方案 Hertz 采用的就是这种方式。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-performance-monitor-caton01.png?x-oss-process=image/resize,w_500" alt=""></p>
+<p>首先我们需要了解一下 RunLoop 的原理。</p>
+<h3 id="RunLoop-定义"><a href="#RunLoop-定义" class="headerlink" title="RunLoop 定义"></a>RunLoop 定义</h3><p>RunLoop 是 iOS 事件响应与任务处理最核心的机制。当有持续的异步任务需求时，我们会创建一个独立的生命周期可控的线程。<strong>RunLoop 就是控制线程生命周期并接收事件进行处理的机制</strong>。</p>
+<h3 id="RunLoop-机制"><a href="#RunLoop-机制" class="headerlink" title="RunLoop 机制"></a>RunLoop 机制</h3><p><strong>主线程（有 RunLoop 的线程）几乎所有函数都从以下六个函数之一的函数调起：</strong></p>
+<ol>
+<li><code>CFRUNLOOP_IS_CALLING_OUT_TO_AN_OBSERVER_CALLBACK_FUNCTION</code><ul>
+<li>CFRunloop is calling out to an abserver callback function</li>
+<li>用于向外部报告 RunLoop 当前状态的改变，框架中很多机制都由 RunLoopObserver 触发，如：CAAnimation</li>
+</ul>
+</li>
+<li><code>CFRUNLOOP_IS_CALLING_OUT_TO_A_BLOCK</code><ul>
+<li>CFRunloop is calling out to a block</li>
+<li>消息通知、非延迟的 perform、dispatch 调用、block 回调、KVO</li>
+</ul>
+</li>
+<li><code>CFRUNLOOP_IS_SERVICING_THE_MAIN_DISPATCH_QUEUE</code><ul>
+<li>CFRunloop is servicing the main dispatch queue</li>
+<li>执行主队列上的任务</li>
+</ul>
+</li>
+<li><code>CFRUNLOOP_IS_CALLING_OUT_TO_A_TIMER_CALLBACK_FUNCTION</code><ul>
+<li>CFRunloop is calling out to a timer callback function</li>
+<li>基于定时器的延迟的 perfrom，dispatch 调用</li>
+</ul>
+</li>
+<li><code>CFRUNLOOP_IS_CALLING_OUT_TO_A_SOURCE0_PERFORM_FUNCTION</code><ul>
+<li>CFRunloop is calling out to a source 0 perform function</li>
+<li>处理 App 内部事件、App自己负责管理（触发），如：<code>UIEvent</code>、<code>CFSocket</code>。普通函数调用，系统调用</li>
+</ul>
+</li>
+<li><code>CFRUNLOOP_IS_CALLING_OUT_TO_A_SOURCE1_PERFORM_FUNCTION</code><ul>
+<li>CFRunloop is calling out to a source 1 perform function</li>
+<li>由 RunLoop 和内核管理，Mach port 驱动，如：<code>CFMachPort</code>、<code>CFMessagePort</code></li>
+</ul>
+</li>
+</ol>
+<h3 id="RunLoop-运行时"><a href="#RunLoop-运行时" class="headerlink" title="RunLoop 运行时"></a>RunLoop 运行时</h3><p>如下所示为 <code>CFRunLoop</code> 源码中的核心方法 <code>CFRunLoopRun</code> 简化后的主要逻辑。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">int32_t __CFRunLoopRun() &#123;</span><br><span class="line">    // 1. 通知 Observers：即将进入 RunLoop</span><br><span class="line">    __CFRunLoopDoObservers(KCFRunLoopEntry);</span><br><span class="line">    </span><br><span class="line">    do &#123;</span><br><span class="line">        // 2. 通知Observers：即将要处理 timer</span><br><span class="line">        __CFRunLoopDoObservers(kCFRunLoopBeforeTimers);</span><br><span class="line">        // 3. 通知Observers：即将要处理 source</span><br><span class="line">        __CFRunLoopDoObservers(kCFRunLoopBeforeSources);</span><br><span class="line">        </span><br><span class="line">        // 处理非延迟的主线程调用</span><br><span class="line">        __CFRunLoopDoBlocks();</span><br><span class="line">        // 处理 UIEvent 事件</span><br><span class="line">        __CFRunLoopDoSource0();</span><br><span class="line">    </span><br><span class="line">        // GCD dispatch main queue</span><br><span class="line">        CheckIfExistMessagesInMainDispatchQueue();</span><br><span class="line">    </span><br><span class="line">        // 4. 通知 Observers：即将进入休眠等待</span><br><span class="line">        __CFRunLoopDoObservers(kCFRunLoopBeforeWaiting);</span><br><span class="line">        </span><br><span class="line">        // 等待内核mach_msg事件</span><br><span class="line">        mach_port_t wakeUpPort = SleepAndWaitForWakingUpPorts();</span><br><span class="line">        </span><br><span class="line">        // mach_msg_trap</span><br><span class="line">        // 休眠中 Zzz...</span><br><span class="line">        // Received mach_msg, wake up</span><br><span class="line">        </span><br><span class="line">        // 5. 通知 Observers：从休眠等待中醒来</span><br><span class="line">        __CFRunLoopDoObservers(kCFRunLoopAfterWaiting);</span><br><span class="line">        </span><br><span class="line">        if (wakeUpPort == timerPort) &#123;</span><br><span class="line">            // 处理因timer的唤醒</span><br><span class="line">            __CFRunLoopDoTimers();</span><br><span class="line">        &#125; else if (wakeUpPort == mainDispatchQueuePort) &#123;</span><br><span class="line">            // 处理异步方法唤醒，如：dispatch_async</span><br><span class="line">            __CFRUNLOOP_IS_SERVICING_THE_MAIN_DISPATCH_QUEUE__()</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            // UI 刷新，动画显示</span><br><span class="line">            __CFRunLoopDoSource1();</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        // 再次确保是否有同步的方法需要调用</span><br><span class="line">        __CFRunLoopDoBlocks()</span><br><span class="line">    &#125; while(!stop &amp;&amp; !timeout);</span><br><span class="line">    </span><br><span class="line">    // 6. 通知 Observers：即将退出runloop</span><br><span class="line">    __CFRunLoopDoObservers(CFRunLoopExit);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>RunLoop 在运行时一直在向外部报告当前状态的更新，其状态定义如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line">    kCFRunLoopEntry ,           // 进入 loop</span><br><span class="line">    kCFRunLoopBeforeTimers ,    // 触发 Timer 回调</span><br><span class="line">    kCFRunLoopBeforeSources ,   // 触发 Source0 回调</span><br><span class="line">    kCFRunLoopBeforeWaiting ,   // 等待 mach_port 消息</span><br><span class="line">    kCFRunLoopAfterWaiting ,    // 接收 mach_port 消息</span><br><span class="line">    kCFRunLoopExit ,            // 退出 loop</span><br><span class="line">    kCFRunLoopAllActivities     // loop 所有状态改变</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>从 RunLoop 运行逻辑中，不难发现 NSRunLoop 调用方法主要在于两个状态区间：</p>
+<ul>
+<li><code>kCFRunLoopBeforeSources</code> 和 <code>kCFRunLoopBeforeWaiting</code> 之间</li>
+<li><code>kCFRunLoopAfterWaiting</code> 之后</li>
+</ul>
+<p><strong>如果这两个时间内耗时太久而无法进入下一步，可以线程受阻。如果这个线程时主线程，表现出来就是出现了卡顿。</strong></p>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><p>我们可以通过 <code>CFRunLoopObserverRef</code> 实时获取 <code>NSRunLoop</code> 的状态。具体使用方法如下：</p>
+<p>首先创建一个 <code>CFRunLoopObserverContext</code> 观察者 <code>observer</code>。然后将观察者 <code>observer</code> 添加到主线程 RunLoop 的 <code>kCFRunLoopCommonModes</code> 模式下进行观察。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">- (void)registerObserver &#123;</span><br><span class="line">    CFRunLoopObserverContext context = &#123;0,(__bridge void*)self,NULL,NULL&#125;;</span><br><span class="line">    CFRunLoopObserverRef observer = CFRunLoopObserverCreate(kCFAllocatorDefault,</span><br><span class="line">                                                            kCFRunLoopAllActivities,</span><br><span class="line">                                                            YES,</span><br><span class="line">                                                            0,</span><br><span class="line">                                                            &amp;runLoopObserverCallBack,</span><br><span class="line">                                                            &amp;context);</span><br><span class="line">    CFRunLoopAddObserver(CFRunLoopGetMain(), observer, kCFRunLoopCommonModes);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static void runLoopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopActivity activity, void *info) &#123;</span><br><span class="line">    MyClass *object = (__bridge MyClass*)info;</span><br><span class="line">    object-&gt;activity = activity;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后，创建一个持续的子线程专门用来监控主线程的 RunLoop 状态。为了让计算更精确，需要让子线程更及时的获知主线程 RunLoop 状态变化，<code>dispatch_semaphore_t</code> 是一个不错的选择。另外，卡顿需要覆盖多次连续短时间卡顿和单次长时间卡顿两种情景，所以判定条件也需要做适当优化。优化后的代码实现如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">- (void)registerObserver &#123;</span><br><span class="line">    CFRunLoopObserverContext context = &#123;0,(__bridge void*)self,NULL,NULL&#125;;</span><br><span class="line">    CFRunLoopObserverRef observer = CFRunLoopObserverCreate(kCFAllocatorDefault,</span><br><span class="line">                                                            kCFRunLoopAllActivities,</span><br><span class="line">                                                            YES,</span><br><span class="line">                                                            0,</span><br><span class="line">                                                            &amp;runLoopObserverCallBack,</span><br><span class="line">                                                            &amp;context);</span><br><span class="line">    CFRunLoopAddObserver(CFRunLoopGetMain(), observer, kCFRunLoopCommonModes);</span><br><span class="line">    </span><br><span class="line">    // 创建信号</span><br><span class="line">    semaphore = dispatch_semaphore_create(0);</span><br><span class="line">    </span><br><span class="line">    // 在子线程监控时长</span><br><span class="line">    dispatch_async(dispatch_get_global_queue(0, 0), ^&#123;</span><br><span class="line">        while (YES) &#123;</span><br><span class="line">            // 假定连续5次超时50ms认为卡顿(当然也包含了单次超时250ms)</span><br><span class="line">            long st = dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 50*NSEC_PER_MSEC));</span><br><span class="line">            if (st != 0) &#123;</span><br><span class="line">                if (activity == kCFRunLoopBeforeSources || activity==kCFRunLoopAfterWaiting) &#123;</span><br><span class="line">                    if (++timeoutCount &lt; 5)</span><br><span class="line">                        continue;</span><br><span class="line">                    </span><br><span class="line">                    NSLog(@&quot;好像有点儿卡哦&quot;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            timeoutCount = 0;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static void runLoopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopActivity activity, void *info) &#123;</span><br><span class="line">    MyClass *object = (__bridge MyClass*)info;</span><br><span class="line">    </span><br><span class="line">    // 记录状态值</span><br><span class="line">    object-&gt;activity = activity;</span><br><span class="line">    </span><br><span class="line">    // 发送信号</span><br><span class="line">    dispatch_semaphore_t semaphore = moniotr-&gt;semaphore;</span><br><span class="line">    dispatch_semaphore_signal(semaphore);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>检测到卡顿时应该立刻获取卡顿的方法堆栈信息，并推送至服务端共开发者分析，从而解决卡顿问题。</p>
+<p>获取堆栈信息的一种方法是：<strong>直接调用系统函数</strong>。这种方法的优点是 <strong>性能消耗小</strong>。缺点是 <strong>它只能够获取简单的信息，无法配合 dSYM 来获取具体是哪行代码出了问题，而且能够获取的信息类型也有限</strong>。</p>
+<p>直接调用系统函数的主要思路是：用 <code>signal</code> 进行错误信息获取。具体代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">static int s_fatal_signals[] = &#123;</span><br><span class="line">    SIGABRT,</span><br><span class="line">    SIGBUS,</span><br><span class="line">    SIGFPE,</span><br><span class="line">    SIGILL,</span><br><span class="line">    SIGSEGV,</span><br><span class="line">    SIGTRAP,</span><br><span class="line">    SIGTERM,</span><br><span class="line">    SIGKILL,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">static int s_fatal_signal_num = sizeof(s_fatal_signals) / sizeof(s_fatal_signals[0]);</span><br><span class="line"></span><br><span class="line">void UncaughtExceptionHandler(NSException *exception) &#123;</span><br><span class="line">    NSArray *exceptionArray = [exception callStackSymbols];     // 得到当前调用栈信息</span><br><span class="line">    NSString *exceptionReason = [exception reason];             // 非常重要，就是崩溃的原因</span><br><span class="line">    NSString *exceptionName = [exception name];                 // 异常类型</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void SignalHandler(int code) &#123;</span><br><span class="line">    NSLog(@&quot;signal handler = %d&quot;,code);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void InitCrashReport() &#123;</span><br><span class="line">    // 系统错误信号捕获</span><br><span class="line">    for (int i = 0; i &lt; s_fatal_signal_num; ++i) &#123;</span><br><span class="line">        signal(s_fatal_signals[i], SignalHandler);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    //oc 未捕获异常的捕获</span><br><span class="line">    NSSetUncaughtExceptionHandler(&amp;UncaughtExceptionHandler);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main(int argc, char * argv[]) &#123;</span><br><span class="line">    @autoreleasepool &#123;</span><br><span class="line">        InitCrashReport();</span><br><span class="line">        return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>获取堆栈信息的另一种方法是：<strong>直接使用 PLCrashReporter 第三方开源库</strong>。这种方法的优点是 <strong>能够定位到问题代码的具体位置，而且性能消耗也不大</strong>。具体代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">PLCrashReporterConfig *config = [[PLCrashReporterConfig alloc] initWithSignalHandlerType:PLCrashReporterSignalHandlerTypeBSD     </span><br><span class="line">                                                                   symbolicationStrategy:PLCrashReporterSymbolicationStrategyAll];</span><br><span class="line">PLCrashReporter *reporter = [[PLCrashReporter alloc] initWithConfiguration:config];</span><br><span class="line"></span><br><span class="line">// 获取数据</span><br><span class="line">NSData *lagData = [reporter generateLiveReport];</span><br><span class="line"></span><br><span class="line">// 转换成 PLCrashReport 对象</span><br><span class="line">PLCrashReport *lagReport = [[PLCrashReport alloc] initWithData:lagData error:NULL];</span><br><span class="line"></span><br><span class="line">// 进行字符串格式化处理</span><br><span class="line">NSString *lagReportString = [PLCrashReportTextFormatter stringValueForCrashReport:lagReport withTextFormat:PLCrashReportTextFormatiOS];</span><br><span class="line"></span><br><span class="line">// 将字符串上传服务器</span><br><span class="line">NSLog(@&quot;lag happen, detail below: \n %@&quot;,lagReportString);</span><br></pre></td></tr></table></figure></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a href="http://chuquan.me/2018/08/26/graphics-rending-principle-gpu/">计算机那些事(8)——图形图像渲染原理</a></li>
+<li><a href="http://chuquan.me/2018/10/06/understand-ios-runloop/">Run Loop 原理详解</a></li>
+<li><a href="https://wereadteam.github.io/2016/05/03/WeRead-Performance/" target="_blank" rel="noopener">微信读书 iOS 性能优化总结</a></li>
+<li><a href="http://www.tanhao.me/code/151113.html/" target="_blank" rel="noopener">iOS 实时卡顿监控</a></li>
+<li><a href="https://opensource.apple.com/source/CF/CF-1152.14/CFRunLoop.c.auto.html" target="_blank" rel="noopener">CFRunLoop.c</a></li>
+<li><a href="https://juejin.im/post/5a94e9185188257a780dde61" target="_blank" rel="noopener">RunLoop刨根问底</a></li>
+<li><a href="https://www.cnblogs.com/zy1987/p/4582466.html" target="_blank" rel="noopener">RunLoop 原理和核心机制</a></li>
+<li><a href="http://mrpeak.cn/blog/ui-detect/" target="_blank" rel="noopener">iOS应用UI线程卡顿监控</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="Bao Chuquan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Bao Chuquan Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/卡顿/" rel="tag"># 卡顿</a>
+          
+            <a href="/tags/性能监控/" rel="tag"># 性能监控</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/10/ios-performance-monitor-cpu-mem-fps/" rel="next" title="iOS 性能监控(1)——CPU、Memory、FPS">
+                <i class="fa fa-chevron-left"></i> iOS 性能监控(1)——CPU、Memory、FPS
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/11/australia-from-sydeny-to-brisbane/" rel="prev" title="澳洲自驾游">
+                澳洲自驾游 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="Bao Chuquan" />
+          <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+           
+              <p class="site-description motion-element" itemprop="description">积累，沉淀，吸收，转换</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">56</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">104</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#卡顿"><span class="nav-number">1.</span> <span class="nav-text">卡顿</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#相关系统原理"><span class="nav-number">1.1.</span> <span class="nav-text">相关系统原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FPS-卡顿监控方案"><span class="nav-number">1.2.</span> <span class="nav-text">FPS 卡顿监控方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主线程卡顿监控方案"><span class="nav-number">1.3.</span> <span class="nav-text">主线程卡顿监控方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RunLoop-定义"><span class="nav-number">1.3.1.</span> <span class="nav-text">RunLoop 定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RunLoop-机制"><span class="nav-number">1.3.2.</span> <span class="nav-text">RunLoop 机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RunLoop-运行时"><span class="nav-number">1.3.3.</span> <span class="nav-text">RunLoop 运行时</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码实现"><span class="nav-number">1.3.4.</span> <span class="nav-text">代码实现</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">2.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+<div id="hexo-helper-live2d">
+  <canvas id="live2dcanvas" width="150" height="300"></canvas>
+</div>
+<style>
+  #live2dcanvas{
+    position: fixed;
+    width: 150px;
+    height: 300px;
+    opacity:0.7;
+    right: 0px;
+    z-index: 999;
+    pointer-events: none;
+    bottom: -20px;
+  }
+</style>
+<script type="text/javascript" src="/live2d/device.min.js"></script>
+<script type="text/javascript">
+const loadScript = function loadScript(c,b){var a=document.createElement("script");a.type="text/javascript";"undefined"!=typeof b&&(a.readyState?a.onreadystatechange=function(){if("loaded"==a.readyState||"complete"==a.readyState)a.onreadystatechange=null,b()}:a.onload=function(){b()});a.src=c;document.body.appendChild(a)};
+(function(){
+  if((typeof(device) != 'undefined') && (device.mobile())){
+    document.getElementById("live2dcanvas").style.width = '75px';
+    document.getElementById("live2dcanvas").style.height = '150px';
+  }else
+    if (typeof(device) === 'undefined') console.error('Cannot find current-device script.');
+  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/hijiki.model.json", 0.5);});
+})();
+</script>
+
+</body>
+</html>

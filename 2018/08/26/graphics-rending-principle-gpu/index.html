@@ -99,7 +99,7 @@
 <meta name="description" content="最近在 iOS 开发中做了较多动画相关的编程工作。因此想借此机会深入了解了一下 iOS 动画及渲染相关原理。随着对相关方面的深入了解，发现这里面涉及到从硬件底层到软件框架等一系列相关知识。 本文将从相对底层的角度对计算图形渲染原理进行简要介绍，以作为后续的知识储备。 引言作为程序员，我们或多或少知道可视化应用程序都是由 CPU 和 GPU 协作执行的。那么我们就先来了解一下两者的基本概念：  CP">
 <meta name="keywords" content="GPU,渲染">
 <meta property="og:type" content="article">
-<meta property="og:title" content="计算机那些事(7)——图形图像渲染原理">
+<meta property="og:title" content="计算机那些事(8)——图形图像渲染原理">
 <meta property="og:url" content="http://chuquan.me/2018/08/26/graphics-rending-principle-gpu/index.html">
 <meta property="og:site_name" content="楚权的世界">
 <meta property="og:description" content="最近在 iOS 开发中做了较多动画相关的编程工作。因此想借此机会深入了解了一下 iOS 动画及渲染相关原理。随着对相关方面的深入了解，发现这里面涉及到从硬件底层到软件框架等一系列相关知识。 本文将从相对底层的角度对计算图形渲染原理进行简要介绍，以作为后续的知识储备。 引言作为程序员，我们或多或少知道可视化应用程序都是由 CPU 和 GPU 协作执行的。那么我们就先来了解一下两者的基本概念：  CP">
@@ -115,9 +115,9 @@
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-renderIng-gpu-internal-structure.png?x-oss-process=image/resize,w_500">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/gpu-double-buffer.png">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-vsync-off.jpg?x-oss-process=image/resize,w_500">
-<meta property="og:updated_time" content="2018-09-24T16:38:51.459Z">
+<meta property="og:updated_time" content="2019-04-05T14:12:45.166Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="计算机那些事(7)——图形图像渲染原理">
+<meta name="twitter:title" content="计算机那些事(8)——图形图像渲染原理">
 <meta name="twitter:description" content="最近在 iOS 开发中做了较多动画相关的编程工作。因此想借此机会深入了解了一下 iOS 动画及渲染相关原理。随着对相关方面的深入了解，发现这里面涉及到从硬件底层到软件框架等一系列相关知识。 本文将从相对底层的角度对计算图形渲染原理进行简要介绍，以作为后续的知识储备。 引言作为程序员，我们或多或少知道可视化应用程序都是由 CPU 和 GPU 协作执行的。那么我们就先来了解一下两者的基本概念：  CP">
 <meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/daily-images/gpu-rasterization-basic-concept.png?x-oss-process=image/resize,w_300">
 
@@ -154,7 +154,7 @@
 
 
 
-  <title>计算机那些事(7)——图形图像渲染原理 | 楚权的世界</title>
+  <title>计算机那些事(8)——图形图像渲染原理 | 楚权的世界</title>
   
 
 
@@ -378,7 +378,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">计算机那些事(7)——图形图像渲染原理</h1>
+          <h1 class="post-title" itemprop="name headline">计算机那些事(8)——图形图像渲染原理</h1>
         
 
         <div class="post-meta">
@@ -406,8 +406,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-09-25T00:38:51+08:00">
-                2018-09-25
+              <time title="更新于" itemprop="dateModified" datetime="2019-04-05T22:12:45+08:00">
+                2019-04-05
               </time>
             
           </span>
@@ -676,8 +676,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/07/10/thread-introduce/" rel="next" title="计算机那些事(6)——线程">
-                <i class="fa fa-chevron-left"></i> 计算机那些事(6)——线程
+              <a href="/2018/07/10/thread-introduce/" rel="next" title="计算机那些事(7)——线程">
+                <i class="fa fa-chevron-left"></i> 计算机那些事(7)——线程
               </a>
             
           </div>
@@ -790,7 +790,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">56</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -812,7 +812,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">91</span>
+                <span class="site-state-item-count">104</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
