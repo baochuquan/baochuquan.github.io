@@ -99,7 +99,7 @@
 <meta name="description" content="最近公司针对刚入职的应届毕业生开展了一个的“新牛计划”，目的是让他们能够在一个月的时间内从零基础成长为 iOS 开发新手。 在这个过程中，我们需要承担讲师的角色。因此，我们对 iOS 开发的知识体系进行了划分，而我则负责讲解其中的 GCD 和网络相关部分。为此，我也算是学习了一下 iOS开发所涉及到的一些网络知识，也学习了一些开源框架，包括：AFNetworking、YTKNetwork、Coco">
 <meta name="keywords" content="NSURLSession">
 <meta property="og:type" content="article">
-<meta property="og:title" content="iOS 网络——NSURLSession">
+<meta property="og:title" content="iOS 网络(1)——NSURLSession">
 <meta property="og:url" content="http://chuquan.me/2019/07/21/ios-network-nsurlsession/index.html">
 <meta property="og:site_name" content="楚权的世界">
 <meta property="og:description" content="最近公司针对刚入职的应届毕业生开展了一个的“新牛计划”，目的是让他们能够在一个月的时间内从零基础成长为 iOS 开发新手。 在这个过程中，我们需要承担讲师的角色。因此，我们对 iOS 开发的知识体系进行了划分，而我则负责讲解其中的 GCD 和网络相关部分。为此，我也算是学习了一下 iOS开发所涉及到的一些网络知识，也学习了一些开源框架，包括：AFNetworking、YTKNetwork、Coco">
@@ -108,9 +108,9 @@
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/url-loading-system-classes.png?x-oss-process=image/resize,w_600">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/urlsessiontask-class.png?x-oss-process=image/resize,w_600">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/urlsessiontask-delegate.png?x-oss-process=image/resize,w_600">
-<meta property="og:updated_time" content="2019-08-21T15:54:17.812Z">
+<meta property="og:updated_time" content="2019-08-31T00:52:29.771Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="iOS 网络——NSURLSession">
+<meta name="twitter:title" content="iOS 网络(1)——NSURLSession">
 <meta name="twitter:description" content="最近公司针对刚入职的应届毕业生开展了一个的“新牛计划”，目的是让他们能够在一个月的时间内从零基础成长为 iOS 开发新手。 在这个过程中，我们需要承担讲师的角色。因此，我们对 iOS 开发的知识体系进行了划分，而我则负责讲解其中的 GCD 和网络相关部分。为此，我也算是学习了一下 iOS开发所涉及到的一些网络知识，也学习了一些开源框架，包括：AFNetworking、YTKNetwork、Coco">
 <meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/urlsession-overview.png?x-oss-process=image/resize,w_600">
 
@@ -147,7 +147,7 @@
 
 
 
-  <title>iOS 网络——NSURLSession | 楚权的世界</title>
+  <title>iOS 网络(1)——NSURLSession | 楚权的世界</title>
   
 
 
@@ -371,7 +371,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">iOS 网络——NSURLSession</h1>
+          <h1 class="post-title" itemprop="name headline">iOS 网络(1)——NSURLSession</h1>
         
 
         <div class="post-meta">
@@ -399,8 +399,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2019-08-21T23:54:17+08:00">
-                2019-08-21
+              <time title="更新于" itemprop="dateModified" datetime="2019-08-31T08:52:29+08:00">
+                2019-08-31
               </time>
             
           </span>
@@ -619,6 +619,17 @@
 <p>用于开启 HTTP 流水线（HTTP pipelining），可以显着减少请求的加载时间，但是由于没有被服务器广泛支持，默认是 <code>NO</code> 的。</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@property</span>(<span class="keyword">copy</span>) <span class="built_in">NSDictionary</span> *connectionProxyDictionary;</span><br></pre></td></tr></table></figure>
 <p>指定了 Session 连接中的代理服务器</p>
+<h1 id="NSURLSession-使用"><a href="#NSURLSession-使用" class="headerlink" title="NSURLSession 使用"></a>NSURLSession 使用</h1><p><code>NSURLSession</code> 的使用有如下几个步骤：</p>
+<ol>
+<li>创建会话：基于 <code>NSURLSessionConfiguration</code> 对象创建 <code>NSURLSession</code> 对象</li>
+<li>创建任务：基于 <code>NSURLSession</code> 对象创建 <code>NSURLSessionTask</code> 对象</li>
+<li>执行任务：执行 <code>NSURLSessionTask</code> 对象</li>
+</ol>
+<h2 id="创建会话"><a href="#创建会话" class="headerlink" title="创建会话"></a>创建会话</h2><p>会话的创建方式有三种：<br><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 直接创建，使用默认的 NSURLSessionConfiguration 配置</span></span><br><span class="line"><span class="built_in">NSURLSession</span> *session = [<span class="built_in">NSURLSession</span> sharedSession];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 配置后创建，先初始化一个 NSURLSessionConfiguration 对象</span></span><br><span class="line">[<span class="built_in">NSURLSession</span> sessionWithConfiguration:defaultSessionConfiguration];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 设置加代理获得</span></span><br><span class="line"><span class="built_in">NSURLSession</span> *session = [<span class="built_in">NSURLSession</span> sessionWithConfiguration:[<span class="built_in">NSURLSessionConfiguration</span> defaultSessionConfiguration]</span><br><span class="line">                                                      delegate:<span class="keyword">self</span></span><br><span class="line">                                                 delegateQueue:[[<span class="built_in">NSOperationQueue</span> alloc] init]];</span><br></pre></td></tr></table></figure></p>
+<h2 id="创建任务"><a href="#创建任务" class="headerlink" title="创建任务"></a>创建任务</h2><p>任务的创建在上文介绍 <strong><code>NSURLSessionTask</code></strong> 时已经提到。这里不做赘述。</p>
+<h2 id="执行任务"><a href="#执行任务" class="headerlink" title="执行任务"></a>执行任务</h2><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 执行任务</span></span><br><span class="line">[task resume];</span><br></pre></td></tr></table></figure>
+<h2 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h2><h3 id="GET-请求"><a href="#GET-请求" class="headerlink" title="GET 请求"></a>GET 请求</h3><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 创建会话</span></span><br><span class="line"><span class="built_in">NSURLSession</span> *session = [<span class="built_in">NSURLSession</span> sharedSession];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 创建任务</span></span><br><span class="line"><span class="built_in">NSURL</span> *url = [<span class="built_in">NSURL</span> URLWithString:<span class="string">@"http://www.xxx.com/login?username=myName&amp;pwd=myPsd"</span>];</span><br><span class="line"></span><br><span class="line"><span class="built_in">NSURLSessionDataTask</span> *task = [session dataTaskWithURL:url completionHandler:^(<span class="built_in">NSData</span> * _Nullable data, <span class="built_in">NSURLResponse</span> * _Nullable response, <span class="built_in">NSError</span> * _Nullable error) &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%@"</span>, [[<span class="built_in">NSString</span> alloc]initWithData:data encoding:<span class="built_in">NSUTF8StringEncoding</span>]);</span><br><span class="line">    <span class="comment">// 打印解析后的json数据</span></span><br><span class="line">    <span class="comment">// NSLog(@"%@", [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil]);</span></span><br><span class="line"></span><br><span class="line">&#125;];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 执行任务</span></span><br><span class="line">[task resume];</span><br></pre></td></tr></table></figure>
+<h3 id="POST-请求"><a href="#POST-请求" class="headerlink" title="POST 请求"></a>POST 请求</h3><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 创建会话</span></span><br><span class="line"><span class="built_in">NSURLSession</span> *session = [<span class="built_in">NSURLSession</span> sharedSession];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 创建任务</span></span><br><span class="line"><span class="built_in">NSURL</span> *url = [<span class="built_in">NSURL</span> URLWithString:<span class="string">@"http://www.xxx.com/login"</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建请求对象里面包含请求体</span></span><br><span class="line"><span class="built_in">NSMutableURLRequest</span> *request = [<span class="built_in">NSMutableURLRequest</span> requestWithURL:url];</span><br><span class="line">request.HTTPMethod = <span class="string">@"POST"</span>;</span><br><span class="line">request.HTTPBody = [<span class="string">@"username=myName&amp;pwd=myPsd"</span> dataUsingEncoding:<span class="built_in">NSUTF8StringEncoding</span>];</span><br><span class="line"></span><br><span class="line"><span class="built_in">NSURLSessionDataTask</span> *task = [session dataTaskWithRequest:request completionHandler:^(<span class="built_in">NSData</span> * _Nullable data, <span class="built_in">NSURLResponse</span> * _Nullable response, <span class="built_in">NSError</span> * _Nullable error) &#123;</span><br><span class="line">      </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%@"</span>, [[<span class="built_in">NSString</span> alloc]initWithData:data encoding:<span class="built_in">NSUTF8StringEncoding</span>]);</span><br><span class="line">    <span class="comment">// 打印解析后的json数据</span></span><br><span class="line">    <span class="comment">// NSLog(@"%@", [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil]);</span></span><br><span class="line"></span><br><span class="line">&#125;];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 执行任务</span></span><br><span class="line"> [task resume];</span><br></pre></td></tr></table></figure>
 <h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>iOS 7 和 Mac OS X 10.9 Mavericks 中 URL 加载系统的变化，是对 <code>NSURLConnection</code> 进行深思熟虑后的一个自然而然的进化。尽管在这个体系结构中，某些决定对于可组合性和可扩展性而言是一种倒退，但是 <code>NSURLSession</code> 仍然是实现更高级别网络功能的一个强大的基础框架。</p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
 <li><a href="https://developer.apple.com/documentation/foundation/url_loading_system?language=objc" target="_blank" rel="noopener">URL Loading System</a></li>
@@ -697,6 +708,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/08/06/ios-network-afnetworking/" rel="prev" title="iOS 网络(2)——AFNetworking">
+                iOS 网络(2)——AFNetworking <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -798,7 +813,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">56</span>
+                <span class="site-state-item-count">62</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -809,7 +824,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">12</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -820,7 +835,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">104</span>
+                <span class="site-state-item-count">111</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -908,7 +923,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#NSURLSession-概述"><span class="nav-number">1.</span> <span class="nav-text">NSURLSession 概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NSURLSession-架构"><span class="nav-number">2.</span> <span class="nav-text">NSURLSession 架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#NSURLSessionTask"><span class="nav-number">2.1.</span> <span class="nav-text">NSURLSessionTask</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#NSURLSessionDataTask"><span class="nav-number">2.1.1.</span> <span class="nav-text">NSURLSessionDataTask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSURLSessionUploadTask"><span class="nav-number">2.1.2.</span> <span class="nav-text">NSURLSessionUploadTask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSURLSessionDownloadTask"><span class="nav-number">2.1.3.</span> <span class="nav-text">NSURLSessionDownloadTask</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NSURLSession"><span class="nav-number">2.2.</span> <span class="nav-text">NSURLSession</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NSURLSessionConfiguration"><span class="nav-number">2.3.</span> <span class="nav-text">NSURLSessionConfiguration</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化"><span class="nav-number">2.3.1.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#属性配置"><span class="nav-number">2.3.2.</span> <span class="nav-text">属性配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#常规配置"><span class="nav-number">2.3.2.1.</span> <span class="nav-text">常规配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Cookie-策略"><span class="nav-number">2.3.2.2.</span> <span class="nav-text">Cookie 策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安全策略"><span class="nav-number">2.3.2.3.</span> <span class="nav-text">安全策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#缓存策略"><span class="nav-number">2.3.2.4.</span> <span class="nav-text">缓存策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#后台传输"><span class="nav-number">2.3.2.5.</span> <span class="nav-text">后台传输</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义协议"><span class="nav-number">2.3.2.6.</span> <span class="nav-text">自定义协议</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多路径-TCP"><span class="nav-number">2.3.2.7.</span> <span class="nav-text">多路径 TCP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HTTP-策略与代理"><span class="nav-number">2.3.2.8.</span> <span class="nav-text">HTTP 策略与代理</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结论"><span class="nav-number">3.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#NSURLSession-概述"><span class="nav-number">1.</span> <span class="nav-text">NSURLSession 概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NSURLSession-架构"><span class="nav-number">2.</span> <span class="nav-text">NSURLSession 架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#NSURLSessionTask"><span class="nav-number">2.1.</span> <span class="nav-text">NSURLSessionTask</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#NSURLSessionDataTask"><span class="nav-number">2.1.1.</span> <span class="nav-text">NSURLSessionDataTask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSURLSessionUploadTask"><span class="nav-number">2.1.2.</span> <span class="nav-text">NSURLSessionUploadTask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSURLSessionDownloadTask"><span class="nav-number">2.1.3.</span> <span class="nav-text">NSURLSessionDownloadTask</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NSURLSession"><span class="nav-number">2.2.</span> <span class="nav-text">NSURLSession</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NSURLSessionConfiguration"><span class="nav-number">2.3.</span> <span class="nav-text">NSURLSessionConfiguration</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化"><span class="nav-number">2.3.1.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#属性配置"><span class="nav-number">2.3.2.</span> <span class="nav-text">属性配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#常规配置"><span class="nav-number">2.3.2.1.</span> <span class="nav-text">常规配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Cookie-策略"><span class="nav-number">2.3.2.2.</span> <span class="nav-text">Cookie 策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安全策略"><span class="nav-number">2.3.2.3.</span> <span class="nav-text">安全策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#缓存策略"><span class="nav-number">2.3.2.4.</span> <span class="nav-text">缓存策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#后台传输"><span class="nav-number">2.3.2.5.</span> <span class="nav-text">后台传输</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义协议"><span class="nav-number">2.3.2.6.</span> <span class="nav-text">自定义协议</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多路径-TCP"><span class="nav-number">2.3.2.7.</span> <span class="nav-text">多路径 TCP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HTTP-策略与代理"><span class="nav-number">2.3.2.8.</span> <span class="nav-text">HTTP 策略与代理</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NSURLSession-使用"><span class="nav-number">3.</span> <span class="nav-text">NSURLSession 使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建会话"><span class="nav-number">3.1.</span> <span class="nav-text">创建会话</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建任务"><span class="nav-number">3.2.</span> <span class="nav-text">创建任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#执行任务"><span class="nav-number">3.3.</span> <span class="nav-text">执行任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用示例"><span class="nav-number">3.4.</span> <span class="nav-text">使用示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#GET-请求"><span class="nav-number">3.4.1.</span> <span class="nav-text">GET 请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#POST-请求"><span class="nav-number">3.4.2.</span> <span class="nav-text">POST 请求</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结论"><span class="nav-number">4.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>
