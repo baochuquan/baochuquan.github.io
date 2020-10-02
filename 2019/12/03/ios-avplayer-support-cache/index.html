@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="AVPlayer,AVAssetResourceLoader," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="概述最近一直在研究 iOS 平台的视频缓存设计方案。目标是实现视频边播边下载。后续再次播放时，则读取本地缓存数据，从而节省用户流量，提升用户体验。 基本原理下图所示为 iOS AVPlayer 视频缓存的原理示意图。左边为原始的 AVPlayer 在播放时视频时资源的请求过程。右边为实现视频缓存的方案，其中的关键是为 AVAssetResourceLoader 设置代理，并实现 AVAssetRe">
+<meta name="keywords" content="AVPlayer,AVAssetResourceLoader">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS AVPlayer 视频缓存的设计与实现">
+<meta property="og:url" content="http://chuquan.me/2019/12/03/ios-avplayer-support-cache/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="概述最近一直在研究 iOS 平台的视频缓存设计方案。目标是实现视频边播边下载。后续再次播放时，则读取本地缓存数据，从而节省用户流量，提升用户体验。 基本原理下图所示为 iOS AVPlayer 视频缓存的原理示意图。左边为原始的 AVPlayer 在播放时视频时资源的请求过程。右边为实现视频缓存的方案，其中的关键是为 AVAssetResourceLoader 设置代理，并实现 AVAssetRe">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/bcqmediacache-principle.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/timeline-of-avassetloadingrequest.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/seek-of-avassetloadingrequest.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/BCQMediaCache.png?x-oss-process=image/resize,w_800">
+<meta property="og:updated_time" content="2020-01-04T11:04:39.330Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS AVPlayer 视频缓存的设计与实现">
+<meta name="twitter:description" content="概述最近一直在研究 iOS 平台的视频缓存设计方案。目标是实现视频边播边下载。后续再次播放时，则读取本地缓存数据，从而节省用户流量，提升用户体验。 基本原理下图所示为 iOS AVPlayer 视频缓存的原理示意图。左边为原始的 AVPlayer 在播放时视频时资源的请求过程。右边为实现视频缓存的方案，其中的关键是为 AVAssetResourceLoader 设置代理，并实现 AVAssetRe">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/bcqmediacache-principle.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2019/12/03/ios-avplayer-support-cache/"/>
+
+
+
+
+
+  <title>iOS AVPlayer 视频缓存的设计与实现 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2019/12/03/ios-avplayer-support-cache/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Bao Chuquan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">iOS AVPlayer 视频缓存的设计与实现</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2019-12-03T21:19:45+08:00">
+                2019-12-03
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2020-01-04T19:04:39+08:00">
+                2020-01-04
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>最近一直在研究 iOS 平台的视频缓存设计方案。目标是实现视频边播边下载。后续再次播放时，则读取本地缓存数据，从而节省用户流量，提升用户体验。</p>
+<h1 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h1><p>下图所示为 iOS AVPlayer 视频缓存的原理示意图。左边为原始的 AVPlayer 在播放时视频时资源的请求过程。右边为实现视频缓存的方案，其中的关键是为 <code>AVAssetResourceLoader</code> 设置代理，并实现 <code>AVAssetResourceLoaderDelegate</code> 协议所声明的两个方法。通过在这两个方法中捕获所有的 <code>AVAssetResourceLoadingRequest</code> 请求，并为所有的原始请求创建对应的自定义网络请求。使用自定义网络请求向远端多媒体服务器请求资源，当数据返回时，将数据返回给原始请求，并在本地进行数据缓存。<br><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/bcqmediacache-principle.png?x-oss-process=image/resize,w_800" alt=""></p>
+<h1 id="技术细节"><a href="#技术细节" class="headerlink" title="技术细节"></a>技术细节</h1><h2 id="AVAssetResourceLoaderDelegate"><a href="#AVAssetResourceLoaderDelegate" class="headerlink" title="AVAssetResourceLoaderDelegate"></a><code>AVAssetResourceLoaderDelegate</code></h2><p>首先，我们需要为 <code>AVAssetResourceLoader</code> 设置代理。<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> urlAsset = <span class="type">AVURLAsset</span>(url: xxx, options: <span class="literal">nil</span>)</span><br><span class="line">urlAsset.resourceLoader.setDelegate(<span class="keyword">self</span>, queue: <span class="type">DispatchQueue</span>.main)</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>注意：实现 <code>AVAssetResourceLoaderDelegate</code> 协议时，URL 必须是自定义的 URLScheme。我们需要把原始 URL 的 <code>http://</code> 或 <code>https://</code> 替换成 <code>xxx://</code>，协议方法才会生效。</p>
+</blockquote>
+<p>然后，我们需要实现 <code>AVAssetResourceLoaderDelegate</code> 所声明的相关方法。对于视频缓存功能，我们仅需要实现以下两个方法即可。<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">resourceLoader</span><span class="params">(<span class="number">_</span> resourceLoader: AVAssetResourceLoader, </span></span></span><br><span class="line"><span class="function"><span class="params">                    shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest)</span></span> -&gt; <span class="type">Bool</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">resourceLoader</span><span class="params">(<span class="number">_</span> resourceLoader: AVAssetResourceLoader, </span></span></span><br><span class="line"><span class="function"><span class="params">                    didCancel loadingRequest: AVAssetResourceLoadingRequest)</span></span></span><br></pre></td></tr></table></figure></p>
+<p><code>resourceLoader(_:shouldWaitForLoadingOfRequestedResource:)</code> 方法表示代理类是否可以处理该请求。我们通过在这个方法中捕获每个原始请求，并创建对应的自定义网络请求。</p>
+<p><code>resourceLoader(_:didCancel:)</code> 方法表示 <code>AVAssetResourceLoader</code> 主动放弃了某个原始请求。对此，我们需要将原始请求删除，并取消对应的自定义网络请求。</p>
+<h2 id="自定义网络请求的创建"><a href="#自定义网络请求的创建" class="headerlink" title="自定义网络请求的创建"></a>自定义网络请求的创建</h2><p>在上述 <code>resourceLoader(_:shouldWaitForLoadingOfRequestedResource:)</code> 代理方法中，我们能够捕获到一个原始请求，即一个 <code>AVAssetResourceLoadingRequest</code> 对象。如下所示，为 <code>AVAssetResourceLoadingRequest</code> 中的一些重要的属性和方法。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">open</span> <span class="class"><span class="keyword">class</span> <span class="title">AVAssetResourceLoadingRequest</span> : <span class="title">NSObject</span> </span>&#123;</span><br><span class="line">    <span class="keyword">open</span> <span class="keyword">var</span> request: <span class="type">URLRequest</span> &#123; <span class="keyword">get</span> &#125;</span><br><span class="line">    <span class="keyword">open</span> <span class="keyword">var</span> contentInformationRequest: <span class="type">AVAssetResourceLoadingContentInformationRequest</span>? &#123; <span class="keyword">get</span> &#125;</span><br><span class="line">    <span class="keyword">open</span> <span class="keyword">var</span> dataRequest: <span class="type">AVAssetResourceLoadingDataRequest</span>? &#123; <span class="keyword">get</span> &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">open</span> <span class="function"><span class="keyword">func</span> <span class="title">finishLoading</span><span class="params">()</span></span></span><br><span class="line">    <span class="keyword">open</span> <span class="function"><span class="keyword">func</span> <span class="title">finishLoading</span><span class="params">(with error: Error?)</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，<code>request</code> 代表原始请求，由于 <code>AVPlayer</code> 会触发分片下载的策略，<code>request</code> 请求会从 <code>dataRequest</code> 中获取请求的分片范围。因此，根据请求地址和请求分片，我们就可以创建自定义的网络请求。请求分片需要在 HTTP Header 中进行设置。</p>
+<h2 id="自定义网络请求的响应"><a href="#自定义网络请求的响应" class="headerlink" title="自定义网络请求的响应"></a>自定义网络请求的响应</h2><p>下图所示为视频播放时的一次网络请求的时序图。<br><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/timeline-of-avassetloadingrequest.png?x-oss-process=image/resize,w_800" alt=""></p>
+<p>我们根据 <code>dataRequest</code> 中的分片信息，创建并发起自定义网络请求。当远端的服务器响应该请求后，客户端会经历一下三个步骤，并调用相应的代理方法。</p>
+<ul>
+<li><strong>处理响应</strong></li>
+<li><strong>处理数据</strong>（多次）</li>
+<li><strong>请求结束</strong><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">urlSession</span><span class="params">(<span class="number">_</span> session: URLSession, </span></span></span><br><span class="line"><span class="function"><span class="params">                dataTask: URLSessionDataTask, </span></span></span><br><span class="line"><span class="function"><span class="params">                didReceive response: URLResponse, </span></span></span><br><span class="line"><span class="function"><span class="params">                completionHandler: @escaping <span class="params">(URLSession.ResponseDisposition)</span></span></span> -&gt; <span class="type">Void</span>)</span><br><span class="line">                </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">urlSession</span><span class="params">(<span class="number">_</span> session: URLSession, </span></span></span><br><span class="line"><span class="function"><span class="params">                dataTask: URLSessionDataTask, </span></span></span><br><span class="line"><span class="function"><span class="params">                didReceive data: Data)</span></span>                </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">urlSession</span><span class="params">(<span class="number">_</span> session: URLSession, </span></span></span><br><span class="line"><span class="function"><span class="params">                task: URLSessionTask, </span></span></span><br><span class="line"><span class="function"><span class="params">                didCompleteWithError error: Error?)</span></span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="处理响应"><a href="#处理响应" class="headerlink" title="处理响应"></a>处理响应</h3><p>请求响应时，我们从响应头部中获取资源相关信息，如：</p>
+<ul>
+<li><code>ContentType</code> 表示文件类型</li>
+<li><code>Content-Range</code> 包含文件长度信息</li>
+<li><code>Accept-Ranges</code> 包含是否支持分片请求</li>
+</ul>
+<p>我们需要把视频的信息填充到 <code>AVAssetResourceLoadingRequest</code> 的 <code>contentInformationRequest</code> 中，从而通知 <code>AVAssetResourceLoader</code> 要下载视频的视频格式、视频长度等。</p>
+<h3 id="处理数据"><a href="#处理数据" class="headerlink" title="处理数据"></a>处理数据</h3><p>当请求的分片范围较大时，客户端分多次顺序调用数据处理代理方法。我们可以在此时对接收到的数据进行缓存。当然，还要将数据返回给 <code>dataRequest</code>，可以通过调用 <code>respond(with:)</code> 方法将数据返回给 <code>dataRequest</code>。</p>
+<h3 id="请求结束"><a href="#请求结束" class="headerlink" title="请求结束"></a>请求结束</h3><p>当数据传输完毕后，我们需要手动调用 <code>finishLoading()</code> 方法通知 <code>AVAssetResourceLoader</code> 数据下载完毕。如果请求失败，我们也需要手动调用 <code>finishLoading(with:)</code> 方法告诉 <code>AVAssetResourceLoader</code> 数据下载失败。</p>
+<h2 id="重试机制"><a href="#重试机制" class="headerlink" title="重试机制"></a>重试机制</h2><p>当一个网络请求未完成时，我们拖动视频的进度条，<code>AVAssetResourceLoader</code> 会自动取消前一次的网络请求，从而发起一个新的网络请求。</p>
+<p>在上述 <code>resourceLoader(_:didCancel:)</code> 代理方法中，我们可以取消某一次下载请求。</p>
+<h2 id="分片下载"><a href="#分片下载" class="headerlink" title="分片下载"></a>分片下载</h2><p>一般情况下，视频播放支持进度拖拽的功能，即 <code>seek</code> 功能。因此，网络请求的分片与本地的分片数据可能存在如下关系：</p>
+<ul>
+<li><strong>本地缺失分片数据</strong></li>
+<li><strong>本地包含完整分片数据</strong></li>
+<li><strong>本地包含部分分片数据</strong></li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/seek-of-avassetloadingrequest.png?x-oss-process=image/resize,w_800" alt=""></p>
+<p>通过定义一个类来表示这两种分片信息。我们对请求的分片进行检查和拆分，并按顺序进行处理。如果本地已缓存，则直接返回本地分片数据；如果本地未缓存，则创建自定义网络请求，请求分片数据。<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">BCQResourceFragmentType</span> </span>&#123;</span><br><span class="line">    <span class="keyword">case</span> local                              <span class="comment">// 已缓存本地</span></span><br><span class="line">    <span class="keyword">case</span> remote                             <span class="comment">// 未缓存本地</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">BCQResourceFragment</span> </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> type: <span class="type">BCQResourceFragmentType</span>       <span class="comment">// 数据分片类型</span></span><br><span class="line">    <span class="keyword">let</span> range: <span class="type">SVRange</span>                      <span class="comment">// 数据分片范围</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="设计实现"><a href="#设计实现" class="headerlink" title="设计实现"></a>设计实现</h1><p>如图所示为 BCQMediaCache 的类图。<br><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/BCQMediaCache.png?x-oss-process=image/resize,w_800" alt=""></p>
+<p>BCQMediaCache 使用四个类将其核心功能分为四层：</p>
+<ul>
+<li><strong><code>BCQResourceLoaderManager</code></strong></li>
+<li><strong><code>BCQResourceLoader</code></strong></li>
+<li><strong><code>BCQResourceFragmentDownloader</code></strong></li>
+<li><strong><code>BCQResourceFragmentRequest</code></strong></li>
+</ul>
+<p><strong><code>BCQResourceLoaderManager</code></strong> 作为 <code>AVAssetResourceLoader</code> 的代理，实现了 <code>AVAssetResourceLoaderDelegate</code> 协议的两个方法。通过这两个方法实现对原始请求 <code>AVAssetResourceLoadingRequest</code> 的管理，包括：保存、取消。<code>BCQResourceLoaderManager</code> 还可以管理多个 URL，针对不同的 URL，它将创建对应的 <code>BCQResourceLoader</code>。具体的资源下载任务则由 <code>BCQResourceLoader</code> 及以下分层来完成。</p>
+<p><strong><code>BCQResourceLoader</code></strong> 管理单个 URL 的资源下载。对于单个 URL，同一时刻可能存在多个网络请求，为此，<code>BCQResourceLoader</code> 维护一个网络请求的列表。</p>
+<p><strong><code>BCQResourceFragmentDownloader</code></strong> 内部包含两个属性：<code>originRequest</code> 和 <code>customRequest</code>，分别表示原始网络请求和自定义网络请求。<code>BCQResourceFragmentDownloader</code> 将两者进行了绑定，负责处理两者之间的交互，如：</p>
+<ul>
+<li>根据本地保存的分片信息，对 <code>originRequest</code> 的请求分片进行详细拆分，得到 <code>BCQResourceFragment</code> 数组</li>
+<li>使用 <code>BCQResourceFragment</code> 数组创建并启动 <code>customRequest</code></li>
+<li>根据自定义请求的响应信息配置 <code>originRequest</code> 的 <code>contentInformationRequest</code></li>
+<li>将自定义请求的返回数据返回给 <code>originRequest</code> 的 <code>dataRequest</code></li>
+<li>通过自定义请求的结束调用通知 <code>originRequest</code> 的 <code>dataRequest</code></li>
+</ul>
+<p><strong><code>BCQResourceFragmentRequest</code></strong> 是数据请求的真正执行者。它根据分片的 <code>BCQResourceFragment</code> 数组，按顺序进行更细粒度的数据请求（远端请求或本地读取）。当从远端获取到数据时，首先向上层转发，其次异步写入本地。每个 <code>BCQResourceFragmentRequest</code> 单独占用一个线程，可并发执行。</p>
+<p><strong><code>BCQResourceInfo</code></strong> 会在初始化时从本地读取元数据 <code>BCQResourceMeta</code>，元数据记录了本地已缓存数据的分片信息。</p>
+<p><strong><code>BCQResourceUtils</code></strong> 则包含一些工具方法，如：创建缓存目录、日志打印方法等。</p>
+<h1 id="注意问题"><a href="#注意问题" class="headerlink" title="注意问题"></a>注意问题</h1><h2 id="自定义Scheme"><a href="#自定义Scheme" class="headerlink" title="自定义Scheme"></a>自定义Scheme</h2><p>实现 <code>AVAssetResourceLoaderDelegate</code> 协议时，URL 必须是自定义的 URLScheme。我们需要把原始 URL 的 <code>http://</code> 或 <code>https://</code> 替换成 <code>xxx://</code>，协议方法才会生效。</p>
+<h2 id="服务器信任证书"><a href="#服务器信任证书" class="headerlink" title="服务器信任证书"></a>服务器信任证书</h2><p>在请求资源时，我们可能会遇到 Challenge 验证。此时，我们需要在如下代理方法中进行 Challenge 验证。<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">urlSession</span><span class="params">(<span class="number">_</span> session: URLSession, </span></span></span><br><span class="line"><span class="function"><span class="params">                didReceive challenge: URLAuthenticationChallenge, </span></span></span><br><span class="line"><span class="function"><span class="params">                completionHandler: @escaping <span class="params">(URLSession.AuthChallengeDisposition, URLCredential?)</span></span></span> -&gt; <span class="type">Void</span>)</span><br></pre></td></tr></table></figure></p>
+<h2 id="Swift-HTTPURLResponse-Content-Range-天坑"><a href="#Swift-HTTPURLResponse-Content-Range-天坑" class="headerlink" title="Swift HTTPURLResponse Content-Range 天坑"></a>Swift HTTPURLResponse Content-Range 天坑</h2><p>使用 Swift 实现视频缓存方法，调试过程中遇到了一个 Swift URLHTTPResponse 天坑：关于 HTTP Header 中的 Content-Range 字段。</p>
+<p>正常情况下或者连接 Charles 并且 Disable SSL Proxying 情况下，<code>Content-Range</code> 为小写，即 <code>content-type</code>；连接 Charles 并且 Enable SSL Proxying 情况下，<code>Content-Range</code> 为大写，即 <code>Content-Range</code>。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>在方案设计阶段，调研了多个开源库，包括：ShortMediaCache、VIMediaCache。详细阅读了 <code>VIMediaCache</code> 源码，绘制其设计类图，分析其设计优点和缺点。汲取 VIMediaCache 的设计优点，最后重新设计了一套方案。</p>
+<p>在开发调试过程中，遇到了一些坑，花了不少时间解决。具体的实现涉及到不少细节，开发过程中也花费了不少时间。</p>
+<p>总体而言，得到了很好的锻炼，值得~</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a href="https://github.com/vitoziv/VIMediaCache" target="_blank" rel="noopener">VIMediaCache</a></li>
+<li><a href="https://github.com/dangercheng/ShortMediaCache" target="_blank" rel="noopener">ShortMediaCache</a></li>
+<li><a href="https://mp.weixin.qq.com/s/v1sw_Sb8oKeZ8sWyjBUXGA" target="_blank" rel="noopener">可能是目前最好的 AVPlayer 音视频缓存方案</a></li>
+<li><a href="http://msching.github.io/blog/2016/05/24/audio-in-ios-9/" target="_blank" rel="noopener">iOS音频播放 (九)：边播边缓存</a></li>
+<li><a href="https://segmentfault.com/a/1190000016228456" target="_blank" rel="noopener">iOS短视频播放缓存之道</a></li>
+<li><a href="http://xferris.cn/avplayer_cache/" target="_blank" rel="noopener">AVPlayer初体验之边下边播与视频缓存</a></li>
+<li><a href="https://www.cnblogs.com/code-life/p/7806824.html" target="_blank" rel="noopener">通过Authentication Challenge来信任自签名Https证书</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="Bao Chuquan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Bao Chuquan Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/AVPlayer/" rel="tag"># AVPlayer</a>
+          
+            <a href="/tags/AVAssetResourceLoader/" rel="tag"># AVAssetResourceLoader</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/11/20/bitcoin-wallet/" rel="next" title="比特币那些事(4)——钱包">
+                <i class="fa fa-chevron-left"></i> 比特币那些事(4)——钱包
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/01/04/2019-summary/" rel="prev" title="2019年总结">
+                2019年总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="Bao Chuquan" />
+          <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+           
+              <p class="site-description motion-element" itemprop="description">积累，沉淀，吸收，转换</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">67</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">119</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基本原理"><span class="nav-number">2.</span> <span class="nav-text">基本原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#技术细节"><span class="nav-number">3.</span> <span class="nav-text">技术细节</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AVAssetResourceLoaderDelegate"><span class="nav-number">3.1.</span> <span class="nav-text">AVAssetResourceLoaderDelegate</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义网络请求的创建"><span class="nav-number">3.2.</span> <span class="nav-text">自定义网络请求的创建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义网络请求的响应"><span class="nav-number">3.3.</span> <span class="nav-text">自定义网络请求的响应</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#处理响应"><span class="nav-number">3.3.1.</span> <span class="nav-text">处理响应</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#处理数据"><span class="nav-number">3.3.2.</span> <span class="nav-text">处理数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#请求结束"><span class="nav-number">3.3.3.</span> <span class="nav-text">请求结束</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重试机制"><span class="nav-number">3.4.</span> <span class="nav-text">重试机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分片下载"><span class="nav-number">3.5.</span> <span class="nav-text">分片下载</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设计实现"><span class="nav-number">4.</span> <span class="nav-text">设计实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#注意问题"><span class="nav-number">5.</span> <span class="nav-text">注意问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义Scheme"><span class="nav-number">5.1.</span> <span class="nav-text">自定义Scheme</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#服务器信任证书"><span class="nav-number">5.2.</span> <span class="nav-text">服务器信任证书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Swift-HTTPURLResponse-Content-Range-天坑"><span class="nav-number">5.3.</span> <span class="nav-text">Swift HTTPURLResponse Content-Range 天坑</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  
+<div id="hexo-helper-live2d">
+  <canvas id="live2dcanvas" width="150" height="300"></canvas>
+</div>
+<style>
+  #live2dcanvas{
+    position: fixed;
+    width: 150px;
+    height: 300px;
+    opacity:0.7;
+    right: 0px;
+    z-index: 999;
+    pointer-events: none;
+    bottom: -20px;
+  }
+</style>
+<script type="text/javascript" src="/live2d/device.min.js"></script>
+<script type="text/javascript">
+const loadScript = function loadScript(c,b){var a=document.createElement("script");a.type="text/javascript";"undefined"!=typeof b&&(a.readyState?a.onreadystatechange=function(){if("loaded"==a.readyState||"complete"==a.readyState)a.onreadystatechange=null,b()}:a.onload=function(){b()});a.src=c;document.body.appendChild(a)};
+(function(){
+  if((typeof(device) != 'undefined') && (device.mobile())){
+    document.getElementById("live2dcanvas").style.width = '75px';
+    document.getElementById("live2dcanvas").style.height = '150px';
+  }else
+    if (typeof(device) === 'undefined') console.error('Cannot find current-device script.');
+  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/hijiki.model.json", 0.5);});
+})();
+</script>
+
+</body>
+</html>

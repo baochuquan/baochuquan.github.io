@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="比特币钱包,HD 钱包,扩展密钥," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="keywords" content="比特币钱包,HD 钱包,扩展密钥">
+<meta property="og:type" content="article">
+<meta property="og:title" content="比特币那些事(4)——钱包">
+<meta property="og:url" content="http://chuquan.me/2019/11/20/bitcoin-wallet/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/bitcoin022.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-unconfirmed-wallet.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-confirmed-wallet.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-hd-wallet.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-trezor-wallet.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-bitcoin-mnemonic.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-bitcoin-seed.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-bitcoin-main-private-key.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-bitcoin-child-private-key-01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-bitcoin-child-public-key.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-bitcoin-hardend-child-private-key.png?x-oss-process=image/resize,w_800">
+<meta property="og:updated_time" content="2019-12-15T07:06:06.636Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="比特币那些事(4)——钱包">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/bitcoin022.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2019/11/20/bitcoin-wallet/"/>
+
+
+
+
+
+  <title>比特币那些事(4)——钱包 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2019/11/20/bitcoin-wallet/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Bao Chuquan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">比特币那些事(4)——钱包</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2019-11-20T22:20:21+08:00">
+                2019-11-20
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2019-12-15T15:06:06+08:00">
+                2019-12-15
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/区块链/" itemprop="url" rel="index">
+                    <span itemprop="name">区块链</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/bitcoin022.png?x-oss-process=image/resize,w_800" alt=""></p>
+<a id="more"></a>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>比特币中钱包并不是传统意义的钱包，它不包含比特币，仅仅包含密钥。每个用户都有一个包含多个密钥的钱包，钱包只包含私钥/公钥对的密钥链。用户用密钥签名交易，从而证明他们拥有交易输出，最终花费比特币。关于交易输出的概念，可以查看 <a href="http://chuquan.me/2019/11/25/bitcoin-transaction/">《比特币那些事(2)——交易》</a>。</p>
+<h1 id="钱包"><a href="#钱包" class="headerlink" title="钱包"></a>钱包</h1><p>比特币钱包根据其包含的多个密钥是否相互关联，可以分为两种类型：</p>
+<ul>
+<li><strong>非确定性钱包</strong>（Nondeterministic Wallet）</li>
+<li><strong>确定性钱包</strong>（Deterministic Wallet）</li>
+</ul>
+<p>非确定性钱包中的所有密钥都是由 <strong>随机数</strong> 独立生成的。密钥之间彼此无关，因此也称为 “Just a Bunch of Keys”，简称 <strong>JBOK 钱包</strong>。</p>
+<p>确定性钱包中的所有密钥都是从一个 <strong>主密钥</strong> 派生出来的。主密钥也称为 <strong>种子</strong>（Seed）。确定性钱包中所有密钥相互关联，如果有原始种子，则可以再次生成全部密钥。</p>
+<h2 id="非确定性钱包"><a href="#非确定性钱包" class="headerlink" title="非确定性钱包"></a>非确定性钱包</h2><p>在早期的比特币客户端（Bitcoin Core，也称比特币核心客户端）中，钱包只是随机生成的私钥集合。随机密钥的缺点就是如果你生成很多私钥，就必须保存它们所有的副本。每一个密钥都必须备份，否则一旦钱包不可访问时，钱包所控制的资金就付之东流。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-unconfirmed-wallet.png?x-oss-process=image/resize,w_800" alt=""></p>
+<h2 id="确定性钱包"><a href="#确定性钱包" class="headerlink" title="确定性钱包"></a>确定性钱包</h2><p>确定性钱包通过使用单项离散函数从公共的种子生成的私钥。种子是随机生成的数字。在确定性钱包中，种子可以恢复所有的已经生成的私钥，因此，只要在初始创建时对种子进行备份就可以了。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-confirmed-wallet.png?x-oss-process=image/resize,w_800" alt=""></p>
+<h1 id="分层确定性钱包"><a href="#分层确定性钱包" class="headerlink" title="分层确定性钱包"></a>分层确定性钱包</h1><p>确定性钱包使用了许多不同的密钥推导方法。最常用的推导方法是使用树状结构，称为 <strong>分层确定性钱包</strong>（Hierarchical Deterministic Wallet，简称 <strong>HD 钱包</strong>）。在 HD 钱包中，父密钥可以衍生出一系列子密钥，每个子密钥又可以衍生出一系列孙密钥，以此类推，无限衍生。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-hd-wallet.png?x-oss-process=image/resize,w_800" alt=""></p>
+<h2 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h2><p>下面，我们通过一个例子来介绍 HD 钱包的实现原理。</p>
+<p>Alice 经营了一家网络商店销售T恤。她使用 Trezor 比特币硬件钱包（硬件 HD 钱包）来管理她的比特币。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-trezor-wallet.png?x-oss-process=image/resize,w_800" alt=""></p>
+<p>Alice 首次使用 Trezor 时，设备从内置的硬件随机数生成器生成 <strong>助记词</strong>。钱包会在屏幕上按顺序逐个显示助记词。通过记下这些助记符，Alice 创建了一个备份，如下所示。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">1</th>
+<th style="text-align:left">army</th>
+<th style="text-align:left">2</th>
+<th style="text-align:left">van</th>
+<th style="text-align:left">3</th>
+<th style="text-align:left">defense</th>
+<th style="text-align:left">4</th>
+<th style="text-align:left">carry</th>
+<th style="text-align:left">5</th>
+<th style="text-align:left">jealous</th>
+<th style="text-align:left">6</th>
+<th style="text-align:left">true</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">7</td>
+<td style="text-align:left">garbage</td>
+<td style="text-align:left">8</td>
+<td style="text-align:left">claim</td>
+<td style="text-align:left">9</td>
+<td style="text-align:left">echo</td>
+<td style="text-align:left">10</td>
+<td style="text-align:left">media</td>
+<td style="text-align:left">11</td>
+<td style="text-align:left">make</td>
+<td style="text-align:left">12</td>
+<td style="text-align:left">crunch</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注：这里举例显示了 12 个助记词。事实上，大多数硬件钱包会生成更安全的 24 个助记词。</p>
+</blockquote>
+<h2 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h2><p>HD 钱包的密钥推导主要包括以下几个步骤：</p>
+<ul>
+<li>创建助记词</li>
+<li>创建种子</li>
+<li>创建钱包</li>
+</ul>
+<p>下面我们依次来介绍这个三个主要步骤。</p>
+<h3 id="创建助记词"><a href="#创建助记词" class="headerlink" title="创建助记词"></a>创建助记词</h3><p>BIP-39 是助记词行业标准，定义了助记词和种子的创建。助记词是由钱包使用 BIP-39 中定义的标准化过程自动生成的。助记词的生成主要包含以下这些步骤：</p>
+<ol>
+<li>创建一个 128 至 256 位的随机序列（熵）</li>
+<li>提取随机序列哈希值的前几位（随机序列长度/32），作为随机序列的校验和</li>
+<li>将校验和拼接至随机序列的末尾</li>
+<li>将序列进行分割成多个单元，每个单元占 11 位</li>
+<li>将每个单元的值映射到一个包含 2048（2^11）个单词的字典</li>
+<li>映射得到有顺序的单词组，即助记词</li>
+</ol>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-bitcoin-mnemonic.png?x-oss-process=image/resize,w_800" alt=""></p>
+<p>根据上述助记词的生成步骤，可以推测出随机序列（熵）与助记词长度的关系，如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Entropy(bits)</th>
+<th style="text-align:left">Checksum(bits)</th>
+<th style="text-align:left">Entropy + Checksum(bits)</th>
+<th style="text-align:left">Mnemonic Length(words)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">128</td>
+<td style="text-align:left">4</td>
+<td style="text-align:left">132</td>
+<td style="text-align:left">12</td>
+</tr>
+<tr>
+<td style="text-align:left">160</td>
+<td style="text-align:left">5</td>
+<td style="text-align:left">165</td>
+<td style="text-align:left">15</td>
+</tr>
+<tr>
+<td style="text-align:left">192</td>
+<td style="text-align:left">6</td>
+<td style="text-align:left">198</td>
+<td style="text-align:left">18</td>
+</tr>
+<tr>
+<td style="text-align:left">224</td>
+<td style="text-align:left">7</td>
+<td style="text-align:left">231</td>
+<td style="text-align:left">21</td>
+</tr>
+<tr>
+<td style="text-align:left">256</td>
+<td style="text-align:left">8</td>
+<td style="text-align:left">264</td>
+<td style="text-align:left">24</td>
+</tr>
+</tbody>
+</table>
+<h3 id="创建种子"><a href="#创建种子" class="headerlink" title="创建种子"></a>创建种子</h3><p>助记词创建之后，可以通过密钥延伸函数 PBKDF2 进一步生成种子。</p>
+<p>密钥延伸函数 PBKDF2 有两个参数：<strong>助记词</strong>、<strong>盐</strong> (Salt)。盐的目的是为了增加暴力攻击的难度。</p>
+<p>种子的生成主要包含以下步骤：</p>
+<ol>
+<li>PBKDF2 密钥延伸函数的第一个参数是助记词。</li>
+<li>PBKDF2 密钥延伸函数的第二个参数是盐。<strong>盐由助记词和可选的用户提供的密码组成</strong>。</li>
+<li>PBKDF2 密钥延伸函数内部使用 HMAC-SHA512 算法，进行 2048 次哈希运算，生成一个 512 位的种子。</li>
+</ol>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-bitcoin-seed.png?x-oss-process=image/resize,w_800" alt=""></p>
+<p>下表所示为示例的 128 位熵转换成 512 位种子的结果。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Entropy(128 bits)</th>
+<th style="text-align:left">0c1e24e5917779d297e14d45f14e1a1a</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Mnemonic(12 words)</strong></td>
+<td style="text-align:left"><strong>army van defense carry jealous true garbage claim echo media make crunch</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Passphrase</strong></td>
+<td style="text-align:left">(none)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Seed(512 bits)</strong></td>
+<td style="text-align:left"><strong>5b56c417303faa3fcba7e57400e120a0ca83ec5a4fc9ffba757fbe63fbd77a89a1a3be4c67196f57c39a88b76373733891bfaba16ed27a813ceed498804c0570</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="创建钱包"><a href="#创建钱包" class="headerlink" title="创建钱包"></a>创建钱包</h3><p>钱包的创建主要包含以下几项工作：</p>
+<ul>
+<li>创建主私钥，即密钥树的根</li>
+<li>创建子私钥</li>
+<li>创建子公钥</li>
+</ul>
+<p>下面我们依次介绍这几个步骤，在介绍完之后，我们再来看看其中存在的安全风险，进而介绍硬件子私钥的创建。</p>
+<h4 id="创建主私钥"><a href="#创建主私钥" class="headerlink" title="创建主私钥"></a>创建主私钥</h4><p>HD 钱包的确定性源自于 <strong>根种子</strong>（Root Seed），即上述过程所生成的种子。</p>
+<p>根种子通过 HMAC-SHA512 算法可生成 512 位哈希值。该将哈希值分成左右两部分，分别得到：</p>
+<ul>
+<li><strong>主私钥(m)</strong>（Master Private Key(m)）：主私钥(m)通过椭圆曲线算法可以生成 <strong>主公钥(M)</strong>（Master Public Key(M)）。</li>
+<li><strong>主链码</strong>（Master Chain Code）</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-bitcoin-main-private-key.png?x-oss-process=image/resize,w_800" alt=""></p>
+<h4 id="创建子私钥"><a href="#创建子私钥" class="headerlink" title="创建子私钥"></a>创建子私钥</h4><p>我们知道 HD 钱包采用树状结构进行密钥推导。在树状的密钥结构中，除了主密钥是通过根种子推导的，其他层级的密钥都是通过其母密钥推导的，采用 <strong>子密钥衍生函数</strong> CKD (Child Key Derivation)。</p>
+<p>子密钥衍生函数的调用需要三个参数：</p>
+<ul>
+<li><strong>母私钥</strong></li>
+<li><strong>母链码</strong></li>
+<li><strong>索引号</strong>：32 位的值，因此每个母私钥可以推导出 2^32 个子私钥。</li>
+</ul>
+<p>子私钥的具体衍生过程：根据母私钥推导出母公钥，将 <strong>母公钥-母链码-索引号</strong> 合并后使用 HMAC-SHA512 算法并结合 <strong>母私钥</strong> 生成 512 位哈希值。将该哈希值继续拆分成左右两部分，分别得到：</p>
+<ul>
+<li><strong>子私钥</strong></li>
+<li><strong>子链码</strong></li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-bitcoin-child-private-key-01.png?x-oss-process=image/resize,w_800" alt=""></p>
+<p>上述子密钥衍生函数所使用的三个参数，其中母私钥和母链码的结合被称为 <strong>扩展私钥</strong>（Extended Private Key）。通过上述子私钥推导的原理，可以知道：一个扩展密钥作为 HD 钱包中密钥树的一个分支，可以衍生出该分支下的所有密钥。</p>
+<p>与 <strong>扩展私钥</strong> 相对应是 <strong>扩展公钥</strong>（Extended Public Key），它由 <strong>母公钥</strong> 和 <strong>母链码</strong> 组成，可用于通过母公钥直接创建子公钥。</p>
+<h4 id="创建子公钥"><a href="#创建子公钥" class="headerlink" title="创建子公钥"></a>创建子公钥</h4><p>分层确定性钱包还有一个特点是：可以不通过私钥而直接从母公钥衍生出子公钥。这就给我们提供了两种衍生子公钥的方法：</p>
+<ul>
+<li>通过子私钥衍生子公钥</li>
+<li>通过母公钥衍生子公钥</li>
+</ul>
+<p>子公钥的具体衍生过程（利用扩展公钥）：将 <strong>母公钥-母链码-索引号</strong> 合并后使用 HMAC-SHA512 算法并结合 <strong>母公钥</strong> 生成 512 位哈希值。将该哈希值继续拆分成左右两部分，分别得到：</p>
+<ul>
+<li><strong>子公钥</strong></li>
+<li><strong>子链码</strong></li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-bitcoin-child-public-key.png?x-oss-process=image/resize,w_800" alt=""> </p>
+<p>这种子公钥的衍生过程不涉及任何私钥，运用到实际场景，可以实现私钥和公钥的分开管理。比如：在电商场景中，网络服务器仅维护公钥树结构，给每一笔交易创建一个比特币地址（只能接收比特币，而不能花费比特币）。为了安全起见，网络服务器不会有任何私钥。电商服务器则维护了私钥树结构，保证比特币的花费权在自己手上。</p>
+<h4 id="创建硬化子私钥"><a href="#创建硬化子私钥" class="headerlink" title="创建硬化子私钥"></a>创建硬化子私钥</h4><p>现在，我们深究一下上述子私钥和子公钥的创建方式，它们分别使用了 <strong>扩展私钥</strong> 和 <strong>扩展公钥</strong>。这两种扩展密钥都包含了相同的母链码。这时候就可能存在安全风险：由于扩展公钥包含母链码，如果子私钥泄露了，攻击者就可以通过扩展公钥的母链码和子私钥组成一个扩展私钥。那么，该分支下的所有私钥都会泄露。更糟糕的是，子私钥与母链码可以用来推断母私钥。</p>
+<p>为了应对这种风险，HD 钱包使用一种叫做 <strong>硬化衍生</strong>（Hardened Derivation）衍生函数。其本质就是让子私钥衍生和子公钥衍生使用不同的链码。</p>
+<p>具体实现是 <strong>使用母私钥去推导子链码</strong>。非硬化子私钥衍生则是使用 <strong>母公钥去推导子链码</strong>。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-bitcoin-hardend-child-private-key.png?x-oss-process=image/resize,w_800" alt=""></p>
+<h4 id="核心源码"><a href="#核心源码" class="headerlink" title="核心源码"></a>核心源码</h4><p>如下所示为比特币开源库 BitcoinKit 中关于密钥推导的核心方法。从中，我们能一窥其技术原理。<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// BitcoinKitPrivateSwift.swift</span></span><br><span class="line"><span class="comment">// 子私钥和子公钥的衍生方法源代码</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">derived</span><span class="params">(at childIndex: UInt32, hardened: Bool)</span></span> -&gt; _HDKey? &#123;</span><br><span class="line">    <span class="keyword">var</span> data = <span class="type">Data</span>()</span><br><span class="line">    <span class="comment">// 是否使用硬化衍生</span></span><br><span class="line">    <span class="keyword">if</span> hardened &#123;</span><br><span class="line">        data.append(<span class="number">0</span>)</span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> privateKey = <span class="keyword">self</span>.privateKey <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 强化衍生时，加入母私钥</span></span><br><span class="line">        data.append(privateKey)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 非强化衍生，加入母公钥</span></span><br><span class="line">        data.append(publicKey)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">var</span> childIndex = <span class="type">CFSwapInt32HostToBig</span>(hardened ? (<span class="number">0x80000000</span> <span class="keyword">as</span> <span class="type">UInt32</span>) | childIndex : childIndex)</span><br><span class="line">    <span class="comment">// 加入索引号</span></span><br><span class="line">    data.append(<span class="type">Data</span>(bytes: &amp;childIndex, <span class="built_in">count</span>: <span class="type">MemoryLayout</span>&lt;<span class="type">UInt32</span>&gt;.size))</span><br><span class="line">    <span class="comment">// 结合母链码，生成哈希值。注意，是否为强化衍生将影响生成的链码</span></span><br><span class="line">    <span class="keyword">var</span> digest = _Hash.hmacsha512(data, key: <span class="keyword">self</span>.chainCode)</span><br><span class="line">    <span class="keyword">let</span> derivedPrivateKey: [<span class="type">UInt8</span>] = digest[<span class="number">0</span>..&lt;<span class="number">32</span>].<span class="built_in">map</span> &#123; $<span class="number">0</span> &#125;      <span class="comment">// 左半部分为私钥</span></span><br><span class="line">    <span class="keyword">let</span> derivedChainCode: [<span class="type">UInt8</span>] = digest[<span class="number">32</span>..&lt;<span class="number">64</span>].<span class="built_in">map</span> &#123; $<span class="number">0</span> &#125;      <span class="comment">// 右半部分为链码</span></span><br><span class="line">    <span class="keyword">var</span> result: <span class="type">Data</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">let</span> privateKey = <span class="keyword">self</span>.privateKey &#123;</span><br><span class="line">        <span class="comment">// 子私钥的衍生。调用本方法时会传入 privateKey</span></span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> ctx = secp256k1_context_create(<span class="type">UInt32</span>(<span class="type">SECP256K1_CONTEXT_SIGN</span>)) <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">defer</span> &#123; secp256k1_context_destroy(ctx) &#125;</span><br><span class="line">        <span class="comment">// 本质上，使用了母私钥衍生子私钥</span></span><br><span class="line">        <span class="keyword">var</span> privateKeyBytes = privateKey.<span class="built_in">map</span> &#123; $<span class="number">0</span> &#125;     </span><br><span class="line">        <span class="keyword">var</span> derivedPrivateKeyBytes = derivedPrivateKey.<span class="built_in">map</span> &#123; $<span class="number">0</span> &#125;</span><br><span class="line">        <span class="keyword">if</span> secp256k1_ec_privkey_tweak_add(ctx, &amp;privateKeyBytes, &amp;derivedPrivateKeyBytes) == <span class="number">0</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 子私钥</span></span><br><span class="line">        result = <span class="type">Data</span>(privateKeyBytes)      </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 子公钥的衍生。调用本方法时不会传入 privateKey</span></span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> ctx = secp256k1_context_create(<span class="type">UInt32</span>(<span class="type">SECP256K1_CONTEXT_VERIFY</span>)) <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">defer</span> &#123; secp256k1_context_destroy(ctx) &#125;</span><br><span class="line">        <span class="comment">// 本质上，使用了母公钥衍生子公钥</span></span><br><span class="line">        <span class="keyword">let</span> publicKeyBytes: [<span class="type">UInt8</span>] = publicKey.<span class="built_in">map</span> &#123; $<span class="number">0</span> &#125;  </span><br><span class="line">        <span class="comment">// 子公钥推导的特殊处理，结合了母公钥</span></span><br><span class="line">        <span class="keyword">var</span> secpPubkey = secp256k1_pubkey()</span><br><span class="line">        <span class="keyword">if</span> secp256k1_ec_pubkey_parse(ctx, &amp;secpPubkey, publicKeyBytes, publicKeyBytes.<span class="built_in">count</span>) == <span class="number">0</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> secp256k1_ec_pubkey_tweak_add(ctx, &amp;secpPubkey, derivedPrivateKey) == <span class="number">0</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">var</span> compressedPublicKeyBytes = [<span class="type">UInt8</span>](repeating: <span class="number">0</span>, <span class="built_in">count</span>: <span class="number">33</span>)</span><br><span class="line">        <span class="keyword">var</span> compressedPublicKeyBytesLen = <span class="number">33</span></span><br><span class="line">        <span class="keyword">if</span> secp256k1_ec_pubkey_serialize(ctx, &amp;compressedPublicKeyBytes, &amp;compressedPublicKeyBytesLen, &amp;secpPubkey, <span class="type">UInt32</span>(<span class="type">SECP256K1_EC_COMPRESSED</span>)) == <span class="number">0</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 子公钥</span></span><br><span class="line">        result = <span class="type">Data</span>(compressedPublicKeyBytes)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> fingerPrint: <span class="type">UInt32</span> = _Hash.sha256ripemd160(publicKey).to(type: <span class="type">UInt32</span>.<span class="keyword">self</span>)</span><br><span class="line">    <span class="keyword">return</span> _HDKey(privateKey: result, publicKey: result, chainCode: <span class="type">Data</span>(derivedChainCode), depth: <span class="keyword">self</span>.depth + <span class="number">1</span>, fingerprint: fingerPrint, childIndex: childIndex)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li>《精通比特币》</li>
+<li>《区块链技术指南》</li>
+<li><a href="https://iancoleman.io/bip39/#english" target="_blank" rel="noopener">Mnemonic Code Converter</a></li>
+<li><a href="https://github.com/yenom/BitcoinKit" target="_blank" rel="noopener">BitcoinKit</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="Bao Chuquan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Bao Chuquan Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/比特币钱包/" rel="tag"># 比特币钱包</a>
+          
+            <a href="/tags/HD-钱包/" rel="tag"># HD 钱包</a>
+          
+            <a href="/tags/扩展密钥/" rel="tag"># 扩展密钥</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/11/05/bitcoin-blockchain/" rel="next" title="比特币那些事(3)——区块链">
+                <i class="fa fa-chevron-left"></i> 比特币那些事(3)——区块链
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/03/ios-avplayer-support-cache/" rel="prev" title="iOS AVPlayer 视频缓存的设计与实现">
+                iOS AVPlayer 视频缓存的设计与实现 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="Bao Chuquan" />
+          <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+           
+              <p class="site-description motion-element" itemprop="description">积累，沉淀，吸收，转换</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">67</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">119</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#钱包"><span class="nav-number">2.</span> <span class="nav-text">钱包</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#非确定性钱包"><span class="nav-number">2.1.</span> <span class="nav-text">非确定性钱包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#确定性钱包"><span class="nav-number">2.2.</span> <span class="nav-text">确定性钱包</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分层确定性钱包"><span class="nav-number">3.</span> <span class="nav-text">分层确定性钱包</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#举例"><span class="nav-number">3.1.</span> <span class="nav-text">举例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#工作原理"><span class="nav-number">3.2.</span> <span class="nav-text">工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建助记词"><span class="nav-number">3.2.1.</span> <span class="nav-text">创建助记词</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建种子"><span class="nav-number">3.2.2.</span> <span class="nav-text">创建种子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建钱包"><span class="nav-number">3.2.3.</span> <span class="nav-text">创建钱包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建主私钥"><span class="nav-number">3.2.3.1.</span> <span class="nav-text">创建主私钥</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建子私钥"><span class="nav-number">3.2.3.2.</span> <span class="nav-text">创建子私钥</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建子公钥"><span class="nav-number">3.2.3.3.</span> <span class="nav-text">创建子公钥</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建硬化子私钥"><span class="nav-number">3.2.3.4.</span> <span class="nav-text">创建硬化子私钥</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#核心源码"><span class="nav-number">3.2.3.5.</span> <span class="nav-text">核心源码</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  
+<div id="hexo-helper-live2d">
+  <canvas id="live2dcanvas" width="150" height="300"></canvas>
+</div>
+<style>
+  #live2dcanvas{
+    position: fixed;
+    width: 150px;
+    height: 300px;
+    opacity:0.7;
+    right: 0px;
+    z-index: 999;
+    pointer-events: none;
+    bottom: -20px;
+  }
+</style>
+<script type="text/javascript" src="/live2d/device.min.js"></script>
+<script type="text/javascript">
+const loadScript = function loadScript(c,b){var a=document.createElement("script");a.type="text/javascript";"undefined"!=typeof b&&(a.readyState?a.onreadystatechange=function(){if("loaded"==a.readyState||"complete"==a.readyState)a.onreadystatechange=null,b()}:a.onload=function(){b()});a.src=c;document.body.appendChild(a)};
+(function(){
+  if((typeof(device) != 'undefined') && (device.mobile())){
+    document.getElementById("live2dcanvas").style.width = '75px';
+    document.getElementById("live2dcanvas").style.height = '150px';
+  }else
+    if (typeof(device) === 'undefined') console.error('Cannot find current-device script.');
+  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/hijiki.model.json", 0.5);});
+})();
+</script>
+
+</body>
+</html>

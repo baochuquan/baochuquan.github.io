@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="分布式系统,比特币," />
+  <meta name="keywords" content="比特币,分布式系统," />
 
 
 
@@ -96,22 +96,22 @@
 
 
 
-<meta name="keywords" content="分布式系统,比特币">
+<meta name="keywords" content="比特币,分布式系统">
 <meta property="og:type" content="article">
-<meta property="og:title" content="从比特币入门区块链">
+<meta property="og:title" content="比特币那些事(1)——入门">
 <meta property="og:url" content="http://chuquan.me/2019/10/07/understand-bitcoin/index.html">
 <meta property="og:site_name" content="楚权的世界">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/bitcoin_logo.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/bitcoin-logo01.png?x-oss-process=image/resize,w_800">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/bitcoin-example01.png?x-oss-process=image/resize,w_800">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-structure-of-one-block.png?x-oss-process=image/resize,w_800">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-verify01.png?x-oss-process=image/resize,w_800">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-verify02.png?x-oss-process=image/resize,w_800">
 <meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-two-chain01.png?x-oss-process=image/resize,w_800">
-<meta property="og:updated_time" content="2019-10-07T03:26:54.899Z">
+<meta property="og:updated_time" content="2019-12-01T12:19:19.956Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="从比特币入门区块链">
-<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/bitcoin_logo.png?x-oss-process=image/resize,w_800">
+<meta name="twitter:title" content="比特币那些事(1)——入门">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/bitcoin-logo01.png?x-oss-process=image/resize,w_800">
 
 
 
@@ -146,7 +146,7 @@
 
 
 
-  <title>从比特币入门区块链 | 楚权的世界</title>
+  <title>比特币那些事(1)——入门 | 楚权的世界</title>
   
 
 
@@ -370,7 +370,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">从比特币入门区块链</h1>
+          <h1 class="post-title" itemprop="name headline">比特币那些事(1)——入门</h1>
         
 
         <div class="post-meta">
@@ -398,8 +398,8 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2019-10-07T11:26:54+08:00">
-                2019-10-07
+              <time title="更新于" itemprop="dateModified" datetime="2019-12-01T20:19:19+08:00">
+                2019-12-01
               </time>
             
           </span>
@@ -454,7 +454,8 @@
       
 
       
-        <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/bitcoin_logo.png?x-oss-process=image/resize,w_800" alt=""></p>
+        <div align="center"><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/bitcoin-logo01.png?x-oss-process=image/resize,w_800" alt=""></div>
+
 <a id="more"></a>
 <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>2008 年 11 月 1 日，中本聪（Satoshi Nakamoto）在 metzdowd 的加密技术邮件列表发布比特币白皮书：<a href="https://bitcoin.org/bitcoin.pdf" target="_blank" rel="noopener">《BitCoin: A Peer-to-Peer Electronic Cash System》</a>，首次提出比特币（BitCoin，BTC）的概念。</p>
 <p>2009 年 1 月 3 日，中本聪在位于芬兰赫尔辛基（Helsinki）的一个小型服务器上挖出了第一批 50 个比特币。至此，比特币电子现金系统正式诞生。</p>
@@ -476,7 +477,7 @@
 <li>如何验证交易内容的真实性？</li>
 </ul>
 <p>下面，我们依次来回答这几个问题，并引出相关概念。</p>
-<h2 id="节点为何工作？"><a href="#节点为何工作？" class="headerlink" title="节点为何工作？"></a>节点为何工作？</h2><p>比特币网络的节点为什么要创建并添加区块？因为，这是有奖励的，奖励包含两部分：</p>
+<h1 id="节点为何工作？"><a href="#节点为何工作？" class="headerlink" title="节点为何工作？"></a>节点为何工作？</h1><p>比特币网络的节点为什么要创建并添加区块？因为，这是有奖励的，奖励包含两部分：</p>
 <ul>
 <li>每比交易提供的手续费</li>
 <li>系统提供的比特币奖励</li>
@@ -487,7 +488,7 @@
 <li>平均每 10 分钟生成一个新的区块。</li>
 </ul>
 <p>由此，我们可以通过计算得出系统总共包含的比特币数量。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">比特币总数 = ((60 分钟 × 24 小时 × 365 天 × 4 年) / 10 分钟) × 50 比特币 × (1 + 1/2 + (1/2)² + (1/2)³ ...) ≈ 2100 万</span><br></pre></td></tr></table></figure></p>
-<h2 id="如何选择节点？"><a href="#如何选择节点？" class="headerlink" title="如何选择节点？"></a>如何选择节点？</h2><p>如何选择节点？因为比特币是一个典型的分布式系统，分布式系统则是通过 <strong>共识算法</strong>（Consensus Algorithm）来进行节点选择。</p>
+<h1 id="如何选择节点？"><a href="#如何选择节点？" class="headerlink" title="如何选择节点？"></a>如何选择节点？</h1><p>如何选择节点？因为比特币是一个典型的分布式系统，分布式系统则是通过 <strong>共识算法</strong>（Consensus Algorithm）来进行节点选择。</p>
 <p>分布式系统的共识算法有很多，常见的有以下这些：</p>
 <ul>
 <li>Paxos</li>
@@ -498,13 +499,13 @@
 <li>…</li>
 </ul>
 <p>比特币系统采用的则是 <strong>工作量证明</strong> 共识算法。关于工作量证明的详细原理，我们需要先介绍哈希函数。</p>
-<h3 id="哈希函数"><a href="#哈希函数" class="headerlink" title="哈希函数"></a>哈希函数</h3><p>哈希函数可以对任意内容计算出一个长度相同的特征值。比特币区块链使用 <code>SHA256</code> 算法作为哈希函数，其哈希特征值长度为 256 位。无论原始内容是什么，最后都会计算出一个 256 位的二进制数值。如下所示，为字符串 <code>123</code> 基于 <code>SHA256</code> 算法的十六进制哈希值：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHA256(&quot;123&quot;) = 0xa8fdc205a9f19cc1c7507a60c4f01b13d11d7fd0</span><br></pre></td></tr></table></figure></p>
+<h2 id="哈希函数"><a href="#哈希函数" class="headerlink" title="哈希函数"></a>哈希函数</h2><p>哈希函数可以对任意内容计算出一个长度相同的特征值。比特币区块链使用 <code>SHA256</code> 算法作为哈希函数，其哈希特征值长度为 256 位。无论原始内容是什么，最后都会计算出一个 256 位的二进制数值。如下所示，为字符串 <code>123</code> 基于 <code>SHA256</code> 算法的十六进制哈希值：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHA256(&quot;123&quot;) = 0xa8fdc205a9f19cc1c7507a60c4f01b13d11d7fd0</span><br></pre></td></tr></table></figure></p>
 <p>哈希函数具有一个重要特征：</p>
 <ul>
 <li><strong>正向计算容易，反向逆推困难</strong></li>
 </ul>
 <p>什么意思？以如下一道数学题为例，我们通过已知的 <code>x</code> 计算 <code>y</code> 的值是非常简单的。但是通过已知的 <code>y</code> 计算 <code>x</code> 的值则是非常困难的。所以，想要通过哈希值求解原始值只能通过暴力求解，挨个试。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x³ * ln(ln(x)) + x² * sin(x) = y</span><br></pre></td></tr></table></figure></p>
-<h3 id="工作量证明"><a href="#工作量证明" class="headerlink" title="工作量证明"></a>工作量证明</h3><p>工作量证明要做的事情其实就是 <strong>逆推哈希值</strong>。由于只能使用暴力求解，所以这是一个非常耗时的过程。不过，一旦某个节点在整个比特币网络中第一个计算出正确值，那么它将会获得丰富的奖励，所以工作量证明也被称为 <strong>挖矿</strong>（Mining）。</p>
+<h2 id="工作量证明"><a href="#工作量证明" class="headerlink" title="工作量证明"></a>工作量证明</h2><p>工作量证明要做的事情其实就是 <strong>逆推哈希值</strong>。由于只能使用暴力求解，所以这是一个非常耗时的过程。不过，一旦某个节点在整个比特币网络中第一个计算出正确值，那么它将会获得丰富的奖励，所以工作量证明也被称为 <strong>挖矿</strong>（Mining）。</p>
 <p>那么工作量证明究竟要解决一道什么样的难题呢？我们需要先从区块的结构说起。</p>
 <p>如下图所示，为区块链的基本结构——区块。区块主要包含两部分：</p>
 <ul>
@@ -524,42 +525,87 @@
 <p>在了解了区块结构之后，我们再来看工作量证明到底要解决一道什么难题。题目如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHA256(字符串) -&gt; 符合某个条件的哈希值（小于某个目标值）</span><br></pre></td></tr></table></figure></p>
 <p>其中，字符串由 <strong>当前区块头 + 当前区块体 + 生成时间 + 某个随机数</strong> 组成。求解字符串中的 <strong>某个随机数</strong>，使得最终的哈希值小于某个目标值（Target）。这里的 <strong>某个随机数</strong> 也被称为 <code>Nonce</code>。</p>
 <p><code>Nonce</code> 是一个 32 位的二进制值，非常难猜的，目前只能通过穷举法一个个试错。</p>
-<h3 id="难度系数"><a href="#难度系数" class="headerlink" title="难度系数"></a>难度系数</h3><p>比特币系统中，难度系数（Difficulty）可以控制区块的生成速度。难度系数可以决定上述目标值的大小。</p>
+<h2 id="难度系数"><a href="#难度系数" class="headerlink" title="难度系数"></a>难度系数</h2><p>比特币系统中，难度系数（Difficulty）可以控制区块的生成速度。难度系数可以决定上述目标值的大小。</p>
 <p>目标值和难度系数的计算关系如下，可见难度系数越大，目标值越小，因此符合条件哈希值范围越小，难度则越大。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目标值 = 理论最大哈希值 / 难度系数</span><br></pre></td></tr></table></figure></p>
-<h3 id="速度恒定"><a href="#速度恒定" class="headerlink" title="速度恒定"></a>速度恒定</h3><p>比特币系统将区块的生成速度定为 <strong>每 10 分钟生成 1 个区块</strong>。那么，这是怎么做到的呢？</p>
+<h2 id="速度恒定"><a href="#速度恒定" class="headerlink" title="速度恒定"></a>速度恒定</h2><p>比特币系统将区块的生成速度定为 <strong>每 10 分钟生成 1 个区块</strong>。那么，这是怎么做到的呢？</p>
 <p>其实本质上就是难度系数的动态调整。由于目标值决定了符合条件的值范围，所以我们能够计算出任意一个随机数符合条件的概率为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">任意一个随机数符合条件的概率 = 目标值 / 理论最大哈希值 = 1 / 难度系数</span><br></pre></td></tr></table></figure></p>
 <p>那么，这又是如何做到对时间的控制呢？</p>
 <p>假设，世界上有 10000 台矿机，每台矿机的计算速度是 20T/s，即每秒能够 20T 次哈希运算。因此可以计算出整个世界的算力是 2 × 10^17 次/s。那么 10 分钟的算力则是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">十分钟的算力 = 10 × 60 × 2 × 10^17 = 1.2 × 10^20 次哈希运算</span><br></pre></td></tr></table></figure></p>
 <p>因为 10 分钟内只能成功一次，所以我们可以得出以下等式，从而得出最终的难度系数。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">10 分钟的算力 × 符合条件的概率 = 1 次</span><br><span class="line"></span><br><span class="line">即：</span><br><span class="line">1.2 × 10^20 × (1 / 难度系数) = 1</span><br><span class="line"></span><br><span class="line">求解 -&gt; 难度系数？</span><br></pre></td></tr></table></figure></p>
 <p>由于全世界的算力一直都在变化，为了能够将产出速度控制在 10 分钟，比特币系统规定：难度系数每两周调整一次。如果这两周内，区块的平均生成速度是 9 分钟（意味着比法定速度快 10 %），则将难度系数调高 10 %。反之亦然。</p>
-<h2 id="如何验证交易内容的真实性？"><a href="#如何验证交易内容的真实性？" class="headerlink" title="如何验证交易内容的真实性？"></a>如何验证交易内容的真实性？</h2><p>以示例为例，交易内容的真实性主要包含两个问题：</p>
+<h1 id="如何验证交易内容的真实性？"><a href="#如何验证交易内容的真实性？" class="headerlink" title="如何验证交易内容的真实性？"></a>如何验证交易内容的真实性？</h1><p>以示例为例，交易内容的真实性主要包含两个问题：</p>
 <ul>
 <li>A 向 B 转账 10 BTC 是否真的是 A 发出的消息？</li>
 <li>A 是否真的有 10 BTC 以上资产？</li>
 </ul>
 <p>针对第一个问题，我们需要简单了解一下比特币的 <strong>账户地址</strong> 概念。</p>
 <p>比特币用户在注册账户时，系统会自动生成一个随机数。利用随机数，系统可以生成一对非对称密钥（公钥+私钥）。比特币账户地址则是由公钥进行一系列哈希以及编码运算后生成的 160 位（20 字节）字符串。</p>
-<p>用户 A 在发起一个交易时，会先对交易内容进行哈希运算，从而得到摘要（Digest）；然后再用私钥对摘要进行加密，从而得到密文。最后，广播到比特币网络的内容则是：交易内容 + 公钥 + 密文。</p>
+<p>用户 A 在发起一个交易时，会先对交易内容进行哈希运算，从而得到 <strong>摘要</strong>（Digest）；然后再用私钥对摘要进行加密，从而得到 <strong>数字签名</strong>（Signature）。最后，广播到比特币网络的内容则是：交易内容 + 公钥 + 数字签名。</p>
 <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-verify01.png?x-oss-process=image/resize,w_800" alt=""></p>
 <p>当比特币网络的其他节点收到消息后，会对它进行验证：</p>
 <ol>
 <li>对交易内容进行哈希运算，得到摘要 1</li>
-<li>对密文使用公钥进行解密，得到摘要 2</li>
+<li>对数字签名使用公钥进行解密，得到摘要 2</li>
 <li>判断摘要 1 和摘要 2 是否一致</li>
 </ol>
 <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-verify02.png?x-oss-process=image/resize,w_800" alt=""></p>
 <p>如果摘要 1 和摘要 2 一致，则证明交易内容是真实的，在广播过程中并未被篡改。那么如何证明消息的发起者也是 A 呢？毕竟，我们不能认可 B 发消息说 C 向 B 付款 10 BTC 这种内容。消息发起者必须是付款方。</p>
-<p>事实上，比特币系统中是通过 <strong>签名脚本</strong> 和 <strong>输出脚本</strong> 在消息发出前就限制了 <strong>消息发起者必须是付款方</strong>。因此，其他节点收到广播消息时无需再次验证。</p>
-<p>关于 <strong>签名脚本</strong> 和 <strong>输出脚本</strong>，我们后续再在其他文中在详细进行介绍。</p>
-<p>至此，第一个问题得以解决。</p>
+<p>为了解释这个问题，我们需要了解交易的生成。事实上，每个交易需要包括若干个 <strong>输入</strong> 和 <strong>输出</strong>。未经引用的交易输出（Unspent Transaction Outputs，UTXO）可以被新的交易引用作为其合法的输入。已被引用的交易输出（Spent Transaction Outputs，STXO）无法被新的交易引用作为其合法输入。</p>
+<p>因此，比特币网络中的一笔合法的交易，必须是引用某些已存在交易的 UTXO（必须是属于付款方才能合法引用）作为新的交易的输入，并生成新的 UTXO（将属于收款方）。</p>
+<p>如下所示为一些简单的交易示例。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">交易</th>
+<th style="text-align:left">目的</th>
+<th style="text-align:left">输入</th>
+<th style="text-align:left">输出</th>
+<th style="text-align:left">签名</th>
+<th style="text-align:left">差额</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">T0</td>
+<td style="text-align:left">A 转给 B</td>
+<td style="text-align:left">他人向 A 交易的输出</td>
+<td style="text-align:left">B 可以引用该交易</td>
+<td style="text-align:left">A 签名确认</td>
+<td style="text-align:left">输入减输出，为交易服务费</td>
+</tr>
+<tr>
+<td style="text-align:left">T1</td>
+<td style="text-align:left">B 转给 C</td>
+<td style="text-align:left">T0 的输出</td>
+<td style="text-align:left">C 可以引用该交易</td>
+<td style="text-align:left">B 签名确认</td>
+<td style="text-align:left">输入减输出，为交易服务费</td>
+</tr>
+<tr>
+<td style="text-align:left">T2</td>
+<td style="text-align:left">X 转给 Y</td>
+<td style="text-align:left">他人向 X 交易的输出</td>
+<td style="text-align:left">Y 可以引用该交易</td>
+<td style="text-align:left">X 签名确认</td>
+<td style="text-align:left">输入减输出，为交易服务费</td>
+</tr>
+</tbody>
+</table>
+<p>至此，第一个问题得以解决。注：这里的解释相对简单，更深入的细节请参阅 <a href="http://chuquan.me/2019/10/20/bitcoin-transaction/">《比特币那些事(2)——交易》</a>。</p>
 <p>针对第二个问题，A 是否真的有 10 BTC 以上的资产。</p>
 <p>这个问题的验证非常简单，可以通过在全局区块链进行追溯，即可得以验证。</p>
-<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h2><h3 id="经济博弈"><a href="#经济博弈" class="headerlink" title="经济博弈"></a>经济博弈</h3><p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-two-chain01.png?x-oss-process=image/resize,w_800" alt=""></p>
+<h1 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h1><h2 id="经济博弈"><a href="#经济博弈" class="headerlink" title="经济博弈"></a>经济博弈</h2><p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-two-chain01.png?x-oss-process=image/resize,w_800" alt=""></p>
 <p>假设，全局区块链有一个区块，其内部记载了 A 向 B 转账 100 BTC 的交易内容。然而，比特币网络中有一个恶意节点，该恶意节点希望对该区块的交易记录进行篡改，因此在该区块前开辟了一个分叉。那么它最终能得逞吗？</p>
 <p>为了解释这个问题，我们需要先介绍比特币系统的 <strong>最长链原则</strong>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">最长链原则：所有节点默认信任全局区块链中最长的分支。</span><br></pre></td></tr></table></figure></p>
 <p>根据最长链原则，除恶意节点以外的其他节点，都会信任区块链的最长分支。如果恶意节点希望其所在分支成为最长分支，那么它占据全局 51% 以上的算力，才可能战胜其他所有节点。这从经济学角度而言，它需要付出巨大的成本，却只能获得不大的收益，投入与产出严重不匹配。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>比特币是基于 <strong>区块链</strong> 技术的一种具体应用，也是一种典型的分布式系统。后面，我们有机会再学习一下分布式系统的一些基本概念和相关原理。</p>
-<p>比特币也运用了大量密码学原理，后续有机会我们也来学习一下相关内容。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>比特币采用区块链这种分布式数据库作为底层支撑，从 2009 年开始运行，经历了大规模长时间检验。证明它是可行的。</p>
+<p>区块链虽然有去中心化、解决信任问题等优点，但是它也有很明显的缺点：</p>
+<ul>
+<li>效率低。数据写入区块，需要等待十分钟，所有节点的数据需要进行同步，效率低下。</li>
+<li>高能耗。所有节点中只有一个节点的工作是真正有效的，其他节点都是无意的，就这一点来说是非常耗费资源的。</li>
+</ul>
+<p>因此，我们不能偏执地认为新的技术或科技产物就一定是先进的，而需要理性看待它的优点和缺点。</p>
+<p>最后，比特币所包含的区块链技术在很多场景下得以扩展和应用，值得我们去学习。另外，比特币所蕴含的分布式系统设计思想和密码学原理也同样值得我们去深入学习。</p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
 <li><a href="https://bitcoin.org" target="_blank" rel="noopener">bitcoin</a></li>
 </ol>
@@ -609,9 +655,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/分布式系统/" rel="tag"># 分布式系统</a>
-          
             <a href="/tags/比特币/" rel="tag"># 比特币</a>
+          
+            <a href="/tags/分布式系统/" rel="tag"># 分布式系统</a>
           
         </div>
       
@@ -633,6 +679,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/10/20/bitcoin-transaction/" rel="prev" title="比特币那些事(2)——交易">
+                比特币那些事(2)——交易 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -734,7 +784,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">67</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -756,7 +806,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">111</span>
+                <span class="site-state-item-count">119</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -844,7 +894,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#举例"><span class="nav-number">2.</span> <span class="nav-text">举例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#节点为何工作？"><span class="nav-number">2.1.</span> <span class="nav-text">节点为何工作？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何选择节点？"><span class="nav-number">2.2.</span> <span class="nav-text">如何选择节点？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#哈希函数"><span class="nav-number">2.2.1.</span> <span class="nav-text">哈希函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#工作量证明"><span class="nav-number">2.2.2.</span> <span class="nav-text">工作量证明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#难度系数"><span class="nav-number">2.2.3.</span> <span class="nav-text">难度系数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#速度恒定"><span class="nav-number">2.2.4.</span> <span class="nav-text">速度恒定</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何验证交易内容的真实性？"><span class="nav-number">2.3.</span> <span class="nav-text">如何验证交易内容的真实性？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他问题"><span class="nav-number">2.4.</span> <span class="nav-text">其他问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#经济博弈"><span class="nav-number">2.4.1.</span> <span class="nav-text">经济博弈</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#举例"><span class="nav-number">2.</span> <span class="nav-text">举例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#节点为何工作？"><span class="nav-number">3.</span> <span class="nav-text">节点为何工作？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#如何选择节点？"><span class="nav-number">4.</span> <span class="nav-text">如何选择节点？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#哈希函数"><span class="nav-number">4.1.</span> <span class="nav-text">哈希函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#工作量证明"><span class="nav-number">4.2.</span> <span class="nav-text">工作量证明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#难度系数"><span class="nav-number">4.3.</span> <span class="nav-text">难度系数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#速度恒定"><span class="nav-number">4.4.</span> <span class="nav-text">速度恒定</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#如何验证交易内容的真实性？"><span class="nav-number">5.</span> <span class="nav-text">如何验证交易内容的真实性？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#其他问题"><span class="nav-number">6.</span> <span class="nav-text">其他问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#经济博弈"><span class="nav-number">6.1.</span> <span class="nav-text">经济博弈</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>
@@ -867,7 +917,7 @@
         <div class="copyright" >
   
   &copy;  2018 - 
-  <span itemprop="copyrightYear">2019</span>
+  <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -1371,6 +1421,28 @@
   
 
   
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
 
   
 
