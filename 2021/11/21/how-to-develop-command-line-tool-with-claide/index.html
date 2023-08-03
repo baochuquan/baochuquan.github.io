@@ -1,38 +1,1446 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="bundle,gem,rake,rakefile,gemspec,ruby," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="在 CLAide 一文中，我们了解到 CocoaPods 是基于 CLAide 开发的一款依赖管理工具，也是一款命令行工具。本文，我们将基于 CLAide 开发一款简易的命令行工具——饮料制作器（BeverageMaker）。 在本项目中，我们将使用 bundler 作为项目管理工具和依赖管理工具，其实本质上就是使用 bundle 开发一个 gem 工具。 本文代码传送门 https:&#x2F;&#x2F;gith">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何使用 CLAide 开发命令行工具？">
+<meta property="og:url" content="http://chuquan.me/2021/11/21/how-to-develop-command-line-tool-with-claide/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="在 CLAide 一文中，我们了解到 CocoaPods 是基于 CLAide 开发的一款依赖管理工具，也是一款命令行工具。本文，我们将基于 CLAide 开发一款简易的命令行工具——饮料制作器（BeverageMaker）。 在本项目中，我们将使用 bundler 作为项目管理工具和依赖管理工具，其实本质上就是使用 bundle 开发一个 gem 工具。 本文代码传送门 https:&#x2F;&#x2F;gith">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/beverage-maker-01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/beverage-maker-02.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/beverage-maker-03.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/beverage-maker-04.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/beverage-maker-07.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/beverage-maker-08.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2021-11-21T15:19:51.000Z">
+<meta property="article:modified_time" content="2021-11-21T15:23:09.027Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="bundle">
+<meta property="article:tag" content="gem">
+<meta property="article:tag" content="rake">
+<meta property="article:tag" content="rakefile">
+<meta property="article:tag" content="gemspec">
+<meta property="article:tag" content="ruby">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/beverage-maker-01.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2021/11/21/how-to-develop-command-line-tool-with-claide/"/>
+
+
+
+
+
+  <title>如何使用 CLAide 开发命令行工具？ | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2021/11/21/how-to-develop-command-line-tool-with-claide/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">如何使用 CLAide 开发命令行工具？</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2021-11-21T23:19:51+08:00">
+                2021-11-21
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2021-11-21T23:23:09+08:00">
+                2021-11-21
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ruby/" itemprop="url" rel="index">
+                    <span itemprop="name">Ruby</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在 <a href="http://chuquan.me/2021/11/04/claide/">CLAide</a> 一文中，我们了解到 CocoaPods 是基于 CLAide 开发的一款依赖管理工具，也是一款命令行工具。本文，我们将基于 CLAide 开发一款简易的命令行工具——饮料制作器（BeverageMaker）。</p>
+<p>在本项目中，我们将使用 bundler 作为项目管理工具和依赖管理工具，其实本质上就是使用 bundle 开发一个 gem 工具。</p>
+<p>本文代码传送门 <a target="_blank" rel="noopener" href="https://github.com/baochuquan/BeverageMaker">https://github.com/baochuquan/BeverageMaker</a>。</p>
+<h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><p>我们希望饮料制作器（BeverageMaker）能够制作两种类型的饮料：咖啡、茶。对此，我们需要分别实现两个子命令：<code>coffee</code>、<code>tea</code>。</p>
+<p>对于咖啡，我们提供多种口味，如：BlackEye、Affogato、CaPheSuaDa、RedTux。对此，我们希望为 <code>coffee</code> 提供多个子命令，分别是：<code>black-eye</code>、<code>affogato</code>、<code>ca-phe-sua-da</code>、<code>red-tux</code>。</p>
+<p>对于茶，我们提供多种口味，如：Black、Green、Oolong、White。这里，我们希望为 <code>tea</code> 提供多个参数，分别是：<code>black</code>、<code>green</code>、<code>oolong</code>、<code>white</code>。</p>
+<p>无论是咖啡还是茶，我们都希望两者支持选择是够添加牛奶、添加糖或蜂蜜作为甜味剂。对此，我们希望支持一个标志 <code>--no-milk</code> 表示是否添加牛奶，支持一个选项 <code>--sweetener</code>，其值为 <code>super</code> 或 <code>honey</code>。</p>
+<p>此外，对于茶，我们希望它支持一个额外的标志 <code>--iced</code> 表示是否加冰。</p>
+<h1 id="生成模版项目"><a href="#生成模版项目" class="headerlink" title="生成模版项目"></a>生成模版项目</h1><p>首先，我们使用 <code>bundle gem GEM_NAME</code> 命令生成一个模版项目，项目名为：<code>BeverageMaker</code>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">bundle gem BeverageMaker</span></span><br></pre></td></tr></table></figure>
+
+<p>上述命令会在当前目录下生成一个项目，项目的目录结构如下所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/beverage-maker-01.png?x-oss-process=image/resize,w_800"></p>
+<p>命令会自动生成一个脚手架模板项目，主要包含以下文件：</p>
+<ul>
+<li>**<code>BeverageMaker.gemspec</code>**：Gem Specification 文件，定义 Rubygem 的基本信息，如：名称、描述信息、gem 主页、 所需要的依赖等等。</li>
+<li>**<code>CODE_OF_CONDUCT.md</code>**：关于代码贡献者需要遵循的行为准则。</li>
+<li>**<code>Gemfile</code>**：用于管理项目依赖。该文件中有一行代码是 <code>gemspec</code>，其会调用 <code>BeverageMaker.gemspec</code>，从而导入项目的依赖项。因此，最佳实践是在 <code>gemspec</code> 中指定项目所依赖的所有 gem。</li>
+<li>**<code>LICENSE.txt</code>**：默认指定项目为 MIT 协议。</li>
+<li>**<code>Rakefile</code>**：Ruby 中的构建脚本，类似于 C&#x2F;C++ 中的 Makefile。通过 <code>Bundler::GemHelper.install_tasks</code> 可以添加 <code>build</code>、<code>install</code>、<code>release</code> 等任务。<ul>
+<li><strong><code>build</code> 任务</strong>：构建当前版本的 gem，并将其存储在 <code>pkg</code> 目录下。</li>
+<li><strong><code>install</code> 任务</strong>：构建 gem，并将其安装在我们的系统中。</li>
+<li><strong><code>release</code> 任务</strong>：将 gem 推送到 Rubygems，从而对外公开发布。</li>
+</ul>
+</li>
+<li>**<code>lib/BeverageMaker.rb</code>**：定义 gem 代码的主文件。当 gem 被加载时，Bundler 会请求这个文件。该文件定义了一个 <code>module</code>，其可以作为 gem 代码的命名空间。因此，最佳实践是把代码定义在 <code>module</code> 中。</li>
+<li><strong><code>lib/BeverageMaker</code> 目录</strong>：该目录下包含了 gem 的所有代码。<code>lib/BeverageMaker.rb</code> 文件用于设置 gem 的环境，而它的所有代码都在 <code>lib/BeverageMaker</code> 目录下。如果 gem 有多种功能，我们可以进一步对其拆分子目录。</li>
+<li>**<code>lib/BeverageMaker/version.rb</code>**：内部通过一个 <code>VERSION</code> 常量定义 gem 的版本。文件由 <code>BeverageMaker.gemspec</code> 进行加载，从而为 gem 指定版本。当发布新版本时，可以修改 <code>VERSION</code> 的值来指定新的版本号。</li>
+<li><strong><code>spec</code> 目录</strong>：用于存放测试文件。</li>
+</ul>
+<h1 id="修改-gemspec-配置"><a href="#修改-gemspec-配置" class="headerlink" title="修改 gemspec 配置"></a>修改 gemspec 配置</h1><p>初始化模板项目后，我们需要对 <code>BeverageMaker.gemspec</code> 文件所包含的 <code>TODO</code> 字段进行替换。此外，我们还需要添加项目依赖：<code>&#39;claide&#39;, &#39;&gt;= 1.0.2&#39;, &#39;&lt; 2.0&#39;</code> 和 <code>&#39;colored2&#39;, &#39;~&gt; 3.1&#39;</code>。</p>
+<blockquote>
+<p><code>colored2</code> 用于 banner 信息的 ANSI 转义，从而能够支持以富文本格式在终端输出。</p>
+</blockquote>
+<p>修改后的 <code>BeverageMaker.gemspec</code> 配置如下所示：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">require_relative <span class="string">&#x27;lib/BeverageMaker/version&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">Gem::Specification</span>.new <span class="keyword">do</span> |<span class="params">spec</span>|</span><br><span class="line">  spec.name          = <span class="string">&quot;BeverageMaker&quot;</span></span><br><span class="line">  spec.version       = <span class="title class_">BeverageMaker</span><span class="symbol">:</span><span class="symbol">:VERSION</span></span><br><span class="line">  spec.authors       = [<span class="string">&quot;baochuquan&quot;</span>]</span><br><span class="line">  spec.email         = [<span class="string">&quot;baochuquan@163.com&quot;</span>]</span><br><span class="line"></span><br><span class="line">  spec.summary       = <span class="string">&quot;Beverage Maker&quot;</span></span><br><span class="line">  spec.description   = <span class="string">&quot;A Command Line Tool Example&quot;</span></span><br><span class="line">  spec.homepage      = <span class="string">&quot;https://github.com/baochuquan/BeverageMaker&quot;</span></span><br><span class="line">  spec.license       = <span class="string">&quot;MIT&quot;</span></span><br><span class="line">  spec.required_ruby_version = <span class="title class_">Gem::Requirement</span>.new(<span class="string">&quot;&gt;= 2.3.0&quot;</span>)</span><br><span class="line"></span><br><span class="line">  spec.metadata[<span class="string">&quot;homepage_uri&quot;</span>] = spec.homepage</span><br><span class="line">  spec.metadata[<span class="string">&quot;source_code_uri&quot;</span>] = <span class="string">&quot;https://github.com/baochuquan/BeverageMaker&quot;</span></span><br><span class="line">  spec.metadata[<span class="string">&quot;changelog_uri&quot;</span>] = <span class="string">&quot;https://github.com/baochuquan/BeverageMaker&quot;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># Specify which files should be added to the gem when it is released.</span></span><br><span class="line">  <span class="comment"># The `git ls-files -z` loads the files in the RubyGem that have been added into git.</span></span><br><span class="line">  spec.files         = <span class="title class_">Dir</span>.chdir(<span class="title class_">File</span>.expand_path(<span class="string">&#x27;..&#x27;</span>, <span class="variable constant_">__FILE__</span>)) <span class="keyword">do</span></span><br><span class="line">    <span class="string">`git ls-files -z`</span>.split(<span class="string">&quot;\x0&quot;</span>).reject &#123; |<span class="params">f</span>| f.match(<span class="regexp">%r&#123;^(test|spec|features)/&#125;</span>) &#125;</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line">  spec.bindir        = <span class="string">&quot;exe&quot;</span></span><br><span class="line">  spec.executables   = <span class="string">&quot;beverage-maker&quot;</span></span><br><span class="line">  spec.require_paths = [<span class="string">&quot;lib&quot;</span>]</span><br><span class="line"></span><br><span class="line">  spec.add_dependency <span class="string">&#x27;claide&#x27;</span>, <span class="string">&#x27;~&gt; 1.0.3&#x27;</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="定义命令行入口"><a href="#定义命令行入口" class="headerlink" title="定义命令行入口"></a>定义命令行入口</h1><p>我们通过修改 <code>BeverageMaker.gemspec</code> 来定义命令行入口的位置和名称，如下所示：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">spec.bindir         = <span class="string">&quot;exe&quot;</span></span><br><span class="line">spec.executables    = <span class="string">&quot;beverage-maker&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>模板自动生成的 <code>BeverageMaker.gemspec</code> 配置中，<code>bindir</code> 默认为 <code>exe</code>，表示二进制（binary）文件的存储目录为项目根目录下的 <code>exe</code> 目录；<code>executables</code> 默认为 <code>spec.files.grep(%r&#123;^exe/&#125;) &#123; |f| File.basename(f) &#125;</code>，表示 <code>exe</code> 目录下的所有文件。我们可以将其改写成指定名称 <code>beverage-maker</code>，该文件也是命令行的入口文件。</p>
+<p>定义好命令行的入口与名称后，我们需要在 <code>exe</code> 目录下创建一个同名的文件 <code>beverage-maker</code>，将其作为命令行入口，其定义如下：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/usr/bin/env ruby</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">require</span> <span class="string">&#x27;BeverageMaker&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">BeverageMaker</span><span class="symbol">:</span><span class="symbol">:Command</span>.run(<span class="variable constant_">ARGV</span>)</span><br></pre></td></tr></table></figure>
+
+<p>注意，由于 <code>beverage-maker</code> 是可执行文件，需要确保其具有可执行权限，我们通过执行 <code>chmod +x beverage-maker</code> 命令为其添加可执行权限。</p>
+<h1 id="实现根命令"><a href="#实现根命令" class="headerlink" title="实现根命令"></a>实现根命令</h1><p>上述命令入口中，<code>BeverageMaker::Command</code> 是 <code>CLAide::Command</code> 的子类，作为根命令，它也是一个抽象类。由于，<code>coffee</code> 和 <code>tea</code> 子类都支持 <code>--no-milk</code> 和 <code>--sweetener</code> 选项，我们可以将这些选项定义在根命令的类中。</p>
+<p>对此，我们新建一个文件 <code>command.rb</code>，并定义 <code>Beverage::Command</code> 根命令，如下所示：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># command.rb</span></span><br><span class="line"><span class="keyword">module</span> <span class="title class_">BeverageMaker</span></span><br><span class="line">  <span class="keyword">require</span> <span class="string">&#x27;claide&#x27;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">Command</span> &lt; <span class="title class_ inherited__">CLAide::Command</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">require</span> <span class="string">&#x27;beveragemaker/command/coffee&#x27;</span></span><br><span class="line">    <span class="keyword">require</span> <span class="string">&#x27;beveragemaker/command/tea&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="variable language_">self</span>.abstract_command = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">    <span class="variable language_">self</span>.description = <span class="string">&#x27;Make delicious beverages from the comfort of your&#x27;</span> \</span><br><span class="line">      <span class="string">&#x27;terminal.&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># This would normally default to `beverage-maker`, based on the class’ name.</span></span><br><span class="line">    <span class="variable language_">self</span>.command = <span class="string">&#x27;beverage-maker&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">self</span>.options</span><br><span class="line">      [</span><br><span class="line">        [<span class="string">&#x27;--no-milk&#x27;</span>, <span class="string">&#x27;Don’t add milk to the beverage&#x27;</span>],</span><br><span class="line">        [<span class="string">&#x27;--sweetener=[sugar|honey]&#x27;</span>, <span class="string">&#x27;Use one of the available sweeteners&#x27;</span>],</span><br><span class="line">      ].concat(<span class="variable language_">super</span>)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">initialize</span>(<span class="params">argv</span>)</span><br><span class="line">      <span class="variable">@add_milk</span> = argv.flag?(<span class="string">&#x27;milk&#x27;</span>, <span class="literal">true</span>)</span><br><span class="line">      <span class="variable">@sweetener</span> = argv.option(<span class="string">&#x27;sweetener&#x27;</span>)</span><br><span class="line">      <span class="variable language_">super</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">validate!</span></span><br><span class="line">      <span class="variable language_">super</span></span><br><span class="line">      <span class="keyword">if</span> <span class="variable">@sweetener</span> &amp;&amp; !<span class="string">%w(sugar honey)</span>.<span class="keyword">include</span>?(<span class="variable">@sweetener</span>)</span><br><span class="line">        help! <span class="string">&quot;`<span class="subst">#&#123;<span class="variable">@sweetener</span>&#125;</span>&#x27; is not a valid sweetener.&quot;</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">run</span></span><br><span class="line">      puts <span class="string">&#x27;* Boiling water…&#x27;</span></span><br><span class="line">      sleep <span class="number">1</span></span><br><span class="line">      <span class="keyword">if</span> <span class="variable">@add_milk</span></span><br><span class="line">        puts <span class="string">&#x27;* Adding milk…&#x27;</span></span><br><span class="line">        sleep <span class="number">1</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">if</span> <span class="variable">@sweetener</span></span><br><span class="line">        puts <span class="string">&quot;* Adding <span class="subst">#&#123;<span class="variable">@sweetener</span>&#125;</span>…&quot;</span></span><br><span class="line">        sleep <span class="number">1</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>我们通过覆写 <code>self.options</code> 自定义支持的选项：<code>--no-milk</code> 和 <code>--sweetener</code>。通过设置 <code>self.description</code> 指定命令的描述信息。通过设置 <code>self.abstract_command</code> 为 <code>true</code> 将其置为抽象命令。</p>
+<p>在构造方法 <code>initialize</code> 中，我们通过 <code>argv</code>（<code>ARGV</code> 类的实例） 读取对应的标志和选项进行实例化。</p>
+<p>在校验方法 <code>validate!</code> 中，我们需要对 <code>--sweetener</code> 选项进行校验，因为它只支持 <code>sugar</code> 和 <code>honey</code> 两个值，当传入的值不符合预定义时，则抛出帮助提示。</p>
+<p>在运行方法 <code>run</code> 中，我们定义饮料生产的通用逻辑，并根据 <code>--no-milk</code> 标志和 <code>--sweetener</code> 选项决定是否指定特殊逻辑。</p>
+<h1 id="实现子命令"><a href="#实现子命令" class="headerlink" title="实现子命令"></a>实现子命令</h1><p>接下来，我们需要实现子命令 <code>coffee</code> 和 <code>tea</code>，为了能够对功能进行分类，我们新建一个 <code>lib/BeverageMaker/command</code> 目录，并新建 <code>coffee.rb</code> 和 <code>tea.rb</code> 文件用于实现对应的命令类。</p>
+<h2 id="Coffee-子命令"><a href="#Coffee-子命令" class="headerlink" title="Coffee 子命令"></a>Coffee 子命令</h2><p><code>Coffee</code> 子命令类的定义如下所示，其继承自 <code>BeverageMaker::Command</code> 抽象类，内部通过设置 <code>self.abstract_command</code>、<code>self.summary</code>、<code>self.description</code> 等属性进行自定义配置。通过覆写 <code>run</code> 方法，定义制作咖啡时的特定逻辑，注意内部会调用 <code>super</code> 以执行饮料制作的通用逻辑。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coffee.rb</span></span><br><span class="line"><span class="keyword">module</span> <span class="title class_">BeverageMaker</span></span><br><span class="line">  <span class="comment"># Unlike the Tea command, this command uses subcommands to specify the</span></span><br><span class="line">  <span class="comment"># flavor.</span></span><br><span class="line">  <span class="comment">#</span></span><br><span class="line">  <span class="comment"># Which one makes more sense is up to you.</span></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">Coffee</span> &lt; <span class="title class_ inherited__">Command</span></span><br><span class="line">    <span class="variable language_">self</span>.abstract_command = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">    <span class="variable language_">self</span>.summary = <span class="string">&#x27;Drink brewed from roasted coffee beans&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="variable language_">self</span>.description = <span class="string">&lt;&lt;-DESC</span></span><br><span class="line"><span class="string">      Coffee is a brewed beverage with a distinct aroma and flavor</span></span><br><span class="line"><span class="string">      prepared from the roasted seeds of the Coffea plant.</span></span><br><span class="line"><span class="string">    DESC</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">run</span></span><br><span class="line">      <span class="variable language_">super</span></span><br><span class="line">      puts <span class="string">&quot;* Grinding <span class="subst">#&#123;<span class="variable language_">self</span>.<span class="keyword">class</span>.command&#125;</span> beans…&quot;</span></span><br><span class="line">      sleep <span class="number">1</span></span><br><span class="line">      puts <span class="string">&#x27;* Brewing coffee…&#x27;</span></span><br><span class="line">      sleep <span class="number">1</span></span><br><span class="line">      puts <span class="string">&#x27;* Enjoy!&#x27;</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">BlackEye</span> &lt; <span class="title class_ inherited__">Coffee</span></span><br><span class="line">      <span class="variable language_">self</span>.summary = <span class="string">&#x27;A Black Eye is dripped coffee with a double shot of &#x27;</span> \</span><br><span class="line">        <span class="string">&#x27;espresso&#x27;</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Affogato</span> &lt; <span class="title class_ inherited__">Coffee</span></span><br><span class="line">      <span class="variable language_">self</span>.summary = <span class="string">&#x27;A coffee-based beverage (Italian for &quot;drowned&quot;)&#x27;</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">CaPheSuaDa</span> &lt; <span class="title class_ inherited__">Coffee</span></span><br><span class="line">      <span class="variable language_">self</span>.summary = <span class="string">&#x27;A unique Vietnamese coffee recipe&#x27;</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">RedTux</span> &lt; <span class="title class_ inherited__">Coffee</span></span><br><span class="line">      <span class="variable language_">self</span>.summary = <span class="string">&#x27;A Zebra Mocha combined with raspberry flavoring&#x27;</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>此外，我们还定义了 <code>Coffee</code> 类的子类，包括：<code>BlackEye</code>、<code>Affogato</code>、<code>CoPheSuaDa</code>、<code>RedTux</code>。基于 Ruby 的语言特性，在运行时，这些子类会自动被标记为 <code>Coffee</code> 的子命令（内部由 <code>self.inherited</code> 命令支持）。这些子类各自定义了不同的命令摘要。</p>
+<h2 id="Tea-子命令"><a href="#Tea-子命令" class="headerlink" title="Tea 子命令"></a>Tea 子命令</h2><p><code>Tea</code> 子命令类的定义如下所示，其继承自 <code>BeverageMaker::Command</code> 抽象类，内部通过设置 <code>self.summary</code>、<code>self.description</code> 等属性进行自定义配置。</p>
+<p><code>Tea</code> 子命令类覆写了 <code>self.arguments</code> 属性，这个属性定义了命令的参数，在打印帮助信息时，会使用这里所定义的内容。</p>
+<p><code>Tea</code> 子命令类覆写了 <code>self.options</code> 属性，这个属性定义了 <code>tea</code> 子命令所特有的选项 <code>--iced</code>。</p>
+<p><code>Tea</code> 通过覆写构造方法 <code>initialize</code> 从 <code>argv</code> 中按顺序读取参数和标志。</p>
+<p>在 <code>validate!</code> 方法中，它对口味参数进行校验，判断其是否属于预定义的几种类型之一，如果不符合，则打印帮助提示。</p>
+<p>在 <code>run</code> 方法，定义制作茶饮的特定逻辑，注意内部会调用 <code>super</code> 以执行饮料制作的通用逻辑。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># tea.rb</span></span><br><span class="line"><span class="keyword">module</span> <span class="title class_">BeverageMaker</span></span><br><span class="line">  <span class="comment"># This command uses an argument for the extra parameter, instead of</span></span><br><span class="line">  <span class="comment"># subcommands for each of the flavor.</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">Tea</span> &lt; <span class="title class_ inherited__">Command</span></span><br><span class="line">    <span class="variable language_">self</span>.summary = <span class="string">&#x27;Drink based on cured leaves&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="variable language_">self</span>.description = <span class="string">&lt;&lt;-DESC</span></span><br><span class="line"><span class="string">      An aromatic beverage commonly prepared by pouring boiling hot</span></span><br><span class="line"><span class="string">      water over cured leaves of the Camellia sinensis plant.</span></span><br><span class="line"><span class="string">      The following flavors are available: black, green, oolong, and white.</span></span><br><span class="line"><span class="string">    DESC</span></span><br><span class="line"></span><br><span class="line">    <span class="variable language_">self</span>.arguments = [</span><br><span class="line">      <span class="title class_">CLAide::Argument</span>.new(<span class="string">&#x27;FLAVOR&#x27;</span>, <span class="literal">true</span>),</span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">self</span>.options</span><br><span class="line">      [[<span class="string">&#x27;--iced&#x27;</span>, <span class="string">&#x27;the ice-tea version&#x27;</span>]].concat(<span class="variable language_">super</span>)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">initialize</span>(<span class="params">argv</span>)</span><br><span class="line">      <span class="variable">@flavor</span> = argv.shift_argument</span><br><span class="line">      <span class="variable">@iced</span> = argv.flag?(<span class="string">&#x27;iced&#x27;</span>)</span><br><span class="line">      <span class="variable language_">super</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">validate!</span></span><br><span class="line">      <span class="variable language_">super</span></span><br><span class="line">      <span class="keyword">if</span> <span class="variable">@flavor</span>.<span class="literal">nil</span>?</span><br><span class="line">        help! <span class="string">&#x27;A flavor argument is required.&#x27;</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">unless</span> <span class="string">%w(black green oolong white)</span>.<span class="keyword">include</span>?(<span class="variable">@flavor</span>)</span><br><span class="line">        help! <span class="string">&quot;`<span class="subst">#&#123;<span class="variable">@flavor</span>&#125;</span>&#x27; is not a valid flavor.&quot;</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">run</span></span><br><span class="line">      <span class="variable language_">super</span></span><br><span class="line">      puts <span class="string">&quot;* Infuse <span class="subst">#&#123;<span class="variable">@flavor</span>&#125;</span> tea…&quot;</span></span><br><span class="line">      sleep <span class="number">1</span></span><br><span class="line">      <span class="keyword">if</span> <span class="variable">@iced</span></span><br><span class="line">        puts <span class="string">&#x27;* Cool off…&#x27;</span></span><br><span class="line">        sleep <span class="number">1</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      puts <span class="string">&#x27;* Enjoy!&#x27;</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="加载根命令"><a href="#加载根命令" class="headerlink" title="加载根命令"></a>加载根命令</h1><p>在 <code>exe/beverage-maker</code> 中，我们通过 <code>require &#39;BeverageMaker&#39;</code> 导入 gem，此时 Bundler 会请求同名的 <code>BeverageMaker.rb</code>  文件，而 <code>BeverageMaker.rb</code> 中并没有 <code>exe/beverage-maker</code> 所需的 <code>BeverageMaker::Command</code> 类。因此我们需要加载 <code>BeverageMaker::Command</code> 类，我们可以通过 <code>autoload</code> 方法加载，如下所示。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># BeverageMaker.rb</span></span><br><span class="line"><span class="keyword">require</span> <span class="string">&quot;BeverageMaker/version&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">module</span> <span class="title class_">BeverageMaker</span></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">Error</span> &lt; <span class="title class_ inherited__">StandardError</span>; <span class="keyword">end</span></span><br><span class="line">  <span class="comment"># Your code goes here...</span></span><br><span class="line">  autoload <span class="symbol">:Command</span>, <span class="string">&#x27;BeverageMaker/command&#x27;</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h1><p>本文使用 RubyMine 进行开发，RubyMine 提供了一系列调试功能，我们可以选中 <code>exe/beverage-maker</code> 文件，右击选择【Debug ‘beverage-maker’】，RubyMine 将自动以调试模式运行 <code>beverage-maker</code>。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/beverage-maker-02.png?x-oss-process=image/resize,w_800"></p>
+<p>运行 <code>beverage-maker</code> 后，控制台将输出运行结果，如下所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/beverage-maker-03.png?x-oss-process=image/resize,w_800"></p>
+<p>由于 <code>beverage-maker</code> 是入口程序，我们可以修改其代码，传入不同的参数进行调试，如下所示：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/usr/bin/env ruby</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">require</span> <span class="string">&#x27;BeverageMaker&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># BeverageMaker::Command.run(ARGV)</span></span><br><span class="line"><span class="title class_">BeverageMaker</span><span class="symbol">:</span><span class="symbol">:Command</span>.run([<span class="string">&quot;tea&quot;</span>, <span class="string">&quot;oolong&quot;</span>, <span class="string">&quot;--iced&quot;</span>, <span class="string">&quot;--no-milk&quot;</span>])</span><br><span class="line">print<span class="string">&quot;\n&quot;</span></span><br><span class="line"><span class="title class_">BeverageMaker</span><span class="symbol">:</span><span class="symbol">:Command</span>.run([<span class="string">&quot;coffee&quot;</span>, <span class="string">&quot;ca-phe-sua-da&quot;</span>, <span class="string">&quot;--sweetener=sugar&quot;</span>])</span><br></pre></td></tr></table></figure>
+<p>其调试运行结果如下所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/beverage-maker-04.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="构建"><a href="#构建" class="headerlink" title="构建"></a>构建</h1><p>在调试通过后，我们可以对 gem 进行构建，构建命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">rake build</span></span><br></pre></td></tr></table></figure>
+
+<p>构建命令会根据 <code>BeverageMaker.gemspec</code> 生成一个对应版本的 gem，这里生成的是 <code>BeverageMaker-0.1.0.gem</code>，并存放在 <code>pkg</code> 目录下。</p>
+<blockquote>
+<p>注：也可以使用 <code>gem build BeverageMaker.gemspec</code> 进行构建。</p>
+</blockquote>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>在构建生成 gem 后，我们可以对它进行安装，安装命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">rake install</span></span><br></pre></td></tr></table></figure>
+
+<p>安装命令默认将 gem 安装在当前使用的 ruby 版本的目录下，我当前的 ruby 版本是 <code>2.6.5</code>。对此，安装结果如下。</p>
+<ul>
+<li>可执行文件 <code>beverage-maker</code> 安装在 <code>~/.rvm/gems/ruby-2.6.5/bin/</code> 目录下</li>
+<li>BeverageMaker gem 包安装在 <code>~/.rvm/gems/ruby-2.6.5/gems/</code> 目录下</li>
+<li>BeverageMaker 的 gemspec 安装在 <code>~/.rvm/gems/ruby-2.6.5/specifications/</code> 目录下。</li>
+</ul>
+<blockquote>
+<p>注：也可以使用 <code>gem install pkg/BeverageMaker-0.1.0.gem</code> 命令进行安装。</p>
+</blockquote>
+<p>安装完毕，我们就可以在控制台中使用 <code>beverage-maker</code> 命令行工具了。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/beverage-maker-07.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="发布"><a href="#发布" class="headerlink" title="发布"></a>发布</h1><p>一切就绪后，我们可以对 gem 进行发布，发布命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">rake release</span></span><br></pre></td></tr></table></figure>
+
+<p><code>rake release</code> 发布命令包含几个步骤：</p>
+<ul>
+<li>构建 gem，并存放至 <code>pkg</code> 目录下，准备推送至 Rubygems.org。</li>
+<li>在当前的 commit 上打上 tag，指定为当前版本号。</li>
+<li>将代码推送至远程的 git 仓库。</li>
+</ul>
+<p>执行结果如下所示：<br><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/beverage-maker-08.png?x-oss-process=image/resize,w_800"></p>
+<blockquote>
+<p>注：也可以使用 <code>gem push pkg/BeverageMaker-0.1.0.gem</code> 命令进行发布。</p>
+</blockquote>
+<p>在发布前，我们需要注册一个 rubygems.org 的账户，否则发布命令会报错。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文通过一个具体的需求，基于 CLAide 开发了一个 gem 命令行工具。在这个过程中，我们介绍了模板项目中各个文件的作用，了解了 gem 开发的一般步骤：开发、调试、构建、安装、发布。</p>
+<p>另一方面，通过这样一个项目，我们大致也能够理解 cocoapods 的整个项目结构、设计理念。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://www.bundler.cn/v1.16/guides/creating_gem.html">How to create a Ruby gem with Bundler</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/CocoaPods/CLAide">CLAide</a></li>
+<li><a href="http://chuquan.me/2021/11/04/claide/">源码解析——CLAide</a></li>
+<li><a target="_blank" rel="noopener" href="https://looseyi.github.io/post/sourcecode-cocoapods/03-cocoapods-claide/">CocoaPods 命令解析 - CLAide</a></li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/20824049/rake-release-fail-using-gem-bundler">rake release fail (using gem bundler)</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/bundle/" rel="tag"># bundle</a>
+          
+            <a href="/tags/gem/" rel="tag"># gem</a>
+          
+            <a href="/tags/rake/" rel="tag"># rake</a>
+          
+            <a href="/tags/rakefile/" rel="tag"># rakefile</a>
+          
+            <a href="/tags/gemspec/" rel="tag"># gemspec</a>
+          
+            <a href="/tags/ruby/" rel="tag"># ruby</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/11/04/claide/" rel="next" title="源码解读——CLAide">
+                <i class="fa fa-chevron-left"></i> 源码解读——CLAide
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/12/03/understand-concepts-in-xcode/" rel="prev" title="理解 Xcode 中的各种概念">
+                理解 Xcode 中的各种概念 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87"><span class="nav-number">1.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E6%A8%A1%E7%89%88%E9%A1%B9%E7%9B%AE"><span class="nav-number">2.</span> <span class="nav-text">生成模版项目</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9-gemspec-%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">修改 gemspec 配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%85%A5%E5%8F%A3"><span class="nav-number">4.</span> <span class="nav-text">定义命令行入口</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%A0%B9%E5%91%BD%E4%BB%A4"><span class="nav-number">5.</span> <span class="nav-text">实现根命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E5%AD%90%E5%91%BD%E4%BB%A4"><span class="nav-number">6.</span> <span class="nav-text">实现子命令</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Coffee-%E5%AD%90%E5%91%BD%E4%BB%A4"><span class="nav-number">6.1.</span> <span class="nav-text">Coffee 子命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Tea-%E5%AD%90%E5%91%BD%E4%BB%A4"><span class="nav-number">6.2.</span> <span class="nav-text">Tea 子命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD%E6%A0%B9%E5%91%BD%E4%BB%A4"><span class="nav-number">7.</span> <span class="nav-text">加载根命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%83%E8%AF%95"><span class="nav-number">8.</span> <span class="nav-text">调试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA"><span class="nav-number">9.</span> <span class="nav-text">构建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">10.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%91%E5%B8%83"><span class="nav-number">11.</span> <span class="nav-text">发布</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">12.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">13.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

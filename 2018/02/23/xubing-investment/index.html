@@ -1,38 +1,1556 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="投资,理财," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="几个月前，在脉脉上订阅了一个付费的音频课程——《徐彬说投资》。课程每天更新（工作日），共48节。虽然课程内容的连贯性不是非常强，但是对于非专业人士来说，这是一个非常好的理财入门课程。以下内容是我在听完该课程后做的一些笔记和总结。原始笔记在这里 如何计算自己有多少钱可以用于理财？对于我们普通人来说，每个月能够剩余下来的钱（自由现金流）均可以用于理财。自由现金流计算公式如下：  自由现金流 &amp;#x3D">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《徐彬说投资》笔记">
+<meta property="og:url" content="http://chuquan.me/2018/02/23/xubing-investment/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="几个月前，在脉脉上订阅了一个付费的音频课程——《徐彬说投资》。课程每天更新（工作日），共48节。虽然课程内容的连贯性不是非常强，但是对于非专业人士来说，这是一个非常好的理财入门课程。以下内容是我在听完该课程后做的一些笔记和总结。原始笔记在这里 如何计算自己有多少钱可以用于理财？对于我们普通人来说，每个月能够剩余下来的钱（自由现金流）均可以用于理财。自由现金流计算公式如下：  自由现金流 &amp;#x3D">
+<meta property="og:locale">
+<meta property="article:published_time" content="2018-02-23T14:58:22.000Z">
+<meta property="article:modified_time" content="2018-02-23T15:01:44.211Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="投资">
+<meta property="article:tag" content="理财">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2018/02/23/xubing-investment/"/>
+
+
+
+
+
+  <title>《徐彬说投资》笔记 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2018/02/23/xubing-investment/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">《徐彬说投资》笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2018-02-23T22:58:22+08:00">
+                2018-02-23
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2018-02-23T23:01:44+08:00">
+                2018-02-23
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%95%E8%B5%84%E7%90%86%E8%B4%A2/" itemprop="url" rel="index">
+                    <span itemprop="name">投资理财</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>几个月前，在脉脉上订阅了一个付费的音频课程——《徐彬说投资》。课程每天更新（工作日），共48节。虽然课程内容的连贯性不是非常强，但是对于非专业人士来说，这是一个非常好的理财入门课程。以下内容是我在听完该课程后做的一些笔记和总结。原始笔记<a target="_blank" rel="noopener" href="https://note.youdao.com/share/?id=ce6a0c26ad775e2ac31665738ebfc131&type=note#/">在这里</a></p>
+<h1 id="如何计算自己有多少钱可以用于理财？"><a href="#如何计算自己有多少钱可以用于理财？" class="headerlink" title="如何计算自己有多少钱可以用于理财？"></a>如何计算自己有多少钱可以用于理财？</h1><p>对于我们普通人来说，每个月能够剩余下来的钱（<strong>自由现金流</strong>）均可以用于理财。自由现金流计算公式如下：</p>
+<blockquote>
+<p><strong>自由现金流 &#x3D; 收入 - 支出</strong><br><strong>收入</strong> &#x3D; 劳动收入（工资）<br><strong>支出</strong> &#x3D; 必需支出（房租、房贷、生活费等） + 可选支出（娱乐费用）  </p>
+</blockquote>
+<p>因此，要想有多余的钱理财，必须保证自由现金流为正。如何保证自由现金流为正？两个方法：</p>
+<ul>
+<li><strong>开源</strong>：增加收入</li>
+<li><strong>节流</strong>：减少支出</li>
+</ul>
+<p>很明显，自己容易控制的便是减少支出，其中<strong>可选支出</strong>可控程度是比较大的。</p>
+<p>生活处处有风险，常见有两种风险可能会导致自由现金流为负：<strong>重大疾病</strong>、<strong>失业</strong>。为应对这两种风险，一般我们的措施是：</p>
+<ul>
+<li><strong>重大疾病</strong>：购买重疾险</li>
+<li><strong>失业</strong>：预存应急资金。假设失业以后6个月后必能找到工作。可以将6个月的总支出定为应急资金。应急资金需要充分利用，应该放在货币基金，风险相对较小。</li>
+</ul>
+<p>一般而言，理财收入不能算入收入，各种奖金也不应该算入收入。通过上述公式便可计算出自己有多少钱可用于理财。</p>
+<h1 id="理财的基本概念"><a href="#理财的基本概念" class="headerlink" title="理财的基本概念"></a>理财的基本概念</h1><p>在理财前，投资者需要了解一下这些概念：</p>
+<ol>
+<li><p>任何理财产品都是具有风险的，而风险的本质便是<strong>波动</strong>。比如：股票价格的涨跌波动。</p>
+</li>
+<li><p><strong>风险与收益成正比</strong>。另外还需要有充分的<strong>时间</strong>进行保障。</p>
+</li>
+<li><p><strong>可投资标的</strong>：哪些资产可以在自己的投资期限内进行投资。</p>
+</li>
+<li><p><strong>风险承受能力</strong>：评估可投资标的在投资期限内的最大投资亏损。很多投资亏损就是由于投资前没有评估好自己的风险承受能力，心态受到市场情绪影响导致的。</p>
+</li>
+</ol>
+<h1 id="股票与债券"><a href="#股票与债券" class="headerlink" title="股票与债券"></a>股票与债券</h1><p>我们都知道股票和债券，那么这两者是什么？有什么区别呢？</p>
+<p>一切要从<strong>价值分配模型</strong>说起，价值分配模型包含两部分，分别是<strong>劳动价值</strong>、<strong>剩余价值</strong>。</p>
+<p>一般来说，一个公司的资本分为两类：<strong>债券</strong>、<strong>股票</strong>。相应的投资人也分为两类：<strong>债券投资人</strong>、<strong>股票投资人</strong>（股东）。公司将其运营产生的<strong>剩余价值</strong>通过债券、股票分配给投资人。</p>
+<blockquote>
+<p>假设公司不用交税，一年挣了3千万（即剩余价值）。假设去年发行了一个亿3年期，每年利息10%的债券。那么公司的3千万，债券投资人拿走1千万（1亿 x 10%）。其他全部分给股票投资人。</p>
+</blockquote>
+<blockquote>
+<p>如果一年收益1亿，债券投资人只能拿1千万，而股票投资人则可以拿9千万。</p>
+</blockquote>
+<p>相比而言，债券投资人获取收益的优先级更高，收益比股票投资人更明确。即无论有多少剩余价值，都优先分给债券投资人。在上述例子中，债券的收益是每年10%。而股票的风险比较大，对应的收益也可能更高。</p>
+<p>通常，大企业的优势是收益稳定，劣势是发展空间有限；中小企业的优势是发展潜力，劣势是收益。因此，大企业的债券比较可靠，股票的增值空间相对较小；中小企业的债券短期内不一定有收益，长期来看其股票增值空间相对较大。</p>
+<p>关于股票，公司分配给股票投资者的价值有两种方式：</p>
+<ol>
+<li><strong>发放现金分红</strong></li>
+<li><strong>股票价格上涨</strong>：如果公司在一段时间内的收益越高，希望投资的人越多，股票价格会变得越高。</li>
+</ol>
+<h1 id="货币基金"><a href="#货币基金" class="headerlink" title="货币基金"></a>货币基金</h1><p>如果投资期限为一年，最好的投资标的是<strong>货币基金</strong>，如余额宝。货币基金是<strong>公募基金</strong>的一种。货币基金有以下优点：</p>
+<ul>
+<li>货币基金的门槛很低，一块钱都可以</li>
+<li>货币基金的各种费用很低</li>
+<li>风险极低</li>
+<li>每天都有收益，包括节假日</li>
+<li>货币基金非常灵活，买入后立刻产生收益。</li>
+<li>货币基金往往在其他投资标的表现不好时，收益会更好。</li>
+</ul>
+<p>货币基金主要有两个指标:</p>
+<ul>
+<li><strong>七日年化收益率</strong>：过去七天平均每天的收益如果持续一年可以产生的收益</li>
+<li><strong>万份收益</strong>：货币基金会保持每份一元的净值水平。因此，货币基金的总资产等于货币基金的总份数。每一万份货币基金，在过去一天产生的收益。</li>
+</ul>
+<p>那么为什么货币基金风险很低？这是因为货币基金的投资标的是<strong>短期国债</strong>、<strong>中央银行票据</strong>、<strong>银行背书的商业汇票</strong>、<strong>银行承兑汇票</strong>、<strong>银行定存</strong>、<strong>大额可转让存单</strong>等。这些都是金融投资风险最低。另一方面，货币基金的管理要求非常高，如果基金经理的货币基金做亏了，基本职业生涯完了。所以，货币基金的风险非常低。</p>
+<p>货币基金适合投资期限小于一年，随取随存的场景，对于应急资金和工资来说非常适合。我们平时所用的余额宝、活期宝便是货币基金。相对其它投资标的，货币基金收益也较低，一年的收益率大概为4%左右。</p>
+<h2 id="货币基金的4个投资技巧"><a href="#货币基金的4个投资技巧" class="headerlink" title="货币基金的4个投资技巧"></a>货币基金的4个投资技巧</h2><ul>
+<li>季度末，半年末，年末，货币基金的收益率比较高。</li>
+<li>关注央行的行为。其会影响金融市场的流动性。央行加息，提高存款准备金率，会造成市场的钱变少，从而提高货币基金的收益率。</li>
+<li>当股市、债市表现不好时候，往往货币基金表现较好（目前市场共有616支货币基金）。</li>
+<li>平时买规模大（5亿元以上）的基金，收益比较稳定。在季度末、年底买规模较小（2亿~5亿）的基金博取高收益。</li>
+</ul>
+<h1 id="银行理财与货币基金"><a href="#银行理财与货币基金" class="headerlink" title="银行理财与货币基金"></a>银行理财与货币基金</h1><p>根据如下2017年的数据显示，理财产品的期限越长，予以的收益也越多。</p>
+<ul>
+<li>银行活期存款利息：一年0.35%</li>
+<li>一年期定期存款：一年1.5%</li>
+<li>三年期定期存款：每年2.75%</li>
+</ul>
+<p>通常，银行理财都是定期，且5万元起购，这与货币基金的差距较大。另一方面，货币基金的监管比银行理财更严格。网上也经常爆出银行理财的一些骗局，我们可以通过网上银行来进行真伪辨认。</p>
+<h1 id="国债逆回购"><a href="#国债逆回购" class="headerlink" title="国债逆回购"></a>国债逆回购</h1><p>国债逆回购，本质就是一种短期贷款。也就是说，个人通过国债回购市场把自己的资金借出去，获得固定的利息收益；而回购方，也就是借款人用自己的国债作为抵押获得这笔借款，到期后还本付息。</p>
+<p>投资者通过股票账户即可投资国债逆回购，国债逆回购具有以下几个基本特点：</p>
+<ul>
+<li><strong>国债逆回购的门槛</strong>：上证交易所，金额必须是10万的整数倍；深证交易所，金额必须是1000的整数倍。</li>
+<li><strong>国债逆回购的价格</strong>：任何股票软件都可查询。</li>
+<li><strong>国债逆回购的收益</strong>：价格、实际占款天数（1、2、3、7）。</li>
+<li><strong>国债逆回购价格的规律</strong>：季度末、年末的利率较高。一般上午高于下午。</li>
+</ul>
+<h1 id="债券基金"><a href="#债券基金" class="headerlink" title="债券基金"></a>债券基金</h1><p>根据2006至2016的数据显示，债券基金平均每年的收益大约为7%。债券的本质是发行债券的机构向投资者借钱，债券基金的收益主要包含两部分：</p>
+<ul>
+<li>利息</li>
+<li>债券的价格波动</li>
+</ul>
+<p>目前市场中的债券基金一共有1000多只。通常而言，债券基金和股票基金呈跷跷板效应，两者的表现是相反的。</p>
+<p><strong>通常不建议自选债券基金进行投资</strong>，其知识门槛较高。此外，债券基金进行为期1~2年的投资。长期投资债券基金必然是赚钱的。</p>
+<h2 id="债券涨跌原理"><a href="#债券涨跌原理" class="headerlink" title="债券涨跌原理"></a>债券涨跌原理</h2><p>在金融体系中钱多（收紧或加速流动性）的时候，债券就会上涨；反之，则下跌。</p>
+<p>金融体系受两方面影响：</p>
+<ul>
+<li><strong>中央银行（中国人民银行，简称央行）货币政策</strong>：如加息降息</li>
+<li><strong>影响金融机构买债的监管政策</strong></li>
+</ul>
+<p>央行主要有两个职能：控制物价（通货膨胀CPI）、维持经济增长（GDP增长率）。如果发生矛盾，以第一项为准。当CPI突破3%，表示通货膨胀过快，需要注意；GDP增长率较低时是投资债券的好时机。</p>
+<h2 id="债券基金投资方法"><a href="#债券基金投资方法" class="headerlink" title="债券基金投资方法"></a>债券基金投资方法</h2><p>债券基金有一个指标——<strong>到期收益率</strong>，表示如果债券没有出现违约，每年的收益率。债券收益率越高，则债券的估值越低。如果在三年期AA+企业债到期收益率超过5%时，投资债券基金，则未来三年，每年收益率大约为8%~10%。</p>
+<p>相关数据表明，长期投资债券基金，亏钱的概率极低。对于债券基金的投资有两个建议：</p>
+<ul>
+<li>债券基金的到期收益率越高，投资债券基金赚得越多</li>
+<li>债券基金应该越跌越买</li>
+</ul>
+<h1 id="什么决定了股票的价格"><a href="#什么决定了股票的价格" class="headerlink" title="什么决定了股票的价格"></a>什么决定了股票的价格</h1><p>前面说到股票投资者的收益主要有两部分：<strong>分红</strong>、 <strong>股票价格的变化</strong>。那么股票的价格是由什么决定的呢？股票的价格可以通过如下公式进行计算：</p>
+<blockquote>
+<p><strong>股票的价格</strong> &#x3D; <strong>盈利</strong>（每股的盈利） *  <strong>市盈率</strong>（每股市价与每股盈利的比率）</p>
+</blockquote>
+<p>比如，某公司一年盈利1000万元，该公司有一亿股股票，则平均每股的盈利为0.1元。如果市盈率是10倍，即每1元的盈利能力是10元。通过公式计算得出，股票的价格为1元。</p>
+<blockquote>
+<p>1元（股票价格） &#x3D; 0.1（每股的盈利）* 10（市盈率）</p>
+</blockquote>
+<p>因此，市盈率是衡量股票价格高低的重要指标。<strong>市盈率是由股票市场中所有的股票投资者决定的</strong>。在绝大多数情况下，投资者的情绪比较稳定，市盈率也比较稳定。在某些情况下，投资者的情绪会出现集体波动，在投资者投资情绪乐观时，市盈率偏高；投资情绪悲观时，市盈率偏低。</p>
+<h2 id="如何投资股票"><a href="#如何投资股票" class="headerlink" title="如何投资股票"></a>如何投资股票</h2><p>首先需要评估市场的情绪，乐观、平稳还是悲观？因为投资者的情绪决定了市盈率。有两种评估方法：</p>
+<ul>
+<li><strong>定量分析</strong>：分析历史数据进行总结，对于沪深300指数，市盈率为12-14倍是合理的；对于中证500指数，市盈率为30-35倍是合理的。高于则是乐观，低于则是悲观。</li>
+<li><strong>定性分析</strong>：观察财经媒体和大众市场的情绪。情绪乐观时会多买入，情绪悲观时会多卖出。比如：当很多不懂市场的投资者也在争相买入，则是非常乐观。</li>
+</ul>
+<p>在了解市场情绪之后，只需要做到三点：</p>
+<ul>
+<li>在市场情绪平稳时进行投资，但是不要把所有的前都投进去</li>
+<li>在市场情绪悲观时，不仅自己不能恐慌，而应该鼓起勇气追加投资</li>
+<li>在市场情绪乐观时，不应该追加投资，应该准备卖出</li>
+</ul>
+<h2 id="股票选择"><a href="#股票选择" class="headerlink" title="股票选择"></a>股票选择</h2><p>一般而言，优质、稳定的投资标的应该会产生持续、稳定的<strong>内生收益</strong>。公司的盈利、收益是内生收益的来源。股票投资最重要的收益来源就是内生收益。持续、稳定的内生收益会让投资标的有不断上涨的动力。但是在单只股票中寻找能够产生持续、稳定内生收益的股票非常难。</p>
+<p>投资者可以通过市场表现来挑选股票，比如每半年对A股上市公司进行市值排名，只投资排名前300的公司。A股市场最常用的两个指数是：<strong>沪深300指数</strong>、<strong>中证500指数</strong>。前者包含A股中市值最大的前300家公司；后者包含市值排名第301至800的500家公司。一般排名靠前的大公司，内生收益比较低，稳定性较高，长期收益低。 相对而言，中证500指数包含的公司内生收益相对较高，稳定性一般。</p>
+<h2 id="50AH优选"><a href="#50AH优选" class="headerlink" title="50AH优选"></a>50AH优选</h2><p><strong>上证50指数</strong>：表示上海证券交易所上市的市值最大的50家公司。<br><strong>50AH优选指数</strong>：看上证50指数中哪些公司在大陆和香港同时上市，挑选价格便宜的进行投资。</p>
+<p>根据2015至2017年数据显示，50AH优选指数跑赢了上证50指数8个百分数。因此，投资者也可以根据50AH优选指数来进行股票选择</p>
+<h1 id="基金的选择"><a href="#基金的选择" class="headerlink" title="基金的选择"></a>基金的选择</h1><p>目前市场中共有3485只基金，其从投资标的上来分可分为三种：</p>
+<ul>
+<li><strong>货币基金</strong></li>
+<li><strong>债券基金</strong></li>
+<li><strong>股票基金</strong>：变数最大，主要是对比业绩基准。</li>
+</ul>
+<p>根据管理方式来分类，基金可以分为两类：</p>
+<ul>
+<li><strong>被动管理型基金</strong>（指数基金）：其跟随沪深300指数。管理费较低，每年0.7%。 </li>
+<li><strong>主动管理型基金</strong>：想尽一切办法打败业绩基准。研究员使用数据模型定量分析，管理费相对较高，每年1.5%。</li>
+</ul>
+<p>国外一个惊人的理论：绝大多数主动管理型基金很难跑过大盘指数。然而，在中国则截然相反，这是因为美国绝大部分的投资者是投资机构。中国股市有大量的散户，投资机构很容易跑赢散户。在中国，主动型管理基金更好。港股和美股则相反。在中国，股票基金平均收益率约为20%，沪深300每年约为10%。</p>
+<h1 id="如何选择基金"><a href="#如何选择基金" class="headerlink" title="如何选择基金"></a>如何选择基金</h1><p>股票基金的收益有两个来源：</p>
+<ul>
+<li>对标的股票指数的股票收益</li>
+<li>股票基金跑赢股票指数的跑赢收益，即<strong>跑赢收益</strong>。跑赢收益是真正衡量基金经理能力的指标。</li>
+</ul>
+<p>选择基金的完整流程：</p>
+<ul>
+<li>第一步，选择未来会上涨的股票指数。只要股票指数的市盈率处于合理或偏低的水平，都可以选择。</li>
+<li>第二步，在所有以这个股票指数为业绩基准，即对标的股票指数的股票基金里，选择跑赢收益比较高，且稳定性比较好的股票基金。量化基金的跑赢收益更低，稳定性更好。传统基金的跑赢收益更好，稳定性更差。</li>
+<li>第三步，研究基金的策略，判断基金收益是否可持续。比如：通过基金经理访谈。</li>
+</ul>
+<h1 id="股票基金收益来源的“终极”公式"><a href="#股票基金收益来源的“终极”公式" class="headerlink" title="股票基金收益来源的“终极”公式"></a>股票基金收益来源的“终极”公式</h1><blockquote>
+<p><strong>股票基金的收益</strong> &#x3D; <strong>对标股票指数的收益</strong> + <strong>跑赢收益</strong></p>
+</blockquote>
+<p><strong>股票指数</strong>是由若干股票组成，可以用于分析股票。每只股票都是一个公司的代表，绝大部分长期来说，其价值在不断提升。通常使用<strong>内生收益</strong>表示股票价值提升带来的收益。但是有内生收益不一定会带来投资收益。</p>
+<p>股票价格的终极计算公式为，其中内生收益代表盈利的上升速度，长期来说内生收益都是正的。</p>
+<blockquote>
+<p><strong>股票价格</strong> &#x3D; <strong>盈利</strong> * <strong>市盈率</strong> </p>
+</blockquote>
+<p>那么应该如何确定内生收益？沪深300指数的内生收益和名义GDP增速差不多，稍微高一点。名义GDP和统计局公布的GDP不是一回事，后者是实际GDP增速，前者在实际GDP增速的基础上加上物价增速（即CPI）。名义GDP更多的体现实际的经济发展，更适合描述企业收入和盈利的增长速度。中国的GDP大概维持在6-7%，CPI大概在2%，所以名义GDP大概维持在8-9%。因此，沪深300指数的内生收益大约8-9%（非客观）。</p>
+<p>另一方面，市盈率会围绕着合理水平波动。投资者给出的价格水平，乐观时比较高，悲观时比较低。当市盈率回归到合理水平的过程中，产生的收益叫<strong>储备收益</strong>。因此，可以得到股票指数的收益的公式。</p>
+<blockquote>
+<p><strong>股票指数的收益</strong> &#x3D; <strong>内生收益</strong> + <strong>储备收益</strong></p>
+</blockquote>
+<p>进一步得出股票基金的收益公式：</p>
+<blockquote>
+<p><strong>股票基金的收益</strong> &#x3D; <strong>内生收益</strong>（经济发展） + <strong>储备收益</strong>（投资者心理波动） + 跑赢收益（基金经理的能力）</p>
+</blockquote>
+<h1 id="定投"><a href="#定投" class="headerlink" title="定投"></a>定投</h1><p>定投：表示定期、定额地投资某一个理财产品的投资方式。这是一种兼顾省心、高收益的投资方式。其适用于长期投资。例如：每个月买1000元的公募基金。</p>
+<p>定投为何会赚钱？这是定投可以大幅降低投资风险，只要坚持就能赚钱。定投期间如果基金曲线呈现微笑曲线，则必然是赚钱的，即<strong>定投第一定理</strong>。</p>
+<p>定投是一种守株待兔的方式，经济是由周期的，只要耐心定投，就肯定能赚钱。</p>
+<h2 id="定投开始时机"><a href="#定投开始时机" class="headerlink" title="定投开始时机"></a>定投开始时机</h2><p>在低于市盈率合理值时投资。在沪深300市盈率14倍或中证500市盈率35倍以下可以投。</p>
+<h2 id="定投结束时机"><a href="#定投结束时机" class="headerlink" title="定投结束时机"></a>定投结束时机</h2><p>3个原则：</p>
+<ul>
+<li>定投还没开始赚钱，永远不要考虑结束</li>
+<li>只要股市估值还没有达到正常水平以上，就不要考虑退出。</li>
+<li>当股市估值回到正常水平以上，应该跟随市场不断变化、计划卖出的点位，即止盈点。比如，当这轮行情市盈率跌倒最高点10%以下，止盈。</li>
+</ul>
+<h2 id="一个真实的定投案例"><a href="#一个真实的定投案例" class="headerlink" title="一个真实的定投案例"></a>一个真实的定投案例</h2><p>3-5年长期的准备，定投。<br>2011年开始，定投沪深300指数4年，总收益80%，平均每年收益15.2%。 分为七个阶段</p>
+<ul>
+<li>2011年4月开始定投到A点，截止2011年12月27日累计亏损19%。从2011年4月开始，中国经济增长率从每年10%下调至8%。同时CPI很高，在2011年年终，达到了6%以上。央行通过加息来降低CPI。沪深300指数从2011年4月的3400点一路跌到年底的2300点，跌幅达到32%。</li>
+<li>A点到B点，截止2012年5月累计盈利0.1%。从2011年底到2012年5月，沪深300指数从2300点反弹到2700点，赚0.1%。</li>
+<li>B点到C点，截止2012年12月累计亏损17.5%。从2012年5月到2012年12月，沪深300指数开启长达8个月的下跌。从2700点跌至2100点，跌幅达到22%。创出了3年新低。</li>
+<li>C点到D点，两年累计盈利8.7%。2012年12月5日的大涨，开启了一波小牛市。沪深300指数用了两个月一口气从2100点涨到了2800点附近，涨幅达到33%。</li>
+<li>D点到E点，累计亏8.5%。2013年2月之后，沪深300指数开始调整，2013年6月开始从2600到2300，跌幅达到22%。2014年7月底，市盈率只有8.2倍，储备收益高达70%。</li>
+<li>F点到完美结局，累计大赚80%。2014年7月到2015年6月，沪深300指数从2200点一路上涨到5380点，上涨幅度达到145%。</li>
+</ul>
+<p>定投总共4年2个月中，有3年3个月是处于亏损状态。是否掌握一定的定投知识将决定成败。经济每五年一个周期，对应到股市就是每5年一个大牛市。定投就是抓住这5年一次的牛市。定投很有可能三年不开张，开张顶三年！</p>
+<h1 id="如何做投资决策"><a href="#如何做投资决策" class="headerlink" title="如何做投资决策"></a>如何做投资决策</h1><p>做投资决策前需要做到以下几点：</p>
+<ul>
+<li>分析一笔钱可能出现的结果有哪几类？</li>
+<li>对每一种结果评估概率</li>
+<li>对每一种结果给出一种应对措施<ul>
+<li>如果赚钱了是否止盈，什么时候止盈</li>
+<li>如果亏钱了是否止损，什么时候止损</li>
+<li>如果赚钱了是否追加投资，什么时候</li>
+<li>如果亏钱了是否追加投资，什么时候</li>
+</ul>
+</li>
+</ul>
+<p>在投资前思考风险可以让我们在投资过程中保持良好的心态。另外，还需要评估好投资周期、盈亏幅度。</p>
+<p>关于如何控制风险？这里也有两种参考方式：</p>
+<ul>
+<li>选择一条移动平均线，一旦大盘跌破这条线就止损。根据历史数据显示，60天移动平均线是最优化的选择。</li>
+<li>设定一个自己愿意接受的亏损比例，如10%。每天记录总资产额。当某天的总资产额比最高总资产额低10%时，可以止损了。</li>
+</ul>
+<h1 id="关于投资笔记"><a href="#关于投资笔记" class="headerlink" title="关于投资笔记"></a>关于投资笔记</h1><p>投资笔记是执行投资、学习投资过程中一个非常重要且有意义的方式。投资笔记有以下优点：</p>
+<ul>
+<li>投资笔记可以帮我们指定投资决策，包括分析过程，思考逻辑，决策分析。投资是不能随机应变的。这是因为，一方面，投资相对比较复杂，需要实现做好预案。另一方面，投资是逆直觉，逆决策的。</li>
+<li>投资笔记可以更好地帮助我们复盘。比如在投资过程中哪些地方做对了，结果及其原因又是什么。通过投资笔记，可以对每一个节点的行为逻辑和心态，复盘结果，更重要的是原因。</li>
+<li>投资笔记可以帮助我们获得更多的知识。</li>
+</ul>
+<h1 id="投资时需要掌握的重要数据"><a href="#投资时需要掌握的重要数据" class="headerlink" title="投资时需要掌握的重要数据"></a>投资时需要掌握的重要数据</h1><p>投资标的一定是不停生长出价值的投资标的。</p>
+<ul>
+<li><strong>经济增长率</strong>：经济增长率分为两种：<strong>季度增长率</strong>、<strong>年度增长率</strong>。GDP同比前一年同期增长多少。绝对值。增长率。实现国家经济调控的部门是央行，其主要有两个职责：<strong>控制物价</strong>、<strong>促进经济增长</strong>。当两者冲突时，往往以第一个为主。物价增长率（CPI），中文学名：通货膨胀率。和GDP不同，CPI是每个月都公布的。<strong>如何解读CPI数据：在中国如果CPI达到3%以上，说明物价增长过快了。这时候央行会通过加息，提高存款准备金率等方法来收紧货币。如果CPI跌倒了1%以下，说明物价增长过慢，意味着经济比较低迷，这时候央行会通过降息、降低存款金率等手段来刺激经济。如果CPI处于1~3%为健康状态，央行一般不会进行干涉</strong>。<strong>GDP在6.5%是合适的；CPI在1-3%是合适的。经济增长率的数据由国家统计局公布，<a target="_blank" rel="noopener" href="http://www.stats.gov.cn/">www.stats.gov.cn</a></strong>。GDP和CPI能够勾勒出四个不同的经济周期，见下文。</li>
+</ul>
+<p>股票、债券方面的数据。</p>
+<p>关于股票，A股共有3000多支股票，关注股票指数就够了，包括：<strong>上证50</strong>（超大规模）、<strong>沪深300</strong>（大规模）、<strong>中证500</strong>（中小规模）。平时需要关注着三个指数的盈利增长率和估值水平</p>
+<ul>
+<li><strong>估值水平</strong>：对于估值水平的描述一般用市盈率这个指标，<strong>对于上证50（10-12倍是合理的），对于沪深300（12-15倍是合理的），对于中证500（30-35倍是合理的）</strong>。如果低于，越跌越买；如果处理合理区间，继续持有；如果高于，原则上是不能追加，应该持有+设置好止盈条件等策略。</li>
+<li><strong>盈利增长率</strong>：必须等每个季度上司公司的财报都公布了以后才知道。与GDP类似，盈利增长的趋势比绝对值更加重要。如果盈利增长在减速，股市的增长水平（市盈率水平）就会下降。如果盈利增长在加速，市盈率就会上升。由于关注的是指数的盈利增长，而这些指数包含的公司都是整个经济体系中的中流砥柱，因此可以用GDP的增长趋势来估计指数盈利增长的趋势。</li>
+</ul>
+<blockquote>
+<p>估值水平：每周六公众号公布；盈利增长率：可以用GDP估算。</p>
+</blockquote>
+<p>债券</p>
+<ul>
+<li><strong>到期收益率</strong>：如果持有债券到期，并且借钱的机构没有耍赖不还钱的情况，投资者平均每年能赚百分之多少。不同期限，不同评级的债券的到期收益率都不一样。一般来说，关注三年期，AA+的企业债券的到期收益率就够了。只要这个数据高于5%，投资债券基金都是比较安全的，未来1-2年的收益也是比较可观的。</li>
+</ul>
+<h1 id="美林团队判断经济周期转折点的重点理论"><a href="#美林团队判断经济周期转折点的重点理论" class="headerlink" title="美林团队判断经济周期转折点的重点理论"></a>美林团队判断经济周期转折点的重点理论</h1><p><strong>美林时钟理论</strong>：只用经济增长率（GDP增速）和通货膨胀率（CPI增速）两个宏观经济指标来描述复杂的经济周期。</p>
+<p>运用美林时钟理论，在2006年至2016年，通过资产配置获得11.5倍的收益。全国房价平均每年的年化收益率只有8%。北京的房价平均每年的年化收益率15%。之所以房子赚钱，是因为房价稳定，愿意长期持，复利使得房子显得很赚钱。数据显示，资产配置如果做好了，可以比投资房产更赚钱。</p>
+<p>美林时钟理论用到两个宏观经济指标：<strong>GDP增长率</strong>（描述经济增长速度），<strong>CPI增长率</strong>（描述通货膨胀速度）</p>
+<ul>
+<li><strong>GDP增长率高、CPI增长率低：复苏期</strong></li>
+<li><strong>GDP增长率高、CPI增长率高：过热期</strong></li>
+<li><strong>GDP增长率低、CPI增长率高：滞障期</strong></li>
+<li><strong>GDP增长率低、CPI增长率低：衰退期</strong></li>
+</ul>
+<p><strong>1 -&gt; 2 -&gt; 3 -&gt; 4：美林时钟</strong></p>
+<blockquote>
+<p>复苏期：重仓股票基金（下一周期GDP仍高）。债券的表现不会差（一时半会不会加息，持有债券去赚利息），应该紧盯通胀，高通货膨胀来了应该减仓。</p>
+</blockquote>
+<blockquote>
+<p>过热期：中国股市会快速、甚至疯狂上涨。股票继续持有。不应该持有债券基金。关注熊市出现。</p>
+</blockquote>
+<blockquote>
+<p>滞涨期：股票基金表现不会，不应该持有。债券不太好。这个时期的目标是不亏钱。应该投资货币基金。</p>
+</blockquote>
+<blockquote>
+<p>衰退期：其末期是特别好的抄底机会。重仓持有债券基金。密切关注股票基金。关注股票基金减仓机会。</p>
+</blockquote>
+<p>（完）</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%8A%95%E8%B5%84/" rel="tag"># 投资</a>
+          
+            <a href="/tags/%E7%90%86%E8%B4%A2/" rel="tag"># 理财</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/22/logos-syntax/" rel="next" title="Logos基础语法">
+                <i class="fa fa-chevron-left"></i> Logos基础语法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/01/ios-tree-based-path-conversion-design/" rel="prev" title="基于树的iOS页面路径转换设计">
+                基于树的iOS页面路径转换设计 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97%E8%87%AA%E5%B7%B1%E6%9C%89%E5%A4%9A%E5%B0%91%E9%92%B1%E5%8F%AF%E4%BB%A5%E7%94%A8%E4%BA%8E%E7%90%86%E8%B4%A2%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">如何计算自己有多少钱可以用于理财？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%90%86%E8%B4%A2%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">理财的基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%82%A1%E7%A5%A8%E4%B8%8E%E5%80%BA%E5%88%B8"><span class="nav-number">3.</span> <span class="nav-text">股票与债券</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B4%A7%E5%B8%81%E5%9F%BA%E9%87%91"><span class="nav-number">4.</span> <span class="nav-text">货币基金</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B4%A7%E5%B8%81%E5%9F%BA%E9%87%91%E7%9A%844%E4%B8%AA%E6%8A%95%E8%B5%84%E6%8A%80%E5%B7%A7"><span class="nav-number">4.1.</span> <span class="nav-text">货币基金的4个投资技巧</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%93%B6%E8%A1%8C%E7%90%86%E8%B4%A2%E4%B8%8E%E8%B4%A7%E5%B8%81%E5%9F%BA%E9%87%91"><span class="nav-number">5.</span> <span class="nav-text">银行理财与货币基金</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%BD%E5%80%BA%E9%80%86%E5%9B%9E%E8%B4%AD"><span class="nav-number">6.</span> <span class="nav-text">国债逆回购</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%80%BA%E5%88%B8%E5%9F%BA%E9%87%91"><span class="nav-number">7.</span> <span class="nav-text">债券基金</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%80%BA%E5%88%B8%E6%B6%A8%E8%B7%8C%E5%8E%9F%E7%90%86"><span class="nav-number">7.1.</span> <span class="nav-text">债券涨跌原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%80%BA%E5%88%B8%E5%9F%BA%E9%87%91%E6%8A%95%E8%B5%84%E6%96%B9%E6%B3%95"><span class="nav-number">7.2.</span> <span class="nav-text">债券基金投资方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E5%86%B3%E5%AE%9A%E4%BA%86%E8%82%A1%E7%A5%A8%E7%9A%84%E4%BB%B7%E6%A0%BC"><span class="nav-number">8.</span> <span class="nav-text">什么决定了股票的价格</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%8A%95%E8%B5%84%E8%82%A1%E7%A5%A8"><span class="nav-number">8.1.</span> <span class="nav-text">如何投资股票</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%82%A1%E7%A5%A8%E9%80%89%E6%8B%A9"><span class="nav-number">8.2.</span> <span class="nav-text">股票选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#50AH%E4%BC%98%E9%80%89"><span class="nav-number">8.3.</span> <span class="nav-text">50AH优选</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E9%87%91%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-number">9.</span> <span class="nav-text">基金的选择</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9%E5%9F%BA%E9%87%91"><span class="nav-number">10.</span> <span class="nav-text">如何选择基金</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%82%A1%E7%A5%A8%E5%9F%BA%E9%87%91%E6%94%B6%E7%9B%8A%E6%9D%A5%E6%BA%90%E7%9A%84%E2%80%9C%E7%BB%88%E6%9E%81%E2%80%9D%E5%85%AC%E5%BC%8F"><span class="nav-number">11.</span> <span class="nav-text">股票基金收益来源的“终极”公式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9A%E6%8A%95"><span class="nav-number">12.</span> <span class="nav-text">定投</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E6%8A%95%E5%BC%80%E5%A7%8B%E6%97%B6%E6%9C%BA"><span class="nav-number">12.1.</span> <span class="nav-text">定投开始时机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E6%8A%95%E7%BB%93%E6%9D%9F%E6%97%B6%E6%9C%BA"><span class="nav-number">12.2.</span> <span class="nav-text">定投结束时机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%B8%AA%E7%9C%9F%E5%AE%9E%E7%9A%84%E5%AE%9A%E6%8A%95%E6%A1%88%E4%BE%8B"><span class="nav-number">12.3.</span> <span class="nav-text">一个真实的定投案例</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%81%9A%E6%8A%95%E8%B5%84%E5%86%B3%E7%AD%96"><span class="nav-number">13.</span> <span class="nav-text">如何做投资决策</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E6%8A%95%E8%B5%84%E7%AC%94%E8%AE%B0"><span class="nav-number">14.</span> <span class="nav-text">关于投资笔记</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%95%E8%B5%84%E6%97%B6%E9%9C%80%E8%A6%81%E6%8E%8C%E6%8F%A1%E7%9A%84%E9%87%8D%E8%A6%81%E6%95%B0%E6%8D%AE"><span class="nav-number">15.</span> <span class="nav-text">投资时需要掌握的重要数据</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BE%8E%E6%9E%97%E5%9B%A2%E9%98%9F%E5%88%A4%E6%96%AD%E7%BB%8F%E6%B5%8E%E5%91%A8%E6%9C%9F%E8%BD%AC%E6%8A%98%E7%82%B9%E7%9A%84%E9%87%8D%E7%82%B9%E7%90%86%E8%AE%BA"><span class="nav-number">16.</span> <span class="nav-text">美林团队判断经济周期转折点的重点理论</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

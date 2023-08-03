@@ -1,38 +1,1423 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Swift,泛型,Type Metadata,Metadata Pattern,Reabstract," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="在《Swift 性能优化(2)——协议与泛型的实现》中我们介绍了 Swift 是如何管理协议类型与泛型类型的生命周期与方法调用。本文我们将进一步介绍 Swift 泛型的底层实现原理。 回顾协议类型在内存中的存储形式是 Extential Container，Extential Container 占 5 个内存单元（也称 词），其作用如下：  3 个词作为 Value Buffer。 1 个词作为">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Swift 泛型底层实现原理">
+<meta property="og:url" content="http://chuquan.me/2020/04/20/implementing-swift-generic/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="在《Swift 性能优化(2)——协议与泛型的实现》中我们介绍了 Swift 是如何管理协议类型与泛型类型的生命周期与方法调用。本文我们将进一步介绍 Swift 泛型的底层实现原理。 回顾协议类型在内存中的存储形式是 Extential Container，Extential Container 占 5 个内存单元（也称 词），其作用如下：  3 个词作为 Value Buffer。 1 个词作为">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/existential-container.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/value-witness-table-example.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/type-metadata-and-vwt.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/polymorphism-through-v-table-dispatch.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/type-metadata-and-vwt-example.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/metadata-pattern-of-int.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2020-04-20T14:47:11.000Z">
+<meta property="article:modified_time" content="2021-09-01T15:34:55.662Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="Swift">
+<meta property="article:tag" content="泛型">
+<meta property="article:tag" content="Type Metadata">
+<meta property="article:tag" content="Metadata Pattern">
+<meta property="article:tag" content="Reabstract">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/existential-container.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2020/04/20/implementing-swift-generic/"/>
+
+
+
+
+
+  <title>Swift 泛型底层实现原理 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2020/04/20/implementing-swift-generic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Swift 泛型底层实现原理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2020-04-20T22:47:11+08:00">
+                2020-04-20
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2021-09-01T23:34:55+08:00">
+                2021-09-01
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Swift/" itemprop="url" rel="index">
+                    <span itemprop="name">Swift</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在《Swift 性能优化(2)——协议与泛型的实现》中我们介绍了 Swift 是如何管理协议类型与泛型类型的生命周期与方法调用。本文我们将进一步介绍 Swift 泛型的底层实现原理。</p>
+<h1 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h1><p>协议类型在内存中的存储形式是 Extential Container，Extential Container 占 5 个内存单元（也称 <strong>词</strong>），其作用如下：</p>
+<ul>
+<li>3 个词作为 <strong>Value Buffer</strong>。</li>
+<li>1 个词作为 <strong>Value Witness Table</strong> 的索引，主要用于管理生命周期。</li>
+<li>1 个词作为 <strong>Protocol Witness Table</strong> 的索引，主要用于管理方法调用。</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/existential-container.png?x-oss-process=image/resize,w_800"></p>
+<p>泛型类型由于在调用时能够确定具体的类型，所以不需要使用 Extential Container。在调用泛型方法时，只需要将 Value Witness Table&#x2F;Protocol Witness Table 作为额外参数进行传递。</p>
+<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><p>泛型类型使用 VWT 进行内存管理，VWT 由编译器生成，其存储了该类型的 size、aligment（对齐方式）以及针对该类型的基本内存操作。其结构如下所示（以 C 代码表示）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">value_witness_table</span> &#123;</span></span><br><span class="line">    <span class="type">size_t</span> size, align;</span><br><span class="line">    <span class="type">void</span> (*copy_init)(opaque *dst, <span class="type">const</span> opaque *src, type *T);</span><br><span class="line">    <span class="type">void</span> (*copy_assign)(opaque *dst, <span class="type">const</span> opaque *src, type *T);</span><br><span class="line">    <span class="type">void</span> (*move_init)(opaque *dst, <span class="type">const</span> opaque *src, type *T);</span><br><span class="line">    <span class="type">void</span> (*move_assign)(opaque *dst, <span class="type">const</span> opaque *src, type *T);</span><br><span class="line">    <span class="type">void</span> (*destroy)(opaque *val, type *T);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码中，VTW 中定义的方法与《Swift 性能优化(2)——协议与泛型的实现》中定义的方法有所出入。从功能上而言，它们都是属于基本的内存操作，可以相互转化，我们无需拘泥于细节差异。</p>
+<p>当对泛型类型进行内存操作（如：内存拷贝）时，最终会调用对应泛型类型的 VWT 中的基本内存操作。泛型类型不同，其对应的 VWT 也不同。下图所示为一个小的值类型和一个引用类型的 VWT。</p>
+<p>对于一个小的值类型，如：integer。该类型的 copy 和 move 操作会进行内存拷贝；destroy 操作则不进行任何操作。</p>
+<p>对于一个引用类型，如：class。该类型的 copy 操作会对引用计数加 <code>1</code>；move 操作会拷贝指针，而不会更新引用计数；destroy 操作会对引用计数减 <code>1</code>。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/value-witness-table-example.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="方法调用"><a href="#方法调用" class="headerlink" title="方法调用"></a>方法调用</h1><p>上一节，我们介绍了泛型的内存管理。那么，泛型的方法调用又是如何实现的呢？</p>
+<p>我们以如下一个泛型函数为例进行介绍。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">f</span>&lt;<span class="type">T</span>&gt;(<span class="keyword">_</span> <span class="params">t</span>: <span class="type">T</span>) -&gt; <span class="type">T</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> copy <span class="operator">=</span> t</span><br><span class="line">    <span class="keyword">return</span> copy</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译器对上述的泛型函数进行编译后，会得到如下代码（以 C 代码代替 LLVM IR）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// T: 泛型参数</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">f</span><span class="params">(opaque *result, opaque *t, type *T)</span> &#123;</span><br><span class="line">    opaque *copy = alloca(T-&gt;vwt-&gt;size);</span><br><span class="line">    T-&gt;vwt-&gt;copy_init(copy, t, T);</span><br><span class="line">    T-&gt;vwt-&gt;move_init(result, copy, T);</span><br><span class="line">    T-&gt;vwt-&gt;destroy(t, T);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从生成的代码中可以看出，方法运行时会传入一个 <code>type *T</code>。很明显，这是一个类型参数，描述泛型类型所绑定的具体类型的元信息，包括对 VWT 的索引信息。</p>
+<p><code>f&lt;T&gt;</code> 是一个对泛型类型进行拷贝的方法，囊括了上述介绍的内存管理的过程，下面我们来简要分析其编译后的源码:</p>
+<ol>
+<li>局部变量是分配在栈上的，并且对于该类型，我们不知道要分配多少内存空间，所以需要通过 VWT 获取到 <code>T</code> 的 <code>size</code> 才能进行内存分配。</li>
+<li>内存空间分配完之后，通过 VWT 中的 <code>copy</code> 方法，以输入值 <code>t</code> 来初始化局部变量。</li>
+<li>局部变量初始化完毕之后，通过 VWT 中的 <code>move</code> 方法，将局部变量移到 <code>result</code> 缓冲区以返回结果。</li>
+<li>返回时，通过 VWT 中的 <code>destroy</code> 方法销毁局部变量。</li>
+</ol>
+<p>上述泛型函数的实现中，<code>type *T</code> 是整个函数能够顺利运行的关键。那么 <code>type *T</code> 到底是什么呢？</p>
+<h2 id="Type-Metadata"><a href="#Type-Metadata" class="headerlink" title="Type Metadata"></a>Type Metadata</h2><p>事实上，编译器在会尽量在编译时为每一个类型生成一个类型元信息对象——Type Metadata，也就是上述的 <code>type *T</code>。</p>
+<p>Type Metadata 携带的类型元信息主要包含：<strong>类型的 VWT</strong>、<strong>类型的反射信息</strong>。如下图所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/type-metadata-and-vwt.png?x-oss-process=image/resize,w_800"></p>
+<p>《Swift 性能优化(2)——协议与泛型的实现》文中提到每个对象初始化时就有的 <code>type</code> 字段其实就是 Type Medata 对象。因此对于不使用 Extential Container 进行表示的泛型类型来说，通过 Type Metadata 也可以索引到 VWT。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/polymorphism-through-v-table-dispatch.png?x-oss-process=image/resize,w_800"></p>
+<p>每一种类型，在全局只有一个 Type Metadata，供全局共享。</p>
+<p>对于内建基本值类型，如：<code>Integer</code>，编译器会在标准库中生成对应的 Type Metadata 和 VWT。其中，VWT 是针对小的值类型 VWT。</p>
+<p>对于引用类型，如：<code>UIView</code>，编译器也会在标准库中生成 Type Metadata 和 VWT。其中，VWT 是针对引用类型的标准 VWT。</p>
+<p>对于自定义的引用类型，Type Metadata 会在我们的程序中生成，VWT 则由所有引用类型共享，即上述针对引用类型的标准 VWT。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/type-metadata-and-vwt-example.png?x-oss-process=image/resize,w_800"></p>
+<p>下面，我们再以上述 <code>f&lt;T&gt;</code> 函数的具体调用来进行介绍编译后的代码是如何使用 Type Metadata 的。如下所示为两种类型对 <code>f&lt;T&gt;</code> 的调用。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">f(<span class="number">123</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">MyStruct</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> a, b, c, d: <span class="type">UInt8</span></span><br><span class="line">&#125;</span><br><span class="line">f(<span class="type">MyStruct</span>())</span><br></pre></td></tr></table></figure>
+<p>当使用 <code>int</code> 类型和 <code>MyStruct</code> 类型调用 <code>f&lt;T&gt;</code> 时，编译器生成的代码如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> val = <span class="number">123</span>;</span><br><span class="line"><span class="keyword">extern</span> type *Int_metadata;</span><br><span class="line">f(&amp;val, Int_metadata);</span><br><span class="line"></span><br><span class="line">MyStruct val;</span><br><span class="line">type *MyStruct_metadata = &#123; ... &#125;;</span><br><span class="line">f(&amp;val, MyStruct_metadata);</span><br></pre></td></tr></table></figure>
+<p>两者的区别在于：<code>int</code> 类型使用标准库中的 Type Metadata；自定义类型则使用针对自身生成的 Type Metadata。</p>
+<p>事实上，上述 Type Metadata 之所以能够在编译时生成，是因为我们在调用时就能通过类型推导得出其类型。如果，在调用时无法推断其类型，则需要在运行时动态生成 Type Metadata。</p>
+<p>为了了解 Type Metadata 的动态生成，我们需要先了解 Metadata Pattern。</p>
+<h2 id="Metadata-Pattern"><a href="#Metadata-Pattern" class="headerlink" title="Metadata Pattern"></a>Metadata Pattern</h2><p>事实上，对于泛型类型，编译器会在编译时生成一个 Metadata Pattern。Metadata Pattern 与 Type Metadata 的关系其实就是类与对象的关系。</p>
+<p>以如下自定义泛型类结构为例。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Pair</span>&lt;<span class="title class_">T</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">var</span> first: <span class="type">T</span></span><br><span class="line">    <span class="keyword">var</span> second: <span class="type">T</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于运行时才能确定的泛型类型，运行时根据绑定类型的 Type Metadata，结合 Metadata Pattern，生成最终的确定类型的 Type Metadata。如下图所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/metadata-pattern-of-int.png?x-oss-process=image/resize,w_800"></p>
+<p>对于 <code>Pair&lt;Int&gt;</code>，运行时会计算 <code>Pair&lt;Int&gt;</code> 的 <code>size</code>，并计算出各个域的偏移。</p>
+<p>下面，我们通过一个泛型属性访问的例子来看看运行时是如何使用 Metadata Pattern 来生成 Type Metadata。以如下代码为例：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">getSecond</span>&lt;<span class="type">T</span>&gt;(<span class="keyword">_</span> <span class="params">pair</span>: <span class="type">Pair</span>&lt;<span class="type">T</span>&gt;) -&gt; <span class="type">T</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> pair.second</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译器生成的代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">getSecond</span><span class="params">(opaque *result, opaque *<span class="built_in">pair</span>, type *T)</span> &#123;</span><br><span class="line">    type *PairOfT = get_generic_metadata(&amp;Pair_pattern, T);     <span class="comment">// 实例化 type metadata</span></span><br><span class="line">    <span class="type">const</span> opaque *second = (<span class="built_in">pair</span> + PairOfT-&gt;fields[<span class="number">1</span>]);</span><br><span class="line">    T-&gt;vwt-&gt;copy_init(result, second, T);</span><br><span class="line">    PairOfT-&gt;vwt-&gt;destroy(<span class="built_in">pair</span>, PairOfT);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其步骤如下：</p>
+<ol>
+<li>运行时，根据 Metadata Pattern，结合绑定的类型 <code>T</code> 的 Type Medata（如 Int Type Metadata）生成 <code>Pair&lt;T&gt;</code> 的 Type Metadata 实例。</li>
+<li>根据 <code>Pair&lt;T&gt;</code> 的 Type Metadata 获得 <code>second</code> 在内存中的位置。</li>
+<li>拷贝 <code>second</code> 躲在位置的内存到 <code>result</code> 缓存区。</li>
+<li>返回前，销毁局部变量。</li>
+</ol>
+<h2 id="编译优化"><a href="#编译优化" class="headerlink" title="编译优化"></a>编译优化</h2><p>上述代码是在编译时无法推断出泛型类型的情况下生成的通用型代码。然而，如果在编译时就能推导出泛型类型，编译器则会进行优化，在真正运行时避免通过传递 Type Metadata 来查找各个域的偏移，从而提高运行性能。</p>
+<p>如下代码，就可以在编译时进行类型推导。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">getSecond</span>(<span class="keyword">_</span> <span class="params">pair</span>: <span class="type">Pair</span>&lt;<span class="type">Int</span>&gt;) -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> pair.second</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="高阶函数"><a href="#高阶函数" class="headerlink" title="高阶函数"></a>高阶函数</h1><p>下面，我们再来看看高阶泛型函数是如何进行编译的。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">apply</span>&lt;<span class="type">T</span>&gt;(<span class="params">value</span>: <span class="type">T</span>, <span class="params">fn</span>: (<span class="type">T</span>) -&gt; <span class="type">T</span>) -&gt; <span class="type">T</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> fn(value)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译器编译将得到如下代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">apply</span><span class="params">(apaque *ret, </span></span><br><span class="line"><span class="params">           opaque *value, </span></span><br><span class="line"><span class="params">           <span class="type">void</span> (*func_invoke)(opaque *ret, opaque *arg, <span class="type">void</span> *context), </span></span><br><span class="line"><span class="params">           <span class="type">void</span> *fn_context, </span></span><br><span class="line"><span class="params">           type *T)</span> &#123;</span><br><span class="line">    fn_invoke(ret, value, fn_context);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>func_invoke</code> 是闭包的函数指针，由于闭包可以捕获外部作用域，入参 <code>context</code> 就是用于传递作用域上下文。</p>
+<p>为了调用闭包，执行 <code>fn_invoke(ret, value, fn_context)</code> 就是调用函数执行，并将上下文 <code>fn_context</code> 作为参数传进去。</p>
+<p>下面，我们来看一个调用 <code>apply&lt;T&gt;</code> 的例子。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apply(<span class="number">0</span>, &#123; <span class="variable">$0</span> <span class="operator">+</span> <span class="number">1</span> &#125;)</span><br></pre></td></tr></table></figure>
+<p>由于能够在编译时推导出类型，上述代码就相当于如下代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Int <span class="title function_">closure</span><span class="params">(Int $<span class="number">0</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> $<span class="number">0</span> + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line">apply(..., closure, <span class="literal">NULL</span>, ...);</span><br><span class="line"><span class="comment">// we have: Int (*func_invoke)(Int arg, void *ctxt)</span></span><br><span class="line"><span class="comment">// we need: void (*func_invoke)(opaque *ret, opaque *arg, void *ctxt)</span></span><br></pre></td></tr></table></figure>
+<p>然而，事实上，我们不能将以推导出的 <code>Int (*func_invoke)(Int arg, void *ctxt)</code> 闭包直接传递到 <code>apply</code> 中，而是需要将已确定类型的闭包转换成 <code>void (*func_invoke)(opaque *ret, opaque *arg, void *ctxt)</code> 闭包的形式间接传递到 <code>apply</code> 中。</p>
+<p>那么，在确定类型的情况下，这里为什么仍然要做一次间接的转换与传递呢？</p>
+<p>对此，我们需要首先介绍一个概念——<strong>重抽象（Reabstract）</strong>。</p>
+<h2 id="Reabstract"><a href="#Reabstract" class="headerlink" title="Reabstract"></a>Reabstract</h2><p>Swift 中的所有类型都存在多个抽象级别。比如：一个 <code>Int</code> 值是一个具体类型，可以传递给确定类型的函数。但是 <code>Int</code> 值也可能传递给类型为泛型 <code>T</code> 的函数，此时该泛型函数希望能够间接接收该参数，从而适应其他可能的泛型类型，如：<code>Float</code>、<code>String</code> 等。当 <code>Int</code> 值传递给泛型函数时，它被认为比其为 <code>Int</code> 时处于更高的抽象级别。这种在抽象级别之间进行转化的过程被称为是 <strong>重抽象</strong>。</p>
+<blockquote>
+<p>计算机科学中的每个问题都可以用一间接层解决。</p>
+</blockquote>
+<p>事实上，上述 <code>apply</code> 采用间接传递的思想，本质上就是为了实现对类型进行重抽象的一种抽象模式。</p>
+<p>这里通过 <code>thunk</code> 来实现对闭包的值进行重抽象，从而匹配函数的抽象模式。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Int</span> closure(<span class="type">Int</span> <span class="variable">$0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$0</span> <span class="operator">+</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void thunk(<span class="type">Int</span> <span class="operator">*</span>ret, <span class="type">Int</span> <span class="operator">*</span>arg, void <span class="operator">*</span>thunk_ctxt) &#123;</span><br><span class="line">    <span class="comment">// 1. 从 thunk 上下文中获取原始的 函数指针</span></span><br><span class="line">    <span class="type">Int</span> (<span class="operator">*</span>fn_invoke)(<span class="type">Int</span>, void<span class="operator">*</span>) <span class="operator">=</span> thunk_ctxt-&gt;<span class="operator">...</span>;</span><br><span class="line">    <span class="comment">// 2. 从 thunk 上下文中获取原始的 context</span></span><br><span class="line">    void <span class="operator">*</span>fn_context <span class="operator">=</span> thunk_ctxt-&gt;<span class="operator">...</span>;</span><br><span class="line">    <span class="comment">// 3. 在调用函数前，我们将需要间接的结果转换为直接的结果，通过 *arg。</span></span><br><span class="line">    <span class="comment">// 4. 最后将 fn_invoke 返回的直接值转换为间接值，通过 *ret = </span></span><br><span class="line">    <span class="operator">*</span>ret <span class="operator">=</span> fn_invoke(<span class="operator">*</span>arg, fn_context);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void <span class="operator">*</span>thunk_ctxt <span class="operator">=</span> allocate(<span class="operator">...</span>, closure, <span class="type">NULL</span>);    <span class="comment">// allocate a context</span></span><br><span class="line">apply(<span class="operator">...</span>, thunk, thunk_ctxt, <span class="operator">...</span>);</span><br></pre></td></tr></table></figure>
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>到此，我们对 Swift 泛型的底层实现有了一定的理解了。那么协议的底层实现又是如何呢？其实，本质上协议就是受约束的泛型，具体的实现思想和形式也和泛型差不多。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/apple/swift/blob/master/docs/ABI/TypeMetadata.rst">TypeMetadata</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/apple/swift/blob/master/docs/Generics.rst">Generics in Swift</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/apple/swift/blob/269d306b9d275aab5bd10f380a999e51901c5832/docs/ABIStabilityManifesto.md#abstraction-levels">Abstraction-levels</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/apple/swift/blob/269d306b9d275aab5bd10f380a999e51901c5832/docs/ABIStabilityManifesto.md#lowering-higher-order-functions">Lowering Higher-Order Functions</a></li>
+<li>LLVM Developer’s Meeting: “Implementing Swift Generics”.</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Swift/" rel="tag"># Swift</a>
+          
+            <a href="/tags/%E6%B3%9B%E5%9E%8B/" rel="tag"># 泛型</a>
+          
+            <a href="/tags/Type-Metadata/" rel="tag"># Type Metadata</a>
+          
+            <a href="/tags/Metadata-Pattern/" rel="tag"># Metadata Pattern</a>
+          
+            <a href="/tags/Reabstract/" rel="tag"># Reabstract</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/04/01/yuanfudao-zhaopin/" rel="next" title="猿辅导招聘">
+                <i class="fa fa-chevron-left"></i> 猿辅导招聘
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/06/06/flutter-state-management-action/" rel="prev" title="Flutter 状态管理实践">
+                Flutter 状态管理实践 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9E%E9%A1%BE"><span class="nav-number">1.</span> <span class="nav-text">回顾</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">内存管理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">方法调用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Type-Metadata"><span class="nav-number">3.1.</span> <span class="nav-text">Type Metadata</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Metadata-Pattern"><span class="nav-number">3.2.</span> <span class="nav-text">Metadata Pattern</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96"><span class="nav-number">3.3.</span> <span class="nav-text">编译优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">高阶函数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Reabstract"><span class="nav-number">4.1.</span> <span class="nav-text">Reabstract</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

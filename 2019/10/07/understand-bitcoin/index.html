@@ -1,38 +1,1484 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="比特币,分布式系统," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="![](https:&#x2F;&#x2F;chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com&#x2F;blog-images&#x2F;bitcoin-logo01.png?x-oss-process&#x3D;image&#x2F;resize,w_800)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="比特币那些事(1)——入门">
+<meta property="og:url" content="http://chuquan.me/2019/10/07/understand-bitcoin/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="![](https:&#x2F;&#x2F;chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com&#x2F;blog-images&#x2F;bitcoin-logo01.png?x-oss-process&#x3D;image&#x2F;resize,w_800)">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/bitcoin-example01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-structure-of-one-block.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-verify01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-verify02.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-two-chain01.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2019-10-07T03:20:49.000Z">
+<meta property="article:modified_time" content="2019-12-01T12:19:19.957Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="比特币">
+<meta property="article:tag" content="分布式系统">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/bitcoin-example01.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2019/10/07/understand-bitcoin/"/>
+
+
+
+
+
+  <title>比特币那些事(1)——入门 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2019/10/07/understand-bitcoin/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">比特币那些事(1)——入门</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2019-10-07T11:20:49+08:00">
+                2019-10-07
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2019-12-01T20:19:19+08:00">
+                2019-12-01
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" itemprop="url" rel="index">
+                    <span itemprop="name">区块链</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <div align=center>![](https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/bitcoin-logo01.png?x-oss-process=image/resize,w_800)</div>
+
+<span id="more"></span>
+
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>2008 年 11 月 1 日，中本聪（Satoshi Nakamoto）在 metzdowd 的加密技术邮件列表发布比特币白皮书：<a target="_blank" rel="noopener" href="https://bitcoin.org/bitcoin.pdf">《BitCoin: A Peer-to-Peer Electronic Cash System》</a>，首次提出比特币（BitCoin，BTC）的概念。</p>
+<p>2009 年 1 月 3 日，中本聪在位于芬兰赫尔辛基（Helsinki）的一个小型服务器上挖出了第一批 50 个比特币。至此，比特币电子现金系统正式诞生。</p>
+<p>比特币是一个完全去中心化的电子现金系统，它不依赖于中央机构进行货币发行、结算、验证交易。<strong>区块链</strong> 则是支持比特币系统的核心技术。</p>
+<h1 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h1><p>下面，我们以一个具体例子来介绍比特币的工作原理以及相关概念。</p>
+<p>假如，有 A、B、C、D 四个人，它们之间发生了三笔交易：</p>
+<ul>
+<li>A 向 B 转账 10 比特币</li>
+<li>B 向 C 转账 20 比特币</li>
+<li>C 向 D 转账 30 比特币</li>
+</ul>
+<p>那么，通过在比特币网络中进行广播，比特币网络中的 <strong>所有节点</strong> 都将获得这一系列交易信息。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/bitcoin-example01.png?x-oss-process=image/resize,w_800"></p>
+<p>这些交易信息最终会由 <strong>某个节点</strong> 负责组装到一个 <strong>区块</strong>（Block）中，并将该区块添加至 <strong>全局区块链</strong> 中。<strong>注意，每个节点都保存了完整的全局区块链</strong>。</p>
+<p>这里，就产生了三个问题：</p>
+<ul>
+<li>节点为何工作？</li>
+<li>如何选择节点？</li>
+<li>如何验证交易内容的真实性？</li>
+</ul>
+<p>下面，我们依次来回答这几个问题，并引出相关概念。</p>
+<h1 id="节点为何工作？"><a href="#节点为何工作？" class="headerlink" title="节点为何工作？"></a>节点为何工作？</h1><p>比特币网络的节点为什么要创建并添加区块？因为，这是有奖励的，奖励包含两部分：</p>
+<ul>
+<li>每比交易提供的手续费</li>
+<li>系统提供的比特币奖励</li>
+</ul>
+<p>关于系统的奖励规则，系统规定：</p>
+<ul>
+<li>每向全局区块链中添加一个区块，系统会奖励 50 个比特币，每 4 年奖励减半。</li>
+<li>平均每 10 分钟生成一个新的区块。</li>
+</ul>
+<p>由此，我们可以通过计算得出系统总共包含的比特币数量。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">比特币总数 = ((60 分钟 × 24 小时 × 365 天 × 4 年) / 10 分钟) × 50 比特币 × (1 + 1/2 + (1/2)² + (1/2)³ ...) ≈ 2100 万</span><br></pre></td></tr></table></figure>
+
+<h1 id="如何选择节点？"><a href="#如何选择节点？" class="headerlink" title="如何选择节点？"></a>如何选择节点？</h1><p>如何选择节点？因为比特币是一个典型的分布式系统，分布式系统则是通过 <strong>共识算法</strong>（Consensus Algorithm）来进行节点选择。</p>
+<p>分布式系统的共识算法有很多，常见的有以下这些：</p>
+<ul>
+<li>Paxos</li>
+<li>Raft</li>
+<li>PoW（工作量证明，Proof-of-Work）</li>
+<li>PBFT（practival Byzantine Fault Tolerance）</li>
+<li>XFT（Cross Fault Tolerance）</li>
+<li>…</li>
+</ul>
+<p>比特币系统采用的则是 <strong>工作量证明</strong> 共识算法。关于工作量证明的详细原理，我们需要先介绍哈希函数。</p>
+<h2 id="哈希函数"><a href="#哈希函数" class="headerlink" title="哈希函数"></a>哈希函数</h2><p>哈希函数可以对任意内容计算出一个长度相同的特征值。比特币区块链使用 <code>SHA256</code> 算法作为哈希函数，其哈希特征值长度为 256 位。无论原始内容是什么，最后都会计算出一个 256 位的二进制数值。如下所示，为字符串 <code>123</code> 基于 <code>SHA256</code> 算法的十六进制哈希值：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHA256(&quot;123&quot;) = 0xa8fdc205a9f19cc1c7507a60c4f01b13d11d7fd0</span><br></pre></td></tr></table></figure>
+
+<p>哈希函数具有一个重要特征：</p>
+<ul>
+<li><strong>正向计算容易，反向逆推困难</strong></li>
+</ul>
+<p>什么意思？以如下一道数学题为例，我们通过已知的 <code>x</code> 计算 <code>y</code> 的值是非常简单的。但是通过已知的 <code>y</code> 计算 <code>x</code> 的值则是非常困难的。所以，想要通过哈希值求解原始值只能通过暴力求解，挨个试。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x³ * ln(ln(x)) + x² * sin(x) = y</span><br></pre></td></tr></table></figure>
+
+<h2 id="工作量证明"><a href="#工作量证明" class="headerlink" title="工作量证明"></a>工作量证明</h2><p>工作量证明要做的事情其实就是 <strong>逆推哈希值</strong>。由于只能使用暴力求解，所以这是一个非常耗时的过程。不过，一旦某个节点在整个比特币网络中第一个计算出正确值，那么它将会获得丰富的奖励，所以工作量证明也被称为 <strong>挖矿</strong>（Mining）。</p>
+<p>那么工作量证明究竟要解决一道什么样的难题呢？我们需要先从区块的结构说起。</p>
+<p>如下图所示，为区块链的基本结构——区块。区块主要包含两部分：</p>
+<ul>
+<li><strong>区块头</strong>（Block Header）<ul>
+<li>生成时间</li>
+<li>当前区块体的哈希值</li>
+<li>上一区块体的哈希值</li>
+<li>. . .</li>
+</ul>
+</li>
+<li><strong>区块体</strong>（Block Body）<ul>
+<li>交易内容</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-structure-of-one-block.png?x-oss-process=image/resize,w_800"></p>
+<p>在了解了区块结构之后，我们再来看工作量证明到底要解决一道什么难题。题目如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHA256(字符串) -&gt; 符合某个条件的哈希值（小于某个目标值）</span><br></pre></td></tr></table></figure>
+<p>其中，字符串由 <strong>当前区块头 + 当前区块体 + 生成时间 + 某个随机数</strong> 组成。求解字符串中的 <strong>某个随机数</strong>，使得最终的哈希值小于某个目标值（Target）。这里的 <strong>某个随机数</strong> 也被称为 <code>Nonce</code>。</p>
+<p><code>Nonce</code> 是一个 32 位的二进制值，非常难猜的，目前只能通过穷举法一个个试错。</p>
+<h2 id="难度系数"><a href="#难度系数" class="headerlink" title="难度系数"></a>难度系数</h2><p>比特币系统中，难度系数（Difficulty）可以控制区块的生成速度。难度系数可以决定上述目标值的大小。</p>
+<p>目标值和难度系数的计算关系如下，可见难度系数越大，目标值越小，因此符合条件哈希值范围越小，难度则越大。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目标值 = 理论最大哈希值 / 难度系数</span><br></pre></td></tr></table></figure>
+
+<h2 id="速度恒定"><a href="#速度恒定" class="headerlink" title="速度恒定"></a>速度恒定</h2><p>比特币系统将区块的生成速度定为 <strong>每 10 分钟生成 1 个区块</strong>。那么，这是怎么做到的呢？</p>
+<p>其实本质上就是难度系数的动态调整。由于目标值决定了符合条件的值范围，所以我们能够计算出任意一个随机数符合条件的概率为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">任意一个随机数符合条件的概率 = 目标值 / 理论最大哈希值 = 1 / 难度系数</span><br></pre></td></tr></table></figure>
+
+<p>那么，这又是如何做到对时间的控制呢？</p>
+<p>假设，世界上有 10000 台矿机，每台矿机的计算速度是 20T&#x2F;s，即每秒能够 20T 次哈希运算。因此可以计算出整个世界的算力是 2 × 10^17 次&#x2F;s。那么 10 分钟的算力则是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">十分钟的算力 = 10 × 60 × 2 × 10^17 = 1.2 × 10^20 次哈希运算</span><br></pre></td></tr></table></figure>
+
+<p>因为 10 分钟内只能成功一次，所以我们可以得出以下等式，从而得出最终的难度系数。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">10 分钟的算力 × 符合条件的概率 = 1 次</span><br><span class="line"></span><br><span class="line">即：</span><br><span class="line">1.2 × 10^20 × (1 / 难度系数) = 1</span><br><span class="line"></span><br><span class="line">求解 -&gt; 难度系数？</span><br></pre></td></tr></table></figure>
+
+<p>由于全世界的算力一直都在变化，为了能够将产出速度控制在 10 分钟，比特币系统规定：难度系数每两周调整一次。如果这两周内，区块的平均生成速度是 9 分钟（意味着比法定速度快 10 %），则将难度系数调高 10 %。反之亦然。</p>
+<h1 id="如何验证交易内容的真实性？"><a href="#如何验证交易内容的真实性？" class="headerlink" title="如何验证交易内容的真实性？"></a>如何验证交易内容的真实性？</h1><p>以示例为例，交易内容的真实性主要包含两个问题：</p>
+<ul>
+<li>A 向 B 转账 10 BTC 是否真的是 A 发出的消息？</li>
+<li>A 是否真的有 10 BTC 以上资产？</li>
+</ul>
+<p>针对第一个问题，我们需要简单了解一下比特币的 <strong>账户地址</strong> 概念。</p>
+<p>比特币用户在注册账户时，系统会自动生成一个随机数。利用随机数，系统可以生成一对非对称密钥（公钥+私钥）。比特币账户地址则是由公钥进行一系列哈希以及编码运算后生成的 160 位（20 字节）字符串。</p>
+<p>用户 A 在发起一个交易时，会先对交易内容进行哈希运算，从而得到 <strong>摘要</strong>（Digest）；然后再用私钥对摘要进行加密，从而得到 <strong>数字签名</strong>（Signature）。最后，广播到比特币网络的内容则是：交易内容 + 公钥 + 数字签名。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-verify01.png?x-oss-process=image/resize,w_800"></p>
+<p>当比特币网络的其他节点收到消息后，会对它进行验证：</p>
+<ol>
+<li>对交易内容进行哈希运算，得到摘要 1</li>
+<li>对数字签名使用公钥进行解密，得到摘要 2</li>
+<li>判断摘要 1 和摘要 2 是否一致</li>
+</ol>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-verify02.png?x-oss-process=image/resize,w_800"></p>
+<p>如果摘要 1 和摘要 2 一致，则证明交易内容是真实的，在广播过程中并未被篡改。那么如何证明消息的发起者也是 A 呢？毕竟，我们不能认可 B 发消息说 C 向 B 付款 10 BTC 这种内容。消息发起者必须是付款方。</p>
+<p>为了解释这个问题，我们需要了解交易的生成。事实上，每个交易需要包括若干个 <strong>输入</strong> 和 <strong>输出</strong>。未经引用的交易输出（Unspent Transaction Outputs，UTXO）可以被新的交易引用作为其合法的输入。已被引用的交易输出（Spent Transaction Outputs，STXO）无法被新的交易引用作为其合法输入。</p>
+<p>因此，比特币网络中的一笔合法的交易，必须是引用某些已存在交易的 UTXO（必须是属于付款方才能合法引用）作为新的交易的输入，并生成新的 UTXO（将属于收款方）。</p>
+<p>如下所示为一些简单的交易示例。</p>
+<table>
+<thead>
+<tr>
+<th align="left">交易</th>
+<th align="left">目的</th>
+<th align="left">输入</th>
+<th align="left">输出</th>
+<th align="left">签名</th>
+<th align="left">差额</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">T0</td>
+<td align="left">A 转给 B</td>
+<td align="left">他人向 A 交易的输出</td>
+<td align="left">B 可以引用该交易</td>
+<td align="left">A 签名确认</td>
+<td align="left">输入减输出，为交易服务费</td>
+</tr>
+<tr>
+<td align="left">T1</td>
+<td align="left">B 转给 C</td>
+<td align="left">T0 的输出</td>
+<td align="left">C 可以引用该交易</td>
+<td align="left">B 签名确认</td>
+<td align="left">输入减输出，为交易服务费</td>
+</tr>
+<tr>
+<td align="left">T2</td>
+<td align="left">X 转给 Y</td>
+<td align="left">他人向 X 交易的输出</td>
+<td align="left">Y 可以引用该交易</td>
+<td align="left">X 签名确认</td>
+<td align="left">输入减输出，为交易服务费</td>
+</tr>
+</tbody></table>
+<p>至此，第一个问题得以解决。注：这里的解释相对简单，更深入的细节请参阅 <a href="http://chuquan.me/2019/10/20/bitcoin-transaction/">《比特币那些事(2)——交易》</a>。</p>
+<p>针对第二个问题，A 是否真的有 10 BTC 以上的资产。</p>
+<p>这个问题的验证非常简单，可以通过在全局区块链进行追溯，即可得以验证。</p>
+<h1 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h1><h2 id="经济博弈"><a href="#经济博弈" class="headerlink" title="经济博弈"></a>经济博弈</h2><p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/blockchain-two-chain01.png?x-oss-process=image/resize,w_800"></p>
+<p>假设，全局区块链有一个区块，其内部记载了 A 向 B 转账 100 BTC 的交易内容。然而，比特币网络中有一个恶意节点，该恶意节点希望对该区块的交易记录进行篡改，因此在该区块前开辟了一个分叉。那么它最终能得逞吗？</p>
+<p>为了解释这个问题，我们需要先介绍比特币系统的 <strong>最长链原则</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">最长链原则：所有节点默认信任全局区块链中最长的分支。</span><br></pre></td></tr></table></figure>
+
+<p>根据最长链原则，除恶意节点以外的其他节点，都会信任区块链的最长分支。如果恶意节点希望其所在分支成为最长分支，那么它占据全局 51% 以上的算力，才可能战胜其他所有节点。这从经济学角度而言，它需要付出巨大的成本，却只能获得不大的收益，投入与产出严重不匹配。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>比特币采用区块链这种分布式数据库作为底层支撑，从 2009 年开始运行，经历了大规模长时间检验。证明它是可行的。</p>
+<p>区块链虽然有去中心化、解决信任问题等优点，但是它也有很明显的缺点：</p>
+<ul>
+<li>效率低。数据写入区块，需要等待十分钟，所有节点的数据需要进行同步，效率低下。</li>
+<li>高能耗。所有节点中只有一个节点的工作是真正有效的，其他节点都是无意的，就这一点来说是非常耗费资源的。</li>
+</ul>
+<p>因此，我们不能偏执地认为新的技术或科技产物就一定是先进的，而需要理性看待它的优点和缺点。</p>
+<p>最后，比特币所包含的区块链技术在很多场景下得以扩展和应用，值得我们去学习。另外，比特币所蕴含的分布式系统设计思想和密码学原理也同样值得我们去深入学习。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://bitcoin.org/">bitcoin</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%AF%94%E7%89%B9%E5%B8%81/" rel="tag"># 比特币</a>
+          
+            <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" rel="tag"># 分布式系统</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/02/understand-masonry/" rel="next" title="源码解读——Masonry">
+                <i class="fa fa-chevron-left"></i> 源码解读——Masonry
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/10/20/bitcoin-transaction/" rel="prev" title="比特币那些事(2)——交易">
+                比特币那些事(2)——交易 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BE%E4%BE%8B"><span class="nav-number">2.</span> <span class="nav-text">举例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%8A%82%E7%82%B9%E4%B8%BA%E4%BD%95%E5%B7%A5%E4%BD%9C%EF%BC%9F"><span class="nav-number">3.</span> <span class="nav-text">节点为何工作？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9%E8%8A%82%E7%82%B9%EF%BC%9F"><span class="nav-number">4.</span> <span class="nav-text">如何选择节点？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%E5%87%BD%E6%95%B0"><span class="nav-number">4.1.</span> <span class="nav-text">哈希函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E9%87%8F%E8%AF%81%E6%98%8E"><span class="nav-number">4.2.</span> <span class="nav-text">工作量证明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%BE%E5%BA%A6%E7%B3%BB%E6%95%B0"><span class="nav-number">4.3.</span> <span class="nav-text">难度系数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9F%E5%BA%A6%E6%81%92%E5%AE%9A"><span class="nav-number">4.4.</span> <span class="nav-text">速度恒定</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E9%AA%8C%E8%AF%81%E4%BA%A4%E6%98%93%E5%86%85%E5%AE%B9%E7%9A%84%E7%9C%9F%E5%AE%9E%E6%80%A7%EF%BC%9F"><span class="nav-number">5.</span> <span class="nav-text">如何验证交易内容的真实性？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E9%97%AE%E9%A2%98"><span class="nav-number">6.</span> <span class="nav-text">其他问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%8F%E6%B5%8E%E5%8D%9A%E5%BC%88"><span class="nav-number">6.1.</span> <span class="nav-text">经济博弈</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

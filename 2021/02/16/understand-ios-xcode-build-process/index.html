@@ -1,38 +1,1502 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="clang,xcode,clang module,module map,swift module,header map,module cache," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="Xcode 10 中的 new build system 是使用 Swift 从零开始编写实现的，其在性能和可靠性方面有着显著的提升。 本文，我们将来探索一下 Xcode 构建的幕后原理，这一切都是从在我们点击了 Xcode 的 “build” 按钮（或按下了快捷键 Command + B）之后开始的。 下面，我们将以一个名为 PetWall 的 iOS app 项目作为例子来进行介绍。 概述事实">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Xcode 构建幕后原理">
+<meta property="og:url" content="http://chuquan.me/2021/02/16/understand-ios-xcode-build-process/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="Xcode 10 中的 new build system 是使用 Swift 从零开始编写实现的，其在性能和可靠性方面有着显著的提升。 本文，我们将来探索一下 Xcode 构建的幕后原理，这一切都是从在我们点击了 Xcode 的 “build” 按钮（或按下了快捷键 Command + B）之后开始的。 下面，我们将以一个名为 PetWall 的 iOS app 项目作为例子来进行介绍。 概述事实">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-task-dependency-order.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-directed-graph.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-execute-build-graph.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-discovered-dependencies.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-incremental-build.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-petwall-example.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-user-header-search.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-petkit-project-headermap.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-system-header-search.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-contexxt-free.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-foundation-framework.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-modulemap.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-foundation-header.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-build-module.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-module-cache.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-user-clang-module.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-clang-vfs.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-declaration-oc.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-swift-example.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-find-declaration.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-repeat-work.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-group-compile.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-generated-oc-header.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-swift-module.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-swiftmodule-build.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2021-02-16T12:02:21.000Z">
+<meta property="article:modified_time" content="2022-01-13T13:39:42.060Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="clang">
+<meta property="article:tag" content="xcode">
+<meta property="article:tag" content="clang module">
+<meta property="article:tag" content="module map">
+<meta property="article:tag" content="swift module">
+<meta property="article:tag" content="header map">
+<meta property="article:tag" content="module cache">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-task-dependency-order.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2021/02/16/understand-ios-xcode-build-process/"/>
+
+
+
+
+
+  <title>Xcode 构建幕后原理 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2021/02/16/understand-ios-xcode-build-process/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Xcode 构建幕后原理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2021-02-16T20:02:21+08:00">
+                2021-02-16
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2022-01-13T21:39:42+08:00">
+                2022-01-13
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Xcode/" itemprop="url" rel="index">
+                    <span itemprop="name">Xcode</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Xcode 10 中的 new build system 是使用 Swift 从零开始编写实现的，其在性能和可靠性方面有着显著的提升。</p>
+<p>本文，我们将来探索一下 Xcode 构建的幕后原理，这一切都是从在我们点击了 Xcode 的 “build” 按钮（或按下了快捷键 <code>Command + B</code>）之后开始的。</p>
+<p>下面，我们将以一个名为 PetWall 的 iOS app 项目作为例子来进行介绍。</p>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>事实上，Xcode 的构建过程的本质就是 <strong>执行一系列构建任务</strong>，比如：编译链接源代码、拷贝资源（图片、storyboard 等）、代码签名、代码静态检查等。其中，绝大多数任务的本质就是 <strong>执行命令行工具</strong>，比如：<code>clang</code>、<code>ld</code>、<code>actool</code>、<code>codesign</code> 等，如下所示。基于 Xcode 的项目配置信息，这些工具会 <strong>选择特定的参数、按照特定的顺序</strong> 来执行。而构建系统（build system）的职责就是 <strong>创建任务并调度执行</strong>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">swiftc -module-name PetWall -target arm64-apple-ios12.0 -swift-version 4.2 ...</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">clang -x objective-c -<span class="built_in">arch</span> arm64 ... PetViewController.m -o PetViewController.o</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">ld -o PetWall -framework PetKit PetViewController.o ...</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">actool --app-icon AppIcon ... Assets.xcassets</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">...</span></span><br></pre></td></tr></table></figure>
+
+<p>下面我们从构建系统如何确定任务的执行顺序说起。</p>
+<h1 id="构建系统"><a href="#构建系统" class="headerlink" title="构建系统"></a>构建系统</h1><h2 id="任务依赖"><a href="#任务依赖" class="headerlink" title="任务依赖"></a>任务依赖</h2><p>事实上，<strong>构建任务的顺序是根据任务之间的依赖关系而确定的</strong>。根据任务的输入和输出就可以分析任务之间的依赖关系，举个例子，对于编译任务而言，以源代码文件作为输入（如：<code>PetController.m</code>），以目标文件作为输出（如：<code>PetController.o</code>）；对于链接任务而言，以多个编译任务所输出的目标文件作为输入（如：<code>PetController.o</code>、<code>PetView.o</code>、<code>PeteViewController.o</code>），以可执行文件或库作为输出（如：<code>PetWall</code>）。</p>
+<p>由此，我们可以得出如下所示的任务依赖关系。很显然，编译任务可以并行执行，而链接任务依赖了编译任务的输出，所以需要在编译任务之后执行。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-task-dependency-order.png?x-oss-process=image/resize,w_800"></p>
+<p>在实际情况中，当我们点击 “Build” 按钮后，Xcode 构建系统会解析 Xcode project 文件，分析项目中的所有文件、目标和依赖关系，结合 build setting，最终得到一个树形结构的 <strong>定向图</strong>（directed graph），如下图所示，其详细描述了项目构建中所有的依赖关系。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-directed-graph.png?x-oss-process=image/resize,w_800"></p>
+<p>然后，<strong>低级执行引擎</strong>（low-level execution engin）会根据定向图来执行任务。有些任务可以并行执行，有些任务则有先后顺序，如下图所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-execute-build-graph.png?x-oss-process=image/resize,w_800"></p>
+<p>**注意：Xcode new build system 使用的低级执行引擎是 <code>llbuild</code>**，这是一个开源项目，详见 <a target="_blank" rel="noopener" href="https://github.com/apple/swift-llbuild/">传送门</a>。</p>
+<h2 id="依赖记录"><a href="#依赖记录" class="headerlink" title="依赖记录"></a>依赖记录</h2><p>对于开发者而言，很难发现太多的依赖信息，但是对于 Xcode 而言，它能够在任务执行过程中找到更多的信息。比如，clang 在编译 OC 文件时会生成一个以 <code>.d</code> 后缀的文件，该文件记录了对应 OC 文件包含的所有头文件信息。下一次构建时，构建系统会根据 <code>.d</code> 文件检查其所依赖的头文件是否存在修改，如果存在修改，那么将重新编译此 OC 文件。这是构建系统通过利用过往的依赖记录进行优化的一种手段。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-discovered-dependencies.png?x-oss-process=image/resize,w_800"></p>
+<p>上图示例中，当 clang 编译 <code>PetController.m</code> 时会生成 <code>PetController.o</code> 和 <code>PetController.d</code>。<code>PetController.d</code> 记录了 <code>PetController.m</code> 所包含的头文件。当下一次编译时，如果检测到 <code>PetController.d</code> 中记录的头文件发生了变化，构建系统会重新编译 <code>PetController.m</code>。</p>
+<h2 id="增量构建"><a href="#增量构建" class="headerlink" title="增量构建"></a>增量构建</h2><p>在 Xcode 构建系统中，增量构建是一个非常重要的功能，能够极大地提升构建效率。增量构建是基于精准的依赖信息来检测用户的修改，具体细节如下：</p>
+<ul>
+<li>在构建时为每个任务生成一个签名。该签名是基于任务输入的统计信息（如修改时间、文件路径）的哈希值。</li>
+<li>在下一次构建时，构建系统校验对每个任务的前后两次签名，从而决定是否需要重新执行。</li>
+</ul>
+<p>举个例子，如果用户只修改了 <code>PetViewController.m</code>，那么构建系统只会重新执行 3 个任务，从而实现了增量构建。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-incremental-build.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="Clang"><a href="#Clang" class="headerlink" title="Clang"></a>Clang</h1><p>Clang 是 Apple 的 C 语言家族的官方编译器，支持 C、C++、Objective-C、Objective-C++。</p>
+<p>在 Objective-C 中，头文件 <code>.h</code> 是一个承诺，表示该实现 <code>.m</code> 存在于其他位置。如果仅修改 <code>.h</code> 文件，在里面添加新的函数 A，而未在 <code>.m</code> 文件中实现该函数，那么就没有遵循承诺。 随后，我们在 B 类中使用函数 A。这在编译期间不会报错，因为编译器相信我们约定的承诺，但是在链接过程中，就会出现 <code>symbol undefined error</code>。</p>
+<p>这里可能会有一个问题：Clang 是如何查找头文件的？事实上，用户头文件和系统头文件的查找方式所有不同，下文我们将通过 PetWall 的例子分别进行介绍。PetWall 是一个混编项目，其组成大致如下：</p>
+<ul>
+<li>主体部分使用 Swift 编写</li>
+<li>PetKit 库使用 Objective-C 编写</li>
+<li>PetSupport 库使用 C++ 编写</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-petwall-example.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="Clang-如何查找用户头文件"><a href="#Clang-如何查找用户头文件" class="headerlink" title="Clang 如何查找用户头文件"></a>Clang 如何查找用户头文件</h2><p>对于用户头文件，Xcode 构建系统是从 header map 文件开始查找头文件。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-user-header-search.png?x-oss-process=image/resize,w_800"></p>
+<h3 id="Header-Map"><a href="#Header-Map" class="headerlink" title="Header Map"></a>Header Map</h3><p>那么 header map 到底是什么呢？Header map 本质上记录了头文件的位置。如下例子中，<code>PetKit-project-headers.hmap</code> 是面向 Project 的 header map，<code>PetKit-own-target-headers.hmap</code> 是面向 Target 的 header map。</p>
+<blockquote>
+<p>Project 和 Target 关系：Project 是一系列相关 Target 的集合，包含了所有 Target 的文件，每个 Target 的文件都是 Project 文件的子集。</p>
+</blockquote>
+<p><code>PetKit-project-headers.hmap</code> 的前两项 <code>PetKit.h</code> 和 <code>Cat.h</code>，header map 仅仅是给它们加上了框架的名称，分别得到 <code>PetKit/PetKit.h</code> 和 <code>PetKit/Cat.h</code>，这两个是共有头文件。这样的映射能够使现有项目正常运行，但是对于 Clang Module 可能会有遇到一些问题，下文将介绍其中的原因。</p>
+<p><code>PetKit-project-headers.hmap</code> 的第三项 <code>CatLogic_Private.h</code> 是一个项目头文件。header map 将它指向原始位置。</p>
+<p>对于 <code>PetKit-own-target-headers.hmap</code>，所有的头文件都指向对应的原始位置。</p>
+<p>**我的理解是，如果通过 <code>import &quot;PetKit.h&quot;</code> 的方式导入，Clang 通过 <code>PetKit-project-headers.hmap</code> 转换成 <code>import &quot;PetKit/PetKit.h&quot;</code>，然后 Clang 再通过 <code>PetKit-own-target-headers.hmap</code> 转换实际的位置，即 <code>/x/src/PetKit/PetKit/Cat/Cat.h</code>**。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-petkit-project-headermap.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="Clang-如何查找系统头文件"><a href="#Clang-如何查找系统头文件" class="headerlink" title="Clang 如何查找系统头文件"></a>Clang 如何查找系统头文件</h2><p>Header map 只是用于 Clang 查找用户头文件。对于系统头文件，它们并没有 header map，因此 Clang 直接从下面这两个目录中开始查找。事实上，在查找用户头文件时，如果通过 header map 没有找到头文件，也会采取与查找系统头文件相同的方式继续查找。这两个目录如下所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-system-header-search.png?x-oss-process=image/resize,w_800"></p>
+<p>以 <code>import &lt;Foundation/Foundation.h&gt;</code> 为例，Clang 会在 <code>(SDKROOT)/usr/include</code> 之后拼接上 <code>Foundation/Foundation.h</code>，在如下的路径中进行查找：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">(SDKROOT)/usr/include/Foundation/Foundation.h</span></span><br></pre></td></tr></table></figure>
+
+<p>如果在 <code>$(SDKROOT)/usr/include</code> 中没找到对应的头文件，则继续在框架目录下进行查找：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">(SDKROOT)/System/Library/Frameworks/Foundation.framework/Headers/Foundation.h</span></span><br></pre></td></tr></table></figure>
+
+<p>在本例子中，每一次导入 <code>Foundation.h</code>，Clang 都要处理超过 800 个头文件。每一次编译，都要解析差不多 9 MB 的源代码文件。对于如此大量的重复工作，Clang 是如何解决这个问题的呢？</p>
+<h2 id="Clang-Module"><a href="#Clang-Module" class="headerlink" title="Clang Module"></a>Clang Module</h2><p>为了加速编译，通过使用 Module，Clang 可以只解析一次头文件，并且将相关信息存储在磁盘中，作为缓存用于下一次构建时进行重用。</p>
+<p>为了能够实现这个目标，Clang module 必须要有以下这些特性：</p>
+<ul>
+<li><strong>上下文无关</strong>（context-free）：比如在某些情况下，我们可能会在导入头文件之前，通过宏定义修改模块内部状态，这种情况会导致模块无法重用。</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-contexxt-free.png?x-oss-process=image/resize,w_800"></p>
+<ul>
+<li><strong>自包含</strong>（self-contained）：即管理自身所有依赖，不用在导入该模块时还必须导入其他模块。</li>
+</ul>
+<h3 id="Module-Map"><a href="#Module-Map" class="headerlink" title="Module Map"></a>Module Map</h3><p>那么，Clang 如何知道是否应该构建一个模块呢？</p>
+<p><strong>以 <code>#import &lt;Foundation/NSString.h&gt;</code> 为例，Clang 会先去 <code>Foundation.framework</code> 中查找对应的头文件 <code>NSString.h</code>。然后 Clang 会再去 <code>Foundation.framework</code> 中查找 <code>Modules/module.modulemap</code>，通过分析 <code>module.modulemap</code> 判断 <code>NSString.h</code> 是否是模块的一部分。如果找到了，Clang 会将文本导入转换成模块导入，然后才开始构建模块。</strong></p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-foundation-framework.png?x-oss-process=image/resize,w_800"></p>
+<p>那么什么是 Module Map 呢？</p>
+<p>Module map 描述了如何将头文件映射成模块。如下所示，是 <code>Foundation.framework</code> 的 module map 文件。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-modulemap.png?x-oss-process=image/resize,w_800"></p>
+<p>Module map 文件中定义了模块的名称 <code>Foundation</code>，并指定了模块的保护伞头文件（umbrella header）<code>Foundation.h</code>。如果想要查找 <code>NSString.h</code>，需要到 <code>Foundation.h</code> 中去查找。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-foundation-header.png?x-oss-process=image/resize,w_800"></p>
+<h3 id="Build-Module"><a href="#Build-Module" class="headerlink" title="Build Module"></a>Build Module</h3><p>当 Clang 确定将文本导入转换成模块导入时，那么就需要构建模块了。</p>
+<p>在构建 Foundation 模块时，我们可能也需要构建其所依赖的模块，如下图所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-build-module.png?x-oss-process=image/resize,w_800"></p>
+<h3 id="Module-Cache"><a href="#Module-Cache" class="headerlink" title="Module Cache"></a>Module Cache</h3><p>模块构建完之后，会被缓存到磁盘中的 Module Cache，位于 <code>~/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/</code> 目录下。当构建模块时，Clang 会根据命令行参数得到一个哈希值，并以此作为模块的存储索引。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-module-cache.png?x-oss-process=image/resize,w_800"></p>
+<h3 id="用户模块"><a href="#用户模块" class="headerlink" title="用户模块"></a>用户模块</h3><p>上面介绍了如何查找并构建系统模块，那么对于用户模块该怎么做呢？</p>
+<p>以 PetWall 为例，我们通过 <code>#import &lt;PetKit/Cat.h&gt;</code> 导入并启用模块。此时，我们会先通过 header map 进行查找，找到 <code>cat.h</code> 后，却没有找到 <code>Modules/</code> 目录，很显然也没有 <code>module.modulemap</code>。因此，Clang 也就不会构建模块。此时该怎么办呢？</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-user-clang-module.png?x-oss-process=image/resize,w_800"></p>
+<p>事实上，对于这种情况，可以采用 <strong>Clang 虚拟文件系统</strong>（Clang’s Virtual File System） 的技术来解决。Clang 会创建抽象的 <code>PetKit.framework</code>（其中包含 <code>Modules/module.modulemap</code>），从而使 Clang 能够构建模块。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-clang-vfs.png?x-oss-process=image/resize,w_800"></p>
+<p>注意，如果在开启模块的情况下，在导入时却不指定框架的名称，可能会报错。如下所示为例，有两个导入声明，对于第二个导入声明，我们知道 <code>Cat.h</code> 是 PetKit 模块的一部分，但是 Clang 并不知道，因为我们没有指定框架的名称。在这种情况下，可能会出现重复定义的报错。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#import &lt;PetKit/PetKit.h&gt;</span><br><span class="line">#import &quot;Cat.h&quot;</span><br></pre></td></tr></table></figure>
+
+<p>为了避免这种报错，我们应该在导入时指定框架的名称。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#import &lt;PetKit/PetKit.h&gt;</span><br><span class="line">#import &lt;PetKit/Cat.h&gt;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Swift"><a href="#Swift" class="headerlink" title="Swift"></a>Swift</h1><p>接下来，我们再来看一下构建系统是如何查找 Swift 声明的呢？</p>
+<p>我们知道，Clang 会分开编译配一个 OC 文件。如果我们要引用一个文件中的某个类，那么必须要导入声明了这个类的头文件。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-declaration-oc.png?x-oss-process=image/resize,w_800"></p>
+<p>不过，在 Swift 中我们并不需要导入头文件。这样能够使代码更加简洁，但也意味着编译器要做更多的工作。</p>
+<p>以 PetWall 为例，<code>PetViewController</code> 使用 Swift 编写，<code>AppDelegate</code> 使用 OC 编写，单元测试使用 Swift 编写。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-swift-example.png?x-oss-process=image/resize,w_800"></p>
+<p>为了编译 <code>PetViewController</code>，编译器做两步操作：</p>
+<ul>
+<li><strong>查找声明</strong></li>
+<li><strong>生成接口</strong></li>
+</ul>
+<h2 id="查找声明"><a href="#查找声明" class="headerlink" title="查找声明"></a>查找声明</h2><p>很显然，查找的声明有两种来源：</p>
+<ul>
+<li>Swift Target</li>
+<li>Objective-C</li>
+</ul>
+<h3 id="查找-Swift-Target-中的声明"><a href="#查找-Swift-Target-中的声明" class="headerlink" title="查找 Swift Target 中的声明"></a>查找 Swift Target 中的声明</h3><p>关于查找 Swift Target 中的声明，在编译 <code>PetViewController.swift</code> 时，编译器需要找到 <code>PetView</code> 的初始化方法，然后才能检查调用方式。在此之前，根据依赖关系，编译器需要先解析并验证 <code>PetView.swift</code>，从而确保 <code>PetView</code> 的初始化方法调用正确。不过，编译器不需要解析 <code>PetView</code> 初始化方法的函数体部分。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-find-declaration.png?x-oss-process=image/resize,w_800"></p>
+<p>在编译 Swift 文件过程中，编译器会查找 Swift Target 中的所有 Swift 文件。当并行编译文件时，由于需要查找声明，所以会产生大量的重复工作，如下所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-repeat-work.png?x-oss-process=image/resize,w_800"></p>
+<p>为了解决这个问题，Xcode 10 将文件进行分组编译，从而减少冗余工作，如下所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-group-compile.png?x-oss-process=image/resize,w_800"></p>
+<h3 id="查找-Objective-C-中的声明"><a href="#查找-Objective-C-中的声明" class="headerlink" title="查找 Objective-C 中的声明"></a>查找 Objective-C 中的声明</h3><p>除了 Swift Target 中的声明，编译器还需要查找 OC 声明。事实上，swiftc 编译器中嵌入了 Clang，所以我们可以直接导入 Clang 框架。</p>
+<p>OC 中的声明主要有三种来源：</p>
+<ul>
+<li>导入的 OC framework：源自 Clang module map 暴露的头文件</li>
+<li>混编 framework 的内部：源自 umbrella header</li>
+<li>application 和 单元测试内部：源自 target 的 bridging header</li>
+</ul>
+<p>导入器在找到声明后，通常会对它们进行命名修饰（Name Mangling），使其更具 Swift 风格。比如，导入器会将 <code>- (void)drawPet:(nonnull Pet *)pet atPoint:(CGPoint)point;</code> 命名修饰为 <code>draw(fluffy, at: origin)</code> 这样的风格。事实上，编译器是通过内部的一个单词表来实现这个功能的，当然有些单词没有被收录其中，所以转换后的命名也并不一定符合预期。对于这种情况，我们可以使用 <code>NS_SWIFT_NAME</code> 来显式定义导入命名。</p>
+<h2 id="生成接口"><a href="#生成接口" class="headerlink" title="生成接口"></a>生成接口</h2><p>很显然，生成的接口有两种用途：</p>
+<ul>
+<li>用于 Objective-C</li>
+<li>用于 Swift Target</li>
+</ul>
+<h3 id="生成用于-Objective-C-的接口"><a href="#生成用于-Objective-C-的接口" class="headerlink" title="生成用于 Objective-C 的接口"></a>生成用于 Objective-C 的接口</h3><p>事实上，编译器会为 Swift 生成一个头文件。这个头文件中会包含继承自 <code>NSObject</code> 的类和使用 <code>@objc</code> 修饰的方法的声明。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-generated-oc-header.png?x-oss-process=image/resize,w_800"></p>
+<p>对于不同的场景，生成的头文件也有所不同。</p>
+<ul>
+<li>对于应用内部，头文件会包含 <code>public</code> 和 <code>internal</code> 的声明，允许在 OC 中使用 Swift 内部的方法和属性。</li>
+<li>对于框架，头文件只会包含 <code>public</code> 的声明。</li>
+</ul>
+<p>在上述例子中，<code>PetCollar</code> 自动生成的 OC 类名是 <code>_TtC7PetWall9PetCollar</code>，这样是为了避免与 OC 中定义的类名产生冲突。当然，我们也可以通过 <code>@objc(Name)</code> 的方式指定其在 OC 中的命名，这时需要我们自己保证命名不会产生冲突。</p>
+<h3 id="生成用于-Swift-Target-的接口"><a href="#生成用于-Swift-Target-的接口" class="headerlink" title="生成用于 Swift Target 的接口"></a>生成用于 Swift Target 的接口</h3><p>当我们要在其他 Swift Target 中引用 Swift 时，首先需要导入模块。在 Swift 中，一个模块是一个可分配的声明单元。为了使用这些声明，我们必须要导入模块。每个 Swift Target 都会生成一个单独的模块。对于 <code>PetWall</code> 也是如此。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-swift-module.png?x-oss-process=image/resize,w_800"></p>
+<p>当导入一个模块后，编译器会反序列化一个特殊的 swiftmodule 文件，用于检查用到的类型。比如，在上述例子中，编译器会加载 <code>PetWall.swiftmodule</code> 中的 <code>PetViewController</code> 的部分来确保创建的 <code>PetViewController</code> 的代码是正确的。</p>
+<h4 id="swiftmodule-VS-header"><a href="#swiftmodule-VS-header" class="headerlink" title="swiftmodule VS header"></a>swiftmodule VS header</h4><p>swiftmodule 文件是一个序列化的二进制表示，描述了模块的声明。编译器可以反序列化 swiftmodule 文件，用于检查类型。因此，swiftmodule 有点类似于生成的 OC 头文件（generated Objective-C header）。区别在前者是二进制表示，后者是文本表示。此外，swiftmodule 还包含了私有声明的命名和类型，因此我们可以用于进行调试。</p>
+<p>对于增量编译，编译器会部分地生成 swiftmodule 文件，并最终合并成一个 swiftmodule 文件和一个 OC 头文件，如下图所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/behind-the-xcode-swiftmodule-build.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文分别从构建系统、Clang、Swift 混编等方面介绍了 Xcode 构建过程的幕后原理。从中，我们了解了之前所不知道的一些细节，如：header map、clang module、module map、swift module 等。</p>
+<p>关于链接这一部分，本文没有进行介绍，链接的本质就是对符号进行修正，转换成实际的地址。具体后面有时间再进行补充。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/videos/play/wwdc2018/415/">Behind the Scenes of the Xcode Build Process</a></li>
+<li><a target="_blank" rel="noopener" href="https://objccn.io/issue-6-1/">Build 过程</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/videos/play/wwdc2018/408/">Building faster in xcode</a></li>
+<li><a target="_blank" rel="noopener" href="https://clang.llvm.org/docs/Modules.html">Clang Modules</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/flawless-app-stories/swift-compiler-what-we-can-learn-96872ea4b1b8">Swift Compiler: What we can learn</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/@jyaunches/introduction-to-the-llvm-for-a-ios-engineer-8c00ed0f9ff0">Introduction to the LLVM for a iOS Engineer</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/swift/imported_c_and_objective-c_apis/importing_objective-c_into_swift">Importing Objective-C into Swift</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/flawless-app-stories/swift-compiler-what-we-can-learn-96872ea4b1b8">Swift Compiler: What we can learn</a></li>
+<li><a target="_blank" rel="noopener" href="https://dmtopolog.com/code-optimization-for-swift-and-objective-c/">Compile-time code optimization for Swift and Objective-C</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/videos/play/wwdc2016/413/">Introduction to Xcode</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/9c3855f543dd">(WWDC) Xcode 构建过程的幕后 —— Clang 编译器</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/8bcb0ffb3677">(WWDC) Xcode 构建过程的幕后 —— Swift</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/a541d77944d4">(WWDC) Xcode 构建过程的幕后 —— Linker</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/apple/swift-llbuild/">llbuild</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/clang/" rel="tag"># clang</a>
+          
+            <a href="/tags/xcode/" rel="tag"># xcode</a>
+          
+            <a href="/tags/clang-module/" rel="tag"># clang module</a>
+          
+            <a href="/tags/module-map/" rel="tag"># module map</a>
+          
+            <a href="/tags/swift-module/" rel="tag"># swift module</a>
+          
+            <a href="/tags/header-map/" rel="tag"># header map</a>
+          
+            <a href="/tags/module-cache/" rel="tag"># module cache</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/02/14/understand-ios-library-and-framework/" rel="next" title="系统理解 iOS 库与框架">
+                <i class="fa fa-chevron-left"></i> 系统理解 iOS 库与框架
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/04/05/how-to-manage-your-shell-scripts-gracefully/" rel="prev" title="如何优雅地管理你的 shell 脚本？">
+                如何优雅地管理你的 shell 脚本？ <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.</span> <span class="nav-text">构建系统</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E4%BE%9D%E8%B5%96"><span class="nav-number">2.1.</span> <span class="nav-text">任务依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E8%AE%B0%E5%BD%95"><span class="nav-number">2.2.</span> <span class="nav-text">依赖记录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A2%9E%E9%87%8F%E6%9E%84%E5%BB%BA"><span class="nav-number">2.3.</span> <span class="nav-text">增量构建</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Clang"><span class="nav-number">3.</span> <span class="nav-text">Clang</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Clang-%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E7%94%A8%E6%88%B7%E5%A4%B4%E6%96%87%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">Clang 如何查找用户头文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Header-Map"><span class="nav-number">3.1.1.</span> <span class="nav-text">Header Map</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Clang-%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E7%B3%BB%E7%BB%9F%E5%A4%B4%E6%96%87%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">Clang 如何查找系统头文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Clang-Module"><span class="nav-number">3.3.</span> <span class="nav-text">Clang Module</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Module-Map"><span class="nav-number">3.3.1.</span> <span class="nav-text">Module Map</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Build-Module"><span class="nav-number">3.3.2.</span> <span class="nav-text">Build Module</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Module-Cache"><span class="nav-number">3.3.3.</span> <span class="nav-text">Module Cache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E6%A8%A1%E5%9D%97"><span class="nav-number">3.3.4.</span> <span class="nav-text">用户模块</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Swift"><span class="nav-number">4.</span> <span class="nav-text">Swift</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%E5%A3%B0%E6%98%8E"><span class="nav-number">4.1.</span> <span class="nav-text">查找声明</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE-Swift-Target-%E4%B8%AD%E7%9A%84%E5%A3%B0%E6%98%8E"><span class="nav-number">4.1.1.</span> <span class="nav-text">查找 Swift Target 中的声明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE-Objective-C-%E4%B8%AD%E7%9A%84%E5%A3%B0%E6%98%8E"><span class="nav-number">4.1.2.</span> <span class="nav-text">查找 Objective-C 中的声明</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.2.</span> <span class="nav-text">生成接口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E7%94%A8%E4%BA%8E-Objective-C-%E7%9A%84%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.2.1.</span> <span class="nav-text">生成用于 Objective-C 的接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E7%94%A8%E4%BA%8E-Swift-Target-%E7%9A%84%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.2.2.</span> <span class="nav-text">生成用于 Swift Target 的接口</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#swiftmodule-VS-header"><span class="nav-number">4.2.2.1.</span> <span class="nav-text">swiftmodule VS header</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

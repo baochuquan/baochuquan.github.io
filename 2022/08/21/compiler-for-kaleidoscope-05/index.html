@@ -1,38 +1,1454 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="LLVM,JIT,Optimizer,LLVM Pass," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="概述在前 4 章中，我们介绍了 Kaleidoscope 语言的实现，包括支持 LLVM IR 代码生成、优化器、JIT 编译器等。然而，目前我们设计的 Kaleidoscope 的功能非常简单，除了函数调用和返回外，甚至不包含控制流的能力。这意味着我们在代码中无法使用条件分支，因此极大地限制了编程语言的能力。本章，我们将对 Kaleidoscope 进行扩展，使其支持 if&#x2F;then&#x2F;else">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于 LLVM 自制编译器(5)——语言扩展：控制流">
+<meta property="og:url" content="http://chuquan.me/2022/08/21/compiler-for-kaleidoscope-05/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="概述在前 4 章中，我们介绍了 Kaleidoscope 语言的实现，包括支持 LLVM IR 代码生成、优化器、JIT 编译器等。然而，目前我们设计的 Kaleidoscope 的功能非常简单，除了函数调用和返回外，甚至不包含控制流的能力。这意味着我们在代码中无法使用条件分支，因此极大地限制了编程语言的能力。本章，我们将对 Kaleidoscope 进行扩展，使其支持 if&#x2F;then&#x2F;else">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-11.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-12.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-13.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-14.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-15.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-16.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-17.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-18.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-19.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-20.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-21.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-22.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-23.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-24.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-25.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-26.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2022-08-21T14:48:11.000Z">
+<meta property="article:modified_time" content="2023-01-14T03:12:54.248Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="LLVM">
+<meta property="article:tag" content="JIT">
+<meta property="article:tag" content="Optimizer">
+<meta property="article:tag" content="LLVM Pass">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-11.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2022/08/21/compiler-for-kaleidoscope-05/"/>
+
+
+
+
+
+  <title>基于 LLVM 自制编译器(5)——语言扩展：控制流 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2022/08/21/compiler-for-kaleidoscope-05/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">基于 LLVM 自制编译器(5)——语言扩展：控制流</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2022-08-21T22:48:11+08:00">
+                2022-08-21
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2023-01-14T11:12:54+08:00">
+                2023-01-14
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LLVM/" itemprop="url" rel="index">
+                    <span itemprop="name">LLVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>在前 4 章中，我们介绍了 Kaleidoscope 语言的实现，包括支持 LLVM IR 代码生成、优化器、JIT 编译器等。然而，目前我们设计的 Kaleidoscope 的功能非常简单，除了函数调用和返回外，甚至不包含控制流的能力。这意味着我们在代码中无法使用条件分支，因此极大地限制了编程语言的能力。本章，我们将对 Kaleidoscope 进行扩展，使其支持 <code>if/then/else</code> 语句和 <code>for</code> 语句。</p>
+<h1 id="if-then-else"><a href="#if-then-else" class="headerlink" title="if&#x2F;then&#x2F;else"></a>if&#x2F;then&#x2F;else</h1><p>为 Kaleidoscope 进行语言扩展 <code>if/then/else</code> 语句其实非常简单。我们只需要修改词法分析器、解析器、AST、LLVM 代码生成器就可以实现这个新的特性。</p>
+<p>在我们介绍如何实现该特性之前，我们首先需要清楚这个特性是什么。本质上，我们其实就是就是希望 Kaleidoscope 能够支持如下所示的代码。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">def <span class="title">fib</span><span class="params">(x)</span></span></span><br><span class="line"><span class="function">  <span class="keyword">if</span> x &lt; 3 then</span></span><br><span class="line"><span class="function">    1</span></span><br><span class="line"><span class="function">  <span class="keyword">else</span></span></span><br><span class="line"><span class="function">    <span class="title">fib</span><span class="params">(x<span class="number">-1</span>)</span>+<span class="title">fib</span><span class="params">(x<span class="number">-2</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>在第 2 章中，我们为 Kaleidoscope 的 AST 设计了三种结构，分别是 <strong>表达式</strong>、<strong>原型</strong>、<strong>函数</strong>。其中，表达式结构均会返回一个值，而 <code>if/then/else</code> 同样也会返回一个值。本质上，<code>if/then/else</code> 语句是先对条件进行计算，然后根据条件的结果选择返回 <code>then</code> 或 <code>else</code> 的值。因此，我们定义一个表达式子类用于表示 <code>if/then/else</code> 语句。</p>
+<p><code>if/then/else</code> 的语义是将条件的计算结果作为一个布尔等价值：0.0 表示 <code>false</code>，其他值则为 <code>true</code>。如果条件为 <code>true</code>，则计算并返回第一个子表达式；如果条件为 <code>false</code>，则计算并返回第二个子表达式。</p>
+<p>下面，我们来对各个部分进行扩展从而实现 <code>if/then/else</code> 表达式。</p>
+<h2 id="词法分析器扩展"><a href="#词法分析器扩展" class="headerlink" title="词法分析器扩展"></a>词法分析器扩展</h2><p>词法分析器的扩展非常简单。首先，我们需要新增几种 token 类型，如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// control</span></span><br><span class="line">tok_if = <span class="number">-6</span>,</span><br><span class="line">tok_then = <span class="number">-7</span>,</span><br><span class="line">tok_else = <span class="number">-8</span>,</span><br></pre></td></tr></table></figure>
+
+<p>然后，我们分别为这些 token 类型定义 token 值，如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;def&quot;</span>)</span><br><span class="line">  <span class="keyword">return</span> tok_def;</span><br><span class="line"><span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;extern&quot;</span>)</span><br><span class="line">  <span class="keyword">return</span> tok_extern;</span><br><span class="line"><span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;if&quot;</span>)</span><br><span class="line">  <span class="keyword">return</span> tok_if;</span><br><span class="line"><span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;then&quot;</span>)</span><br><span class="line">  <span class="keyword">return</span> tok_then;</span><br><span class="line"><span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;else&quot;</span>)</span><br><span class="line">  <span class="keyword">return</span> tok_else;</span><br><span class="line"><span class="keyword">return</span> tok_identifier;</span><br></pre></td></tr></table></figure>
+
+<h2 id="AST-扩展"><a href="#AST-扩展" class="headerlink" title="AST 扩展"></a>AST 扩展</h2><p>为了表示 <code>if/then/else</code> 语句，我们定义一个表达式子类的 AST 节点类型 <code>IFExprAST</code>，如下所示。<code>IFExprAST</code> 节点包含三个指针，分别指向 <code>Cond</code> 子表达式、<code>Then</code> 子表达式、<code>Else</code> 子表达式。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// IfExprAST - Expression class for if/then/else.</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">IfExprAST</span> : <span class="keyword">public</span> ExprAST &#123;</span><br><span class="line">  std::unique_ptr&lt;ExprAST&gt; Cond, Then, Else;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">IfExprAST</span>(std::unique_ptr&lt;ExprAST&gt; Cond, std::unique_ptr&lt;ExprAST&gt; Then,</span><br><span class="line">            std::unique_ptr&lt;ExprAST&gt; Else)</span><br><span class="line">    : <span class="built_in">Cond</span>(std::<span class="built_in">move</span>(Cond)), <span class="built_in">Then</span>(std::<span class="built_in">move</span>(Then)), <span class="built_in">Else</span>(std::<span class="built_in">move</span>(Else)) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="function">Value *<span class="title">codegen</span><span class="params">()</span> <span class="keyword">override</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-11.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="解析器扩展"><a href="#解析器扩展" class="headerlink" title="解析器扩展"></a>解析器扩展</h2><p>至此，我们已经有了针对 <code>if/then/else</code> 的 token 的定义和 AST 节点定义。接下来，我们来对解析器进行扩展。</p>
+<p>首先，我们来定义一个对应的解析函数。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// ifexpr ::= &#x27;if&#x27; expression &#x27;then&#x27; expression &#x27;else&#x27; expression</span></span><br><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;ExprAST&gt; <span class="title">ParseIfExpr</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">getNextToken</span>();  <span class="comment">// eat the if.</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// condition.</span></span><br><span class="line">  <span class="keyword">auto</span> Cond = <span class="built_in">ParseExpression</span>();</span><br><span class="line">  <span class="keyword">if</span> (!Cond)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (CurTok != tok_then)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;expected then&quot;</span>);</span><br><span class="line">  <span class="built_in">getNextToken</span>();  <span class="comment">// eat the then</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">auto</span> Then = <span class="built_in">ParseExpression</span>();</span><br><span class="line">  <span class="keyword">if</span> (!Then)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (CurTok != tok_else)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;expected else&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">getNextToken</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">auto</span> Else = <span class="built_in">ParseExpression</span>();</span><br><span class="line">  <span class="keyword">if</span> (!Else)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> std::<span class="built_in">make_unique</span>&lt;IfExprAST&gt;(std::<span class="built_in">move</span>(Cond), std::<span class="built_in">move</span>(Then), std::<span class="built_in">move</span>(Else));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们将解析函数加入到主表达式解析函数中，如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;ExprAST&gt; <span class="title">ParsePrimary</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">switch</span> (CurTok) &#123;</span><br><span class="line">  <span class="keyword">default</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;unknown token when expecting an expression&quot;</span>);</span><br><span class="line">  <span class="keyword">case</span> tok_identifier:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseIdentifierExpr</span>();</span><br><span class="line">  <span class="keyword">case</span> tok_number:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseNumberExpr</span>();</span><br><span class="line">  <span class="keyword">case</span> <span class="string">&#x27;(&#x27;</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseParenExpr</span>();</span><br><span class="line">  <span class="keyword">case</span> tok_if:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseIfExpr</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="LLVM-IR"><a href="#LLVM-IR" class="headerlink" title="LLVM IR"></a>LLVM IR</h2><p>至此，我们已经解析并构造了 AST。接下来，我们来为 <code>if/then/else</code> 支持 LLVM IR 代码生成。上述扩展的相关代码在之前的章节中都已经进行了详细的介绍，而这部分的扩展，我们将引入一些新的概念。</p>
+<p>我们首先来看一个简单的例子，如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">extern</span> <span class="title">foo</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">extern</span> <span class="title">bar</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function">def <span class="title">baz</span><span class="params">(x)</span> <span class="keyword">if</span> x then <span class="title">foo</span><span class="params">()</span> <span class="keyword">else</span> <span class="title">bar</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>如果，我们不进行代码优化，生成的代码会是如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">declare <span class="type">double</span> @<span class="built_in">foo</span>()</span><br><span class="line"></span><br><span class="line">declare <span class="type">double</span> @<span class="built_in">bar</span>()</span><br><span class="line"></span><br><span class="line">define <span class="type">double</span> @<span class="built_in">baz</span>(<span class="type">double</span> %x) &#123;</span><br><span class="line">entry:</span><br><span class="line">  %ifcond = fcmp one <span class="type">double</span> %x, <span class="number">0.000000e+00</span></span><br><span class="line">  br i1 %ifcond, label %then, label %<span class="keyword">else</span></span><br><span class="line"></span><br><span class="line">then:       ; preds = %entry</span><br><span class="line">  %calltmp = call <span class="type">double</span> @<span class="built_in">foo</span>()</span><br><span class="line">  br label %ifcont</span><br><span class="line"></span><br><span class="line"><span class="keyword">else</span>:       ; preds = %entry</span><br><span class="line">  %calltmp1 = call <span class="type">double</span> @<span class="built_in">bar</span>()</span><br><span class="line">  br label %ifcont</span><br><span class="line"></span><br><span class="line">ifcont:     ; preds = %<span class="keyword">else</span>, %then</span><br><span class="line">  %iftmp = phi <span class="type">double</span> [ %calltmp, %then ], [ %calltmp1, %<span class="keyword">else</span> ]</span><br><span class="line">  ret <span class="type">double</span> %iftmp</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于上述 LLVM IR 代码，我们可以将其转换成如下所示的控制流图。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-12.png?x-oss-process=image/resize,w_800"></p>
+<p>在 LLVM IR 中，<code>entry</code> 基本块对条件表达式进行计算（结果存储在 <code>x</code> 中），并使用 <code>fcmp one</code>（<code>one</code> 表示 <code>Ordered and Ont Equal</code>）命令将结果值与 <code>0.0</code> 进行比较。然后，根据表达式的结果决定代码跳转至 <code>then</code> 基本块或 <code>else</code> 基本块。</p>
+<p>当 <code>then/else</code> 基本块执行完毕，它们均会进入 <code>ifcont</code> 基本块，从而执行 <code>if/then/else</code> 表达式后续的代码。在例子中，我们只需返回至函数调用者即可。</p>
+<h3 id="φ-函数"><a href="#φ-函数" class="headerlink" title="φ 函数"></a>φ 函数</h3><p>在上述例子中，我们最终会向函数调用者返回一个表达式，那么问题来了：代码是否如何知道应该返回哪个表达式？答案是通过 phi 操作实现。</p>
+<p>在第 3 章，我们提到 LLVM 的 <code>Value</code> 是用来表示 <strong>静态单赋值形式（SSA form）</strong> 的类型，LLVM IR 则是 SSA 的指令表示形式。当我们对基于 SSA 形式的控制流图进行分析时，如果有两条控制流边汇合到一起时，如何使每个变量只有一次赋值就不是那么显而易见的了。如下所示 (a) 图中，如果我们在基本块 1 和基本块 3 中分别为 a 实现了一次定值，那么基本块 4 该使用哪个值呢？</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-13.png?x-oss-process=image/resize,w_800"></p>
+<p>为了解决这个问题，我们引入一个虚构符号，称为 <strong>φ函数</strong>。如上所示 (b) 图中，使用 <code>a3 &lt;- φ(a1, a2)</code> 来合并 <code>a1</code>（基本块 1 中的定值）和 <code>a2</code>（基本块 3 中的定值）。<br>如果控制流沿边 2 -&gt; 4 到达基本块 4，φ(a1, a2) 产生 a1；如果控制流沿边 3 -&gt; 4 到达基本块 4，φ(a1, a2) 产生 a2。</p>
+<p>在 LLVM IR 中，使用 <code>phi</code> 指令实现 φ 函数。在例子中，如果控制流来自 <code>then</code> 基本块，那么 <code>phi</code> 指令会读取 <code>calltmp</code> 的值，如果控制流来自 <code>else</code> 基本块，那么 <code>phi</code> 指令会读取 <code>calltmp1</code> 的值。</p>
+<h2 id="代码生成"><a href="#代码生成" class="headerlink" title="代码生成"></a>代码生成</h2><p>如下所示为 <code>IFExprAST</code> 类的 <code>codegen</code> 方法，用于 LLVM IR 代码生成。我们依次对这个方法的各个部分进行介绍。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Value *<span class="title">IfExprAST::codegen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  Value *CondV = Cond-&gt;<span class="built_in">codegen</span>();</span><br><span class="line">  <span class="keyword">if</span> (!CondV)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Convert condition to a bool by comparing non-equal to 0.0.</span></span><br><span class="line">  CondV = Builder-&gt;<span class="built_in">CreateFCmpONE</span>(</span><br><span class="line">      CondV, ConstantFP::<span class="built_in">get</span>(*TheContext, <span class="built_in">APFloat</span>(<span class="number">0.0</span>)), <span class="string">&quot;ifcond&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-14.png?x-oss-process=image/resize,w_800"></p>
+<p>首先，我们解析得到条件表达式，并通过将其值与 0.0 进行比较，从而转换成一个布尔类型。上图所示，展示了这部分逻辑生成的代码。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Function *TheFunction = Builder-&gt;GetInsertBlock()-&gt;getParent();</span><br><span class="line"></span><br><span class="line">// Create blocks for the then and else cases.  Insert the &#x27;then&#x27; block at the</span><br><span class="line">// end of the function.</span><br><span class="line">BasicBlock *ThenBB = BasicBlock::Create(*TheContext, &quot;then&quot;, TheFunction);</span><br><span class="line">BasicBlock *ElseBB = BasicBlock::Create(*TheContext, &quot;else&quot;);</span><br><span class="line">BasicBlock *MergeBB = BasicBlock::Create(*TheContext, &quot;ifcont&quot;);</span><br><span class="line"></span><br><span class="line">Builder-&gt;CreateCondBr(CondV, ThenBB, ElseBB);</span><br></pre></td></tr></table></figure>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-15.png?x-oss-process=image/resize,w_800"></p>
+<p>其次，分别为 <code>if/then/else</code> 语句创建相关基本块，如：<code>ThenBB</code>、<code>ElseBB</code>、<code>MergeBB</code>。这里，其首先获取当前正在构建的 <code>Function</code> 对象。基于 <code>Function</code> 对象，创建三个基本块。注意，这里将 <code>TheFunction</code> 传入 <code>then</code> 基本块的构造函数，其用于将新创建的基本块插入到指定函数 <code>TheFunction</code> 的末尾。其他两个基本块创建后并没有立即插入函数。当基本块创建完成后，我们通过 <code>Builder-&gt;CreateCondBr</code> 方法创建条件分支。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Emit then value.</span></span><br><span class="line">Builder-&gt;<span class="built_in">SetInsertPoint</span>(ThenBB);</span><br><span class="line"></span><br><span class="line">Value *ThenV = Then-&gt;<span class="built_in">codegen</span>();</span><br><span class="line"><span class="keyword">if</span> (!ThenV)</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">Builder-&gt;<span class="built_in">CreateBr</span>(MergeBB);</span><br><span class="line"><span class="comment">// Codegen of &#x27;Then&#x27; can change the current block, update ThenBB for the PHI.</span></span><br><span class="line">ThenBB = Builder-&gt;<span class="built_in">GetInsertBlock</span>();</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-16.png?x-oss-process=image/resize,w_800"></p>
+<p>随后，我们设置 <code>Builder</code> 中基本块的插入点并开始插入 <code>then</code> 基本块。严格来说，它会将插入点移动到指定基本块的末尾。但是，由于此时 <code>then</code> 基本块是空的，所以它也是在块的开头开始插入。</p>
+<p>当插入点设置完成后，我们递归地为 <code>then</code> 表达式生成代码。为了完成 <code>then</code> 基本块，我们为无条件分支创建 <code>merge</code> 基本块。LLVM IR 要求所有基本块都使用诸如返回 <code>ret</code> 或分支 <code>br</code> 的控制流指令来终止。这意味着我们必须在 LLVM IR 中明确所有控制流，包括 <code>fall through</code>。如果我们没有遵循这个规则，后续的验证器会报错。</p>
+<p>这里的最后一行非常微妙，但也非常重要。这里的问题在于，当我们在 <code>merge</code> 基本块中创建 phi 节点时，我们需要设置 phi 要处理的块&#x2F;值对。然而，phi 节点希望控制流图中每个基本块都有一个入口。那么，我们为什么要执行 <code>ThenBB</code> 之前的 5 行代码呢？问题是 <code>Then</code> 表达式本身可能实际上改变了 <code>Builder</code> 生成的基本块，比如，它包含了一个嵌套的 <code>if/then/else</code> 表达式。因为递归调用 <code>codegen()</code> 可以任意修改当前基本块，所以我们需要获取将设置 phi 节点的代码的最新值。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Emit else block.</span></span><br><span class="line">TheFunction-&gt;<span class="built_in">getBasicBlockList</span>().<span class="built_in">push_back</span>(ElseBB);</span><br><span class="line">Builder-&gt;<span class="built_in">SetInsertPoint</span>(ElseBB);</span><br><span class="line"></span><br><span class="line">Value *ElseV = Else-&gt;<span class="built_in">codegen</span>();</span><br><span class="line"><span class="keyword">if</span> (!ElseV)</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">Builder-&gt;<span class="built_in">CreateBr</span>(MergeBB);</span><br><span class="line"><span class="comment">// Codegen of &#x27;Else&#x27; can change the current block, update ElseBB for the PHI.</span></span><br><span class="line">ElseBB = Builder-&gt;<span class="built_in">GetInsertBlock</span>();</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-17.png?x-oss-process=image/resize,w_800"></p>
+<p><code>else</code> 基本块的代码生成与 <code>then</code> 基本块的代码生成基本相同。唯一的区别在于第一行，它将 <code>else</code> 基本块添加到了函数中。至此，<code>then</code> 基本块和 <code>else</code> 基本块都已创建完成，接下来我们可以进行合并。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">  <span class="comment">// Emit merge block.</span></span><br><span class="line">  TheFunction-&gt;<span class="built_in">getBasicBlockList</span>().<span class="built_in">push_back</span>(MergeBB);</span><br><span class="line">  Builder-&gt;<span class="built_in">SetInsertPoint</span>(MergeBB);</span><br><span class="line">  PHINode *PN = Builder-&gt;<span class="built_in">CreatePHI</span>(Type::<span class="built_in">getDoubleTy</span>(*TheContext), <span class="number">2</span>, <span class="string">&quot;iftmp&quot;</span>);</span><br><span class="line"></span><br><span class="line">  PN-&gt;<span class="built_in">addIncoming</span>(ThenV, ThenBB);</span><br><span class="line">  PN-&gt;<span class="built_in">addIncoming</span>(ElseV, ElseBB);</span><br><span class="line">  <span class="keyword">return</span> PN;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-18.png?x-oss-process=image/resize,w_800"></p>
+<p>这里的前两行代码我们很熟悉：</p>
+<ul>
+<li>第一行将 <code>merge</code> 基本块添加到 <code>Funciton</code> 对象</li>
+<li>第二行修改插入点，以便新创建的代码将进入 <code>merge</code> 基本块</li>
+</ul>
+<p>然后，我们创建 phi 节点，并为它设置块&#x2F;值对。</p>
+<p>最后，<code>codegen</code> 方法将 phi 节点作为 <code>if/then/else</code> 表达式的值进行返回。在上述例子中，该返回值将输入到顶级函数的代码中，该函数将创建返回指令。</p>
+<h1 id="for-循环"><a href="#for-循环" class="headerlink" title="for 循环"></a>for 循环</h1><p>通过上面的实践，我们了解了如何为编程语言扩展控制流结构。接下来，我们来继续为 Kaleidoscope 支持 <code>for</code> 循环，如下所示。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">extern putchard(char);</span><br><span class="line">def printstar(n)</span><br><span class="line">  for i = 1, i &lt; n, 1.0 in</span><br><span class="line">    putchard(42);  # ascii 42 = &#x27;*&#x27;</span><br><span class="line"></span><br><span class="line"># print 100 &#x27;*&#x27; characters</span><br><span class="line">printstar(100);</span><br></pre></td></tr></table></figure>
+
+<p><code>for</code> 语句定义了一个新的变量，变量从起始值开始迭代，当条件为真时，使用步长值进行递增。如果省略步长值，则默认为 1.0。当条件为真时，执行内部的表达式。</p>
+<p>下面，我们来看一下如何进行扩展。</p>
+<h2 id="词法分析器扩展-1"><a href="#词法分析器扩展-1" class="headerlink" title="词法分析器扩展"></a>词法分析器扩展</h2><p>与 <code>if/then/else</code> 扩展类似，对于 <code>for</code> 语句，我们为词法分析器新增了两个 token 类型和 token 值，如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">... in <span class="keyword">enum</span> <span class="title class_">Token</span> ...</span><br><span class="line"><span class="comment">// control</span></span><br><span class="line">tok_if = <span class="number">-6</span>, tok_then = <span class="number">-7</span>, tok_else = <span class="number">-8</span>,</span><br><span class="line">tok_for = <span class="number">-9</span>, tok_in = <span class="number">-10</span></span><br><span class="line"></span><br><span class="line">... in gettok ...</span><br><span class="line"><span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;def&quot;</span>)</span><br><span class="line">  <span class="keyword">return</span> tok_def;</span><br><span class="line"><span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;extern&quot;</span>)</span><br><span class="line">  <span class="keyword">return</span> tok_extern;</span><br><span class="line"><span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;if&quot;</span>)</span><br><span class="line">  <span class="keyword">return</span> tok_if;</span><br><span class="line"><span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;then&quot;</span>)</span><br><span class="line">  <span class="keyword">return</span> tok_then;</span><br><span class="line"><span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;else&quot;</span>)</span><br><span class="line">  <span class="keyword">return</span> tok_else;</span><br><span class="line"><span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;for&quot;</span>)</span><br><span class="line">  <span class="keyword">return</span> tok_for;</span><br><span class="line"><span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;in&quot;</span>)</span><br><span class="line">  <span class="keyword">return</span> tok_in;</span><br><span class="line"><span class="keyword">return</span> tok_identifier;</span><br></pre></td></tr></table></figure>
+
+<h2 id="AST-扩展-1"><a href="#AST-扩展-1" class="headerlink" title="AST 扩展"></a>AST 扩展</h2><p>为了表示 <code>for</code> 语句，我们定义一个表达式子类的 AST 节点类型 <code>ForExprAST</code>。<code>ForExprAST</code> 包含四个指针，分别指向 <code>Start</code>，<code>End</code>，<code>Step</code>，<code>Body</code> 子表达式，此外还包含一个变量 <code>VarName</code>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// ForExprAST - Expression class for for/in.</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ForExprAST</span> : <span class="keyword">public</span> ExprAST &#123;</span><br><span class="line">  std::string VarName;</span><br><span class="line">  std::unique_ptr&lt;ExprAST&gt; Start, End, Step, Body;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">ForExprAST</span>(<span class="type">const</span> std::string &amp;VarName, </span><br><span class="line">             std::unique_ptr&lt;ExprAST&gt; Start,</span><br><span class="line">             std::unique_ptr&lt;ExprAST&gt; End, </span><br><span class="line">             std::unique_ptr&lt;ExprAST&gt; Step,</span><br><span class="line">             std::unique_ptr&lt;ExprAST&gt; Body)</span><br><span class="line">    : <span class="built_in">VarName</span>(VarName), <span class="built_in">Start</span>(std::<span class="built_in">move</span>(Start)), <span class="built_in">End</span>(std::<span class="built_in">move</span>(End)),</span><br><span class="line">      <span class="built_in">Step</span>(std::<span class="built_in">move</span>(Step)), <span class="built_in">Body</span>(std::<span class="built_in">move</span>(Body)) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="function">Value *<span class="title">codegen</span><span class="params">()</span> <span class="keyword">override</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-19.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="解析器扩展-1"><a href="#解析器扩展-1" class="headerlink" title="解析器扩展"></a>解析器扩展</h2><p>如下所示为 <code>for</code> 表达式的解析函数。<code>for</code> 表达式支持可选的步长值，对此，解析函数通过检查是否存在第二个逗号来进行处理步长值。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 文法产生式</span></span><br><span class="line"><span class="comment">/// forexpr ::= &#x27;for&#x27; identifier &#x27;=&#x27; expr &#x27;,&#x27; expr (&#x27;,&#x27; expr)? &#x27;in&#x27; expression</span></span><br><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;ExprAST&gt; <span class="title">ParseForExpr</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">getNextToken</span>();  <span class="comment">// eat the for.</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (CurTok != tok_identifier)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;expected identifier after for&quot;</span>);</span><br><span class="line"></span><br><span class="line">  std::string IdName = IdentifierStr;</span><br><span class="line">  <span class="built_in">getNextToken</span>();  <span class="comment">// eat identifier.</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (CurTok != <span class="string">&#x27;=&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;expected &#x27;=&#x27; after for&quot;</span>);</span><br><span class="line">  <span class="built_in">getNextToken</span>();  <span class="comment">// eat &#x27;=&#x27;.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">auto</span> Start = <span class="built_in">ParseExpression</span>();</span><br><span class="line">  <span class="keyword">if</span> (!Start)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">  <span class="keyword">if</span> (CurTok != <span class="string">&#x27;,&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;expected &#x27;,&#x27; after for start value&quot;</span>);</span><br><span class="line">  <span class="built_in">getNextToken</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">auto</span> End = <span class="built_in">ParseExpression</span>();</span><br><span class="line">  <span class="keyword">if</span> (!End)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// The step value is optional.</span></span><br><span class="line">  std::unique_ptr&lt;ExprAST&gt; Step;</span><br><span class="line">  <span class="keyword">if</span> (CurTok == <span class="string">&#x27;,&#x27;</span>) &#123;</span><br><span class="line">    <span class="built_in">getNextToken</span>();</span><br><span class="line">    Step = <span class="built_in">ParseExpression</span>();</span><br><span class="line">    <span class="keyword">if</span> (!Step)</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (CurTok != tok_in)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;expected &#x27;in&#x27; after for&quot;</span>);</span><br><span class="line">  <span class="built_in">getNextToken</span>();  <span class="comment">// eat &#x27;in&#x27;.</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">auto</span> Body = <span class="built_in">ParseExpression</span>();</span><br><span class="line">  <span class="keyword">if</span> (!Body)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> std::<span class="built_in">make_unique</span>&lt;ForExprAST&gt;(IdName, std::<span class="built_in">move</span>(Start),</span><br><span class="line">                                       std::<span class="built_in">move</span>(End), std::<span class="built_in">move</span>(Step),</span><br><span class="line">                                       std::<span class="built_in">move</span>(Body));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>与 <code>if/then/else</code> 相同，我们也把 <code>ParseForExpr</code> 解析函数方法插入到主表达式的解析函数 <code>ParsePrimary</code> 中。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;ExprAST&gt; <span class="title">ParsePrimary</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">switch</span> (CurTok) &#123;</span><br><span class="line">  <span class="keyword">default</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;unknown token when expecting an expression&quot;</span>);</span><br><span class="line">  <span class="keyword">case</span> tok_identifier:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseIdentifierExpr</span>();</span><br><span class="line">  <span class="keyword">case</span> tok_number:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseNumberExpr</span>();</span><br><span class="line">  <span class="keyword">case</span> <span class="string">&#x27;(&#x27;</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseParenExpr</span>();</span><br><span class="line">  <span class="keyword">case</span> tok_if:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseIfExpr</span>();</span><br><span class="line">  <span class="keyword">case</span> tok_for:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseForExpr</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="LLVM-IR-1"><a href="#LLVM-IR-1" class="headerlink" title="LLVM IR"></a>LLVM IR</h2><p>下面，我们来为 <code>for</code> 表达式生成 LLVM IR。我们将上面的例子进行转换成得到如下所示的 LLVM IR 代码。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">declare <span class="type">double</span> @<span class="built_in">putchard</span>(<span class="type">double</span>)</span><br><span class="line"></span><br><span class="line">define <span class="type">double</span> @<span class="built_in">printstar</span>(<span class="type">double</span> %n) &#123;</span><br><span class="line">entry:</span><br><span class="line">  ; initial value = <span class="number">1.0</span> (inlined into phi)</span><br><span class="line">  br label %loop</span><br><span class="line"></span><br><span class="line">loop:       ; preds = %loop, %entry</span><br><span class="line">  %i = phi <span class="type">double</span> [ <span class="number">1.000000e+00</span>, %entry ], [ %nextvar, %loop ]</span><br><span class="line">  ; body</span><br><span class="line">  %calltmp = call <span class="type">double</span> @<span class="built_in">putchard</span>(<span class="type">double</span> <span class="number">4.200000e+01</span>)</span><br><span class="line">  ; increment</span><br><span class="line">  %nextvar = fadd <span class="type">double</span> %i, <span class="number">1.000000e+00</span></span><br><span class="line"></span><br><span class="line">  ; termination test</span><br><span class="line">  %cmptmp = fcmp ult <span class="type">double</span> %i, %n</span><br><span class="line">  %booltmp = uitofp i1 %cmptmp to <span class="type">double</span></span><br><span class="line">  %loopcond = fcmp one <span class="type">double</span> %booltmp, <span class="number">0.000000e+00</span></span><br><span class="line">  br i1 %loopcond, label %loop, label %afterloop</span><br><span class="line"></span><br><span class="line">afterloop:      ; preds = %loop</span><br><span class="line">  ; loop always returns <span class="number">0.0</span></span><br><span class="line">  ret <span class="type">double</span> <span class="number">0.000000e+00</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，LLVM IR 包含了与 <code>if/then/else</code> 中相同的结构：一个 phi 节点、几个表达式和一些基本块。下面，让我们看看它们是如何组合在一起的。</p>
+<h2 id="代码生成-1"><a href="#代码生成-1" class="headerlink" title="代码生成"></a>代码生成</h2><p><code>codegen</code> 的第一部分非常简单，为 <code>Start</code> 表达式生成代码，如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Value *<span class="title">ForExprAST::codegen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// Emit the start code first, without &#x27;variable&#x27; in scope.</span></span><br><span class="line">  Value *StartVal = Start-&gt;<span class="built_in">codegen</span>();</span><br><span class="line">  <span class="keyword">if</span> (!StartVal)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br></pre></td></tr></table></figure>
+<p>随后，我们为循环体的开始设置 LLVM 基本块。在上面的例子中，整个循环体是一个基本块，而循环体代码本身可以由多个基本块组成（例如，如果它包含嵌套的 <code>if/then/else</code> 或 <code>for/in</code> 表达式）。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Make the new basic block for the loop header, inserting after current</span></span><br><span class="line"><span class="comment">// block.</span></span><br><span class="line">Function *TheFunction = Builder-&gt;<span class="built_in">GetInsertBlock</span>()-&gt;<span class="built_in">getParent</span>();</span><br><span class="line">BasicBlock *PreheaderBB = Builder-&gt;<span class="built_in">GetInsertBlock</span>();</span><br><span class="line">BasicBlock *LoopBB = BasicBlock::<span class="built_in">Create</span>(*TheContext, <span class="string">&quot;loop&quot;</span>, TheFunction);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Insert an explicit fall through from the current block to the LoopBB.</span></span><br><span class="line">Builder-&gt;<span class="built_in">CreateBr</span>(LoopBB);</span><br></pre></td></tr></table></figure>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-20.png?x-oss-process=image/resize,w_800"></p>
+<p>第二部分的代码与 <code>if/then/else</code> 非常相似。由于我们需要创建 phi 节点，因此要记住会进入循环的基本块。当我们获取到此基本块后，我们创建一个实际启动循环的基本块 <code>PreheaderBB</code> ，并为两个基本块创建一个无条件分支。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Start insertion in LoopBB.</span></span><br><span class="line">Builder-&gt;<span class="built_in">SetInsertPoint</span>(LoopBB);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Start the PHI node with an entry for Start.</span></span><br><span class="line">PHINode *Variable = Builder-&gt;<span class="built_in">CreatePHI</span>(Type::<span class="built_in">getDoubleTy</span>(*TheContext), <span class="number">2</span>, VarName);</span><br><span class="line">Variable-&gt;<span class="built_in">addIncoming</span>(StartVal, PreheaderBB);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-21.png?x-oss-process=image/resize,w_800"></p>
+<p>至此，我们已经设置了循环的 <code>PreheaderBB</code> 基本块，我们开始为循环体生成代码。首先，我们移动插入点，并为循环归纳变量创建 phi 节点。由于我们已经知道起始值的传入值，我们将其加入至 phi 节点。注意，phi 节点最会获得第二个值作为另一个边界，但是，目前我们还无法进行设置，因为它不存在。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Within the loop, the variable is defined equal to the PHI node.  If it</span></span><br><span class="line"><span class="comment">// shadows an existing variable, we have to restore it, so save it now.</span></span><br><span class="line">Value *OldVal = NamedValues[VarName];</span><br><span class="line">NamedValues[VarName] = Variable;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Emit the body of the loop.  This, like any other expr, can change the</span></span><br><span class="line"><span class="comment">// current BB.  Note that we ignore the value computed by the body, but don&#x27;t</span></span><br><span class="line"><span class="comment">// allow an error.</span></span><br><span class="line"><span class="keyword">if</span> (!Body-&gt;<span class="built_in">codegen</span>())</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-22.png?x-oss-process=image/resize,w_800"></p>
+<p>此时，<code>for</code> 将会向符号表中引入循环变量 <code>VarName</code>，从而使得符号表能够包含函数参数、循环变量等。为此，我们在为循环体生成代码之前，必须要将循环变量加入符号表，并存储其当前的值。注意，在外层作用域中有可能存在同名的变量 <code>VarName</code>，这里将符号表中的外部同名变量的值暂存至 <code>OldVal</code> 局部变量中，当代码生成完毕后，再进行恢复。</p>
+<p>当循环变量存入符号表后，我们为循环体生成代码。这允许循环体使用循环变量：任何对于循环变量的引用都会通过符号表进行查找。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Emit the step value.</span></span><br><span class="line">Value *StepVal = <span class="literal">nullptr</span>;</span><br><span class="line"><span class="keyword">if</span> (Step) &#123;</span><br><span class="line">  StepVal = Step-&gt;<span class="built_in">codegen</span>();</span><br><span class="line">  <span class="keyword">if</span> (!StepVal)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="comment">// If not specified, use 1.0.</span></span><br><span class="line">  StepVal = ConstantFP::<span class="built_in">get</span>(*TheContext, <span class="built_in">APFloat</span>(<span class="number">1.0</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Value *NextVar = Builder-&gt;<span class="built_in">CreateFAdd</span>(Variable, StepVal, <span class="string">&quot;nextvar&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-23.png?x-oss-process=image/resize,w_800"></p>
+<p>至此，循环体代码生成完毕，我们将通过增加步长值（如果没有则为 1.0）来计算迭代变量的下一个值。<code>NextVar</code> 将是循环的下一次迭代时循环变量的值。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Compute the end condition.</span></span><br><span class="line">Value *EndCond = End-&gt;<span class="built_in">codegen</span>();</span><br><span class="line"><span class="keyword">if</span> (!EndCond)</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Convert condition to a bool by comparing non-equal to 0.0.</span></span><br><span class="line">EndCond = Builder-&gt;<span class="built_in">CreateFCmpONE</span>(</span><br><span class="line">    EndCond, ConstantFP::<span class="built_in">get</span>(*TheContext, <span class="built_in">APFloat</span>(<span class="number">0.0</span>)), <span class="string">&quot;loopcond&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-24.png?x-oss-process=image/resize,w_800"></p>
+<p>最后，我们计算循环的退出值，从而决定循环是否退出。这与 <code>if/then/else</code> 语句的条件判断类似。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Create the &quot;after loop&quot; block and insert it.</span></span><br><span class="line">BasicBlock *LoopEndBB = Builder-&gt;<span class="built_in">GetInsertBlock</span>();</span><br><span class="line">BasicBlock *AfterBB =</span><br><span class="line">    BasicBlock::<span class="built_in">Create</span>(*TheContext, <span class="string">&quot;afterloop&quot;</span>, TheFunction);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Insert the conditional branch into the end of LoopEndBB.</span></span><br><span class="line">Builder-&gt;<span class="built_in">CreateCondBr</span>(EndCond, LoopBB, AfterBB);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Any new code will be inserted in AfterBB.</span></span><br><span class="line">Builder-&gt;<span class="built_in">SetInsertPoint</span>(AfterBB);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-25.png?x-oss-process=image/resize,w_800"></p>
+<p>当循环体代码生成完成，我们只需要处理结束后的控制流。这里，首先创建一个基本块用于循环退出（<code>afterloop</code>）。基于退出条件的值，创建一个条件分支用于选择再次执行循环或退出循环。后续的代码则位于 <code>afterloop</code> 基本块中，因此设置了对应的插入点。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">  <span class="comment">// Add a new entry to the PHI node for the backedge.</span></span><br><span class="line">  Variable-&gt;<span class="built_in">addIncoming</span>(NextVar, LoopEndBB);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Restore the unshadowed variable.</span></span><br><span class="line">  <span class="keyword">if</span> (OldVal)</span><br><span class="line">    NamedValues[VarName] = OldVal;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    NamedValues.<span class="built_in">erase</span>(VarName);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// for expr always returns 0.0.</span></span><br><span class="line">  <span class="keyword">return</span> Constant::<span class="built_in">getNullValue</span>(Type::<span class="built_in">getDoubleTy</span>(*TheContext));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-26.png?x-oss-process=image/resize,w_800"></p>
+<p>最后一部分代码则进行了各种清理操作。至此，我们有了 <code>NextVar</code> 的值，因此我们可以将传入的值加入到 phi 节点中。之后，我们将循环变量从符号表中删除，使得其不属于循环以外的作用域。最后，循环的代码生成会返回 <code>0.0</code>，即 <code>ForExprAST::codegen()</code> 的返回值。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>至此，我们为 Kaleidoscope 实现了控制流能力，包括 <code>if/then/else</code> 和 <code>for/in</code> 两种结构。我们通过实现这两种控制流，并介绍了 LLVM IR 相关的概念，如：φ 函数。下一章，我们将进一步对 Kaleidoscope 进行扩展，支持自定义运算符的能力。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl05.html">Kaleidoscope: Extending the Language: Control Flow</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Static_single-assignment_form">Static Single Assignment</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/LLVM/" rel="tag"># LLVM</a>
+          
+            <a href="/tags/JIT/" rel="tag"># JIT</a>
+          
+            <a href="/tags/Optimizer/" rel="tag"># Optimizer</a>
+          
+            <a href="/tags/LLVM-Pass/" rel="tag"># LLVM Pass</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/08/14/compiler-for-kaleidoscope-04/" rel="next" title="基于 LLVM 自制编译器(4)——代码优化器、JIT 编译器">
+                <i class="fa fa-chevron-left"></i> 基于 LLVM 自制编译器(4)——代码优化器、JIT 编译器
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/08/28/compiler-for-kaleidoscope-06/" rel="prev" title="基于 LLVM 自制编译器(6)——语言扩展：自定义运算符">
+                基于 LLVM 自制编译器(6)——语言扩展：自定义运算符 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#if-then-else"><span class="nav-number">2.</span> <span class="nav-text">if&#x2F;then&#x2F;else</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E6%89%A9%E5%B1%95"><span class="nav-number">2.1.</span> <span class="nav-text">词法分析器扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AST-%E6%89%A9%E5%B1%95"><span class="nav-number">2.2.</span> <span class="nav-text">AST 扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E6%9E%90%E5%99%A8%E6%89%A9%E5%B1%95"><span class="nav-number">2.3.</span> <span class="nav-text">解析器扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LLVM-IR"><span class="nav-number">2.4.</span> <span class="nav-text">LLVM IR</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%CF%86-%E5%87%BD%E6%95%B0"><span class="nav-number">2.4.1.</span> <span class="nav-text">φ 函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-number">2.5.</span> <span class="nav-text">代码生成</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#for-%E5%BE%AA%E7%8E%AF"><span class="nav-number">3.</span> <span class="nav-text">for 循环</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E6%89%A9%E5%B1%95-1"><span class="nav-number">3.1.</span> <span class="nav-text">词法分析器扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AST-%E6%89%A9%E5%B1%95-1"><span class="nav-number">3.2.</span> <span class="nav-text">AST 扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E6%9E%90%E5%99%A8%E6%89%A9%E5%B1%95-1"><span class="nav-number">3.3.</span> <span class="nav-text">解析器扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LLVM-IR-1"><span class="nav-number">3.4.</span> <span class="nav-text">LLVM IR</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90-1"><span class="nav-number">3.5.</span> <span class="nav-text">代码生成</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

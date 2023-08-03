@@ -16383,4 +16383,211 @@ print result
         <tag>自动补全</tag>
       </tags>
   </entry>
+  <entry>
+    <title>如何优雅地管理你的定时任务？</title>
+    <url>/2023/07/30/introduction-to-taskloop/</url>
+    <content><![CDATA[<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/taskloop-logo-white.png?x-oss-process=image/resize,w_800"></p>
+<span id="more"></span>
+
+<p>在日常开发中，我们经常会使用一些定时任务来辅助完成某些事情。对此，绝大多数人都会选择使用 crontab 来配置定时任务。</p>
+<p>不可否认，crontab 的确是管理定时任务的经典利器，但是你是否和我一样，踩过不少 crontab 的坑呢？</p>
+<p>下面，我将介绍一下个人认为 crontab 的一些痛点和坑。最终，给出另一种优化的解决方案。</p>
+<h1 id="crontab"><a href="#crontab" class="headerlink" title="crontab"></a>crontab</h1><p>提到 crontab，这里必须要介绍一下它的配置规则，如下所示。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">.---------------- 分 (0 - 59)</span><br><span class="line">|  .------------- 时 (0 - 23)</span><br><span class="line">|  |  .---------- 日 (1 - 31) </span><br><span class="line">|  |  |  .------- 月 (1 - 12) </span><br><span class="line">|  |  |  |  .---- 星期 (0 - 6) (星期日可为0或7) </span><br><span class="line">|  |  |  |  | </span><br><span class="line">*  *  *  *  * 执行的命令</span><br></pre></td></tr></table></figure>
+<p>crontab 的配置规则可以分为 5 列，其作用分别是：</p>
+<ul>
+<li>第一列单位为分，表示每时第几分钟，范围为 0-59</li>
+<li>第二列单位为时，表示每天第几小时，范围为 0-23</li>
+<li>第三列单位为日，表示每月第几天，范围为 1-31</li>
+<li>第四列单位为月，表示每年第几月，范围为 1-12</li>
+<li>第五列单位为星期，表示每星期第几天，范围 0-7，0 与 7 表示星期日，其他分别为星期 1-6</li>
+</ul>
+<p>整体而言，crontab 对于不同的单位（除了星期），均支持了三种配置规则：</p>
+<ul>
+<li>指定时间</li>
+<li>指定范围</li>
+<li>指定步长</li>
+</ul>
+<p>通过组合这些配置规则，crontab 可以实现非常多的定时配置。</p>
+<p>在使用 crontab 很长时间之后，我发现 crontab 还是存在着一些使用痛点的，主要有以下几点，下面分别进行介绍。</p>
+<h2 id="输出重定向"><a href="#输出重定向" class="headerlink" title="输出重定向"></a>输出重定向</h2><p>默认为情况下，crontab 会将任务输出默认写入到执行用户的邮件中。如果任务有大量输出，则会大量占用磁盘资源，甚至导致系统宕机。</p>
+<p>如下所示，我们配置一个输出当前日志的定时任务。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">* * * * * <span class="built_in">date</span></span><br></pre></td></tr></table></figure>
+
+<p>我们可以查看当前用户的邮件，如下所示。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> /var/mail/<span class="variable">$USER</span></span><br><span class="line">...</span><br><span class="line">Tue Aug  1 22:11:22 CST 2023</span><br></pre></td></tr></table></figure>
+
+<p>关于这个问题，实践经验都是建议采用如下的方式对任务的输出进行重定向。很显然，这对于新手是非常不友好的。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">* * * * * <span class="built_in">date</span> &gt;&gt; /dev/null/ 2&gt;&amp;1</span><br></pre></td></tr></table></figure>
+
+<h2 id="环境变量"><a href="#环境变量" class="headerlink" title="环境变量"></a>环境变量</h2><p>在实践中，我们可以发现 crontab 的环境变量与控制台的环境变量是存在差异的。因此，经常会出现这样的情景：在控制台中调试完成的任务，在 cron 中执行时，其结果会与预期不相符。事实上，产生这种差异的根本原因就是环境变量。</p>
+<p>此外，crontab 中环境变量不会全局共享。因此，当我们配置多个任务时，可能需要为每个任务单独配置环境变量。很显然，这是一个重复而又繁琐的问题。</p>
+<h2 id="规则语法"><a href="#规则语法" class="headerlink" title="规则语法"></a>规则语法</h2><p>关于 crontab 的规则语法，这是个仁者见仁智者见智的问题。对于老手来说，可能比较简单；对于新人来说，在使用时得去查询各个位置的单位以及不同规则的写法。我觉得 crontab 的规则语法不容易理解的根本原因是缺少语义。如果能优化其规则语法的语义，那就更好不过了。</p>
+<p>另一方面，对于某些极客来说，crontab 的规则可能还不够完备。比如：预期一个定时任务从某个时刻开始或停止执行，或者，预期一个任务循环执行 n 次后结束。对于这种规则，crontab 无法一次性满足，只能通过配置多个任务来辅助完成。</p>
+<h2 id="运行日志"><a href="#运行日志" class="headerlink" title="运行日志"></a>运行日志</h2><p>在实际应用中，我们经常需要借助任务的运行日志来排查问题。此时，我们就需要修改 crontab，将任务的输出重定向至某个文件，从而方便后续进行查看。当任务非常多的时候，我们很难记住每个任务对应的日志文件是哪个。这也是 crontab 的一个痛点。</p>
+<h1 id="taskloop"><a href="#taskloop" class="headerlink" title="taskloop"></a>taskloop</h1><p>为了解决 crontab 的诸多痛点，我在业余时间开发了一款优化版的定时任务管理器——<a href="https://github.com/baochuquan/taskloop">taskloop</a>。</p>
+<p>taskloop 底层运行在 cron 守护进程之上，基于 crontab 配置了最小粒度的调度规则，实现了一个中间层，从而解决了 crontab 的诸多痛点。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cs-of-luxun.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><p>taskloop 提供了一系列的命令，实现了一个相对完整（如有缺失，补充实现）的工作流，其主要包含以下这些特性。</p>
+<h3 id="环境变量-1"><a href="#环境变量-1" class="headerlink" title="环境变量"></a>环境变量</h3><p><code>taskloop env</code> 命令提供了查看、导入、删除环境变量的功能。</p>
+<p>如下所示，为环境变量查看的使用示例。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ taskloop <span class="built_in">env</span> </span><br><span class="line"></span><br><span class="line">PATH=/Users/baochuquan/.rvm/gems/ruby-2.6.5/bin:/Users/baochuquan/.rvm/gems/ruby-2.6.5@global/bin:/Users/baochuquan/.rvm/rubies/ruby-2.6.5/bin:/usr/local/texlive/2023basic/bin/universal-darwin:/Users/baochuquan/.nvm/versions/node/v18.16.0/bin:/usr/local/opt/sqlite/bin:/usr/local/sbin:/usr/local/opt/gettext/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Users/baochuquan/.rvm/bin:/Users/baochuquan/Flutter/bin:/Users/baochuquan/Library/Android/sdk/tools</span><br><span class="line">RUBY_VERSION=ruby-2.6.5</span><br><span class="line">GEM_PATH=/Users/baochuquan/.rvm/gems/ruby-2.6.5:/Users/baochuquan/.rvm/gems/ruby-2.6.5@global</span><br><span class="line">GEM_HOME=/Users/baochuquan/.rvm/gems/ruby-2.6.5</span><br><span class="line">IRBRC=/Users/baochuquan/.rvm/rubies/ruby-2.6.5/.irbrc</span><br><span class="line">NOX_ROOT=/Users/baochuquan/Develop/nox</span><br><span class="line">NOX_NAME=nox</span><br><span class="line">NOX_COMMON=/Users/baochuquan/Develop/nox/common</span><br><span class="line">NOX_CONFIG=/Users/baochuquan/Develop/nox/config</span><br><span class="line">NOX_SCRIPTS=/Users/baochuquan/Develop/nox/scripts</span><br></pre></td></tr></table></figure>
+
+<p>如下所示，为环境变量导入的使用示例。示例中，我导入了两个环境变量 <code>JAVA_HOME</code> 和 <code>GROOVY_HOME</code>。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ taskloop <span class="built_in">env</span> --import=JAVA_HOME,GROOVY_HOME</span><br><span class="line"></span><br><span class="line">importing JAVA_HOME ...</span><br><span class="line">    JAVA_HOME=/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home</span><br><span class="line">importing GROOVY_HOME ...</span><br><span class="line">    GROOVY_HOME=/usr/local/opt/groovy/libexec</span><br><span class="line"></span><br><span class="line">import global environment variables complete.</span><br></pre></td></tr></table></figure>
+
+<p>如下所示，为环境变量删除的使用示例。示例中，我删除了 <code>GROOVY_HOME</code> 环境变量。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ taskloop <span class="built_in">env</span> --remove=GROOVY_HOME</span><br><span class="line"></span><br><span class="line">remove global environment variables complete.</span><br></pre></td></tr></table></figure>
+
+<p>经过一系列导入、删除操作之后，我们可以通过 <code>taskloop env</code> 命令来查看导入结果是否正确。</p>
+<h3 id="启动-关闭"><a href="#启动-关闭" class="headerlink" title="启动&#x2F;关闭"></a>启动&#x2F;关闭</h3><p>taskloop 具有一个全局的开关，即启动和关闭的能力。前面我们提到 taskloop 底层是运行在 cron 守护进程之上，对此，启动功能的本质就是将 taskloop 注册至 crontab；关闭功能的本质就是将 taskloop 从 crontab 注销。</p>
+<p>如下所示，为启动 taskloop 的使用示例。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$  taskloop launch</span><br><span class="line"></span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@          @@@@@@@@@@@@@@@@@@@@@@   @@@@@@@    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@@@    @@@@@       @@@   @@   @@    @@@@@      @@@@      @@@       @@@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@   @@   @@   @@@   @@   @   @@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@@@@@@   @@@    @@@@@@      @@@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@        @@@@@@    @@@      @@@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@   @@@   @@   @@@   @@   @   @@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@        @@@       @@@   @@   @@      @@@      @@@@      @@@       @@@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   @@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line"></span><br><span class="line">    taskloop has launched successfully.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>如下所示，为关闭 taskloop 的使用示例。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ taskloop shutdown</span><br><span class="line"></span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@          @@@@@@@@@@@@@@@@@@@@@@   @@@@@@@    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@@@    @@@@@       @@@   @@   @@    @@@@@      @@@@      @@@       @@@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@   @@   @@   @@@   @@   @   @@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@@@@@@   @@@    @@@@@@      @@@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@        @@@@@@    @@@      @@@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@   @@@   @@   @@@   @@   @   @@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@        @@@       @@@   @@   @@      @@@      @@@@      @@@       @@@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   @@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line"></span><br><span class="line">    taskloop has shutdown successfully.</span><br><span class="line"></span><br><span class="line">    byeeeeeeeeeeeeeeeee !</span><br></pre></td></tr></table></figure>
+
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>taskloop 通过读取注册的 Taskfile 来执行所有的任务，Taskfile 中可以定义一系列用户自定义的任务。为了便于使用，taskloop 提供了一个初始化命令，可以自动创建一个 Taskfile 模板，从而供用户进行修改和定制。</p>
+<p>如下所示，为初始化的使用示例。<code>taskloop init</code> 方法创建了一个 Taskfile 模板，并定义了所有支持的属性，我们可以自定义任务，包括任务的路径、名称、执行规则等。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> my-job-project</span><br><span class="line">$ taskloop init</span><br><span class="line">$ <span class="built_in">cat</span> Taskfile</span><br><span class="line"></span><br><span class="line"><span class="comment"># env to set environment variables which are shared by all tasks defined in the Taskfile. &lt;Optional&gt;</span></span><br><span class="line"><span class="comment"># env &quot;ENV_NAME&quot;, &quot;ENV_VALUE&quot;</span></span><br><span class="line"></span><br><span class="line">TaskLoop::Task.new <span class="keyword">do</span> |t|</span><br><span class="line">  t.name        = <span class="string">&#x27;TODO: task name. &lt;Required&gt;&#x27;</span></span><br><span class="line">  t.path        = <span class="string">&#x27;TODO: task job path. For example, t.path = &quot;./Job.sh&quot;. &lt;Required&gt;&#x27;</span></span><br><span class="line">  t.week        = <span class="string">&#x27;TODO: week rule. &lt;Optional&gt;&#x27;</span></span><br><span class="line">  t.year        = <span class="string">&quot;TODO: year rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.month       = <span class="string">&quot;TODO: month rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.day         = <span class="string">&quot;TODO: day rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.hour        = <span class="string">&quot;TODO: hour rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.minute      = <span class="string">&quot;TODO: minute rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.time        = <span class="string">&quot;TODO: time list rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.date        = <span class="string">&quot;TODO: date list rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.loop        = <span class="string">&quot;TODO: loop count. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.start_point = <span class="string">&quot;TODO: start point boundary rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.end_point   = <span class="string">&quot;TODO: end point boundary rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+
+<h3 id="发布-撤销"><a href="#发布-撤销" class="headerlink" title="发布&#x2F;撤销"></a>发布&#x2F;撤销</h3><p>当我们完成了对 Taskfile 的定义之后，可以进行发布。发布过程中，taskloop 会检查 Taskfile 中的语法规则，如果不符合将抛出异常，并提示错误；如果符合规则，则完成发布。Taskfile 将正式生效，后续的任务执行将以此为准。</p>
+<p>如下所示，为发布的使用示例。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> my-job-project</span><br><span class="line">$ taskloop deploy</span><br><span class="line"></span><br><span class="line">                       (@&amp;/////%@@@@@@@@@@@@@<span class="comment">#</span></span><br><span class="line">                          @@&amp;@&amp;////////////////(@@<span class="comment">#</span></span><br><span class="line">                         /@(///////////////////////%@/</span><br><span class="line">                       *@////////////////////////////<span class="comment">#@,</span></span><br><span class="line">                      @&amp;///////////////////////////////@%</span><br><span class="line">                     @&amp;//////////////(@////@&amp;<span class="comment">#/////////(@</span></span><br><span class="line">                     @////////////@@  @////@    ,.@////@@</span><br><span class="line">                    /@//////////&amp;@  ,@@////@@@&amp;.  *///@@</span><br><span class="line">                    ,@/////////(@@@   @///&amp;@     /@@///@@</span><br><span class="line">                     @%////////@@     @@@&amp;           @@/@<span class="comment">#</span></span><br><span class="line">                      @<span class="comment">#///////@           ,</span></span><br><span class="line">                       @@//////@&amp;      @(//@</span><br><span class="line">                         @@/////%@    @////@</span><br><span class="line">                            @@/////<span class="comment">#@@@////@</span></span><br><span class="line">                                &amp;@@@&amp;<span class="comment">#((&amp;@@</span></span><br><span class="line">                          /&amp;<span class="comment">#         @///@@</span></span><br><span class="line">                       ,///,*.        @////@</span><br><span class="line">                   &amp;<span class="comment">#  %/,@           @@///@</span></span><br><span class="line">                 (, .*/&amp;*%/*%///&amp;       (@@@         ,*/////*.</span><br><span class="line">           %/<span class="comment">#@, ////&amp;  @  % .&amp;  /@%/(/    /#/#@(                 #@#/&amp;</span></span><br><span class="line">        (/&amp;               .           .////,                           &amp;//</span><br><span class="line">       &amp;(//@                         &amp;//////&amp;                         @///@</span><br><span class="line">         (@%//////<span class="comment">#&amp;@@@@@@@@@@%///////@@  @@///////%@@@@@@@@@@&amp;#//////#@#</span></span><br><span class="line">                %@@@@&amp;@@@@@&amp;&amp;@@@@/              /@@@@&amp;&amp;@@@@@&amp;@@@@&amp;</span><br><span class="line"></span><br><span class="line">                              Taskfile deploy success!</span><br></pre></td></tr></table></figure>
+
+<p>当然，在某些情况下，我们需要撤销已经发布的 Taskfile。此时，我们可以执行如下命令进行撤销。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> my-job-project</span><br><span class="line">$ taskloop undeploy</span><br><span class="line"></span><br><span class="line">Taskfile <span class="keyword">in</span> &lt;/Users/baochuquan/Github/taskloop&gt; has been undeployed successfully.</span><br></pre></td></tr></table></figure>
+
+<h3 id="任务查看"><a href="#任务查看" class="headerlink" title="任务查看"></a>任务查看</h3><p>为了便于查看当前已发布的任务，taskloop 提供了一个命令方便用户进行查询。如下所示，为任务查看的使用示例。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ taskloop list</span><br><span class="line"></span><br><span class="line">=============================</span><br><span class="line">Tasks above are defined <span class="keyword">in</span> Taskfile of &lt;/Users/baochuquan/Github/taskloop&gt;</span><br><span class="line">  &lt;Task.name: haha, sha1: 637d1f5c6e6d1be22ed907eb3d223d858ca396d8&gt;</span><br><span class="line">    t.name        = haha</span><br><span class="line">    t.path        = ./test/Test01.rb</span><br><span class="line">    t.year        = unit: year; specific: 2023</span><br><span class="line">    t.month       = unit: month; specific: Aug</span><br><span class="line">    t.day         = unit: day; default rule</span><br><span class="line">    t.hour        = unit: hour; default rule</span><br><span class="line">    t.minute      = unit: minute; scope: between 25, 30</span><br><span class="line">    t.loop        = unit: loop; default rule</span><br><span class="line">    t.start_point = unit: full; default rule</span><br><span class="line">    t.end_point   = unit: full; default rule</span><br><span class="line">  &lt;Task.name: baocq, sha1: 7cc14c1bffcd559180d9906377bfaa41a4f9a980&gt;</span><br><span class="line">    t.name        = baocq</span><br><span class="line">    t.path        = ./test/Test02.rb</span><br><span class="line">    t.year        = unit: year; default rule</span><br><span class="line">    t.month       = unit: month; default rule</span><br><span class="line">    t.day         = unit: day; default rule</span><br><span class="line">    t.hour        = unit: hour; default rule</span><br><span class="line">    t.minute      = unit: minute; interval: 1</span><br><span class="line">    t.loop        = unit: loop; loop: 3</span><br><span class="line">    t.start_point = unit: full; boundary: start from 2023-7-31 22:31:00</span><br><span class="line">    t.end_point   = unit: full; boundary: end to 2023-7-31 22:35:00</span><br><span class="line">  &lt;Task.name: chuquan, sha1: d461e86c07d232ceebcd2d024ea4b4c33d0f7b4b&gt;</span><br><span class="line">    t.name        = chuquan</span><br><span class="line">    t.path        = ./test/Test03.rb</span><br><span class="line">    t.year        = unit: year; specific: 2023</span><br><span class="line">    t.month       = unit: month; default rule</span><br><span class="line">    t.day         = unit: day; default rule</span><br><span class="line">    t.hour        = unit: hour; scope: after 22</span><br><span class="line">    t.minute      = unit: minute; interval: 10</span><br><span class="line">    t.loop        = unit: loop; loop: 1</span><br><span class="line">    t.start_point = unit: full; default rule</span><br><span class="line">    t.end_point   = unit: full; default rule</span><br></pre></td></tr></table></figure>
+
+<h3 id="日志查看"><a href="#日志查看" class="headerlink" title="日志查看"></a>日志查看</h3><p>为了解决 crontab 的日志查询问题，taskloop 同样提供了一个命令支持查询不同维度的日志，包括：系统日志（即 taskloop 运行日志）、任务日志。</p>
+<p>如下所示，为查看系统日志的使用示例。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ taskloop <span class="built_in">log</span> --cron</span><br><span class="line"></span><br><span class="line">=============================</span><br><span class="line">Log of cron:</span><br><span class="line"></span><br><span class="line">Trigger Time: &lt;2023-08-03 08:24:00 +0800&gt;</span><br><span class="line">Checking: &lt;Task.name: haha, sha1: 637d1f5c6e6d1be22ed907eb3d223d858ca396d8&gt; does not meet the execution rules, taskloop will skip its execution.</span><br><span class="line">Checking: &lt;Task.name: baocq, sha1: 7cc14c1bffcd559180d9906377bfaa41a4f9a980&gt; does not meet the execution rules, taskloop will skip its execution.</span><br><span class="line">Checking: &lt;Task.name: chuquan, sha1: d461e86c07d232ceebcd2d024ea4b4c33d0f7b4b&gt; does not meet the execution rules, taskloop will skip its execution.</span><br><span class="line">=============================</span><br></pre></td></tr></table></figure>
+
+<p>如下所示，为查看任务日志的使用示例。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ taskloop <span class="built_in">log</span> --task-name=baocq</span><br><span class="line">=============================</span><br><span class="line">Project of &lt;/Users/baochuquan/Github/taskloop&gt;</span><br><span class="line">Log of &lt;Task.name: haha&gt; above:</span><br><span class="line">&lt;Trigger Time: 2023-08-03 08:27:16 +0800&gt;</span><br><span class="line">Test0101</span><br><span class="line"></span><br><span class="line">=============================</span><br></pre></td></tr></table></figure>
+
+<h2 id="语法规则"><a href="#语法规则" class="headerlink" title="语法规则"></a>语法规则</h2><p><code>taskloop init</code> 命令会创建一个 Taskfile 文件，我们可以在 Taskfile 文件中自定义不同的任务与规则。这里，taskloop 定义了一套语法规则，我们将基于如下所示的 Taskfile 模板进行介绍。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">TaskLoop::Task.new <span class="keyword">do</span> |t|</span><br><span class="line">  t.name        = <span class="string">&#x27;TODO: task name. &lt;Required&gt;&#x27;</span></span><br><span class="line">  t.path        = <span class="string">&#x27;TODO: task job path. For example, t.path = &quot;./Job.sh&quot;. &lt;Required&gt;&#x27;</span></span><br><span class="line">  t.week        = <span class="string">&#x27;TODO: week rule. &lt;Optional&gt;&#x27;</span></span><br><span class="line">  t.year        = <span class="string">&quot;TODO: year rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.month       = <span class="string">&quot;TODO: month rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.day         = <span class="string">&quot;TODO: day rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.hour        = <span class="string">&quot;TODO: hour rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.minute      = <span class="string">&quot;TODO: minute rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.time        = <span class="string">&quot;TODO: time list rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.date        = <span class="string">&quot;TODO: date list rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.loop        = <span class="string">&quot;TODO: loop count. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.start_point = <span class="string">&quot;TODO: start point boundary rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.end_point   = <span class="string">&quot;TODO: end point boundary rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+
+<p>模板中列出了任务支持的所有属性，首先有两个必要属性 <code>name</code> 和 <code>path</code>。</p>
+<ul>
+<li><code>name</code>：用于指出任务的名称，同一个 Taskfile 中不能有同名的任务，主要用于日志查询时指定名称。</li>
+<li><code>path</code> 用于指出任务的路径，taskloop 会根据此路径加载并执行任务脚本。</li>
+</ul>
+<p>模板中的其他属性均为非必要属性，用于描述执行规则。关于执行规则，taskloop 中主要定义如下几种规则。</p>
+<ul>
+<li><strong>指定时间规则（Specific Rule）</strong><ul>
+<li>指定时间规则用于指定特定的时间值，对应的语法是 <code>at</code>。</li>
+<li>支持指定时间规则的属性有 <code>week</code>、<code>year</code>、<code>month</code>、<code>day</code>、<code>hour</code>、<code>minute</code>，其中 <code>week</code>、<code>month</code>、<code>day</code> 属性需要使用预定义的符号，其余属性可以直接使用数值。<ul>
+<li>对于 <code>week</code>，需要使用星期符号，如：<code>:Sun</code>、<code>:Mon</code> 等。</li>
+<li>对于 <code>month</code>，需要使用月份符号，如：<code>:Jan</code>、<code>:Feb</code> 等。</li>
+<li>对于 <code>day</code>，需要使用表示月份中第几天的符号，如：<code>:day1</code>，<code>:day2</code> 等。</li>
+</ul>
+</li>
+<li>示例<ul>
+<li><code>t.week = at :Mon, :Sub, :Tue</code></li>
+<li><code>t.month = at :Feb, :Aug</code></li>
+<li><code>t.day = at :day2, :day8, :day30, day:31</code></li>
+<li><code>t.year = at 2023, 2024</code></li>
+<li><code>t.hour = at 10, 11</code></li>
+<li><code>t.minute = at 59</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>时间范围规则（Scope Rule）</strong><ul>
+<li>时间范围规则包含三种子规则，对应的语法分别是：<code>before</code>、<code>between</code>、<code>after</code>。<ul>
+<li><code>before</code> 语法表示在小于等于某个值时执行。</li>
+<li><code>between</code> 语法表示在大于等于某个值，且小于等于另一个值时执行。</li>
+<li><code>after</code> 语法表示在大于等于某个值时执行。</li>
+</ul>
+</li>
+<li>支持时间范围规则的属性有 <code>week</code>、<code>year</code>、<code>month</code>、<code>day</code>、<code>hour</code>、<code>minute</code>。</li>
+<li>示例<ul>
+<li><code>t.year = before 2026</code></li>
+<li><code>t.week = between :Mon, :Fri</code></li>
+<li><code>t.hour = after 12</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>时间间隔规则（Interval Rule）</strong><ul>
+<li>时间间隔规则用于指定两次任务之间的时间间隔，对应的语法是 <code>interval</code>。</li>
+<li>支持时间间隔规则的属性有 <code>year</code>、<code>month</code>、<code>day</code>、<code>hour</code>、<code>minute</code>。</li>
+<li>示例<ul>
+<li><code>t.minute = interval 5</code></li>
+<li><code>t.day = interval 1</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>循环次数规则（Loop Rule）</strong><ul>
+<li>循环次数规则用于指定任务循环的次数，对应的语法是 <code>loop</code>。</li>
+<li>支持循环次数规则的属性只有 <code>loop</code>。</li>
+<li>示例<ul>
+<li><code>t.loop = loop 10</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>时间列表规则（Time List Rule）</strong><ul>
+<li>时间列表规则用于指定任务执行的时间列表，对应的语法是 <code>time</code>。其与 <code>hour</code>、<code>minute</code> 属性冲突，不能同时使用。</li>
+<li>支持时间列表规则的属性只有 <code>time</code>。</li>
+<li>示例<ul>
+<li><code>t.time = time &quot;10:00:00&quot;, &quot;7:00:00&quot;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>日期列表规则（Date List Rule）</strong><ul>
+<li>日期列表规则用于指定执行任务的日期列表，对应的语法是 <code>date</code>。其与 <code>year</code>、<code>month</code>、<code>day</code> 属性冲突，不能同时使用。</li>
+<li>支持日期列表规则的属性只有 <code>date</code>。</li>
+<li>示例<ul>
+<li><code>t.date = date &quot;2023-10-1, &quot;2023-5-1</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>执行边界规则（Boundary Rule）</strong><ul>
+<li>执行边界规则包含两种子规则，对应的语法分别是 <code>from</code> 和 <code>to</code>。<ul>
+<li><code>from</code> 语法表示任务从某一个时刻开始执行，支持的属性只有 <code>start_point</code>。</li>
+<li><code>to</code> 语法表示任务在某一时刻之后不在执行，支持的属性只有 <code>end_point</code>。</li>
+</ul>
+</li>
+<li>示例<ul>
+<li><code>t.start_point = &quot;2023-10-1 10:00:00&quot;</code></li>
+<li><code>t.end_point = &quot;2023-10-30 23:59:00</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="工作流程"><a href="#工作流程" class="headerlink" title="工作流程"></a>工作流程</h2><p>taskloop 的工作流程可以分为三个步骤：</p>
+<ul>
+<li><strong>启动&#x2F;关闭</strong></li>
+<li><strong>初始化</strong></li>
+<li><strong>发布&#x2F;撤销</strong></li>
+</ul>
+<p>启动&#x2F;关闭步骤是一个全局开关，对应分别有两个命令，如上所述。关于启动，一般只在最开始使用 taskloop 的时候使用启动命令。如果希望停止所有已注册任务的执行，则可以执行关闭命令。</p>
+<p>taskloop 建议用户能够使用一个目录统一管理所有的定时任务，当希望为这些定时任务创建定时规则时，可以在目录下执行初始化命令，从而生成一个 Taskfile 文件。之后，即可自定义定时规则。如果用户本地维护了多个目录管理定时任务，则需要在不同的目录下分别执行一次初始化命令，从而完成任务规则自定义。</p>
+<p>发布&#x2F;撤销步骤相对而言会比较频繁，当初始化并自定义 Taskfile 之后，我们就可以执行发布命令，使得 Taskfile 真正在 taskloop 中生效。当然，有时候我们会在发布后发现一些错误，我们可以修改后重新发布，或者为了避免产生副作用，可以执行撤销命令。注意，发布&#x2F;撤销命令必须在 Taskfile 的同级目录下执行。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文简单介绍了一下我最近业余时间写的一个定时任务管理工具——taskloop。同时，解释了为什么做这个工具的原因（即解决 crontab 的痛点）。</p>
+<p>关于软件 logo，我花了两晚设计了这样一个形象。两个圈组成一个莫比乌斯环，象征着循环。海豚跳圈作为任务执行的抽象，在两个圈中循环穿越，象征着 taskloop 永不停止地运行。</p>
+<p>忘了说，其实写这篇文章的另一个重要目的是为了推广一下我的作品，也希望有兴趣的朋友能够给一些意见，甚至可以一起参与软件的开发和完善。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a href="https://github.com/baochuquan/taskloop">taskloop</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>Ruby</category>
+      </categories>
+      <tags>
+        <tag>taskloop</tag>
+        <tag>cron</tag>
+        <tag>crontab</tag>
+        <tag>定时任务</tag>
+      </tags>
+  </entry>
 </search>

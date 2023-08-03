@@ -1,38 +1,1479 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="GCD," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="GCD 简介GCD（Grand Central Dispatch）是 Apple 开发的一个多核编程的解决方法。它主要用于优化应用程序以支持多核处理器以及其他对称多处理系统。 GCD 基本概念GCD 主要包含两个核心概念：任务 和 队列。 任务任务：即要在线程中执行的那段代码。GCD 将任务定义在 block 中。 任务的执行主要有两种方式：同步执行（sync） 和 异步执行（async）。两者的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GCD 原理详解">
+<meta property="og:url" content="http://chuquan.me/2018/12/01/gcd-introduce/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="GCD 简介GCD（Grand Central Dispatch）是 Apple 开发的一个多核编程的解决方法。它主要用于优化应用程序以支持多核处理器以及其他对称多处理系统。 GCD 基本概念GCD 主要包含两个核心概念：任务 和 队列。 任务任务：即要在线程中执行的那段代码。GCD 将任务定义在 block 中。 任务的执行主要有两种方式：同步执行（sync） 和 异步执行（async）。两者的">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic07.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic08.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic09.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic02.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic03.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic04.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic05.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic06.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic10.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2018-12-01T12:55:11.000Z">
+<meta property="article:modified_time" content="2020-11-17T15:10:04.815Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="GCD">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic07.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2018/12/01/gcd-introduce/"/>
+
+
+
+
+
+  <title>GCD 原理详解 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2018/12/01/gcd-introduce/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">GCD 原理详解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2018-12-01T20:55:11+08:00">
+                2018-12-01
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2020-11-17T23:10:04+08:00">
+                2020-11-17
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="GCD-简介"><a href="#GCD-简介" class="headerlink" title="GCD 简介"></a>GCD 简介</h1><p>GCD（Grand Central Dispatch）是 Apple 开发的一个多核编程的解决方法。它主要用于优化应用程序以支持多核处理器以及其他对称多处理系统。</p>
+<h1 id="GCD-基本概念"><a href="#GCD-基本概念" class="headerlink" title="GCD 基本概念"></a>GCD 基本概念</h1><p>GCD 主要包含两个核心概念：<strong>任务</strong> 和 <strong>队列</strong>。</p>
+<h2 id="任务"><a href="#任务" class="headerlink" title="任务"></a>任务</h2><p><strong>任务</strong>：即要在线程中执行的那段代码。GCD 将任务定义在 block 中。</p>
+<p>任务的执行主要有两种方式：<strong>同步执行（sync）</strong> 和 <strong>异步执行（async）</strong>。两者的主要区别是：<strong>是否等待队列中的任务执行结束，是否具备开启新线程的能力</strong>。因此，根据任务的执行方式可以将任务分成两种类型：</p>
+<p><strong>同步任务（sync）</strong></p>
+<ul>
+<li>同步添加任务到指定的队列中，在添加的任务执行结束之前，会一直等待，直到队列里面的任务完成之后再继续执行。</li>
+<li>只能在当前线程中执行任务，不具备开启新线程的能力。</li>
+</ul>
+<p><strong>异步任务（async）</strong></p>
+<ul>
+<li>异步添加任务到指定的队列中，它不会做任何等待，可以继续执行任务。</li>
+<li>可以在新的线程中执行任务，具备开启新线程的能力。</li>
+</ul>
+<blockquote>
+<p>注意： <strong>异步任务（async）</strong> 虽然具有开启新线程的能力，但是并不一定开启新线程。这跟任务所指定的队列类型有关（下面会讲）。</p>
+</blockquote>
+<h2 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h2><p><strong>队列（Dispatch Queue）</strong>：即用来存放任务的队列。队列是一种特殊的线性表，采用 FIFO（先进先出）的原则，即新任务总是被插入到队列的末尾，而读取任务的时候总是从队列的头部开始读取。每读取一个任务，则从队列中释放一个任务。队列的结构如下图所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic07.png?x-oss-process=image/resize,w_800"></p>
+<p>在 GCD 中有两种队列：<strong>串行队列</strong> 和 <strong>并发队列</strong>。两者的主要区别是：<strong>执行顺序不同，开启线程数不同</strong>。</p>
+<p><strong>串行队列</strong></p>
+<ul>
+<li>每次只有一个任务被执行。（只开启一个线程，一个任务执行完毕后，在执行下一个任务）<br><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic08.png?x-oss-process=image/resize,w_800"></li>
+</ul>
+<p><strong>并发队列</strong></p>
+<ul>
+<li>允许多个任务（同时）执行。（可以开启多个线程，并同时执行任务）<br><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic09.png?x-oss-process=image/resize,w_800"></li>
+</ul>
+<blockquote>
+<p>注意：<strong>并发队列</strong> 的并发功能只有在异步（dispatch_async）函数下才有效。</p>
+</blockquote>
+<h1 id="GCD-使用方法"><a href="#GCD-使用方法" class="headerlink" title="GCD 使用方法"></a>GCD 使用方法</h1><p>GCD 的使用主要包含两个步骤：</p>
+<ol>
+<li>创建一个队列（串行队列或并发队列）</li>
+<li>将任务追加到任务的等待队列中，然后系统会根据任务类型执行任务（同步执行或异步执行）</li>
+</ol>
+<h2 id="队列的创建-获取"><a href="#队列的创建-获取" class="headerlink" title="队列的创建&#x2F;获取"></a>队列的创建&#x2F;获取</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dispatch_queue_t</span><br><span class="line">dispatch_queue_create(const char *_Nullable label,</span><br><span class="line">		dispatch_queue_attr_t _Nullable attr)</span><br></pre></td></tr></table></figure>
+<p>参数说明：</p>
+<ul>
+<li><code>label</code>：表示队列的唯一标识符，用于 DEBUG，可为空。</li>
+<li><code>attr</code>：表示队列的类型。<code>DISPATCH_QUEUE_SERIAL</code> 表示串行队列；<code>DISPATCH_QUEUE_CONCURRENT</code> 表示并发队列。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 串行队列的创建方法</span><br><span class="line">dispatch_queue_t queue = dispatch_queue_create(&quot;me.chuquan.testQueue&quot;, DISPATCH_QUEUE_SERIAL);</span><br><span class="line">// 并发队列的创建方法</span><br><span class="line">dispatch_queue_t queue = dispatch_queue_create(&quot;me.chuquan.testQueue&quot;, DISPATCH_QUEUE_CONCURRENT);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>对于串行队列，GCD 提供了一种特殊的串行队列：<strong>主队列（Main Dispatch Queue）</strong>。</p>
+<ul>
+<li><strong>所有放在主队列的任务，都会在主线程执行</strong>。</li>
+<li>可使用 <code>dispatch_get_main_queue()</code> 获取主队列。<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 主队列的获取方法</span><br><span class="line">dispatch_queue_t queue = dispatch_get_main_queue();</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<p>对于并发队列，GCD 默认提供了 <strong>全局并发队列（Global Dispatch Queue）</strong>。</p>
+<ul>
+<li>可使用 <code>dispatch_get_global_queue</code> 获取全局并发队列。<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 全局并发队列的获取方法</span><br><span class="line">dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);</span><br></pre></td></tr></table></figure>
+GCD 提供了 4 个 <strong>全局并发队列</strong>，分别对应不同的优先级。</li>
+<li><code>DISPATCH_QUEUE_PRIORITY_HIGH</code></li>
+<li><code>DISPATCH_QUEUE_PRIORITY_DEFAULT</code></li>
+<li><code>DISPATCH_QUEUE_PRIORITY_LOW</code></li>
+<li><code>DISPATCH_QUEUE_PRIORITY_BACKGROUND</code>：后台队列</li>
+</ul>
+<h2 id="任务的创建"><a href="#任务的创建" class="headerlink" title="任务的创建"></a>任务的创建</h2><p>GCD 提供了同步执行任务的创建方法 <code>dispatch_sync</code> 和异步执行任务创建方法 <code>dispatch_async</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 同步任务创建方法</span><br><span class="line">dispatch_sync(queue, ^&#123;</span><br><span class="line">    // 这里放同步执行任务代码</span><br><span class="line">&#125;);</span><br><span class="line">// 异步任务创建方法</span><br><span class="line">dispatch_async(queue, ^&#123;</span><br><span class="line">    // 这里放异步执行任务代码</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h1 id="GCD-使用组合"><a href="#GCD-使用组合" class="headerlink" title="GCD 使用组合"></a>GCD 使用组合</h1><p>GCD 有两种队列（串行队列&#x2F;并发队列），两种任务（同步任务&#x2F;异步任务），可以得到 4 种不同的使用组合。</p>
+<blockquote>
+<ol>
+<li>同步任务 + 并发队列</li>
+<li>异步任务 + 并发队列</li>
+<li>同步任务 + 串行队列</li>
+<li>异步任务 + 串行队列</li>
+</ol>
+</blockquote>
+<p>实际上，前文还提到两种特殊的队列：全局并发队列、主队列。全局并发队列可作为普通并发队列使用。但是主队列比较特殊，因此又得到 2 种组合：</p>
+<blockquote>
+<ol start="5">
+<li>同步任务 + 主队列</li>
+<li>异步任务 + 主队列</li>
+</ol>
+</blockquote>
+<h2 id="同步执行-并发队列"><a href="#同步执行-并发队列" class="headerlink" title="同步执行 + 并发队列"></a>同步执行 + 并发队列</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 同步任务 + 并发队列</span><br><span class="line"> * 特点：在当前线程中执行任务，不会开启新线程，执行完一个任务，再执行下一个任务。</span><br><span class="line"> */</span><br><span class="line">- (void)syncConcurrent &#123;</span><br><span class="line">    NSLog(@&quot;currentThread---%@&quot;, [NSThread currentThread]);     // 打印当前线程</span><br><span class="line">    NSLog(@&quot;syncConcurrent---begin&quot;);</span><br><span class="line"></span><br><span class="line">    dispatch_queue_t queue = dispatch_queue_create(&quot;me.chuquan.testQueue&quot;, DISPATCH_QUEUE_CONCURRENT);</span><br><span class="line"></span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        // 追加任务1</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;1---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        // 追加任务2</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;2---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        // 追加任务3</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;3---%@&quot;,[NSThread currentThread]);          // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    NSLog(@&quot;syncConcurrent---end&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic01.png?x-oss-process=image/resize,w_800"></p>
+<p>上图所示为 <code>同步任务 + 并发队列</code> 的工作原理。</p>
+<ul>
+<li><code>syncConcurrent</code> 被添加至主队列中，在主线程执行。</li>
+<li>同步任务被添加至并行队列，并行队列允许多任务同时执行，但由于加入的队列是同步任务，不会开启新线程，在主线程执行。</li>
+<li><code>syncConcurrent</code> 会被同步任务阻塞。</li>
+</ul>
+<p>执行结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">currentThread---&lt;NSThread: 0x60000068ee80&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">syncConcurrent---begin</span><br><span class="line">1---&lt;NSThread: 0x60000068ee80&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">1---&lt;NSThread: 0x60000068ee80&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">2---&lt;NSThread: 0x60000068ee80&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">2---&lt;NSThread: 0x60000068ee80&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">3---&lt;NSThread: 0x60000068ee80&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">3---&lt;NSThread: 0x60000068ee80&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">syncConcurrent---end</span><br></pre></td></tr></table></figure>
+
+<h2 id="异步任务-并发队列"><a href="#异步任务-并发队列" class="headerlink" title="异步任务 + 并发队列"></a>异步任务 + 并发队列</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 异步任务 + 并发队列</span><br><span class="line"> * 特点：可以开启多个线程，任务交替（同时）执行。</span><br><span class="line"> */</span><br><span class="line">- (void)asyncConcurrent &#123;</span><br><span class="line">    NSLog(@&quot;currentThread---%@&quot;, [NSThread currentThread]);     // 打印当前线程</span><br><span class="line">    NSLog(@&quot;asyncConcurrent---begin&quot;);</span><br><span class="line"></span><br><span class="line">    dispatch_queue_t queue = dispatch_queue_create(&quot;me.chuquan.testQueue&quot;, DISPATCH_QUEUE_CONCURRENT);</span><br><span class="line"></span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        // 追加任务1</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;1---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        // 追加任务2</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;2---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        // 追加任务3</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;3---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    NSLog(@&quot;asyncConcurrent---end&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic02.png?x-oss-process=image/resize,w_800"></p>
+<p>上图所示为 <code>异步任务 + 并行队列</code> 的工作原理。</p>
+<ul>
+<li><code>asyncConcurrent</code> 被添加至主队列中，在主线程执行。</li>
+<li>异步任务被添加至并行队列，并行队列允许多任务同时执行，且异步任务可以开启新线程，因此每个异步任务都能启动一个独立的线程执行。</li>
+<li><code>asyncConcurrent</code> 不会被异步任务阻塞。</li>
+</ul>
+<p>执行结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">currentThread---&lt;NSThread: 0x600003e6d580&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">asyncConcurrent---begin</span><br><span class="line">asyncConcurrent---end</span><br><span class="line">1---&lt;NSThread: 0x600003ec2a80&gt;&#123;number = 5, name = (null)&#125;</span><br><span class="line">2---&lt;NSThread: 0x600003ecce40&gt;&#123;number = 3, name = (null)&#125;</span><br><span class="line">3---&lt;NSThread: 0x600003eccec0&gt;&#123;number = 4, name = (null)&#125;</span><br><span class="line">2---&lt;NSThread: 0x600003ecce40&gt;&#123;number = 3, name = (null)&#125;</span><br><span class="line">3---&lt;NSThread: 0x600003eccec0&gt;&#123;number = 4, name = (null)&#125;</span><br><span class="line">1---&lt;NSThread: 0x600003ec2a80&gt;&#123;number = 5, name = (null)&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="同步任务-串行队列"><a href="#同步任务-串行队列" class="headerlink" title="同步任务 + 串行队列"></a>同步任务 + 串行队列</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 同步任务 + 串行队列</span><br><span class="line"> * 特点：不会开启新线程，在当前线程执行任务。任务是串行的，执行完一个任务，再执行下一个任务。</span><br><span class="line"> */</span><br><span class="line">- (void)syncSerial &#123;</span><br><span class="line">    NSLog(@&quot;currentThread---%@&quot;, [NSThread currentThread]);     // 打印当前线程</span><br><span class="line">    NSLog(@&quot;syncSerial---begin&quot;);</span><br><span class="line"></span><br><span class="line">    dispatch_queue_t queue = dispatch_queue_create(&quot;me.chuquan.testQueue&quot;, DISPATCH_QUEUE_SERIAL);</span><br><span class="line"></span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        // 追加任务1</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;1---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        // 追加任务2</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;2---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        // 追加任务3</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;3---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    NSLog(@&quot;syncSerial---end&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic03.png?x-oss-process=image/resize,w_800"></p>
+<p>上图所示为 <code>同步任务 + 串行队列</code> 的工作原理。</p>
+<ul>
+<li><code>syncSerial</code> 被添加至主队列中，在主线程执行。</li>
+<li>同步任务被添加至串行队列，串行队列不允许多任务同时执行，因此同步任务在当前线程执行（主线程）。</li>
+<li><code>syncSerial</code> 会被同步任务阻塞。</li>
+</ul>
+<h2 id="异步任务-串行队列"><a href="#异步任务-串行队列" class="headerlink" title="异步任务 + 串行队列"></a>异步任务 + 串行队列</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 异步任务 + 串行队列</span><br><span class="line"> * 特点：会开启新线程，但是因为任务是串行的，执行完一个任务，再执行下一个任务。</span><br><span class="line"> */</span><br><span class="line">- (void)asyncSerial &#123;</span><br><span class="line">    NSLog(@&quot;currentThread---%@&quot;, [NSThread currentThread]);     // 打印当前线程</span><br><span class="line">    NSLog(@&quot;asyncSerial---begin&quot;);</span><br><span class="line"></span><br><span class="line">    dispatch_queue_t queue = dispatch_queue_create(&quot;me.chuquan.testQueue&quot;, DISPATCH_QUEUE_SERIAL);</span><br><span class="line"></span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        // 追加任务1</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;1---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        // 追加任务2</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;2---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        // 追加任务3</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;3---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    NSLog(@&quot;asyncSerial---end&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic04.png?x-oss-process=image/resize,w_800"></p>
+<p>上图所示为 <code>异步任务 + 串行队列</code> 的工作原理。</p>
+<ul>
+<li><code>asyncSerial</code> 被添加至主队列中，在主线程执行。</li>
+<li>异步任务被添加至串行队列，异步任务能开启新线程，但是串行队列不允许多任务，所以只能开启一条新线程。</li>
+<li><code>asyncSerial</code> 不会被异步任务阻塞。</li>
+</ul>
+<p>执行结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">currentThread---&lt;NSThread: 0x600001ef5d00&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">asyncSerial---begin</span><br><span class="line">asyncSerial---end</span><br><span class="line">1---&lt;NSThread: 0x600001e5a740&gt;&#123;number = 3, name = (null)&#125;</span><br><span class="line">1---&lt;NSThread: 0x600001e5a740&gt;&#123;number = 3, name = (null)&#125;</span><br><span class="line">2---&lt;NSThread: 0x600001e5a740&gt;&#123;number = 3, name = (null)&#125;</span><br><span class="line">2---&lt;NSThread: 0x600001e5a740&gt;&#123;number = 3, name = (null)&#125;</span><br><span class="line">3---&lt;NSThread: 0x600001e5a740&gt;&#123;number = 3, name = (null)&#125;</span><br><span class="line">3---&lt;NSThread: 0x600001e5a740&gt;&#123;number = 3, name = (null)&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="同步任务-主队列"><a href="#同步任务-主队列" class="headerlink" title="同步任务 + 主队列"></a>同步任务 + 主队列</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 同步任务 + 主队列</span><br><span class="line"> * 特点(主线程调用)：互等卡主不执行。</span><br><span class="line"> * 特点(其他线程调用)：不会开启新线程，执行完一个任务，再执行下一个任务。</span><br><span class="line"> */</span><br><span class="line">- (void)syncMain &#123;</span><br><span class="line">    NSLog(@&quot;currentThread---%@&quot;, [NSThread currentThread]);     // 打印当前线程</span><br><span class="line">    NSLog(@&quot;syncMain---begin&quot;);</span><br><span class="line"></span><br><span class="line">    dispatch_queue_t queue = dispatch_get_main_queue();</span><br><span class="line"></span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        // 追加任务1</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;1---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        // 追加任务2</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;2---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        // 追加任务3</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;3---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    NSLog(@&quot;syncMain---end&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic05.png?x-oss-process=image/resize,w_800"></p>
+<p>上图所示为 <code>同步任务 + 主队列</code> 的工作原理。</p>
+<ul>
+<li><code>syncMain</code> 被添加至主队列中，在主线程执行。</li>
+<li>同步任务被添加至主队列，同步任务不会开启新线程，且主队列（属于串行队列）中的任务只能在主线程执行。</li>
+<li><code>syncMain</code> 会被同步任务阻塞。但是需要注意的是 <code>syncMain</code> 和同步任务均在主队列中，同步任务需要等待 <code>syncMain</code> 执行完毕，因此产生死锁。</li>
+</ul>
+<p>执行结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">崩溃</span><br></pre></td></tr></table></figure>
+
+<p>对于这种情况，可以将 <code>syncMain</code> 放置新线程执行以避免产生死锁：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[NSThread detachNewThreadSelector:@selector(syncMain) toTarget:self withObject:nil];</span><br></pre></td></tr></table></figure>
+
+<h2 id="异步任务-主队列"><a href="#异步任务-主队列" class="headerlink" title="异步任务 + 主队列"></a>异步任务 + 主队列</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 异步任务 + 主队列</span><br><span class="line"> * 特点：只在主线程中执行任务，执行完一个任务，再执行下一个任务</span><br><span class="line"> */</span><br><span class="line">- (void)asyncMain &#123;</span><br><span class="line">    NSLog(@&quot;currentThread---%@&quot;, [NSThread currentThread]);     // 打印当前线程</span><br><span class="line">    NSLog(@&quot;asyncMain---begin&quot;);</span><br><span class="line"></span><br><span class="line">    dispatch_queue_t queue = dispatch_get_main_queue();</span><br><span class="line"></span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        // 追加任务1</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;1---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        // 追加任务2</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;2---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        // 追加任务3</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;3---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    NSLog(@&quot;asyncMain---end&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic06.png?x-oss-process=image/resize,w_800"></p>
+<p>上图所示为 <code>异步任务 + 主队列</code> 的工作原理。</p>
+<ul>
+<li><code>asyncMain</code> 被添加至主队列中，在主线程执行。</li>
+<li>异步任务被添加至主队列，异步任务能开启新线程，但是主队列（属于串行队列）中的任务只能在主线程执行。</li>
+<li><code>asyncMain</code> 不会被异步任务阻塞。</li>
+</ul>
+<p>执行结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">currentThread---&lt;NSThread: 0x6000014d3700&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">asyncMain---begin</span><br><span class="line">asyncMain---end</span><br><span class="line">1---&lt;NSThread: 0x6000014d3700&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">1---&lt;NSThread: 0x6000014d3700&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">2---&lt;NSThread: 0x6000014d3700&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">2---&lt;NSThread: 0x6000014d3700&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">3---&lt;NSThread: 0x6000014d3700&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">3---&lt;NSThread: 0x6000014d3700&gt;&#123;number = 1, name = main&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="GCD-应用"><a href="#GCD-应用" class="headerlink" title="GCD 应用"></a>GCD 应用</h1><h2 id="线程间通信"><a href="#线程间通信" class="headerlink" title="线程间通信"></a>线程间通信</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 线程间通信</span><br><span class="line"> */</span><br><span class="line">- (void)communication &#123;</span><br><span class="line">    // 获取全局并发队列</span><br><span class="line">    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);</span><br><span class="line">    // 获取主队列</span><br><span class="line">    dispatch_queue_t mainQueue = dispatch_get_main_queue();</span><br><span class="line"></span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        // 异步追加任务</span><br><span class="line">        for (int i = 0; i &lt; 2; ++i) &#123;</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;1---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 回到主线程</span><br><span class="line">        dispatch_async(mainQueue, ^&#123;</span><br><span class="line">            // 追加在主线程中执行的任务</span><br><span class="line">            [NSThread sleepForTimeInterval:2];                  // 模拟耗时操作</span><br><span class="line">            NSLog(@&quot;2---%@&quot;, [NSThread currentThread]);         // 打印当前线程</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ios-gcd-basic10.png?x-oss-process=image/resize,w_800"></p>
+<p>上图所示为线程间通信的工作原理。</p>
+<ul>
+<li><code>communication</code> 被添加至主队列中，在主线程执行。</li>
+<li>异步任务被添加至全局队列（并行队列），异步任务能开启新线程，因此异步任务在新线程执行。</li>
+<li><code>communication</code> 不会被异步任务阻塞。</li>
+<li>当异步任务执行完成后，再将一个异步任务添加至主队列，主队列中的任务都在主线程执行，所以该异步任务在主线程执行。从而达到线程间通信的目的。</li>
+</ul>
+<p>执行结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1---&lt;NSThread: 0x60000227ec80&gt;&#123;number = 3, name = (null)&#125;</span><br><span class="line">1---&lt;NSThread: 0x60000227ec80&gt;&#123;number = 3, name = (null)&#125;</span><br><span class="line">2---&lt;NSThread: 0x6000022ddd00&gt;&#123;number = 1, name = main&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/5a90de68f265da4e9b592b40">iOS多线程：『GCD』详尽总结</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/fbe6a654604c">细说GCD（Grand Central Dispatch）如何用</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/GCD/" rel="tag"># GCD</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/23/oc-associate-object-and-method-swizzling/" rel="next" title="Objective-C 关联对象与 Method Swizzling">
+                <i class="fa fa-chevron-left"></i> Objective-C 关联对象与 Method Swizzling
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/12/12/kvo-principle/" rel="prev" title="KVO 原理详解">
+                KVO 原理详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GCD-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">GCD 简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GCD-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">GCD 基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1"><span class="nav-number">2.1.</span> <span class="nav-text">任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%9F%E5%88%97"><span class="nav-number">2.2.</span> <span class="nav-text">队列</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GCD-%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">GCD 使用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%9F%E5%88%97%E7%9A%84%E5%88%9B%E5%BB%BA-%E8%8E%B7%E5%8F%96"><span class="nav-number">3.1.</span> <span class="nav-text">队列的创建&#x2F;获取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">3.2.</span> <span class="nav-text">任务的创建</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GCD-%E4%BD%BF%E7%94%A8%E7%BB%84%E5%90%88"><span class="nav-number">4.</span> <span class="nav-text">GCD 使用组合</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E6%89%A7%E8%A1%8C-%E5%B9%B6%E5%8F%91%E9%98%9F%E5%88%97"><span class="nav-number">4.1.</span> <span class="nav-text">同步执行 + 并发队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1-%E5%B9%B6%E5%8F%91%E9%98%9F%E5%88%97"><span class="nav-number">4.2.</span> <span class="nav-text">异步任务 + 并发队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E4%BB%BB%E5%8A%A1-%E4%B8%B2%E8%A1%8C%E9%98%9F%E5%88%97"><span class="nav-number">4.3.</span> <span class="nav-text">同步任务 + 串行队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1-%E4%B8%B2%E8%A1%8C%E9%98%9F%E5%88%97"><span class="nav-number">4.4.</span> <span class="nav-text">异步任务 + 串行队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E4%BB%BB%E5%8A%A1-%E4%B8%BB%E9%98%9F%E5%88%97"><span class="nav-number">4.5.</span> <span class="nav-text">同步任务 + 主队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1-%E4%B8%BB%E9%98%9F%E5%88%97"><span class="nav-number">4.6.</span> <span class="nav-text">异步任务 + 主队列</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GCD-%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">GCD 应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1"><span class="nav-number">5.1.</span> <span class="nav-text">线程间通信</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

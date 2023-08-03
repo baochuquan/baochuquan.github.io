@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="taskloop,cron,crontab,定时任务," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何优雅地管理你的定时任务？">
+<meta property="og:url" content="http://chuquan.me/2023/07/30/introduction-to-taskloop/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/taskloop-logo-white.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cs-of-luxun.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2023-07-30T14:28:05.000Z">
+<meta property="article:modified_time" content="2023-08-03T14:30:27.015Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="taskloop">
+<meta property="article:tag" content="cron">
+<meta property="article:tag" content="crontab">
+<meta property="article:tag" content="定时任务">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/taskloop-logo-white.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2023/07/30/introduction-to-taskloop/"/>
+
+
+
+
+
+  <title>如何优雅地管理你的定时任务？ | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2023/07/30/introduction-to-taskloop/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">如何优雅地管理你的定时任务？</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2023-07-30T22:28:05+08:00">
+                2023-07-30
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2023-08-03T22:30:27+08:00">
+                2023-08-03
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ruby/" itemprop="url" rel="index">
+                    <span itemprop="name">Ruby</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/taskloop-logo-white.png?x-oss-process=image/resize,w_800"></p>
+<span id="more"></span>
+
+<p>在日常开发中，我们经常会使用一些定时任务来辅助完成某些事情。对此，绝大多数人都会选择使用 crontab 来配置定时任务。</p>
+<p>不可否认，crontab 的确是管理定时任务的经典利器，但是你是否和我一样，踩过不少 crontab 的坑呢？</p>
+<p>下面，我将介绍一下个人认为 crontab 的一些痛点和坑。最终，给出另一种优化的解决方案。</p>
+<h1 id="crontab"><a href="#crontab" class="headerlink" title="crontab"></a>crontab</h1><p>提到 crontab，这里必须要介绍一下它的配置规则，如下所示。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.---------------- 分 (0 - 59)</span><br><span class="line">|  .------------- 时 (0 - 23)</span><br><span class="line">|  |  .---------- 日 (1 - 31) </span><br><span class="line">|  |  |  .------- 月 (1 - 12) </span><br><span class="line">|  |  |  |  .---- 星期 (0 - 6) (星期日可为0或7) </span><br><span class="line">|  |  |  |  | </span><br><span class="line">*  *  *  *  * 执行的命令</span><br></pre></td></tr></table></figure>
+<p>crontab 的配置规则可以分为 5 列，其作用分别是：</p>
+<ul>
+<li>第一列单位为分，表示每时第几分钟，范围为 0-59</li>
+<li>第二列单位为时，表示每天第几小时，范围为 0-23</li>
+<li>第三列单位为日，表示每月第几天，范围为 1-31</li>
+<li>第四列单位为月，表示每年第几月，范围为 1-12</li>
+<li>第五列单位为星期，表示每星期第几天，范围 0-7，0 与 7 表示星期日，其他分别为星期 1-6</li>
+</ul>
+<p>整体而言，crontab 对于不同的单位（除了星期），均支持了三种配置规则：</p>
+<ul>
+<li>指定时间</li>
+<li>指定范围</li>
+<li>指定步长</li>
+</ul>
+<p>通过组合这些配置规则，crontab 可以实现非常多的定时配置。</p>
+<p>在使用 crontab 很长时间之后，我发现 crontab 还是存在着一些使用痛点的，主要有以下几点，下面分别进行介绍。</p>
+<h2 id="输出重定向"><a href="#输出重定向" class="headerlink" title="输出重定向"></a>输出重定向</h2><p>默认为情况下，crontab 会将任务输出默认写入到执行用户的邮件中。如果任务有大量输出，则会大量占用磁盘资源，甚至导致系统宕机。</p>
+<p>如下所示，我们配置一个输出当前日志的定时任务。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">* * * * * <span class="built_in">date</span></span><br></pre></td></tr></table></figure>
+
+<p>我们可以查看当前用户的邮件，如下所示。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> /var/mail/<span class="variable">$USER</span></span><br><span class="line">...</span><br><span class="line">Tue Aug  1 22:11:22 CST 2023</span><br></pre></td></tr></table></figure>
+
+<p>关于这个问题，实践经验都是建议采用如下的方式对任务的输出进行重定向。很显然，这对于新手是非常不友好的。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">* * * * * <span class="built_in">date</span> &gt;&gt; /dev/null/ 2&gt;&amp;1</span><br></pre></td></tr></table></figure>
+
+<h2 id="环境变量"><a href="#环境变量" class="headerlink" title="环境变量"></a>环境变量</h2><p>在实践中，我们可以发现 crontab 的环境变量与控制台的环境变量是存在差异的。因此，经常会出现这样的情景：在控制台中调试完成的任务，在 cron 中执行时，其结果会与预期不相符。事实上，产生这种差异的根本原因就是环境变量。</p>
+<p>此外，crontab 中环境变量不会全局共享。因此，当我们配置多个任务时，可能需要为每个任务单独配置环境变量。很显然，这是一个重复而又繁琐的问题。</p>
+<h2 id="规则语法"><a href="#规则语法" class="headerlink" title="规则语法"></a>规则语法</h2><p>关于 crontab 的规则语法，这是个仁者见仁智者见智的问题。对于老手来说，可能比较简单；对于新人来说，在使用时得去查询各个位置的单位以及不同规则的写法。我觉得 crontab 的规则语法不容易理解的根本原因是缺少语义。如果能优化其规则语法的语义，那就更好不过了。</p>
+<p>另一方面，对于某些极客来说，crontab 的规则可能还不够完备。比如：预期一个定时任务从某个时刻开始或停止执行，或者，预期一个任务循环执行 n 次后结束。对于这种规则，crontab 无法一次性满足，只能通过配置多个任务来辅助完成。</p>
+<h2 id="运行日志"><a href="#运行日志" class="headerlink" title="运行日志"></a>运行日志</h2><p>在实际应用中，我们经常需要借助任务的运行日志来排查问题。此时，我们就需要修改 crontab，将任务的输出重定向至某个文件，从而方便后续进行查看。当任务非常多的时候，我们很难记住每个任务对应的日志文件是哪个。这也是 crontab 的一个痛点。</p>
+<h1 id="taskloop"><a href="#taskloop" class="headerlink" title="taskloop"></a>taskloop</h1><p>为了解决 crontab 的诸多痛点，我在业余时间开发了一款优化版的定时任务管理器——<a target="_blank" rel="noopener" href="https://github.com/baochuquan/taskloop">taskloop</a>。</p>
+<p>taskloop 底层运行在 cron 守护进程之上，基于 crontab 配置了最小粒度的调度规则，实现了一个中间层，从而解决了 crontab 的诸多痛点。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cs-of-luxun.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><p>taskloop 提供了一系列的命令，实现了一个相对完整（如有缺失，补充实现）的工作流，其主要包含以下这些特性。</p>
+<h3 id="环境变量-1"><a href="#环境变量-1" class="headerlink" title="环境变量"></a>环境变量</h3><p><code>taskloop env</code> 命令提供了查看、导入、删除环境变量的功能。</p>
+<p>如下所示，为环境变量查看的使用示例。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ taskloop <span class="built_in">env</span> </span><br><span class="line"></span><br><span class="line">PATH=/Users/baochuquan/.rvm/gems/ruby-2.6.5/bin:/Users/baochuquan/.rvm/gems/ruby-2.6.5@global/bin:/Users/baochuquan/.rvm/rubies/ruby-2.6.5/bin:/usr/local/texlive/2023basic/bin/universal-darwin:/Users/baochuquan/.nvm/versions/node/v18.16.0/bin:/usr/local/opt/sqlite/bin:/usr/local/sbin:/usr/local/opt/gettext/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Users/baochuquan/.rvm/bin:/Users/baochuquan/Flutter/bin:/Users/baochuquan/Library/Android/sdk/tools</span><br><span class="line">RUBY_VERSION=ruby-2.6.5</span><br><span class="line">GEM_PATH=/Users/baochuquan/.rvm/gems/ruby-2.6.5:/Users/baochuquan/.rvm/gems/ruby-2.6.5@global</span><br><span class="line">GEM_HOME=/Users/baochuquan/.rvm/gems/ruby-2.6.5</span><br><span class="line">IRBRC=/Users/baochuquan/.rvm/rubies/ruby-2.6.5/.irbrc</span><br><span class="line">NOX_ROOT=/Users/baochuquan/Develop/nox</span><br><span class="line">NOX_NAME=nox</span><br><span class="line">NOX_COMMON=/Users/baochuquan/Develop/nox/common</span><br><span class="line">NOX_CONFIG=/Users/baochuquan/Develop/nox/config</span><br><span class="line">NOX_SCRIPTS=/Users/baochuquan/Develop/nox/scripts</span><br></pre></td></tr></table></figure>
+
+<p>如下所示，为环境变量导入的使用示例。示例中，我导入了两个环境变量 <code>JAVA_HOME</code> 和 <code>GROOVY_HOME</code>。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ taskloop <span class="built_in">env</span> --import=JAVA_HOME,GROOVY_HOME</span><br><span class="line"></span><br><span class="line">importing JAVA_HOME ...</span><br><span class="line">    JAVA_HOME=/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home</span><br><span class="line">importing GROOVY_HOME ...</span><br><span class="line">    GROOVY_HOME=/usr/local/opt/groovy/libexec</span><br><span class="line"></span><br><span class="line">import global environment variables complete.</span><br></pre></td></tr></table></figure>
+
+<p>如下所示，为环境变量删除的使用示例。示例中，我删除了 <code>GROOVY_HOME</code> 环境变量。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ taskloop <span class="built_in">env</span> --remove=GROOVY_HOME</span><br><span class="line"></span><br><span class="line">remove global environment variables complete.</span><br></pre></td></tr></table></figure>
+
+<p>经过一系列导入、删除操作之后，我们可以通过 <code>taskloop env</code> 命令来查看导入结果是否正确。</p>
+<h3 id="启动-关闭"><a href="#启动-关闭" class="headerlink" title="启动&#x2F;关闭"></a>启动&#x2F;关闭</h3><p>taskloop 具有一个全局的开关，即启动和关闭的能力。前面我们提到 taskloop 底层是运行在 cron 守护进程之上，对此，启动功能的本质就是将 taskloop 注册至 crontab；关闭功能的本质就是将 taskloop 从 crontab 注销。</p>
+<p>如下所示，为启动 taskloop 的使用示例。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">$  taskloop launch</span><br><span class="line"></span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@          @@@@@@@@@@@@@@@@@@@@@@   @@@@@@@    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@@@    @@@@@       @@@   @@   @@    @@@@@      @@@@      @@@       @@@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@   @@   @@   @@@   @@   @   @@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@@@@@@   @@@    @@@@@@      @@@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@        @@@@@@    @@@      @@@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@   @@@   @@   @@@   @@   @   @@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@        @@@       @@@   @@   @@      @@@      @@@@      @@@       @@@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   @@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line"></span><br><span class="line">    taskloop has launched successfully.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>如下所示，为关闭 taskloop 的使用示例。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ taskloop shutdown</span><br><span class="line"></span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@          @@@@@@@@@@@@@@@@@@@@@@   @@@@@@@    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@@@    @@@@@       @@@   @@   @@    @@@@@      @@@@      @@@       @@@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@   @@   @@   @@@   @@   @   @@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@@@@@@   @@@    @@@@@@      @@@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@        @@@@@@    @@@      @@@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@   @@@   @@   @@@   @@   @   @@@    @@@@   @@   @@   @@   @@   @@   @@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@        @@@       @@@   @@   @@      @@@      @@@@      @@@       @@@@@@@@@</span><br><span class="line">@@@@@@@@@@@    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   @@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line"></span><br><span class="line">    taskloop has shutdown successfully.</span><br><span class="line"></span><br><span class="line">    byeeeeeeeeeeeeeeeee !</span><br></pre></td></tr></table></figure>
+
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>taskloop 通过读取注册的 Taskfile 来执行所有的任务，Taskfile 中可以定义一系列用户自定义的任务。为了便于使用，taskloop 提供了一个初始化命令，可以自动创建一个 Taskfile 模板，从而供用户进行修改和定制。</p>
+<p>如下所示，为初始化的使用示例。<code>taskloop init</code> 方法创建了一个 Taskfile 模板，并定义了所有支持的属性，我们可以自定义任务，包括任务的路径、名称、执行规则等。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> my-job-project</span><br><span class="line">$ taskloop init</span><br><span class="line">$ <span class="built_in">cat</span> Taskfile</span><br><span class="line"></span><br><span class="line"><span class="comment"># env to set environment variables which are shared by all tasks defined in the Taskfile. &lt;Optional&gt;</span></span><br><span class="line"><span class="comment"># env &quot;ENV_NAME&quot;, &quot;ENV_VALUE&quot;</span></span><br><span class="line"></span><br><span class="line">TaskLoop::Task.new <span class="keyword">do</span> |t|</span><br><span class="line">  t.name        = <span class="string">&#x27;TODO: task name. &lt;Required&gt;&#x27;</span></span><br><span class="line">  t.path        = <span class="string">&#x27;TODO: task job path. For example, t.path = &quot;./Job.sh&quot;. &lt;Required&gt;&#x27;</span></span><br><span class="line">  t.week        = <span class="string">&#x27;TODO: week rule. &lt;Optional&gt;&#x27;</span></span><br><span class="line">  t.year        = <span class="string">&quot;TODO: year rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.month       = <span class="string">&quot;TODO: month rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.day         = <span class="string">&quot;TODO: day rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.hour        = <span class="string">&quot;TODO: hour rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.minute      = <span class="string">&quot;TODO: minute rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.time        = <span class="string">&quot;TODO: time list rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.date        = <span class="string">&quot;TODO: date list rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.loop        = <span class="string">&quot;TODO: loop count. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.start_point = <span class="string">&quot;TODO: start point boundary rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.end_point   = <span class="string">&quot;TODO: end point boundary rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+
+<h3 id="发布-撤销"><a href="#发布-撤销" class="headerlink" title="发布&#x2F;撤销"></a>发布&#x2F;撤销</h3><p>当我们完成了对 Taskfile 的定义之后，可以进行发布。发布过程中，taskloop 会检查 Taskfile 中的语法规则，如果不符合将抛出异常，并提示错误；如果符合规则，则完成发布。Taskfile 将正式生效，后续的任务执行将以此为准。</p>
+<p>如下所示，为发布的使用示例。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> my-job-project</span><br><span class="line">$ taskloop deploy</span><br><span class="line"></span><br><span class="line">                       (@&amp;/////%@@@@@@@@@@@@@<span class="comment">#</span></span><br><span class="line">                          @@&amp;@&amp;////////////////(@@<span class="comment">#</span></span><br><span class="line">                         /@(///////////////////////%@/</span><br><span class="line">                       *@////////////////////////////<span class="comment">#@,</span></span><br><span class="line">                      @&amp;///////////////////////////////@%</span><br><span class="line">                     @&amp;//////////////(@////@&amp;<span class="comment">#/////////(@</span></span><br><span class="line">                     @////////////@@  @////@    ,.@////@@</span><br><span class="line">                    /@//////////&amp;@  ,@@////@@@&amp;.  *///@@</span><br><span class="line">                    ,@/////////(@@@   @///&amp;@     /@@///@@</span><br><span class="line">                     @%////////@@     @@@&amp;           @@/@<span class="comment">#</span></span><br><span class="line">                      @<span class="comment">#///////@           ,</span></span><br><span class="line">                       @@//////@&amp;      @(//@</span><br><span class="line">                         @@/////%@    @////@</span><br><span class="line">                            @@/////<span class="comment">#@@@////@</span></span><br><span class="line">                                &amp;@@@&amp;<span class="comment">#((&amp;@@</span></span><br><span class="line">                          /&amp;<span class="comment">#         @///@@</span></span><br><span class="line">                       ,///,*.        @////@</span><br><span class="line">                   &amp;<span class="comment">#  %/,@           @@///@</span></span><br><span class="line">                 (, .*/&amp;*%/*%///&amp;       (@@@         ,*/////*.</span><br><span class="line">           %/<span class="comment">#@, ////&amp;  @  % .&amp;  /@%/(/    /#/#@(                 #@#/&amp;</span></span><br><span class="line">        (/&amp;               .           .////,                           &amp;//</span><br><span class="line">       &amp;(//@                         &amp;//////&amp;                         @///@</span><br><span class="line">         (@%//////<span class="comment">#&amp;@@@@@@@@@@%///////@@  @@///////%@@@@@@@@@@&amp;#//////#@#</span></span><br><span class="line">                %@@@@&amp;@@@@@&amp;&amp;@@@@/              /@@@@&amp;&amp;@@@@@&amp;@@@@&amp;</span><br><span class="line"></span><br><span class="line">                              Taskfile deploy success!</span><br></pre></td></tr></table></figure>
+
+<p>当然，在某些情况下，我们需要撤销已经发布的 Taskfile。此时，我们可以执行如下命令进行撤销。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> my-job-project</span><br><span class="line">$ taskloop undeploy</span><br><span class="line"></span><br><span class="line">Taskfile <span class="keyword">in</span> &lt;/Users/baochuquan/Github/taskloop&gt; has been undeployed successfully.</span><br></pre></td></tr></table></figure>
+
+<h3 id="任务查看"><a href="#任务查看" class="headerlink" title="任务查看"></a>任务查看</h3><p>为了便于查看当前已发布的任务，taskloop 提供了一个命令方便用户进行查询。如下所示，为任务查看的使用示例。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">$ taskloop list</span><br><span class="line"></span><br><span class="line">=============================</span><br><span class="line">Tasks above are defined <span class="keyword">in</span> Taskfile of &lt;/Users/baochuquan/Github/taskloop&gt;</span><br><span class="line">  &lt;Task.name: haha, sha1: 637d1f5c6e6d1be22ed907eb3d223d858ca396d8&gt;</span><br><span class="line">    t.name        = haha</span><br><span class="line">    t.path        = ./test/Test01.rb</span><br><span class="line">    t.year        = unit: year; specific: 2023</span><br><span class="line">    t.month       = unit: month; specific: Aug</span><br><span class="line">    t.day         = unit: day; default rule</span><br><span class="line">    t.hour        = unit: hour; default rule</span><br><span class="line">    t.minute      = unit: minute; scope: between 25, 30</span><br><span class="line">    t.loop        = unit: loop; default rule</span><br><span class="line">    t.start_point = unit: full; default rule</span><br><span class="line">    t.end_point   = unit: full; default rule</span><br><span class="line">  &lt;Task.name: baocq, sha1: 7cc14c1bffcd559180d9906377bfaa41a4f9a980&gt;</span><br><span class="line">    t.name        = baocq</span><br><span class="line">    t.path        = ./test/Test02.rb</span><br><span class="line">    t.year        = unit: year; default rule</span><br><span class="line">    t.month       = unit: month; default rule</span><br><span class="line">    t.day         = unit: day; default rule</span><br><span class="line">    t.hour        = unit: hour; default rule</span><br><span class="line">    t.minute      = unit: minute; interval: 1</span><br><span class="line">    t.loop        = unit: loop; loop: 3</span><br><span class="line">    t.start_point = unit: full; boundary: start from 2023-7-31 22:31:00</span><br><span class="line">    t.end_point   = unit: full; boundary: end to 2023-7-31 22:35:00</span><br><span class="line">  &lt;Task.name: chuquan, sha1: d461e86c07d232ceebcd2d024ea4b4c33d0f7b4b&gt;</span><br><span class="line">    t.name        = chuquan</span><br><span class="line">    t.path        = ./test/Test03.rb</span><br><span class="line">    t.year        = unit: year; specific: 2023</span><br><span class="line">    t.month       = unit: month; default rule</span><br><span class="line">    t.day         = unit: day; default rule</span><br><span class="line">    t.hour        = unit: hour; scope: after 22</span><br><span class="line">    t.minute      = unit: minute; interval: 10</span><br><span class="line">    t.loop        = unit: loop; loop: 1</span><br><span class="line">    t.start_point = unit: full; default rule</span><br><span class="line">    t.end_point   = unit: full; default rule</span><br></pre></td></tr></table></figure>
+
+<h3 id="日志查看"><a href="#日志查看" class="headerlink" title="日志查看"></a>日志查看</h3><p>为了解决 crontab 的日志查询问题，taskloop 同样提供了一个命令支持查询不同维度的日志，包括：系统日志（即 taskloop 运行日志）、任务日志。</p>
+<p>如下所示，为查看系统日志的使用示例。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ taskloop <span class="built_in">log</span> --cron</span><br><span class="line"></span><br><span class="line">=============================</span><br><span class="line">Log of cron:</span><br><span class="line"></span><br><span class="line">Trigger Time: &lt;2023-08-03 08:24:00 +0800&gt;</span><br><span class="line">Checking: &lt;Task.name: haha, sha1: 637d1f5c6e6d1be22ed907eb3d223d858ca396d8&gt; does not meet the execution rules, taskloop will skip its execution.</span><br><span class="line">Checking: &lt;Task.name: baocq, sha1: 7cc14c1bffcd559180d9906377bfaa41a4f9a980&gt; does not meet the execution rules, taskloop will skip its execution.</span><br><span class="line">Checking: &lt;Task.name: chuquan, sha1: d461e86c07d232ceebcd2d024ea4b4c33d0f7b4b&gt; does not meet the execution rules, taskloop will skip its execution.</span><br><span class="line">=============================</span><br></pre></td></tr></table></figure>
+
+<p>如下所示，为查看任务日志的使用示例。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ taskloop <span class="built_in">log</span> --task-name=baocq</span><br><span class="line">=============================</span><br><span class="line">Project of &lt;/Users/baochuquan/Github/taskloop&gt;</span><br><span class="line">Log of &lt;Task.name: haha&gt; above:</span><br><span class="line">&lt;Trigger Time: 2023-08-03 08:27:16 +0800&gt;</span><br><span class="line">Test0101</span><br><span class="line"></span><br><span class="line">=============================</span><br></pre></td></tr></table></figure>
+
+<h2 id="语法规则"><a href="#语法规则" class="headerlink" title="语法规则"></a>语法规则</h2><p><code>taskloop init</code> 命令会创建一个 Taskfile 文件，我们可以在 Taskfile 文件中自定义不同的任务与规则。这里，taskloop 定义了一套语法规则，我们将基于如下所示的 Taskfile 模板进行介绍。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">TaskLoop::Task.new <span class="keyword">do</span> |t|</span><br><span class="line">  t.name        = <span class="string">&#x27;TODO: task name. &lt;Required&gt;&#x27;</span></span><br><span class="line">  t.path        = <span class="string">&#x27;TODO: task job path. For example, t.path = &quot;./Job.sh&quot;. &lt;Required&gt;&#x27;</span></span><br><span class="line">  t.week        = <span class="string">&#x27;TODO: week rule. &lt;Optional&gt;&#x27;</span></span><br><span class="line">  t.year        = <span class="string">&quot;TODO: year rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.month       = <span class="string">&quot;TODO: month rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.day         = <span class="string">&quot;TODO: day rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.hour        = <span class="string">&quot;TODO: hour rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.minute      = <span class="string">&quot;TODO: minute rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.time        = <span class="string">&quot;TODO: time list rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.date        = <span class="string">&quot;TODO: date list rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.loop        = <span class="string">&quot;TODO: loop count. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.start_point = <span class="string">&quot;TODO: start point boundary rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">  t.end_point   = <span class="string">&quot;TODO: end point boundary rule. &lt;Optional&gt;&quot;</span></span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+
+<p>模板中列出了任务支持的所有属性，首先有两个必要属性 <code>name</code> 和 <code>path</code>。</p>
+<ul>
+<li><code>name</code>：用于指出任务的名称，同一个 Taskfile 中不能有同名的任务，主要用于日志查询时指定名称。</li>
+<li><code>path</code> 用于指出任务的路径，taskloop 会根据此路径加载并执行任务脚本。</li>
+</ul>
+<p>模板中的其他属性均为非必要属性，用于描述执行规则。关于执行规则，taskloop 中主要定义如下几种规则。</p>
+<ul>
+<li><strong>指定时间规则（Specific Rule）</strong><ul>
+<li>指定时间规则用于指定特定的时间值，对应的语法是 <code>at</code>。</li>
+<li>支持指定时间规则的属性有 <code>week</code>、<code>year</code>、<code>month</code>、<code>day</code>、<code>hour</code>、<code>minute</code>，其中 <code>week</code>、<code>month</code>、<code>day</code> 属性需要使用预定义的符号，其余属性可以直接使用数值。<ul>
+<li>对于 <code>week</code>，需要使用星期符号，如：<code>:Sun</code>、<code>:Mon</code> 等。</li>
+<li>对于 <code>month</code>，需要使用月份符号，如：<code>:Jan</code>、<code>:Feb</code> 等。</li>
+<li>对于 <code>day</code>，需要使用表示月份中第几天的符号，如：<code>:day1</code>，<code>:day2</code> 等。</li>
+</ul>
+</li>
+<li>示例<ul>
+<li><code>t.week = at :Mon, :Sub, :Tue</code></li>
+<li><code>t.month = at :Feb, :Aug</code></li>
+<li><code>t.day = at :day2, :day8, :day30, day:31</code></li>
+<li><code>t.year = at 2023, 2024</code></li>
+<li><code>t.hour = at 10, 11</code></li>
+<li><code>t.minute = at 59</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>时间范围规则（Scope Rule）</strong><ul>
+<li>时间范围规则包含三种子规则，对应的语法分别是：<code>before</code>、<code>between</code>、<code>after</code>。<ul>
+<li><code>before</code> 语法表示在小于等于某个值时执行。</li>
+<li><code>between</code> 语法表示在大于等于某个值，且小于等于另一个值时执行。</li>
+<li><code>after</code> 语法表示在大于等于某个值时执行。</li>
+</ul>
+</li>
+<li>支持时间范围规则的属性有 <code>week</code>、<code>year</code>、<code>month</code>、<code>day</code>、<code>hour</code>、<code>minute</code>。</li>
+<li>示例<ul>
+<li><code>t.year = before 2026</code></li>
+<li><code>t.week = between :Mon, :Fri</code></li>
+<li><code>t.hour = after 12</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>时间间隔规则（Interval Rule）</strong><ul>
+<li>时间间隔规则用于指定两次任务之间的时间间隔，对应的语法是 <code>interval</code>。</li>
+<li>支持时间间隔规则的属性有 <code>year</code>、<code>month</code>、<code>day</code>、<code>hour</code>、<code>minute</code>。</li>
+<li>示例<ul>
+<li><code>t.minute = interval 5</code></li>
+<li><code>t.day = interval 1</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>循环次数规则（Loop Rule）</strong><ul>
+<li>循环次数规则用于指定任务循环的次数，对应的语法是 <code>loop</code>。</li>
+<li>支持循环次数规则的属性只有 <code>loop</code>。</li>
+<li>示例<ul>
+<li><code>t.loop = loop 10</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>时间列表规则（Time List Rule）</strong><ul>
+<li>时间列表规则用于指定任务执行的时间列表，对应的语法是 <code>time</code>。其与 <code>hour</code>、<code>minute</code> 属性冲突，不能同时使用。</li>
+<li>支持时间列表规则的属性只有 <code>time</code>。</li>
+<li>示例<ul>
+<li><code>t.time = time &quot;10:00:00&quot;, &quot;7:00:00&quot;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>日期列表规则（Date List Rule）</strong><ul>
+<li>日期列表规则用于指定执行任务的日期列表，对应的语法是 <code>date</code>。其与 <code>year</code>、<code>month</code>、<code>day</code> 属性冲突，不能同时使用。</li>
+<li>支持日期列表规则的属性只有 <code>date</code>。</li>
+<li>示例<ul>
+<li><code>t.date = date &quot;2023-10-1, &quot;2023-5-1</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>执行边界规则（Boundary Rule）</strong><ul>
+<li>执行边界规则包含两种子规则，对应的语法分别是 <code>from</code> 和 <code>to</code>。<ul>
+<li><code>from</code> 语法表示任务从某一个时刻开始执行，支持的属性只有 <code>start_point</code>。</li>
+<li><code>to</code> 语法表示任务在某一时刻之后不在执行，支持的属性只有 <code>end_point</code>。</li>
+</ul>
+</li>
+<li>示例<ul>
+<li><code>t.start_point = &quot;2023-10-1 10:00:00&quot;</code></li>
+<li><code>t.end_point = &quot;2023-10-30 23:59:00</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="工作流程"><a href="#工作流程" class="headerlink" title="工作流程"></a>工作流程</h2><p>taskloop 的工作流程可以分为三个步骤：</p>
+<ul>
+<li><strong>启动&#x2F;关闭</strong></li>
+<li><strong>初始化</strong></li>
+<li><strong>发布&#x2F;撤销</strong></li>
+</ul>
+<p>启动&#x2F;关闭步骤是一个全局开关，对应分别有两个命令，如上所述。关于启动，一般只在最开始使用 taskloop 的时候使用启动命令。如果希望停止所有已注册任务的执行，则可以执行关闭命令。</p>
+<p>taskloop 建议用户能够使用一个目录统一管理所有的定时任务，当希望为这些定时任务创建定时规则时，可以在目录下执行初始化命令，从而生成一个 Taskfile 文件。之后，即可自定义定时规则。如果用户本地维护了多个目录管理定时任务，则需要在不同的目录下分别执行一次初始化命令，从而完成任务规则自定义。</p>
+<p>发布&#x2F;撤销步骤相对而言会比较频繁，当初始化并自定义 Taskfile 之后，我们就可以执行发布命令，使得 Taskfile 真正在 taskloop 中生效。当然，有时候我们会在发布后发现一些错误，我们可以修改后重新发布，或者为了避免产生副作用，可以执行撤销命令。注意，发布&#x2F;撤销命令必须在 Taskfile 的同级目录下执行。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文简单介绍了一下我最近业余时间写的一个定时任务管理工具——taskloop。同时，解释了为什么做这个工具的原因（即解决 crontab 的痛点）。</p>
+<p>关于软件 logo，我花了两晚设计了这样一个形象。两个圈组成一个莫比乌斯环，象征着循环。海豚跳圈作为任务执行的抽象，在两个圈中循环穿越，象征着 taskloop 永不停止地运行。</p>
+<p>忘了说，其实写这篇文章的另一个重要目的是为了推广一下我的作品，也希望有兴趣的朋友能够给一些意见，甚至可以一起参与软件的开发和完善。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/baochuquan/taskloop">taskloop</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/taskloop/" rel="tag"># taskloop</a>
+          
+            <a href="/tags/cron/" rel="tag"># cron</a>
+          
+            <a href="/tags/crontab/" rel="tag"># crontab</a>
+          
+            <a href="/tags/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/" rel="tag"># 定时任务</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/06/24/understand-fishhook-design/" rel="next" title="如何从链接原理的角度理解 fishhook 的设计思想？">
+                <i class="fa fa-chevron-left"></i> 如何从链接原理的角度理解 fishhook 的设计思想？
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#crontab"><span class="nav-number">1.</span> <span class="nav-text">crontab</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%87%BA%E9%87%8D%E5%AE%9A%E5%90%91"><span class="nav-number">1.1.</span> <span class="nav-text">输出重定向</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="nav-number">1.2.</span> <span class="nav-text">环境变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%84%E5%88%99%E8%AF%AD%E6%B3%95"><span class="nav-number">1.3.</span> <span class="nav-text">规则语法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%A5%E5%BF%97"><span class="nav-number">1.4.</span> <span class="nav-text">运行日志</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#taskloop"><span class="nav-number">2.</span> <span class="nav-text">taskloop</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F-1"><span class="nav-number">2.1.1.</span> <span class="nav-text">环境变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8-%E5%85%B3%E9%97%AD"><span class="nav-number">2.1.2.</span> <span class="nav-text">启动&#x2F;关闭</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">2.1.3.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E5%B8%83-%E6%92%A4%E9%94%80"><span class="nav-number">2.1.4.</span> <span class="nav-text">发布&#x2F;撤销</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E6%9F%A5%E7%9C%8B"><span class="nav-number">2.1.5.</span> <span class="nav-text">任务查看</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A5%E5%BF%97%E6%9F%A5%E7%9C%8B"><span class="nav-number">2.1.6.</span> <span class="nav-text">日志查看</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%E8%A7%84%E5%88%99"><span class="nav-number">2.2.</span> <span class="nav-text">语法规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.3.</span> <span class="nav-text">工作流程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

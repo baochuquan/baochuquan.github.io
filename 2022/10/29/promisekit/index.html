@@ -1,38 +1,1403 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="源码解读,Promise,Guarantee," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码解读——PromiseKit">
+<meta property="og:url" content="http://chuquan.me/2022/10/29/promisekit/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/promisekit-01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/promisekit-02.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/promisekit-03.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/promisekit-04.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/promisekit-05.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2022-10-29T13:26:13.000Z">
+<meta property="article:modified_time" content="2022-11-27T14:13:35.040Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="源码解读">
+<meta property="article:tag" content="Promise">
+<meta property="article:tag" content="Guarantee">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/promisekit-01.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2022/10/29/promisekit/"/>
+
+
+
+
+
+  <title>源码解读——PromiseKit | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2022/10/29/promisekit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">源码解读——PromiseKit</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2022-10-29T21:26:13+08:00">
+                2022-10-29
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2022-11-27T22:13:35+08:00">
+                2022-11-27
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%82%E6%AD%A5%E4%B8%8E%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">异步与并发</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/promisekit-01.png?x-oss-process=image/resize,w_800"></p>
+<span id="more"></span>
+
+<p>PromiseKit 是一款基于 Swift 的 Promise 异步编程框架，作者是大名鼎鼎的 Max Howell，Max Howell 同时也是 Homebrew 的作者，因在面试 Google 时写不出算法题反转二叉树而走红。</p>
+<p>最近，我在研究 Promise 异步编程，一开始尝试从阅读 PromiseKit 源码上手，但是发现里面的一些设计理念难以理解。因此，转而去研究 Promise 核心原理，并产出了一篇文章——<a href="http://chuquan.me/2022/10/16/promise-core-implement/">《Promise 核心实现原理》</a>。最后，再回过头来阅读 PromiseKit 源码，很多当初不理解的设计立马豁然开朗了。这里，希望通过本文记录自己对于 PromiseKit 设计思想的一些理解。</p>
+<p>注：本文分析的 PromiseKit 版本是 <code>6.18.1</code>。</p>
+<h1 id="Thenable-CatchMixin"><a href="#Thenable-CatchMixin" class="headerlink" title="Thenable &amp; CatchMixin"></a>Thenable &amp; CatchMixin</h1><p><code>Thenable</code> 是 PromiseKit 的核心协议之一，其声明了一个关键方法 <code>pipe(to:)</code>，并实现了一系列链式操作符（方法），具体如下所示。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">protocol</span> <span class="title class_">Thenable</span>: <span class="title class_">AnyObject</span> &#123;</span><br><span class="line">    <span class="comment">/// The type of the wrapped value</span></span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">T</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/// `pipe` is immediately executed when this `Thenable` is resolved</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">pipe</span>(<span class="params">to</span>: <span class="keyword">@escaping</span>(<span class="type">Result</span>&lt;<span class="type">T</span>&gt;) -&gt; <span class="type">Void</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">/// The resolved result or nil if pending.</span></span><br><span class="line">    <span class="keyword">var</span> result: <span class="type">Result</span>&lt;<span class="type">T</span>&gt;? &#123; <span class="keyword">get</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">extension</span> <span class="title class_">Thenable</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">then</span>&lt;<span class="type">U</span>: <span class="type">Thenable</span>&gt;(<span class="params">on</span>: <span class="type">DispatchQueue</span>? <span class="operator">=</span> conf.<span class="type">Q</span>.map, <span class="params">flags</span>: <span class="type">DispatchWorkItemFlags</span>? <span class="operator">=</span> <span class="literal">nil</span>, <span class="keyword">_</span> <span class="params">body</span>: <span class="keyword">@escaping</span>(<span class="type">T</span>) <span class="keyword">throws</span> -&gt; <span class="type">U</span>) -&gt; <span class="type">Promise</span>&lt;<span class="type">U</span>.<span class="type">T</span>&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">map</span>&lt;<span class="type">U</span>&gt;(<span class="params">on</span>: <span class="type">DispatchQueue</span>? <span class="operator">=</span> conf.<span class="type">Q</span>.map, <span class="params">flags</span>: <span class="type">DispatchWorkItemFlags</span>? <span class="operator">=</span> <span class="literal">nil</span>, <span class="keyword">_</span> <span class="params">transform</span>: <span class="keyword">@escaping</span>(<span class="type">T</span>) <span class="keyword">throws</span> -&gt; <span class="type">U</span>) -&gt; <span class="type">Promise</span>&lt;<span class="type">U</span>&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">compactMap</span>&lt;<span class="type">U</span>&gt;(<span class="params">on</span>: <span class="type">DispatchQueue</span>? <span class="operator">=</span> conf.<span class="type">Q</span>.map, <span class="params">flags</span>: <span class="type">DispatchWorkItemFlags</span>? <span class="operator">=</span> <span class="literal">nil</span>, <span class="keyword">_</span> <span class="params">transform</span>: <span class="keyword">@escaping</span>(<span class="type">T</span>) <span class="keyword">throws</span> -&gt; <span class="type">U</span>?) -&gt; <span class="type">Promise</span>&lt;<span class="type">U</span>&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">done</span>(<span class="params">on</span>: <span class="type">DispatchQueue</span>? <span class="operator">=</span> conf.<span class="type">Q</span>.return, <span class="params">flags</span>: <span class="type">DispatchWorkItemFlags</span>? <span class="operator">=</span> <span class="literal">nil</span>, <span class="keyword">_</span> <span class="params">body</span>: <span class="keyword">@escaping</span>(<span class="type">T</span>) <span class="keyword">throws</span> -&gt; <span class="type">Void</span>) -&gt; <span class="type">Promise</span>&lt;<span class="type">Void</span>&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">get</span>(<span class="params">on</span>: <span class="type">DispatchQueue</span>? <span class="operator">=</span> conf.<span class="type">Q</span>.return, <span class="params">flags</span>: <span class="type">DispatchWorkItemFlags</span>? <span class="operator">=</span> <span class="literal">nil</span>, <span class="keyword">_</span> <span class="params">body</span>: <span class="keyword">@escaping</span> (<span class="type">T</span>) <span class="keyword">throws</span> -&gt; <span class="type">Void</span>) -&gt; <span class="type">Promise</span>&lt;<span class="type">T</span>&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">tap</span>(<span class="params">on</span>: <span class="type">DispatchQueue</span>? <span class="operator">=</span> conf.<span class="type">Q</span>.map, <span class="params">flags</span>: <span class="type">DispatchWorkItemFlags</span>? <span class="operator">=</span> <span class="literal">nil</span>, <span class="keyword">_</span> <span class="params">body</span>: <span class="keyword">@escaping</span>(<span class="type">Result</span>&lt;<span class="type">T</span>&gt;) -&gt; <span class="type">Void</span>) -&gt; <span class="type">Promise</span>&lt;<span class="type">T</span>&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">asVoid</span>() -&gt; <span class="type">Promise</span>&lt;<span class="type">Void</span>&gt;</span><br><span class="line">    </span><br><span class="line">    <span class="operator">...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>遵循 <code>Thenable</code> 协议的有两个泛型类型，分别是：</p>
+<ul>
+<li><code>Promise&lt;T&gt;</code>：支持异步任务的成功和失败状态。</li>
+<li><code>Guarantee&lt;T&gt;</code>：仅支持异步任务的成功状态，不接受失败状态。</li>
+</ul>
+<p>两者的主要区别在于 <code>Promise</code> 支持失败状态，而 <code>Guarantee</code> 不支持失败状态。因此，PromiseKit 定义了另一个协议 <code>CatchMixin</code>，该协议声明并实现了错误处理相关的方法，如：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">protocol</span> <span class="title class_">CatchMixin</span>: <span class="title class_">Thenable</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">extension</span> <span class="title class_">CatchMixin</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">`catch`</span>(<span class="params">on</span>: <span class="type">DispatchQueue</span>? <span class="operator">=</span> conf.<span class="type">Q</span>.return, <span class="params">flags</span>: <span class="type">DispatchWorkItemFlags</span>? <span class="operator">=</span> <span class="literal">nil</span>, <span class="params">policy</span>: <span class="type">CatchPolicy</span> <span class="operator">=</span> conf.catchPolicy, <span class="keyword">_</span> <span class="params">body</span>: <span class="keyword">@escaping</span>(<span class="type">Error</span>) -&gt; <span class="type">Void</span>) -&gt; <span class="type">PMKFinalizer</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">recover</span>&lt;<span class="type">U</span>: <span class="type">Thenable</span>&gt;(<span class="params">on</span>: <span class="type">DispatchQueue</span>? <span class="operator">=</span> conf.<span class="type">Q</span>.map, <span class="params">flags</span>: <span class="type">DispatchWorkItemFlags</span>? <span class="operator">=</span> <span class="literal">nil</span>, <span class="params">policy</span>: <span class="type">CatchPolicy</span> <span class="operator">=</span> conf.catchPolicy, <span class="keyword">_</span> <span class="params">body</span>: <span class="keyword">@escaping</span>(<span class="type">Error</span>) <span class="keyword">throws</span> -&gt; <span class="type">U</span>) -&gt; <span class="type">Promise</span>&lt;<span class="type">T</span>&gt; <span class="keyword">where</span> <span class="type">U</span>.<span class="type">T</span> <span class="operator">==</span> <span class="type">T</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">recover</span>(<span class="params">on</span>: <span class="type">DispatchQueue</span>? <span class="operator">=</span> conf.<span class="type">Q</span>.map, <span class="params">flags</span>: <span class="type">DispatchWorkItemFlags</span>? <span class="operator">=</span> <span class="literal">nil</span>, <span class="keyword">_</span> <span class="params">body</span>: <span class="keyword">@escaping</span>(<span class="type">Error</span>) -&gt; <span class="type">Guarantee</span>&lt;<span class="type">T</span>&gt;) -&gt; <span class="type">Guarantee</span>&lt;<span class="type">T</span>&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">ensure</span>(<span class="params">on</span>: <span class="type">DispatchQueue</span>? <span class="operator">=</span> conf.<span class="type">Q</span>.return, <span class="params">flags</span>: <span class="type">DispatchWorkItemFlags</span>? <span class="operator">=</span> <span class="literal">nil</span>, <span class="keyword">_</span> <span class="params">body</span>: <span class="keyword">@escaping</span> () -&gt; <span class="type">Void</span>) -&gt; <span class="type">Promise</span>&lt;<span class="type">T</span>&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">ensureThen</span>(<span class="params">on</span>: <span class="type">DispatchQueue</span>? <span class="operator">=</span> conf.<span class="type">Q</span>.return, <span class="params">flags</span>: <span class="type">DispatchWorkItemFlags</span>? <span class="operator">=</span> <span class="literal">nil</span>, <span class="keyword">_</span> <span class="params">body</span>: <span class="keyword">@escaping</span> () -&gt; <span class="type">Guarantee</span>&lt;<span class="type">Void</span>&gt;) -&gt; <span class="type">Promise</span>&lt;<span class="type">T</span>&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">recover</span>(<span class="params">on</span>: <span class="type">DispatchQueue</span>? <span class="operator">=</span> conf.<span class="type">Q</span>.map, <span class="params">flags</span>: <span class="type">DispatchWorkItemFlags</span>? <span class="operator">=</span> <span class="literal">nil</span>, <span class="keyword">_</span> <span class="params">body</span>: <span class="keyword">@escaping</span>(<span class="type">Error</span>) -&gt; <span class="type">Void</span>) -&gt; <span class="type">Guarantee</span>&lt;<span class="type">Void</span>&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">recover</span>(<span class="params">on</span>: <span class="type">DispatchQueue</span>? <span class="operator">=</span> conf.<span class="type">Q</span>.map, <span class="params">flags</span>: <span class="type">DispatchWorkItemFlags</span>? <span class="operator">=</span> <span class="literal">nil</span>, <span class="params">policy</span>: <span class="type">CatchPolicy</span> <span class="operator">=</span> conf.catchPolicy, <span class="keyword">_</span> <span class="params">body</span>: <span class="keyword">@escaping</span>(<span class="type">Error</span>) <span class="keyword">throws</span> -&gt; <span class="type">Void</span>) -&gt; <span class="type">Promise</span>&lt;<span class="type">Void</span>&gt;</span><br><span class="line">    </span><br><span class="line">    <span class="operator">...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>CatchMixin</code> 协议继承自 <code>Thenable</code> 协议，从而限制 PromiseKit 只为遵循 <code>Thenable</code> 协议的类型支持 <code>catch</code> 和 <code>recover</code> 等能力。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/promisekit-02.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="Promise"><a href="#Promise" class="headerlink" title="Promise"></a>Promise</h1><p>从 <a href="http://chuquan.me/2022/10/16/promise-core-implement/">《Promise 核心实现原理》</a> 中，我们知道 Promise 内部主要包含几个部分：</p>
+<ul>
+<li><strong>执行状态</strong>：用于表示 Promise 的三种状态，<code>pending</code>、<code>fulfilled</code>、<code>rejected</code>。</li>
+<li><strong>执行结果</strong>：对于成功状态，为任务的返回值；对于失败状态，为任务的错误码。</li>
+<li><strong>回调任务列表</strong>：当 Promise 达到结束态时，将自动执行回调任务列表中的任务，并将当前执行结果作为参数传入回调任务。</li>
+<li><strong>执行器</strong>：用于更新执行状态和执行结果，并执行回调任务列表中的任务。</li>
+</ul>
+<p>在 PromiseKit 的实现中，使用两个类型来表示 4 个部分：</p>
+<ul>
+<li><code>Box</code>：表示一个容器，包含了 <strong>执行状态</strong>、<strong>执行结果</strong>、<strong>回调任务列表</strong>。</li>
+<li><code>Resolver</code>：<strong>执行器</strong>。</li>
+</ul>
+<p>在 <a href="http://chuquan.me/2022/10/16/promise-core-implement/">《Promise 核心实现原理》</a> 中，我们设计实现的 <code>Promise</code> 强关联了回调任务列表和执行器，执行器同时反向强引用了 Promise。然而，在 PromiseKit 中，<code>Promise</code> 仅强关联了 <code>Box</code>，而弱依赖了 <code>Resolver</code>，<code>Resolver</code> 则强关联了 <code>Box</code>。当然，两种设计在内存管理中的作用是一样的。如下所示为 <code>Promise</code> 与 <code>Box</code>、<code>Resolver</code> 的引用关系。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/promisekit-03.png?x-oss-process=image/resize,w_800"></p>
+<p>下面，我们来分别介绍一下 <code>Box</code> 和 <code>Resolver</code> 的设计。</p>
+<h2 id="Box"><a href="#Box" class="headerlink" title="Box"></a>Box</h2><p>PromiseKit 通过两种具体的 <code>Box</code> 子类来表示不同状态下的容器，分别是：</p>
+<ul>
+<li><code>EmptyBox</code>：表示 <code>pending</code> 状态下的容器。</li>
+<li><code>SealedBox</code>：表示 <code>resolved</code> 状态下的容器，具体可以是 <code>fulfilled</code> 或 <code>rejected</code> 状态。</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/promisekit-04.png?x-oss-process=image/resize,w_800"></p>
+<h3 id="执行状态-执行结果-回调任务列表"><a href="#执行状态-执行结果-回调任务列表" class="headerlink" title="执行状态 &amp; 执行结果 &amp; 回调任务列表"></a>执行状态 &amp; 执行结果 &amp; 回调任务列表</h3><p>Promise 通过 <code>Sealant</code> 枚举类型将三种执行状态（<code>pending</code>、<code>fulfilled</code>、<code>rejected</code>）分成两种执行状态：</p>
+<ul>
+<li><strong>开始状态</strong>：<code>pending</code> 状态。</li>
+<li><strong>结束状态</strong>：<code>resolved</code> 状态，具体可以是 <code>fulfilled</code> 或 <code>rejected</code>。</li>
+</ul>
+<p><code>Sealant</code> 的定义如下所示：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">Sealant</span>&lt;<span class="title class_">R</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">case</span> pending(<span class="type">Handlers</span>&lt;<span class="type">R</span>&gt;)</span><br><span class="line">    <span class="keyword">case</span> resolved(<span class="type">R</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">Handlers</span>&lt;<span class="title class_">R</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">var</span> bodies: [(<span class="type">R</span>) -&gt; <span class="type">Void</span>] <span class="operator">=</span> []</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">append</span>(<span class="keyword">_</span> <span class="params">item</span>: <span class="keyword">@escaping</span>(<span class="type">R</span>) -&gt; <span class="type">Void</span>) &#123; bodies.append(item) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>pending</code> 状态的关联值存储了 <strong>回调任务列表</strong> <code>Handlers</code>；<code>resolved</code> 状态的关联值存储了两种细分的状态 <code>Result</code>。</p>
+<p><code>Result</code> 枚举类型则用于进一步表示 <code>fulfilled</code> 和 <code>rejected</code> 状态，具体定义如下所示：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> <span class="title class_">Result</span>&lt;<span class="title class_">T</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">case</span> fulfilled(<span class="type">T</span>)</span><br><span class="line">    <span class="keyword">case</span> rejected(<span class="type">Error</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过关联对象，分别存储两种 <strong>执行结果</strong>：返回值 <code>T</code> 和错误码 <code>Error</code>。</p>
+<h3 id="EmptyBox-SealedBox"><a href="#EmptyBox-SealedBox" class="headerlink" title="EmptyBox &amp; SealedBox"></a>EmptyBox &amp; SealedBox</h3><p><code>Box</code> 抽象类定义了三个方法，分别是：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Box</span>&lt;<span class="title class_">T</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">inspect</span>() -&gt; <span class="type">Sealant</span>&lt;<span class="type">T</span>&gt; &#123; <span class="built_in">fatalError</span>() &#125;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">inspect</span>(<span class="keyword">_</span>: (<span class="type">Sealant</span>&lt;<span class="type">T</span>&gt;) -&gt; <span class="type">Void</span>) &#123; <span class="built_in">fatalError</span>() &#125;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">seal</span>(<span class="keyword">_</span>: <span class="type">T</span>) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>inspect()</code> 方法用于检查内部状态，返回值为 <code>Sealant</code> 值。对于 <code>SealedBox</code>，其返回始终为 <code>resolved&lt;T&gt;</code>。</p>
+<p><code>inspect(_ body: (Sealant&lt;T&gt;) -&gt; Void)</code> 方法将内部结果作为参数传递给闭包并执行。</p>
+<p><code>seal(_: T)</code> 方法非常关键，当 <code>Box</code> 为 <code>pending</code> 状态时，<code>seal</code> 方法可以将内部状态更新为 <code>resolved</code>，同时执行 <strong>回调任务列表</strong> 中的所有任务。<code>Resolver</code> 就是通过 <code>seal</code> 方法来更新状态的。具体如下所示：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">EmptyBox</span>&lt;<span class="title class_">T</span>&gt;: <span class="title class_">Box</span>&lt;<span class="title class_">T</span>&gt; &#123;</span><br><span class="line">    <span class="operator">...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">seal</span>(<span class="keyword">_</span> <span class="params">value</span>: <span class="type">T</span>) &#123;</span><br><span class="line">        <span class="keyword">var</span> handlers: <span class="type">Handlers</span>&lt;<span class="type">T</span>&gt;!</span><br><span class="line">        barrier.sync(flags: .barrier) &#123;</span><br><span class="line">            <span class="keyword">guard</span> <span class="keyword">case</span> .pending(<span class="keyword">let</span> _handlers) <span class="operator">=</span> <span class="keyword">self</span>.sealant <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span>  <span class="comment">// already fulfilled!</span></span><br><span class="line">            &#125;</span><br><span class="line">            handlers <span class="operator">=</span> _handlers</span><br><span class="line">            <span class="keyword">self</span>.sealant <span class="operator">=</span> .resolved(value)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> handlers <span class="operator">=</span> handlers &#123;</span><br><span class="line">            handlers.bodies.forEach&#123; <span class="variable">$0</span>(value) &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Resolver"><a href="#Resolver" class="headerlink" title="Resolver"></a>Resolver</h2><p><code>Resolver</code> 的核心作用是更新执行状态和执行结果，并执行回调任务列表中的任务。由于 <code>Box</code> 封装了执行状态、执行结果、回调任务列表，并且提供了更新状态的方法 <code>seal</code>。因此，<code>Resolver</code> 只需提供针对不同状态的便利方法，内部调用 <code>Box</code> 的 <code>seal</code> 方法进行更新即可。具体如下所示。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">Resolver</span>&lt;<span class="title class_">T</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> box: <span class="type">Box</span>&lt;<span class="type">Result</span>&lt;<span class="type">T</span>&gt;&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">init</span>(<span class="keyword">_</span> <span class="params">box</span>: <span class="type">Box</span>&lt;<span class="type">Result</span>&lt;<span class="type">T</span>&gt;&gt;) &#123;</span><br><span class="line">        <span class="keyword">self</span>.box <span class="operator">=</span> box</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">deinit</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">case</span> .pending <span class="operator">=</span> box.inspect() &#123;</span><br><span class="line">            conf.logHandler(.pendingPromiseDeallocated)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">extension</span> <span class="title class_">Resolver</span> &#123;</span><br><span class="line">    <span class="comment">/// Fulfills the promise with the provided value</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">fulfill</span>(<span class="keyword">_</span> <span class="params">value</span>: <span class="type">T</span>) &#123;</span><br><span class="line">        box.seal(.fulfilled(value))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/// Rejects the promise with the provided error</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">reject</span>(<span class="keyword">_</span> <span class="params">error</span>: <span class="type">Error</span>) &#123;</span><br><span class="line">        box.seal(.rejected(error))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/// Resolves the promise with the provided result</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">resolve</span>(<span class="keyword">_</span> <span class="params">result</span>: <span class="type">Result</span>&lt;<span class="type">T</span>&gt;) &#123;</span><br><span class="line">        box.seal(result)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="operator">...</span>   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="任务串联"><a href="#任务串联" class="headerlink" title="任务串联"></a>任务串联</h2><p>Promise 的核心能力之一是串联任务（异步或同步）。从 <code>Thenable</code> 的方法中，我们可以看到几乎所有的串联方法内部都是通过 <code>pipe(to:)</code> 方法实现任务串联的。下面，我们来看一下 <code>Promise</code> 中该方法的定义。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">Promise</span>&lt;<span class="title class_">T</span>&gt;: <span class="title class_">Thenable</span>, <span class="title class_">CatchMixin</span> &#123;</span><br><span class="line">    <span class="operator">...</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">func</span> <span class="title function_">pipe</span>(<span class="params">to</span>: <span class="keyword">@escaping</span>(<span class="type">Result</span>&lt;<span class="type">T</span>&gt;) -&gt; <span class="type">Void</span>) &#123;</span><br><span class="line">        <span class="keyword">switch</span> box.inspect() &#123;</span><br><span class="line">        <span class="keyword">case</span> .pending:</span><br><span class="line">            box.inspect &#123;</span><br><span class="line">                <span class="keyword">switch</span> <span class="variable">$0</span> &#123;</span><br><span class="line">                <span class="keyword">case</span> .pending(<span class="keyword">let</span> handlers):</span><br><span class="line">                    handlers.append(to)</span><br><span class="line">                <span class="keyword">case</span> .resolved(<span class="keyword">let</span> value):</span><br><span class="line">                    to(value)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        <span class="keyword">case</span> .resolved(<span class="keyword">let</span> value):</span><br><span class="line">            to(value)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从实现中可以看到，<code>pipe(to:)</code> 方法会先判断 <code>Box</code> 的状态，如果是 <code>pending</code> 状态，则将闭包加入回调任务列表；如果是 <code>resolved</code> 状态，则立即执行闭包。</p>
+<h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><p>PromiseKit 所实现的 <code>Promise</code> 的内存管理是非常清晰。我们可以通过阅读各种链式操作符的内部实现来梳理其内存引用关系。如下所示，为链式操作符下产生的线性内存引用关系。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/promisekit-05.png?x-oss-process=image/resize,w_800"></p>
+<p>当对 <code>promise 0</code> 执行链式操作符时，链式操作符会创建一个 <code>promise 1</code>，并在内部创建一个匿名闭包对用户闭包进行封装。同时，匿名闭包将引用 <code>promise 1</code> ，以处理 <code>rejected</code> 状态。</p>
+<p>当 <code>promise 0</code> 为 <code>fulfilled</code> 时，执行匿名闭包，进而执行用户闭包，从而创建一个临时的 <code>promise m</code>。此时，<code>promise m</code> 通过 <code>pipe(to:)</code> 方法将 <code>promise 1</code> 的状态更新方法（任务）<code>box.seal</code> 加入回调任务列表，最终形成上图所示的内存引用关系。</p>
+<h1 id="Guarantee"><a href="#Guarantee" class="headerlink" title="Guarantee"></a>Guarantee</h1><p><code>Guarantee</code> 其实是裁剪版的 <code>Promise</code>，不支持错误处理，即 <strong>保证有返回值</strong> 的含义。</p>
+<p><code>Guarantee</code> 遵循 <code>Thenable</code> 协议，并重新实现了一套链式操作符（方法），不同的是，返回值为 <code>Guarantee</code> 类型，从而避免交错使用 <code>Promise</code> 和 <code>Guarantee</code>。</p>
+<h1 id="全局方法"><a href="#全局方法" class="headerlink" title="全局方法"></a>全局方法</h1><p>为了便于使用，PromiseKit 还提供了几个常用的全局方法，包括：</p>
+<ul>
+<li><code>after</code>：延时任务，<code>Guarantee</code> 类型。</li>
+<li><code>firstly</code>：语法糖，让代码更具可读性，立即执行闭包。</li>
+<li><code>race</code>：当有一个 Promise 为 <code>fulfilled</code> 状态时，执行回调任务列表。 </li>
+<li><code>when</code>：当所有 Promise 均为 <code>fulfilled</code> 状态时，执行回调任务列表。</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>整体而言，PromiseKit 以 <code>Thenable</code> 和 <code>CatchMixin</code> 协议为基础，实现了两种类型的 Promise，分别是 <code>Promise</code> 和 <code>Guarantee</code>。</p>
+<p><code>Promise</code> 的工作流程主要涉及了 <code>Box</code> 和 <code>Resolver</code>，两者有各自的职责。<code>Box</code> 包含了执行结果、执行状态、回调任务列表，并提供了状态更新方法 <code>seal</code>。<code>Resolver</code> 作为执行器，提供给用户来更新状态。</p>
+<p><code>Thenable</code> 提供的 <code>pipe(to:)</code> 方法是串联任务的关键，几乎所有的链式操作符均使用了 <code>pipe(to:)</code> 方法进行任务串联。</p>
+<p>从编码角度而言，PromiseKit 在职责单一、方法命名方面的设计与实践，还是非常值得我们来学习的。</p>
+<p>后续，我们将继续阅读一些不错的开源源码，学习其中的设计思想。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/mxcl/PromiseKit">PromiseKit</a></li>
+<li><a href="http://chuquan.me/2022/10/16/promise-core-implement/">Promise 核心实现原理</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag"># 源码解读</a>
+          
+            <a href="/tags/Promise/" rel="tag"># Promise</a>
+          
+            <a href="/tags/Guarantee/" rel="tag"># Guarantee</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/10/16/promise-core-implement/" rel="next" title="Promise 核心实现原理">
+                <i class="fa fa-chevron-left"></i> Promise 核心实现原理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/11/13/understand-principle-of-aspects/" rel="prev" title="深入理解 Aspects 设计原理">
+                深入理解 Aspects 设计原理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Thenable-CatchMixin"><span class="nav-number">1.</span> <span class="nav-text">Thenable &amp; CatchMixin</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Promise"><span class="nav-number">2.</span> <span class="nav-text">Promise</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Box"><span class="nav-number">2.1.</span> <span class="nav-text">Box</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E7%8A%B6%E6%80%81-%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9C-%E5%9B%9E%E8%B0%83%E4%BB%BB%E5%8A%A1%E5%88%97%E8%A1%A8"><span class="nav-number">2.1.1.</span> <span class="nav-text">执行状态 &amp; 执行结果 &amp; 回调任务列表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EmptyBox-SealedBox"><span class="nav-number">2.1.2.</span> <span class="nav-text">EmptyBox &amp; SealedBox</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Resolver"><span class="nav-number">2.2.</span> <span class="nav-text">Resolver</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E4%B8%B2%E8%81%94"><span class="nav-number">2.3.</span> <span class="nav-text">任务串联</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">2.4.</span> <span class="nav-text">内存管理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Guarantee"><span class="nav-number">3.</span> <span class="nav-text">Guarantee</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E6%96%B9%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">全局方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

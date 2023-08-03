@@ -1,38 +1,1428 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="LLVM,Parser,AST," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="概述本章，我们将基于词法分析器，为 Kaleidoscope 构建一个完整的解析器（Parser）。通过解析器，我们可以定义并构造抽象语法树（Abstract Syntax Tree，AST）。 我们构造的解析器使用两种方法进行语法分析：  递归下降分析法（Recursive Descent Parsing）：用于基本表达式的解析。 算符优先分析法（Operator-Precedence Pars">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于 LLVM 自制编译器(2)——解析器、抽象语法树">
+<meta property="og:url" content="http://chuquan.me/2022/07/31/compiler-for-kaleidoscope-02/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="概述本章，我们将基于词法分析器，为 Kaleidoscope 构建一个完整的解析器（Parser）。通过解析器，我们可以定义并构造抽象语法树（Abstract Syntax Tree，AST）。 我们构造的解析器使用两种方法进行语法分析：  递归下降分析法（Recursive Descent Parsing）：用于基本表达式的解析。 算符优先分析法（Operator-Precedence Pars">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-03.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-04.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-05.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-05.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2022-07-31T06:31:22.000Z">
+<meta property="article:modified_time" content="2023-01-14T03:12:27.164Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="LLVM">
+<meta property="article:tag" content="Parser">
+<meta property="article:tag" content="AST">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-03.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2022/07/31/compiler-for-kaleidoscope-02/"/>
+
+
+
+
+
+  <title>基于 LLVM 自制编译器(2)——解析器、抽象语法树 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2022/07/31/compiler-for-kaleidoscope-02/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">基于 LLVM 自制编译器(2)——解析器、抽象语法树</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2022-07-31T14:31:22+08:00">
+                2022-07-31
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2023-01-14T11:12:27+08:00">
+                2023-01-14
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LLVM/" itemprop="url" rel="index">
+                    <span itemprop="name">LLVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>本章，我们将基于词法分析器，为 Kaleidoscope 构建一个完整的解析器（Parser）。通过解析器，我们可以定义并构造抽象语法树（Abstract Syntax Tree，AST）。</p>
+<p>我们构造的解析器使用两种方法进行语法分析：</p>
+<ul>
+<li><strong>递归下降分析法（Recursive Descent Parsing）</strong>：用于基本表达式的解析。</li>
+<li><strong>算符优先分析法（Operator-Precedence Parsing）</strong>：用于二元表达式的解析。</li>
+</ul>
+<p>在实现解析器之前，我们先来介绍一下解析器的输出——抽象语法树。</p>
+<h1 id="抽象语法树"><a href="#抽象语法树" class="headerlink" title="抽象语法树"></a>抽象语法树</h1><p><strong>抽象语法树（AST）为编译器后续的各个阶段提供了一种易于解释的表示形式</strong>，比如：代码生成。通常，我们希望编程语言中的每一种结构都有一个对应的表示对象。为了实现这种映射关系，我们使用 AST 对语言进行分析建模。</p>
+<p>在 Kaleidoscope 的 AST 中，我们设计了三种结构，分别是：</p>
+<ul>
+<li><strong>表达式</strong></li>
+<li><strong>原型</strong></li>
+<li><strong>函数</strong></li>
+</ul>
+<h2 id="表达式"><a href="#表达式" class="headerlink" title="表达式"></a>表达式</h2><p>如下所示，<code>ExprAST</code> 是 AST 中表达式的基类定义，其包含了多种子类定义，分别用于对应不同的具体表达式。由于 Kaleidoscope 只有一种数据类型——双精度浮点类型，因此我们没有必要存储类型信息。当然，现实的编程语言通常都包含多种类型，这种情况下 <code>ExprAST</code> 会包含一个用于存储类型信息的字段。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// ExprAST - Base class for all expression nodes.</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ExprAST</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">ExprAST</span>() &#123;&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>如下所示为 <code>ExprAST</code> 的各种子类定义，分别是：</p>
+<ul>
+<li><code>NumberExprAST</code>：用于表示 <strong>数值表达式</strong>，其捕获字面量的数值保存于 <code>Val</code> 中。</li>
+<li><code>VariableExprAST</code>：用于表示 <strong>变量表达式</strong>，其捕获变量名保存于 <code>Name</code> 中。</li>
+<li><code>BinaryExprAST</code>：用于表示 <strong>二元表达式</strong>，其使用 <code>Op</code> 保存操作符，如：<code>+</code>。使用 <code>LHS</code> 和 <code>RHS</code> 分别保存左子表达式和右子表达式。</li>
+<li><code>CallExprAST</code>：用于表示 <strong>函数调用表达式</strong>，其使用 <code>Callee</code> 保存函数名。使用 <code>Args</code> 数组变量保存函数的各个参数。</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-03.png?x-oss-process=image/resize,w_800"></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// NumberExprAST - Expression class for numeric literals like &quot;1.0&quot;.</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">NumberExprAST</span> : <span class="keyword">public</span> ExprAST &#123;</span><br><span class="line">    <span class="type">double</span> Val;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">NumberExprAST</span>(<span class="type">double</span> Val) : <span class="built_in">Val</span>(Val) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// VariableExprAST - Expression class for referencing a variable, like &quot;a&quot;.</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">VariableExprAST</span> : <span class="keyword">public</span> ExprAST &#123;</span><br><span class="line">    std::string Name;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">VariableExprAST</span>(<span class="type">const</span> std::string &amp;Name) : <span class="built_in">Name</span>(Name) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// BinaryExprAST - Expression class for a binary operator.</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BinaryExprAST</span> : <span class="keyword">public</span> ExprAST &#123;</span><br><span class="line">    <span class="type">char</span> Op;</span><br><span class="line">    std::unique_ptr&lt;ExprAST&gt; LHS, RHS;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">BinaryExprAST</span>(<span class="type">char</span> op, std::unique_ptr&lt;ExprAST&gt; LHS, std::unique_ptr&lt;ExprAST&gt; RHS) : <span class="built_in">Op</span>(op), <span class="built_in">LHS</span>(std::<span class="built_in">move</span>(LHS)), <span class="built_in">RHS</span>(std::<span class="built_in">move</span>(RHS)) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// CallExprAST - Expression class for function calls.</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CallExprAST</span> : <span class="keyword">public</span> ExprAST &#123;</span><br><span class="line">    std::string Callee;</span><br><span class="line">    std::vector&lt;std::unique_ptr&lt;ExprAST&gt;&gt; Args;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">CallExprAST</span>(<span class="type">const</span> std::string &amp;Callee, std::vector&lt;std::unique_ptr&lt;ExprAST&gt;&gt; Args) : <span class="built_in">Callee</span>(Callee), <span class="built_in">Args</span>(std::<span class="built_in">move</span>(Args)) &#123;&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>对于仅包含基本功能的编程语言而言，上述为全部的 AST 表达式节点定义。由于不包含条件控制流，因此这并不是图灵完备的；对此，我们将在后面进一步对其进行优化。</p>
+<h2 id="原型"><a href="#原型" class="headerlink" title="原型"></a>原型</h2><p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-04.png?x-oss-process=image/resize,w_800"></p>
+<p>如下所示，<code>PrototypeAST</code> 为 AST 中原型（Prototype）的定义。原型用于表示一个函数的原型，用于捕获函数的名称，各个参数的名称等。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">PrototypeAST</span> &#123;</span><br><span class="line">    std::string Name;</span><br><span class="line">    std::vector&lt;std::string&gt; Args;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">PrototypeAST</span>(<span class="type">const</span> std::string &amp;name, std::vector&lt;std::string&gt; Args) : <span class="built_in">Name</span>(name), <span class="built_in">Args</span>(std::<span class="built_in">move</span>(Args)) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">const</span> std::string &amp;<span class="title">getName</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> Name; &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-05.png?x-oss-process=image/resize,w_800"></p>
+<p>如下所示，<code>FunctionAST</code> 为 AST 中函数的定义。函数由函数原型和函数体组成，其分别使用 <code>Proto</code> 和 <code>Body</code> 进行存储。其中函数体是一个 AST 表达式结构。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">FunctionAST</span> &#123;</span><br><span class="line">    std::unique_ptr&lt;PrototypeAST&gt; Proto;</span><br><span class="line">    std::unique_ptr&lt;ExprAST&gt; Body;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">FunctionAST</span>(std::unique_ptr&lt;PrototypeAST&gt; Proto, std::unique_ptr&lt;ExprAST&gt; Body) : <span class="built_in">Proto</span>(std::<span class="built_in">move</span>(Proto)), <span class="built_in">Body</span>(std::<span class="built_in">move</span>(Body)) &#123;&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="解析器基础"><a href="#解析器基础" class="headerlink" title="解析器基础"></a>解析器基础</h1><p>上文，我们定义了 AST 的结构，包括各种类型的节点。下面，我们来介绍如何通过解析器构建 AST。例如，对于表达式 <code>x+y</code> 可以通过如下方式将其解析成 AST。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> LHS = std::<span class="built_in">make_unique</span>&lt;VariableExprAST&gt;(<span class="string">&quot;x&quot;</span>);</span><br><span class="line"><span class="keyword">auto</span> RHS = std::<span class="built_in">make_unique</span>&lt;VariableExprAST&gt;(<span class="string">&quot;y&quot;</span>);</span><br><span class="line"><span class="keyword">auto</span> Result = std::<span class="built_in">make_unique</span>&lt;BinaryExprAST&gt;(<span class="string">&#x27;+&#x27;</span>, std::<span class="built_in">move</span>(LHS), std::<span class="built_in">move</span>(RHS));</span><br></pre></td></tr></table></figure>
+<p>为此，我们需要实现一些辅助函数，如下所示。我们通过 <code>CurToken</code> 作为词法分析器的输出 token 缓冲区。解析器内部每次调用词法分析器，输出一个 token，存储在缓冲区中。解析器则通过读取 <code>CurToken</code> 用于后续的解析。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// CurTok/getNextToken - Provide a simple token buffer.  CurTok is the current</span></span><br><span class="line"><span class="comment">/// token the parser is looking at.  getNextToken reads another token from the</span></span><br><span class="line"><span class="comment">/// lexer and updates CurTok with its results.</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> CurTok;</span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">int</span> <span class="title">getNextToken</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> CurTok = <span class="built_in">gettok</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>除了处理错误，我们还定义了 <code>LogError</code> 函数。这里我们对于不同类型的错误处理均返回 <code>nullptr</code>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// LogError* - These are little helper functions for error handling.</span></span><br><span class="line"><span class="function">std::unique_ptr&lt;ExprAST&gt; <span class="title">LogError</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *Str)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(stderr, <span class="string">&quot;LogError: %s\n&quot;</span>, Str);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function">std::unique_ptr&lt;PrototypeAST&gt; <span class="title">LogErrorP</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *Str)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">LogError</span>(Str);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="表达式解析"><a href="#表达式解析" class="headerlink" title="表达式解析"></a>表达式解析</h1><p>Kaleidoscope 文法的每一个产生式，我们定义一个对应的解析函数。关于表达式的解析，其实可以分为以下几种类型：</p>
+<ul>
+<li><strong>数值表达式</strong>：解析 <code>NumberExprAST</code>。</li>
+<li><strong>括号表达式</strong>：解析 <code>BinaryExprAST</code>。</li>
+<li><strong>标识符表达式</strong>：解析两种 AST 类型 <code>VariableExprAST</code> 和 <code>CallExprAST</code>。</li>
+</ul>
+<p>下面我们分别进行介绍。</p>
+<h2 id="数值表达式"><a href="#数值表达式" class="headerlink" title="数值表达式"></a>数值表达式</h2><p>对于数值表达式，我们定义如下解析函数。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 文法产生式</span></span><br><span class="line"><span class="comment">/// numberexpr ::= number</span></span><br><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;ExprAST&gt; <span class="title">ParseNumberExpr</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> Result = std::<span class="built_in">make_unique</span>&lt;NumberExprAST&gt;(NumVal);</span><br><span class="line">    <span class="built_in">getNextToken</span>(); <span class="comment">// consume the number</span></span><br><span class="line">    <span class="keyword">return</span> std::<span class="built_in">move</span>(Result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当词法分析器分析当前 token 的类型为 <code>tok_number</code> 时，解析器会调用 <code>ParseNumberExpr</code> 解析函数，读取全局变量 <code>NumVal</code>，从而获取数值，最终创建并返回一个 <code>NumberExprAST</code> 节点。</p>
+<p>在 <code>ParseNumberExpr</code> 解析函数中，它将读取所有与产生式相关的 token，并将下一个 token 写入词法分析器缓存 <code>CurTok</code> 中，以用于后续的分析。这其实是递归下降分析的标准方式，即 <strong>预测分析</strong>——提前读取下一个 token 进行分析，避免深度优先搜索带来回溯开销。</p>
+<h2 id="括号表达式"><a href="#括号表达式" class="headerlink" title="括号表达式"></a>括号表达式</h2><p>对于括号表达式，我们定义如下解析函数。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 文法产生式</span></span><br><span class="line"><span class="comment">/// parenexpr ::= &#x27;(&#x27; expression &#x27;)&#x27;</span></span><br><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;ExprAST&gt; <span class="title">ParseParenExpr</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">getNextToken</span>(); <span class="comment">// eat (.</span></span><br><span class="line">  <span class="keyword">auto</span> V = <span class="built_in">ParseExpression</span>();</span><br><span class="line">  <span class="keyword">if</span> (!V)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (CurTok != <span class="string">&#x27;)&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;expected &#x27;)&#x27;&quot;</span>);</span><br><span class="line">  <span class="built_in">getNextToken</span>(); <span class="comment">// eat ).</span></span><br><span class="line">  <span class="keyword">return</span> V;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 <code>ParseParenExpr</code> 解析函数中，我们可以看到对于 <code>LogError</code> 的使用。当调用 <code>LogError</code> 时，表示当前 token 是 <code>(</code>，在解析完子表达式之后，发现并没有与之匹配的 <code>)</code>。比如，当我们使用 <code>(4 x</code> 替代 <code>(4)</code> 作为输入，解析器就会调用 <code>LogError</code> 进行报错处理。</p>
+<p>除此之外，我们还可以发现内部递归调用了 <code>ParseExpression</code> 解析函数（后面我们会提到该函数）。通过递归调用，解析器能够处理递归语法，从而简化每一个文法产生式，最终返创建并返回一个 <code>BinaryExprAST</code> 节点。</p>
+<p>注意，括号并不会构建 AST 节点，其最大的作用是辅助解析器进行分组。当 AST 构建完毕，括号也就不需要了。</p>
+<h2 id="标识符表达式"><a href="#标识符表达式" class="headerlink" title="标识符表达式"></a>标识符表达式</h2><p>对于标识符表达式，我们定义如下解析函数。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 文法表达式</span></span><br><span class="line"><span class="comment">/// identifierexpr</span></span><br><span class="line"><span class="comment">///   ::= identifier</span></span><br><span class="line"><span class="comment">///   ::= identifier &#x27;(&#x27; expression* &#x27;)&#x27;</span></span><br><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;ExprAST&gt; <span class="title">ParseIdentifierExpr</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  std::string IdName = IdentifierStr;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">getNextToken</span>();  <span class="comment">// eat identifier.</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (CurTok != <span class="string">&#x27;(&#x27;</span>) <span class="comment">// Simple variable ref.</span></span><br><span class="line">    <span class="keyword">return</span> std::<span class="built_in">make_unique</span>&lt;VariableExprAST&gt;(IdName);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Call.</span></span><br><span class="line">  <span class="built_in">getNextToken</span>();  <span class="comment">// eat (</span></span><br><span class="line">  std::vector&lt;std::unique_ptr&lt;ExprAST&gt;&gt; Args;</span><br><span class="line">  <span class="keyword">if</span> (CurTok != <span class="string">&#x27;)&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">auto</span> Arg = <span class="built_in">ParseExpression</span>())</span><br><span class="line">        Args.<span class="built_in">push_back</span>(std::<span class="built_in">move</span>(Arg));</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (CurTok == <span class="string">&#x27;)&#x27;</span>)</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (CurTok != <span class="string">&#x27;,&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;Expected &#x27;)&#x27; or &#x27;,&#x27; in argument list&quot;</span>);</span><br><span class="line">      <span class="built_in">getNextToken</span>();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Eat the &#x27;)&#x27;.</span></span><br><span class="line">  <span class="built_in">getNextToken</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> std::<span class="built_in">make_unique</span>&lt;CallExprAST&gt;(IdName, std::<span class="built_in">move</span>(Args));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解析器会在当前 token 类型为 <code>tok_identifier</code> 时调用 <code>ParseIdentifierExpr</code> 解析函数。其内部同样实现了递归分析和错处处理，并且通过预测分析的方式来判断当前的标识符是变量引用表达式还是函数调用表达式，从而分别进行处理。这里的预测分析是通过判断当前 <code>token</code> 下一个 token 是否是 <code>(</code> 实现的，从而分别构建 <code>VariableExprAST</code> 节点和 <code>CallExprAST</code> 节点。</p>
+<h2 id="主表达式"><a href="#主表达式" class="headerlink" title="主表达式"></a>主表达式</h2><p>我们将四种类型的表达式统称为 <strong>主表达式（Primary Expression）</strong>。<br>为了方便外部对各种类型的表达式进行解析，我们提供一个主表达式解析函数，对外隐藏细节，对内提供实现，该解析方法如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 文法产生式</span></span><br><span class="line"><span class="comment">/// primary</span></span><br><span class="line"><span class="comment">///   ::= identifierexpr</span></span><br><span class="line"><span class="comment">///   ::= numberexpr</span></span><br><span class="line"><span class="comment">///   ::= parenexpr</span></span><br><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;ExprAST&gt; <span class="title">ParsePrimary</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">switch</span> (CurTok) &#123;</span><br><span class="line">  <span class="keyword">default</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;unknown token when expecting an expression&quot;</span>);</span><br><span class="line">  <span class="keyword">case</span> tok_identifier:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseIdentifierExpr</span>();</span><br><span class="line">  <span class="keyword">case</span> tok_number:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseNumberExpr</span>();</span><br><span class="line">  <span class="keyword">case</span> <span class="string">&#x27;(&#x27;</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseParenExpr</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ParsePrimary</code> 解析函数的实现逻辑非常清晰，即通过读取 <code>CurTok</code> 进行预测分析，判断 token 类型，并调用对应解析函数，从而构建 AST。</p>
+<h1 id="二元表达式解析"><a href="#二元表达式解析" class="headerlink" title="二元表达式解析"></a>二元表达式解析</h1><p>二元表达式是表达式的一种，相比于其他三种表达式，二元表达式（Binary Expression）解析会更加复杂，因为它们通常具有二义性。比如，当我们输入字符串 <code>x+y*z</code>，解析器可以解析成 <code>(x+y)*z</code> 或 <code>x+(y*z)</code>。基于数学定义，我们期望解析器能将其解析为后者，因为乘法 <code>*</code> 的优先级是高于加法 <code>+</code> 的。</p>
+<p>处理二义性的方式很多，其中一种优雅且高效的方式是 <strong>算符优先分析法</strong>。这种分析技术通过为操作符定义优先级来辅助递归分析。比如，我们可以通过如下方式来定义优先级。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// BinopPrecedence - This holds the precedence for each binary operator that is</span></span><br><span class="line"><span class="comment">/// defined.</span></span><br><span class="line"><span class="type">static</span> std::map&lt;<span class="type">char</span>, <span class="type">int</span>&gt; BinopPrecedence;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// GetTokPrecedence - Get the precedence of the pending binary operator token.</span></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">int</span> <span class="title">GetTokPrecedence</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">isascii</span>(CurTok))</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Make sure it&#x27;s a declared binop.</span></span><br><span class="line">  <span class="type">int</span> TokPrec = BinopPrecedence[CurTok];</span><br><span class="line">  <span class="keyword">if</span> (TokPrec &lt;= <span class="number">0</span>) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  <span class="keyword">return</span> TokPrec;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// Install standard binary operators.</span></span><br><span class="line">  <span class="comment">// 1 is lowest precedence.</span></span><br><span class="line">  BinopPrecedence[<span class="string">&#x27;&lt;&#x27;</span>] = <span class="number">10</span>;</span><br><span class="line">  BinopPrecedence[<span class="string">&#x27;+&#x27;</span>] = <span class="number">20</span>;</span><br><span class="line">  BinopPrecedence[<span class="string">&#x27;-&#x27;</span>] = <span class="number">20</span>;</span><br><span class="line">  BinopPrecedence[<span class="string">&#x27;*&#x27;</span>] = <span class="number">40</span>;  <span class="comment">// highest.</span></span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们以二元运算符为键，优先级为值存储于哈希表中，便于进行扩展。在 Kaleidoscope 中，我们仅支持 4 种二元运算符。<code>GetTokPrecedence</code> 函数根据当前 token 从哈希表中读取对应的优先级，如果 token 不是二元运算符，则返回 -1。</p>
+<p><strong>算符优先分析法的基本思想是：将具有二义性二元运算符的表达式分解为多个片段，依次进行解析</strong>。比如，对于表达式 <code>a+b+(c+d)*e*f+g</code>。算符优先分析法会将其视为一系列由二元运算符分隔的主表达式。因此，解析器会首先分析头部的主表达式 <code>a</code>，然后依次分析 <code>[+, b]</code>，<code>[+, (c+d)]</code>，<code>[*, e]</code>，<code>[*, f]</code>，<code>[+, g]</code>。由于括号表达式也是主表达式，因此二元表达式的解析并不需要关注类似 <code>(c+d)</code> 这样的嵌套子表达式。</p>
+<p>下面，我们来看一下具体的实现。</p>
+<p>首先，我们将表达式分解为 <strong>一个主表达式+多个<code>[binop, primaryexpr]</code></strong> 的形式，对应的解析函数如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 文法产生式</span></span><br><span class="line"><span class="comment">/// expression</span></span><br><span class="line"><span class="comment">///   ::= primary binoprhs</span></span><br><span class="line"><span class="comment">///</span></span><br><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;ExprAST&gt; <span class="title">ParseExpression</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">auto</span> LHS = <span class="built_in">ParsePrimary</span>();</span><br><span class="line">  <span class="keyword">if</span> (!LHS)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">ParseBinOpRHS</span>(<span class="number">0</span>, std::<span class="built_in">move</span>(LHS));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ParseBinOpRHS</code> 函数用于解析 <code>[binop, primaryexpr]</code> 序列，其入参包含两个：<strong>优先级</strong>、<strong>已解析的表达式指针</strong>。值得注意的是，表达式 <code>x</code> 其实也是一个有效的表达式，在这种文法表达式 <code>binoprhs</code> 为空的情况下，<code>ParseBinOpRHS</code> 解析函数会将传入的已解析的表达式指针直接返回。</p>
+<p><code>ParseBinOpRHS</code> 函数的优先级的参数表示 <strong>最小算符优先级</strong>（Minimal Operator Precedence），即函数能够允许读取的运算符。比如，如果当前的分析内容是 <code>[+, x]</code>，而传入 <code>ParseBinOpRHS</code> 函数的优先级为 40，那么函数不会读取任何 token，因为 <code>+</code> 的优先级为 20。</p>
+<p><code>ParseBinOpRHS</code> 函数的具体定义如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 文法产生式</span></span><br><span class="line"><span class="comment">/// binoprhs</span></span><br><span class="line"><span class="comment">///   ::= (&#x27;+&#x27; primary)*</span></span><br><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;ExprAST&gt; <span class="title">ParseBinOpRHS</span><span class="params">(<span class="type">int</span> ExprPrec,</span></span></span><br><span class="line"><span class="params"><span class="function">                                              std::unique_ptr&lt;ExprAST&gt; LHS)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// If this is a binop, find its precedence.</span></span><br><span class="line">  <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="type">int</span> TokPrec = <span class="built_in">GetTokPrecedence</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If this is a binop that binds at least as tightly as the current binop,</span></span><br><span class="line">    <span class="comment">// consume it, otherwise we are done.</span></span><br><span class="line">    <span class="keyword">if</span> (TokPrec &lt; ExprPrec)</span><br><span class="line">      <span class="keyword">return</span> LHS;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Okay, we know this is a binop.</span></span><br><span class="line">    <span class="type">int</span> BinOp = CurTok;</span><br><span class="line">    <span class="built_in">getNextToken</span>(); <span class="comment">// eat binop</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Parse the primary expression after the binary operator.</span></span><br><span class="line">    <span class="keyword">auto</span> RHS = <span class="built_in">ParsePrimary</span>();</span><br><span class="line">    <span class="keyword">if</span> (!RHS)</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If BinOp binds less tightly with RHS than the operator after RHS, let</span></span><br><span class="line">    <span class="comment">// the pending operator take RHS as its LHS.</span></span><br><span class="line">    <span class="type">int</span> NextPrec = <span class="built_in">GetTokPrecedence</span>();</span><br><span class="line">    <span class="keyword">if</span> (TokPrec &lt; NextPrec) &#123;</span><br><span class="line">      RHS = <span class="built_in">ParseBinOpRHS</span>(TokPrec + <span class="number">1</span>, std::<span class="built_in">move</span>(RHS));</span><br><span class="line">      <span class="keyword">if</span> (!RHS)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Merge LHS/RHS.</span></span><br><span class="line">    LHS =</span><br><span class="line">        std::<span class="built_in">make_unique</span>&lt;BinaryExprAST&gt;(BinOp, std::<span class="built_in">move</span>(LHS), std::<span class="built_in">move</span>(RHS));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 <code>ParseBinOpRHS</code> 函数内部，它会首先读取当前 token 的优先级。如果优先级低于设定 <code>ExprPrec</code>，则直接返回传入的已解析的表达式 <code>LHS</code>。如果优先级符合设定，那么将解析操作符之后的主表达式。</p>
+<p>此时，我们已经解析了表达式的左部以及 RHS 序列的一个分段。接下来，我们需要决定如何关联表达式。比如，这里有两种关联方式：<code>(a+b) binop &lt;未解析部分&gt;</code> 或 <code>a + (b binop &lt;未解析部分&gt;)</code>。为此，我们通过预测分析的方式，继续向前读取一个运算符的优先级，并与 <code>BinOp</code> 的优先级进行比较（例子中是 <code>+</code>）。</p>
+<p>如果 <code>RHS</code> 右边的运算符的优先级小于或等于当前操作符，那么我们选择 <code>(a+b) binop &lt;未解析部分&gt;</code> 的关联方式。在例子中，当前的运算符和下一个运算符都是 <code>+</code>，具有相同的优先级。</p>
+<p>在例子中，解析函数会将 <code>a+b+</code> 解析为 <code>(a+b)</code>，并在下一次循环中继续执行。接下来，它会将 <code>(c+d)</code> 作为主表达式进行解析，即直接解析 <code>[+, (c+d)]</code>。继续解析，则会遇到 <code>*</code> 运算符。由于 <code>*</code> 的优先级大于 <code>+</code>，因此将执行 <code>if</code> 语句的内部逻辑。其内部逻辑会对高优先级的部分作为进行整体解析，然后将其作为低优先级运算符右部。为此，我们递归地调用 <code>ParseBinOpRHS</code> 函数，并指定最低优先级为 <code>TokPrec+1</code>。在例子中，会将 <code>(c+d)*e*f</code> 作为 <code>+</code> 的 <code>RHS</code>。</p>
+<p>最后，<code>[+, g]</code> 会在下一次循环中被解析。</p>
+<p>此时，我们可以使用解析器对任意 token 序列进行解析并构建表达式。当检测到不属于表达式的 token 时停止解析。</p>
+<h1 id="函数相关解析"><a href="#函数相关解析" class="headerlink" title="函数相关解析"></a>函数相关解析</h1><p>关于函数相关的解析，其实可以分为几种类型：</p>
+<ul>
+<li><strong>函数原型</strong></li>
+<li><strong>函数定义</strong></li>
+<li><strong>外部原型</strong></li>
+</ul>
+<h2 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型"></a>函数原型</h2><p>对于函数原型，我们定义如下解析函数。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 文法产生式</span></span><br><span class="line"><span class="comment">/// prototype</span></span><br><span class="line"><span class="comment">///   ::= id &#x27;(&#x27; id* &#x27;)&#x27;</span></span><br><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;PrototypeAST&gt; <span class="title">ParsePrototype</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (CurTok != tok_identifier)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogErrorP</span>(<span class="string">&quot;Expected function name in prototype&quot;</span>);</span><br><span class="line"></span><br><span class="line">  std::string FnName = IdentifierStr;</span><br><span class="line">  <span class="built_in">getNextToken</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (CurTok != <span class="string">&#x27;(&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogErrorP</span>(<span class="string">&quot;Expected &#x27;(&#x27; in prototype&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Read the list of argument names.</span></span><br><span class="line">  std::vector&lt;std::string&gt; ArgNames;</span><br><span class="line">  <span class="keyword">while</span> (<span class="built_in">getNextToken</span>() == tok_identifier)</span><br><span class="line">    ArgNames.<span class="built_in">push_back</span>(IdentifierStr);</span><br><span class="line">  <span class="keyword">if</span> (CurTok != <span class="string">&#x27;)&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogErrorP</span>(<span class="string">&quot;Expected &#x27;)&#x27; in prototype&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// success.</span></span><br><span class="line">  <span class="built_in">getNextToken</span>();  <span class="comment">// eat &#x27;)&#x27;.</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> std::<span class="built_in">make_unique</span>&lt;PrototypeAST&gt;(FnName, std::<span class="built_in">move</span>(ArgNames));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="函数定义"><a href="#函数定义" class="headerlink" title="函数定义"></a>函数定义</h2><p>对于函数定义，我们定义如下解析函数。其本质上就是函数原型与普通表达式的组合，后者用于表示函数体，如下图所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 文法产生式</span></span><br><span class="line"><span class="comment">/// definition ::= &#x27;def&#x27; prototype expression</span></span><br><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;FunctionAST&gt; <span class="title">ParseDefinition</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">getNextToken</span>();  <span class="comment">// eat def.</span></span><br><span class="line">  <span class="keyword">auto</span> Proto = <span class="built_in">ParsePrototype</span>();</span><br><span class="line">  <span class="keyword">if</span> (!Proto) <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">auto</span> E = <span class="built_in">ParseExpression</span>())</span><br><span class="line">    <span class="keyword">return</span> std::<span class="built_in">make_unique</span>&lt;FunctionAST&gt;(std::<span class="built_in">move</span>(Proto), std::<span class="built_in">move</span>(E));</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-05.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="外部原型"><a href="#外部原型" class="headerlink" title="外部原型"></a>外部原型</h2><p>对于外部原型，我们定义如下解析函数。其本质上就是 <code>extern</code> 关键字与函数原型的组合。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 文法产生式</span></span><br><span class="line"><span class="comment">/// external ::= &#x27;extern&#x27; prototype</span></span><br><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;PrototypeAST&gt; <span class="title">ParseExtern</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">getNextToken</span>();  <span class="comment">// eat extern.</span></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">ParsePrototype</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="顶层表达式解析"><a href="#顶层表达式解析" class="headerlink" title="顶层表达式解析"></a>顶层表达式解析</h1><p>为了允许用户输入任意的顶层表达式，并支持解析。我们定义一个匿名空值（零参数）函数来进行解析，如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// toplevelexpr ::= expression</span></span><br><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;FunctionAST&gt; <span class="title">ParseTopLevelExpr</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">auto</span> E = <span class="built_in">ParseExpression</span>()) &#123;</span><br><span class="line">    <span class="comment">// Make an anonymous proto.</span></span><br><span class="line">    <span class="keyword">auto</span> Proto = std::<span class="built_in">make_unique</span>&lt;PrototypeAST&gt;(<span class="string">&quot;__anon_expr&quot;</span>, std::<span class="built_in">vector</span>&lt;std::string&gt;());</span><br><span class="line">    <span class="keyword">return</span> std::<span class="built_in">make_unique</span>&lt;FunctionAST&gt;(std::<span class="built_in">move</span>(Proto), std::<span class="built_in">move</span>(E));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>ParseTopLevelExpr</code> 解析函数会通过调用 <code>ParseExpression</code> 解析函数进行解析。当解析得到 <code>BinaryExprAST</code> 节点后，创建一个 <code>PrototypeAST</code> 节点，并使用 <code>FunctionAST</code> 节点将两者封装成一个匿名函数，最终返回 <code>FunctionAST</code> 节点。</p>
+<p>至此，我们介绍了各种类型的表达式的解析，下面我们通过实现一个驱动器来对实际的代码进行解析。</p>
+<h1 id="驱动器"><a href="#驱动器" class="headerlink" title="驱动器"></a>驱动器</h1><p>驱动器（Driver）的实现如下所示，其仅仅是在一个顶层的循环中调用所有类型的表达式解析函数。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">HandleDefinition</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">ParseDefinition</span>()) &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(stderr, <span class="string">&quot;Parsed a function definition.\n&quot;</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// Skip token for error recovery.</span></span><br><span class="line">    <span class="built_in">getNextToken</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">HandleExtern</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">ParseExtern</span>()) &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(stderr, <span class="string">&quot;Parsed an extern\n&quot;</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// Skip token for error recovery.</span></span><br><span class="line">    <span class="built_in">getNextToken</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">HandleTopLevelExpression</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// Evaluate a top-level expression into an anonymous function.</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">ParseTopLevelExpr</span>()) &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(stderr, <span class="string">&quot;Parsed a top-level expr\n&quot;</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// Skip token for error recovery.</span></span><br><span class="line">    <span class="built_in">getNextToken</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 文法产生式</span></span><br><span class="line"><span class="comment">/// top ::= definition | external | expression | &#x27;;&#x27;</span></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">MainLoop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(stderr, <span class="string">&quot;ready&gt; &quot;</span>);</span><br><span class="line">    <span class="keyword">switch</span> (CurTok) &#123;</span><br><span class="line">    <span class="keyword">case</span> tok_eof:</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">&#x27;;&#x27;</span>: <span class="comment">// ignore top-level semicolons.</span></span><br><span class="line">      <span class="built_in">getNextToken</span>();</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> tok_def:</span><br><span class="line">      <span class="built_in">HandleDefinition</span>();</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> tok_extern:</span><br><span class="line">      <span class="built_in">HandleExtern</span>();</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">      <span class="built_in">HandleTopLevelExpression</span>();</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>值得注意的是，这里我们对顶层的分号进行了忽略处理。原因是，如果我们在命令行中输入 <code>4 + 5</code>，解析器并不是我们输入的内容是否结束。例如，我们可以在下一行输入 <code>def foo...</code>，在这种情况下，<code>4 + 5</code> 是顶层表达式的结尾，或者，我们可以输入 <code>* 6</code> 来续写表达式。对此，使用顶层分号，对应 <code>4 + 5;</code> 表达式，解析器才能知道表达式已经输入完成。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>通过 400 多行代码，我们定义了一门简单的语言，包括词法分析器、解析器和 AST 构造器。完成之后，我们可以通过可执行文件来验证 Kaleidoscope 代码，从而判断代码是否存储语法语义错误。</p>
+<p>如下所示，为验证步骤及其结果。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">ready&gt; <span class="function">def <span class="title">foo</span><span class="params">(x y)</span> x+<span class="title">foo</span><span class="params">(y, <span class="number">4.0</span>)</span></span>;</span><br><span class="line">Parsed a function definition.</span><br><span class="line">ready&gt; <span class="function">def <span class="title">foo</span><span class="params">(x y)</span> x+y y</span>;</span><br><span class="line">Parsed a function definition.</span><br><span class="line">Parsed a top-level expr</span><br><span class="line">ready&gt; <span class="function">def <span class="title">foo</span><span class="params">(x y)</span> x+y )</span>;</span><br><span class="line">Parsed a function definition.</span><br><span class="line">Error: unknown token when expecting an expression</span><br><span class="line">ready&gt; <span class="function"><span class="keyword">extern</span> <span class="title">sin</span><span class="params">(a)</span></span>;</span><br><span class="line">ready&gt; Parsed an <span class="keyword">extern</span></span><br><span class="line">ready&gt; ^C</span><br><span class="line">$</span><br></pre></td></tr></table></figure>
+
+<p>当然，代码仍然具有很大的扩展空间。我们可以定义新的 AST 节点，并以多种方式对语言进行扩展等。下一章，我们将介绍如何从 AST 生成 LLVM 中间表示 <code>IR</code>。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/LLVM/" rel="tag"># LLVM</a>
+          
+            <a href="/tags/Parser/" rel="tag"># Parser</a>
+          
+            <a href="/tags/AST/" rel="tag"># AST</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/07/24/compiler-for-kaleidoscope-01/" rel="next" title="基于 LLVM 自制编译器(1)——Kaleidoscope、词法分析器">
+                <i class="fa fa-chevron-left"></i> 基于 LLVM 自制编译器(1)——Kaleidoscope、词法分析器
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/08/07/compiler-for-kaleidoscope-03/" rel="prev" title="基于 LLVM 自制编译器(3)——LLVM IR 代码生成">
+                基于 LLVM 自制编译器(3)——LLVM IR 代码生成 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%BD%E8%B1%A1%E8%AF%AD%E6%B3%95%E6%A0%91"><span class="nav-number">2.</span> <span class="nav-text">抽象语法树</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">表达式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E5%9E%8B"><span class="nav-number">2.2.</span> <span class="nav-text">原型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0"><span class="nav-number">2.3.</span> <span class="nav-text">函数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E6%9E%90%E5%99%A8%E5%9F%BA%E7%A1%80"><span class="nav-number">3.</span> <span class="nav-text">解析器基础</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A1%A8%E8%BE%BE%E5%BC%8F%E8%A7%A3%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">表达式解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E5%80%BC%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">4.1.</span> <span class="nav-text">数值表达式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8B%AC%E5%8F%B7%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">4.2.</span> <span class="nav-text">括号表达式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%87%E8%AF%86%E7%AC%A6%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">4.3.</span> <span class="nav-text">标识符表达式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">4.4.</span> <span class="nav-text">主表达式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E5%85%83%E8%A1%A8%E8%BE%BE%E5%BC%8F%E8%A7%A3%E6%9E%90"><span class="nav-number">5.</span> <span class="nav-text">二元表达式解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E7%9B%B8%E5%85%B3%E8%A7%A3%E6%9E%90"><span class="nav-number">6.</span> <span class="nav-text">函数相关解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B"><span class="nav-number">6.1.</span> <span class="nav-text">函数原型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%AE%9A%E4%B9%89"><span class="nav-number">6.2.</span> <span class="nav-text">函数定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%96%E9%83%A8%E5%8E%9F%E5%9E%8B"><span class="nav-number">6.3.</span> <span class="nav-text">外部原型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A1%B6%E5%B1%82%E8%A1%A8%E8%BE%BE%E5%BC%8F%E8%A7%A3%E6%9E%90"><span class="nav-number">7.</span> <span class="nav-text">顶层表达式解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A9%B1%E5%8A%A8%E5%99%A8"><span class="nav-number">8.</span> <span class="nav-text">驱动器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">9.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

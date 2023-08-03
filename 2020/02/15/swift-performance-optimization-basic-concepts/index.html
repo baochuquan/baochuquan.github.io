@@ -1,38 +1,1508 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Swift," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="最近看了关于 Swift 底层原理的一些视频和文章，收获颇丰，感觉对于编程语言有了新的理解。因此，趁热打铁，记录并总结对 Swift 底层原理的理解。由于相关的内容非常多，这里准备分成多篇文章来进行阐述。 概述本文主要介绍关于 Swift 性能优化的一些基本概念。编程语言的性能主要涵盖三个指标：  内存分配（Memory Allocation） 引用计数（Reference Counting） 派">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Swift 性能优化(1)——基本概念">
+<meta property="og:url" content="http://chuquan.me/2020/02/15/swift-performance-optimization-basic-concepts/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="最近看了关于 Swift 底层原理的一些视频和文章，收获颇丰，感觉对于编程语言有了新的理解。因此，趁热打铁，记录并总结对 Swift 底层原理的理解。由于相关的内容非常多，这里准备分成多篇文章来进行阐述。 概述本文主要介绍关于 Swift 性能优化的一些基本概念。编程语言的性能主要涵盖三个指标：  内存分配（Memory Allocation） 引用计数（Reference Counting） 派">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/process-memory-space.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/struct-in-stack.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/class-in-heap.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/struct-with-reference-type.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/double-reference-count.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/reference-count-of-wrapper-class.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/method-table.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/message-dispatch.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2020-02-15T08:49:00.000Z">
+<meta property="article:modified_time" content="2021-09-01T15:33:55.578Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="Swift">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/process-memory-space.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2020/02/15/swift-performance-optimization-basic-concepts/"/>
+
+
+
+
+
+  <title>Swift 性能优化(1)——基本概念 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2020/02/15/swift-performance-optimization-basic-concepts/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Swift 性能优化(1)——基本概念</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2020-02-15T16:49:00+08:00">
+                2020-02-15
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2021-09-01T23:33:55+08:00">
+                2021-09-01
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Swift/" itemprop="url" rel="index">
+                    <span itemprop="name">Swift</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近看了关于 Swift 底层原理的一些视频和文章，收获颇丰，感觉对于编程语言有了新的理解。因此，趁热打铁，记录并总结对 Swift 底层原理的理解。由于相关的内容非常多，这里准备分成多篇文章来进行阐述。</p>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>本文主要介绍关于 Swift 性能优化的一些基本概念。编程语言的性能主要涵盖三个指标：</p>
+<ul>
+<li><strong>内存分配</strong>（Memory Allocation）</li>
+<li><strong>引用计数</strong>（Reference Counting）</li>
+<li><strong>派发方式</strong>（Method Dispatching）</li>
+</ul>
+<p>下面，以 Swift 为例，分别对这三个指标进行介绍。</p>
+<h1 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h1><p>每一个进程都有独立的进程空间，如下图所示。进程空间中能够用于内存分配的区域主要分为两种：</p>
+<ul>
+<li><strong>栈区</strong>（Stack）</li>
+<li><strong>堆区</strong>（Heap）</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/process-memory-space.png?x-oss-process=image/resize,w_800"></p>
+<p>为什么会有这两种区别呢？因为它们的设计目的不同。</p>
+<p>栈区主要用于函数（方法）调用和局部变量管理，每调用一次函数，就会在栈区中生成一个栈帧，栈帧中包含函数运行时产生的局部变量。函数调用返回后立即执行出栈，所有局部变量就此销毁。</p>
+<p>堆区主要用于多线程模型，每个线程有独立的栈区，但却共享同一个堆区，多线程之间通过堆区进行数据访问，对此我们需要对堆区的数据进行锁定和同步。</p>
+<p>Swift 中的数据类型可以分成两种：<strong>值类型</strong>、<strong>引用类型</strong>。两者的内存分配区域是不同的，值类型默认分配在栈区，引用类型默认分配在堆区。</p>
+<h2 id="栈区分配"><a href="#栈区分配" class="headerlink" title="栈区分配"></a>栈区分配</h2><p>值类型，包括：基本数据类型、结构体，默认在栈区进行分配。栈区的内存都是连续的，通过入栈和出栈进行分配和销毁，速度很快，比堆区的分配速度更快。</p>
+<p>下面，通过 WWDC 的一个例子来说明：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Point</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> x, y: <span class="type">Double</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">draw</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> point1 <span class="operator">=</span> <span class="type">Point</span>(x: <span class="number">0</span>, y: <span class="number">0</span>)</span><br><span class="line"><span class="keyword">var</span> point2 <span class="operator">=</span> point1</span><br><span class="line">point2.x <span class="operator">=</span> <span class="number">5</span></span><br></pre></td></tr></table></figure>
+<p>其内存分配及布局如下图所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/struct-in-stack.png?x-oss-process=image/resize,w_800"></p>
+<p>上述 <code>Struct</code> 的内存是在栈区分配的。将 <code>point1</code> 赋值给 <code>point2</code> 会在栈区分配一块内存区域，创建新的实例。两者相互独立，操作互不影响。</p>
+<h2 id="堆区分配"><a href="#堆区分配" class="headerlink" title="堆区分配"></a>堆区分配</h2><p>引用类型，如：类，默认分配在堆区。堆区的内存采用完全二叉树的形式进行维护，多次进行分配&#x2F;销毁之后，堆区的内存空间就能难连续。因此，在分配内存时，需要查询可用的内存，所以比栈区的分配速度更慢。</p>
+<p>下面，通过 WWDC 的一个例子来说明：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Point</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> x, y: <span class="type">Double</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">draw</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> point1 <span class="operator">=</span> <span class="type">Point</span>(x: <span class="number">0</span>, y: <span class="number">0</span>)</span><br><span class="line"><span class="keyword">let</span> point2 <span class="operator">=</span> point1</span><br><span class="line">point2.x <span class="operator">=</span> <span class="number">5</span></span><br></pre></td></tr></table></figure>
+<p>其内存分配及布局如下图所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/class-in-heap.png?x-oss-process=image/resize,w_800"></p>
+<p>上述 <code>Class</code> 的内存是在堆区分配的，栈区仅仅分配了 <code>point1</code> 和 <code>point2</code> 两个指针。值得注意的是，为了管理对象内存，在堆区初始化时，除了分配属性内存（本例中是 <code>Double</code> 类型的 <code>x</code>, <code>y</code>），还分配了两个字段：**<code>type</code><strong>、</strong><code>refCount</code>**。其中，<code>type</code> 表示类型，<code>refCount</code> 表示引用计数。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>从内存分配角度而言，<code>Class</code> 在堆区分配，使用了指针，通过引用计数进行管理，具有更强大的特性，但是性能较低。</p>
+<p>因此，对于需要频繁分配内存的需求，应尽量使用 <code>Struct</code> 代替 <code>Class</code>。因为栈区的内存分配速度更快，更安全。</p>
+<h1 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h1><p>在上述堆区分配中提到，对象在堆区初始化时会额外分配两个字段，其中一个就是用于引用计数。Swift 通过引用计数管理堆区的对象内存，当引用计数为 0 时，Swift 会将对应的内存释放。一方面，引用计数的管理是一个非常高频的操作，另一方面，由于对象处于堆中，还需额外考虑多线程安全，所以产生引用计数的操作会有较高的性能消耗。</p>
+<p>对于数据结构而言，只要包含引用类型，就会出现堆区分配。一旦产生堆区分配，则必然出现引用计数。下面，以一个例子来说明：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Label</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> text: <span class="type">String</span></span><br><span class="line">    <span class="keyword">var</span> font: <span class="type">UIFont</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">draw</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> label1 <span class="operator">=</span> <span class="type">Label</span>(text: <span class="string">&quot;Hi&quot;</span>, font: font)</span><br><span class="line"><span class="keyword">let</span> label2 <span class="operator">=</span> label1</span><br></pre></td></tr></table></figure>
+<p>其内存分配及布局如下所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/struct-with-reference-type.png?x-oss-process=image/resize,w_800"></p>
+<p>对比 <code>Struct Label</code> 和前文的 <code>Class Point</code>，虽然属性数量相同，但是 <code>Struct Label</code> 产生的引用计数要比 <code>Class Point</code> 多一倍！</p>
+<p>如下图所示，是关于复杂 <code>Struct</code> 和 <code>Class</code> 结构引用计数数量的对比。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/double-reference-count.png?x-oss-process=image/resize,w_800"></p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/reference-count-of-wrapper-class.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h2><p>对于 <code>Struct</code> 类型，再次引用时会触发内存拷贝，由此引用计数数量会呈倍数增长；对于 <code>Class</code> 类型，则只会增加一次引用计数。</p>
+<p>因此，我们应该尽量避免在 <code>Struct</code> 类型中包含引用类型，因为这可能产生大量的引用计数。</p>
+<p>对于常用的引用类型 <code>String</code>，我们可以使用精确类型 <code>UUID</code> 或者 <code>Enum</code> 来替代。</p>
+<h1 id="派发方式"><a href="#派发方式" class="headerlink" title="派发方式"></a>派发方式</h1><p>派发方式，也可称为 <strong>函数派发</strong> 或  <strong>方法派发</strong>，是程序调用一个函数的机制。编译型语言有三种派发方式：</p>
+<ul>
+<li><strong>直接派发</strong>（Direct Dispatching）</li>
+<li><strong>函数表派发</strong>（Table Dispatching）</li>
+<li><strong>消息派发</strong>（Message Dispatching）</li>
+</ul>
+<p>根据函数调用能否在编译时或运行时确定，可以将派发机制分成两种类型：</p>
+<ul>
+<li><strong>静态派发</strong>（Static Dispatching）</li>
+<li><strong>动态派发</strong>（Dynamic Dispatching）</li>
+</ul>
+<p>其中，直接派发属于静态派发，函数表派发、消息派发属于动态派发。</p>
+<p>大多数编程语言都会支持一到两种派发方式，Java 默认使用函数表派发，但是可以通过 <code>final</code> 修饰符改成直接派发。C++ 默认使用直接派发，但是可以通过 <code>virtual</code> 修饰符改成函数表派发。Objective-C 总是使用消息派发，但是允许开发者使用 C 直接派发来获得性能的提升。</p>
+<p>下面，依次来介绍这三种派发方式。</p>
+<h2 id="直接派发"><a href="#直接派发" class="headerlink" title="直接派发"></a>直接派发</h2><p>直接派发是最快的，原因是调用的指令少，而且还可以通过编译器进行优化，如：代码内联。其缺点是缺少动态性，因此无法支持继承。</p>
+<p>下面，以一个例子来说明：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Point</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> x, y: <span class="type">Double</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">draw</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">func</span> <span class="title function_">pointDraw</span>(<span class="keyword">_</span> <span class="params">point</span>: <span class="type">Point</span>) &#123;</span><br><span class="line">    point.draw()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> point <span class="operator">=</span> <span class="type">Point</span>(x: <span class="number">0</span>, y: <span class="number">0</span>)</span><br><span class="line">pointDraw(point)</span><br><span class="line"><span class="comment">// point.draw()</span></span><br></pre></td></tr></table></figure>
+<p>在这个情况下，编译器会对代码进行内联优化，调用 <code>pointDraw()</code> 方法会变成直接调用 <code>point.draw()</code>。这样，函数调用栈会减少一层，从而能够进一步提升性能。</p>
+<h2 id="函数表派发"><a href="#函数表派发" class="headerlink" title="函数表派发"></a>函数表派发</h2><p>函数表派发是编译型语言中为实现动态行为而使用的一种最常见的实现方式。函数表使用一个数组来存储类所声明的每一个函数的指针。大部分语言将其称为“virtual table”（虚函数表），Swift 中也称为 “virtual table”。除此之外，Swift 还包含 “witness table”（见证表），主要用于实现协议类型和泛型的动态派发。</p>
+<p>在函数表派发的实现中，每一个类都会维护一个函数表，里面记录着所有的所有的函数指针。如果子类将父类的函数 <code>override</code>，那么子类的函数表只会保存 <code>override</code> 之后的函数指针。如果子类添加新的函数，则会在子类的函数表的最后插入新的函数指针。运行时会根据对应类的函数表去查找要指定的函数。</p>
+<p>下面，以一个例子来说明：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ParentClasss</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">method1</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">method2</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ChildClass</span>: <span class="title class_">ParentClass</span> &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">method2</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">method3</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> objc <span class="operator">=</span> <span class="type">ChildClass</span>()</span><br><span class="line">obj.method2()</span><br></pre></td></tr></table></figure>
+<p>在这个情况下，编译器会为 <code>ParentClass</code> 和 <code>ChildClass</code> 各自创建一个函数表。如下图所示，展示了 <code>ParentClass</code> 和 <code>ChildClass</code> 函数表中各个方法在内存中的布局。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/method-table.png?x-oss-process=image/resize,w_800"></p>
+<p>当一个函数被调用时，会经历以下几个步骤：</p>
+<ul>
+<li>读取对象 <code>0xB00</code> 的函数表。</li>
+<li>读取函数表中对应的索引项。<code>method2</code> 的索引是 1（偏移量），即 <code>0xB00+1</code>。</li>
+<li>根据索引项的记录，跳转至函数位置。<code>method2</code> 的位置是 <code>0x222</code>。</li>
+</ul>
+<p>查表是一种简单、易实现，且性能可预知的实现方式。一方面，由于多了一次查找和跳转，另一方面，由于编译器无法通过类型推导进一步进行优化，所以相比直接派发而言，函数表派发的性能稍差。</p>
+<h2 id="消息派发"><a href="#消息派发" class="headerlink" title="消息派发"></a>消息派发</h2><p>消息派发是一种更加动态的函数调用方式。ObjC 中的 KVO、UIAppearence、CoreData 都是对这种机制的运用。消息派发可以在运行时改变函数的行为，如：ObjC 中的 swizzling 技术。消息派发甚至还可以在运行时修改对象的继承关系，如：ObjC 中的 isa-swizzling 技术。</p>
+<p>下面，以一个例子来说明：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ParentClass</span> &#123;</span><br><span class="line">    <span class="keyword">dynamic</span> <span class="keyword">func</span> <span class="title function_">method1</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">    <span class="keyword">dynamic</span> <span class="keyword">func</span> <span class="title function_">method2</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ChildClass</span>: <span class="title class_">ParentClass</span> &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">method2</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">    <span class="keyword">dynamic</span> <span class="keyword">func</span> <span class="title function_">method3</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个情况下，会利用 Objective-C 的运行时进行消息派发。每个类只包含自己所定义的方法，一旦调用的方法不存在，会通过父类指针，去父类中进行查找，以此类推。如下图所示。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/message-dispatch.png?x-oss-process=image/resize,w_800"></p>
+<p>当消息被派发时，运行时会顺着继承关系向上查找被调用的方法。很显然，消息派发要比函数表派发的效率更低。为了能够提升消息派发的性能，一般都会将查找进行缓存，从而让效率接近函数表派发。</p>
+<h2 id="Swift-派发方式"><a href="#Swift-派发方式" class="headerlink" title="Swift 派发方式"></a>Swift 派发方式</h2><p>Swift 支持上述三种派发方式，那么 Swift 是如何选择派发方式呢？事实上，影响 Swift 的派发方式有以下几个方面：</p>
+<ul>
+<li><strong>声明位置</strong>（Declare Location）</li>
+<li><strong>指定派发</strong>（Specifying Dispatch Behavior）</li>
+<li><strong>优化派发</strong>（Optimize Dispatch Behavior）</li>
+</ul>
+<h3 id="声明位置"><a href="#声明位置" class="headerlink" title="声明位置"></a>声明位置</h3><p>在 Swift 中，一个函数有两个可以声明的位置。</p>
+<ul>
+<li>初始声明的作用域</li>
+<li>扩展声明的作用域</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 初始声明的作用域</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">mainMethod</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 扩展声明的作用域</span></span><br><span class="line"><span class="keyword">extension</span> <span class="title class_">MyClass</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">extensionMethod</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，初始声明的作用域中的函数 <code>mainMethod</code> 会使用 <strong>函数表派发</strong>；扩展声明的作用域中的函数 <code>extensionMethod</code> 会使用 <strong>直接派发</strong>。</p>
+<p>上述例子是关于 <code>Class</code> 类型中不同的声明位置对于派发方式的影响。事实上，不同的类型的作用域中声明的函数，派发方式也不一定相同。下表展示了默认情况下，类型、声明位置与派发方式的关系图。</p>
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="center">Initial Declaration</th>
+<th align="center">Extension Declaration</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><strong>Value Type</strong></td>
+<td align="center">static</td>
+<td align="center">static</td>
+</tr>
+<tr>
+<td align="center"><strong>Protocol</strong></td>
+<td align="center">table</td>
+<td align="center">static</td>
+</tr>
+<tr>
+<td align="center"><strong>Class</strong></td>
+<td align="center">table</td>
+<td align="center">static</td>
+</tr>
+<tr>
+<td align="center"><strong>NSObject Subclass</strong></td>
+<td align="center">table</td>
+<td align="center">message</td>
+</tr>
+</tbody></table>
+<p>上表的总结有以下几点：</p>
+<ul>
+<li>值类型：无论初始声明还是扩展声明，都使用 <strong>直接派发</strong>。</li>
+<li><code>Protocol</code> 类型：初始声明使用 <strong>函数表派发</strong>，扩展声明使用 <strong>直接派发</strong>。即默认实现均使用</li>
+<li><code>Class</code> 类型：初始声明使用 <strong>函数表派发</strong>，扩展声明使用 <strong>直接派发</strong>。</li>
+<li><code>NSObject</code> 类型：初始声明使用 <strong>函数表派发</strong>，扩展声明使用 <strong>消息派发</strong>。</li>
+</ul>
+<h3 id="指定派发"><a href="#指定派发" class="headerlink" title="指定派发"></a>指定派发</h3><p>Swift 有一些修饰符可以指定派发方式。</p>
+<h4 id="final"><a href="#final" class="headerlink" title="final"></a><code>final</code></h4><p><code>final</code> 修饰符允许类中的函数使用 <strong>直接派发</strong>。<code>final</code> 修饰符会让函数失去动态性。任何函数都可以使用 <code>final</code> 修饰符，包括 <code>extension</code> 中原本就是直接派发的函数。</p>
+<p>需要注意的是，Objective-C 的运行时获取不到使用 <code>final</code> 修饰符的函数的 <code>selector</code>。</p>
+<h4 id="dynamic"><a href="#dynamic" class="headerlink" title="dynamic"></a><code>dynamic</code></h4><p><code>dynamic</code> 修饰符允许类中的函数使用 <strong>消息派发</strong>。使用 <code>dynamic</code> 修饰符之前，必须导入 <code>Foundation</code> 框架，因为框架中包含了 <code>NSObject</code> 和 Objective-C 的运行时。<code>dynamic</code> 修饰符可以修饰所有的 <code>NSObject</code> 子类和 Swift 原生类。</p>
+<p>此外，<code>dynamic</code> 修饰符可以让扩展声明（<code>extension</code>）中的函数也能够被 <code>override</code>。</p>
+<h4 id="objc-nonobjc"><a href="#objc-nonobjc" class="headerlink" title="@objc &amp; @nonobjc"></a><code>@objc</code> &amp; <code>@nonobjc</code></h4><p><code>@objc</code> 和 <code>@nonobjc</code> 显式地声明了一个函数能否被 Objective-C 运行时捕获到。</p>
+<p><code>@objc</code> 典型的用法就是给 <code>selector</code> 一个命名空间 <code>@objc(xxx_methodName)</code>，从而允许该函数可以被 Objective-C 的运行时捕获到。</p>
+<p><code>@nonobjc</code> 会改变派发方式，可以禁用消息派发，从而阻止函数注册到 Objective-C 的运行时中。<code>@nonobjc</code> 的效果类似于 <code>final</code>，使用的场景几乎也是一样，个人猜测，<code>@nonobjc</code> 主要是用于兼容 Objective-C，<code>final</code> 则是作为原生修饰符，以用于让 Swift 写服务端之类的代码。</p>
+<h4 id="final-objc"><a href="#final-objc" class="headerlink" title="final @objc"></a><code>final @objc</code></h4><p>在使用 <code>final</code> 修饰符的同时，可以使用 <code>@objc</code> 修饰符让函数可以使用消息派发。同时使用这两个修饰符的结果是：调用函数时会使用直接派发，但也会在 Objective-C 运行时中注册响应的 <code>selector</code>。函数可以响应 <code>perform(seletor:)</code> 以及别的 Objective-C 特性，但在直接调用时又可以具有直接派发的性能。</p>
+<h4 id="inline"><a href="#inline" class="headerlink" title="@inline"></a><code>@inline</code></h4><p><code>@inline</code> 修饰符告诉编译器函数可以使用直接派发。</p>
+<h3 id="派发优化"><a href="#派发优化" class="headerlink" title="派发优化"></a>派发优化</h3><p>Swift 会在这上面做优化，比如一个函数没有 override，Swift 就可能会使用直接派发的方式，所以如果属性绑定了 KVO，那么属性的 getter 和 setter 方法可能会被优化成直接派发而导致 KVO 的失效，所以记得加上 dynamic 的修饰来保证有效。后面 Swift 应该会在这个优化上去做更多的处理。</p>
+<h2 id="小结-2"><a href="#小结-2" class="headerlink" title="小结"></a>小结</h2><p>下表总结了引用类型、修饰符对 Swift 派发方式的影响。</p>
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="center">Direct Dispatch</th>
+<th align="center">Table Dispatch</th>
+<th align="center">Message Dispatch</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><strong>NSObject</strong></td>
+<td align="center"><code>@nonobjc</code>, <code>final</code></td>
+<td align="center">Initial Declaration</td>
+<td align="center">Extension Declaration, <code>dynamic</code></td>
+</tr>
+<tr>
+<td align="center"><strong>Class</strong></td>
+<td align="center">Extension Declaration, <code>final</code></td>
+<td align="center">Initial Declaration</td>
+<td align="center"><code>dynamic</code></td>
+</tr>
+<tr>
+<td align="center"><strong>Protocol</strong></td>
+<td align="center">Extension Declaration</td>
+<td align="center">Initial Declaration</td>
+<td align="center"><code>@objc</code></td>
+</tr>
+<tr>
+<td align="center"><strong>Value Type</strong></td>
+<td align="center">All Method</td>
+<td align="center">n&#x2F;a</td>
+<td align="center">n&#x2F;a</td>
+</tr>
+</tbody></table>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文总结了评测 Swift 性能的几个方面，我们可以通过内存分配、引用计数、派发方式等几个方面了对 Swift 代码进行优化。</p>
+<p>总体而言，对于内存分配，我们应该尽量使用栈区内存分配；对于引用计数，我们需要进行权衡，使用引用计数能带来灵活性，但也会带来性能开销；对于派发方法，我们应该尽量使用更加高效的派发方式，同时也需要进行权衡，动态派发能够带来更强大的编程特性，但也会带来性能开销。</p>
+<h1 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://www.mikeash.com/pyblog/friday-qa-2010-01-29-method-replacement-for-fun-and-profit.html">Friday Q&amp;A 2010-01-29: Method Replacement for Fun and Profit
+</a></li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/38877465/are-method-swizzling-and-isa-swizzling-the-same-thing/38878119#38878119">Are method swizzling and isa siwzzling the same thing?</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/swift/blog/?id=27">Increasing Performance by Reducing Dynamic Dispatch</a></li>
+</ol>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li>WWDC 2016, Session 416, Understanding Swift Performance.</li>
+<li>LLVM Developer’s Meeting: “Implementing Swift Generics”.</li>
+<li><a target="_blank" rel="noopener" href="https://www.rightpoint.com/rplabs/switch-method-dispatch-table">Method Dispatch in Swift</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/5a6fe89af265da3e290c7cb3">Why Swift? Generics(泛型), Collection(集合类型), POP(协议式编程), Memory Management(内存管理)</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/5bdbdc876fb9a049f36186c3">【基本功】深入剖析Swift性能优化</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=ERYNyrfXjlg">GOTO 2016 • Exploring Swift Memory Layout • Mike Ash</a></li>
+<li><a target="_blank" rel="noopener" href="https://kemchenj.github.io/2016-12-25-1/">深入理解 Swift 派发机制</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Swift/" rel="tag"># Swift</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/04/2019-summary/" rel="next" title="2019 年度总结">
+                <i class="fa fa-chevron-left"></i> 2019 年度总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/02/19/swift-performance-protocol-type-generic-type/" rel="prev" title="Swift 性能优化(2)——协议与泛型的实现">
+                Swift 性能优化(2)——协议与泛型的实现 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D"><span class="nav-number">2.</span> <span class="nav-text">内存分配</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%88%E5%8C%BA%E5%88%86%E9%85%8D"><span class="nav-number">2.1.</span> <span class="nav-text">栈区分配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A0%86%E5%8C%BA%E5%88%86%E9%85%8D"><span class="nav-number">2.2.</span> <span class="nav-text">堆区分配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">2.3.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">引用计数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93-1"><span class="nav-number">3.1.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B4%BE%E5%8F%91%E6%96%B9%E5%BC%8F"><span class="nav-number">4.</span> <span class="nav-text">派发方式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E6%B4%BE%E5%8F%91"><span class="nav-number">4.1.</span> <span class="nav-text">直接派发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E8%A1%A8%E6%B4%BE%E5%8F%91"><span class="nav-number">4.2.</span> <span class="nav-text">函数表派发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E6%B4%BE%E5%8F%91"><span class="nav-number">4.3.</span> <span class="nav-text">消息派发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Swift-%E6%B4%BE%E5%8F%91%E6%96%B9%E5%BC%8F"><span class="nav-number">4.4.</span> <span class="nav-text">Swift 派发方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A3%B0%E6%98%8E%E4%BD%8D%E7%BD%AE"><span class="nav-number">4.4.1.</span> <span class="nav-text">声明位置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E5%AE%9A%E6%B4%BE%E5%8F%91"><span class="nav-number">4.4.2.</span> <span class="nav-text">指定派发</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#final"><span class="nav-number">4.4.2.1.</span> <span class="nav-text">final</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dynamic"><span class="nav-number">4.4.2.2.</span> <span class="nav-text">dynamic</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#objc-nonobjc"><span class="nav-number">4.4.2.3.</span> <span class="nav-text">@objc &amp; @nonobjc</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#final-objc"><span class="nav-number">4.4.2.4.</span> <span class="nav-text">final @objc</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#inline"><span class="nav-number">4.4.2.5.</span> <span class="nav-text">@inline</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B4%BE%E5%8F%91%E4%BC%98%E5%8C%96"><span class="nav-number">4.4.3.</span> <span class="nav-text">派发优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93-2"><span class="nav-number">4.5.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%A9%E5%B1%95"><span class="nav-number">6.</span> <span class="nav-text">扩展</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

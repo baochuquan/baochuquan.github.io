@@ -1,38 +1,1512 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="RxSwift,流编程,函数式编程,发布订阅," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="一直以来，响应式编程都是业界讨论的热门话题之一。为了推广响应式编程，ReactiveX 社区几乎为每一种编程语言设计实现了一种对应的响应式编程框架。RxSwift 就是针对 Swift 所开发的响应式框架。 关于 RxSwift，网上有不少相关的学习资料，但绝大多数都是 RxSwift 的使用说明，鲜有文章介绍 RxSwift 背后的设计原理。通过阅读源码，查阅资料，正向设计，我逐步理解了 RxS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RxSwift 核心实现原理">
+<meta property="og:url" content="http://chuquan.me/2020/08/24/rxswift-core-implement/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="一直以来，响应式编程都是业界讨论的热门话题之一。为了推广响应式编程，ReactiveX 社区几乎为每一种编程语言设计实现了一种对应的响应式编程框架。RxSwift 就是针对 Swift 所开发的响应式框架。 关于 RxSwift，网上有不少相关的学习资料，但绝大多数都是 RxSwift 的使用说明，鲜有文章介绍 RxSwift 背后的设计原理。通过阅读源码，查阅资料，正向设计，我逐步理解了 RxS">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-implementation.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/fp-apply.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-02.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-03.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cs-of-luxun.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-04.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-05.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-06.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-07.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-08.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-09.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2020-08-24T14:31:36.000Z">
+<meta property="article:modified_time" content="2021-12-27T15:12:30.781Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="RxSwift">
+<meta property="article:tag" content="流编程">
+<meta property="article:tag" content="函数式编程">
+<meta property="article:tag" content="发布订阅">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2020/08/24/rxswift-core-implement/"/>
+
+
+
+
+
+  <title>RxSwift 核心实现原理 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2020/08/24/rxswift-core-implement/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RxSwift 核心实现原理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2020-08-24T22:31:36+08:00">
+                2020-08-24
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2021-12-27T23:12:30+08:00">
+                2021-12-27
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Rx/" itemprop="url" rel="index">
+                    <span itemprop="name">Rx</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>一直以来，响应式编程都是业界讨论的热门话题之一。为了推广响应式编程，ReactiveX 社区几乎为每一种编程语言设计实现了一种对应的响应式编程框架。RxSwift 就是针对 Swift 所开发的响应式框架。</p>
+<p>关于 RxSwift，网上有不少相关的学习资料，但绝大多数都是 RxSwift 的使用说明，鲜有文章介绍 RxSwift 背后的设计原理。通过阅读源码，查阅资料，正向设计，我逐步理解了 RxSwift 的设计思想。因此，趁热打铁，记录并总结一下我的理解。</p>
+<p>**本文所实现的 RxSwift 代码已在 Github 开源——<a target="_blank" rel="noopener" href="https://github.com/baochuquan/implementing-rx">传送门</a>**。参照源码阅读本文效果更佳。</p>
+<h1 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h1><p>RxSwift 主要蕴含了以下几种设计思想：</p>
+<ul>
+<li><strong>发布-订阅模式</strong></li>
+<li><strong>流编程</strong></li>
+<li><strong>函数式编程</strong></li>
+</ul>
+<p>下面，我们依次来进行介绍。</p>
+<h2 id="发布-订阅模式"><a href="#发布-订阅模式" class="headerlink" title="发布-订阅模式"></a>发布-订阅模式</h2><p><strong>发布-订阅模式</strong> 是 RxSwift 所呈现的一种最直观思想。发布-订阅模式可以分为两个角色：<strong>发布者</strong>、<strong>订阅者</strong>。</p>
+<p>订阅者的主要职责是：</p>
+<ul>
+<li>订阅：监听并处理某个事件。其本质就是向发布者注册一个处理某个事件的闭包。</li>
+<li>取消（订阅）</li>
+</ul>
+<p>发布者的主要职责是：</p>
+<ul>
+<li>发布：分发某个事件</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern.png?x-oss-process=image/resize,w_800"></p>
+<p>发布-订阅模式的基本原理是：</p>
+<ul>
+<li>订阅者调用发布者提供的订阅方法进行订阅，从而在发布者内部注册订阅者。</li>
+<li>发布者内部会维护一个订阅者列表。</li>
+<li>当发布者发布事件时，会遍历订阅者列表，执行其中的处理方法（将事件作为参数传递给闭包，并执行）。</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-implementation.png?x-oss-process=image/resize,w_800"></p>
+<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>在日常开发中，发布-订阅模式是一种广泛被应用的设计模式。比如：iOS 中的 NotificationCenter、Flutter 中的事件总线都是基于这种模式实现的。如下所示为 Flutter 中事件总线的一种实现方式，其中的代码逻辑基本遵循了上述所描述的发布-订阅模式的基本原理。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 订阅者订阅内容签名</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">void</span> EventCallback(arg);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EventBus</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 私有构造函数</span></span><br><span class="line">    EventBus._internal();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 保存单例</span></span><br><span class="line">    <span class="keyword">static</span> EventBus _singleton = <span class="keyword">new</span> EventBus._internal();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 工厂构造函数</span></span><br><span class="line">    <span class="keyword">factory</span> EventBus()=&gt; _singleton;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 保存事件订阅者队列，key:事件名(id)，value: 对应事件的订阅者队列</span></span><br><span class="line">    <span class="keyword">var</span> _emap = <span class="keyword">new</span> <span class="built_in">Map</span>&lt;<span class="built_in">Object</span>, <span class="built_in">List</span>&lt;EventCallback&gt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加订阅者，即订阅</span></span><br><span class="line">    <span class="keyword">void</span> <span class="keyword">on</span>(eventName, EventCallback f) &#123;</span><br><span class="line">        <span class="keyword">if</span> (eventName == <span class="keyword">null</span> || f == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">        _emap[eventName] ??= <span class="keyword">new</span> <span class="built_in">List</span>&lt;EventCallback&gt;();</span><br><span class="line">        _emap[eventName].add(f);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 移除订阅者，即取消</span></span><br><span class="line">    <span class="keyword">void</span> off(eventName, [EventCallback f]) &#123;</span><br><span class="line">        <span class="keyword">var</span> list = _emap[eventName];</span><br><span class="line">        <span class="keyword">if</span> (eventName == <span class="keyword">null</span> || list == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">if</span> (f == <span class="keyword">null</span>) &#123;</span><br><span class="line">            _emap[eventName] = <span class="keyword">null</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            list.remove(f);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 触发事件，事件触发后该事件所有订阅者会被调用，即发布</span></span><br><span class="line">    <span class="keyword">void</span> emit(eventName, [arg]) &#123;</span><br><span class="line">        <span class="keyword">var</span> list = _emap[eventName];</span><br><span class="line">        <span class="keyword">if</span> (list == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">        <span class="built_in">int</span> len = list.length - <span class="number">1</span>;</span><br><span class="line">        <span class="comment">// 反向遍历，防止订阅者在回调中移除自身带来的下标错位 </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> i = len; i &gt; <span class="number">-1</span>; --i) &#123;</span><br><span class="line">            <span class="comment">// 执行注册的闭包</span></span><br><span class="line">            list[i](arg);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个 top-level（全局）变量，页面引入该文件后可以直接使用 bus</span></span><br><span class="line"><span class="keyword">var</span> bus = <span class="keyword">new</span> EventBus();</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>思考：为什么 iOS 中一个监听了某个通知的类必须要在 <code>dealloc</code> 时要执行 <code>removeObserver:</code> 方法？</p>
+</blockquote>
+<h2 id="流编程"><a href="#流编程" class="headerlink" title="流编程"></a>流编程</h2><p><strong>流（stream）</strong> 是 RxSwift 另一个重要的设计思想。<code>Observable&lt;T&gt;</code> 是 Rx 框架的基础，也被称为 <strong>可观察序列</strong>。它的作用是可以异步地产生一系列数据，即一个 <code>Observable&lt;T&gt;</code> 对象会随着时间的推移不定期地发出 <code>event(element: T)</code>。数据就像水流一样持续不断地在流动，顾名思义，这也被称为 <strong>流编程</strong>。</p>
+<p>关于流编程，《计算机程序的构造与解释》一书中认为 <strong>流编程是一种调用驱动的编程思想</strong>。流编程的基本思想是：<strong>一般情况下，只是部分地构造出流的结构，并将这样的部分结构传给使用流的程序。如果使用者需要访问这个流中未构造出的那个部分，那么这个流就会自动地继续构造下去，但是只做出满足当时需要的那一部分</strong>。</p>
+<p>如下所示是 RxSwift 中常见使用形式，<code>observable</code> 是数据源，不断地发出数据，如果水流一样，最终流向 <code>subscribe</code> 中的闭包。期间会流经 <code>map</code>，<code>filter</code> 等操作符，经过转换或过滤。这就是流编程的思想。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> observable: <span class="type">Observable</span>&lt;<span class="type">Int</span>&gt; <span class="operator">=</span> <span class="type">Observable</span>.create &#123; (observer) -&gt; <span class="type">Disposable</span> <span class="keyword">in</span></span><br><span class="line">    observer.onNext(<span class="number">0</span>)</span><br><span class="line">    observer.onNext(<span class="number">1</span>)</span><br><span class="line">    observer.onNext(<span class="number">2</span>)</span><br><span class="line">    observer.onNext(<span class="number">3</span>)</span><br><span class="line">    observer.onCompleted()</span><br><span class="line">    <span class="keyword">return</span> <span class="type">Disposables</span>.create() </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">observable.map &#123; <span class="variable">$0</span> <span class="operator">+</span> <span class="number">2</span>&#125;.filter &#123; <span class="variable">$0</span> <span class="operator">&gt;</span> <span class="number">3</span> &#125;.subscribe &#123; (event) <span class="keyword">in</span></span><br><span class="line">    <span class="operator">...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>流编程底层实现的本质则是 <strong>闭包的延迟执行和强制执行</strong>。具体来说是基于一种称为 <code>delay</code> 的特殊形式，对于 <code>delay &lt;exp&gt;</code> 的求值不会对 <code>&lt;exp&gt;</code> 求值，而是返回一个称为 <strong>延时对象</strong> 的对象。它可以看做是对未来的某个时间求值 <code>&lt;exp&gt;</code> 的允诺。在各类编程语言中，返回特定类型的闭包常被用于描述一个延迟对象。与 <code>delay</code> 配对的是 <code>force</code> 的过程。它以一个延时对象为参数，执行相应的求值工作，即迫使 <code>delay</code> 完成其所允诺的求值。在各类编程语言中，执行返回特定类型的闭包常被用于描述 <code>force</code> 的过程。</p>
+<h2 id="函数式编程"><a href="#函数式编程" class="headerlink" title="函数式编程"></a>函数式编程</h2><p>RxSwift 提供了大量无副作用的操作符，无副作用也是函数式编程的一种重要特性。RxSwift 能够实现操作符的链式调用，一个重要的前提是：<strong>提供操作符的类型和操作符的返回类型必须保持一致</strong>。这里就涉及到了函数式编程中的一些高阶概念：<strong>函子（Functor）</strong>、<strong>适用函子（Applicative）</strong>、<strong>单子（Monad）</strong>。详细内容可参见<a href="http://chuquan.me/2020/07/06/fp-functor-applicative-monad/">《函数式编程——Functor、Applicative、Monad》</a>一文。</p>
+<p>不过，RxSwift 操作符中运用最多的是 <strong>函子</strong>（Functor），什么是函子？简而言之，<strong>函子能够将普通函数应用到一个包装类型</strong>。如下图及代码所示，一个包装类型包含了一个原始值，当函子作用在其上后，使用普通函数对原始值进行转换，最终将结果值放入包装类型中返回。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/fp-apply.png?x-oss-process=image/resize,w_800"></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extension</span> <span class="title class_">Result</span> &#123;</span><br><span class="line">    <span class="comment">// 满足 Functor 的条件：map 方法能够将 普通函数 应用到包装类</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">map</span>&lt;<span class="type">U</span>&gt;(<span class="keyword">_</span> <span class="params">f</span>: (<span class="type">T</span>) -&gt; <span class="type">U</span>) -&gt; <span class="type">Result</span>&lt;<span class="type">U</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">switch</span> <span class="keyword">self</span> &#123;</span><br><span class="line">        <span class="keyword">case</span> .success(<span class="keyword">let</span> x): <span class="keyword">return</span> .success(f(x))</span><br><span class="line">        <span class="keyword">case</span> .failure: <span class="keyword">return</span> .failure</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以 RxSwift 中最常用的 <code>map</code> 操作符为例，如下所示。<code>map</code> 方法扩展自 <code>ObservableType</code>，其能够将普通函数 <code>(Element) -&gt; Result</code> 应用到 <code>ObservableType</code> 包装类型。这其实就是一种典型的 <strong>函子</strong> 应用。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extension</span> <span class="title class_">ObservableType</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">func</span> <span class="title function_">map</span>&lt;<span class="type">Result</span>&gt;(<span class="keyword">_</span> <span class="params">transform</span>: <span class="keyword">@escaping</span> (<span class="type">Element</span>) <span class="keyword">throws</span> -&gt; <span class="type">Result</span>)</span><br><span class="line">        -&gt; <span class="type">Observable</span>&lt;<span class="type">Result</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">Map</span>(source: <span class="keyword">self</span>.asObservable(), transform: transform)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="核心实现"><a href="#核心实现" class="headerlink" title="核心实现"></a>核心实现</h1><p>下面我们将以正向设计的方式，结合 RxSwift 中的设计思想，手动实现一个 RxSwift 的核心部分。</p>
+<h2 id="基本功能-RxDemo-01"><a href="#基本功能-RxDemo-01" class="headerlink" title="基本功能(RxDemo-01)"></a>基本功能(RxDemo-01)</h2><p>首先，我们来定义事件，RxSwift 中有三种类型的事件，如下所示：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MARK: - Event</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">Event</span>&lt;<span class="title class_">Element</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">case</span> next(<span class="type">Element</span>)</span><br><span class="line">    <span class="keyword">case</span> error(<span class="type">Error</span>)</span><br><span class="line">    <span class="keyword">case</span> completed</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其次，我们来定义订阅者，在 <code>RxDemo-01</code> 中，我们先忽略 <strong>取消订阅</strong> 的功能，如下所示。订阅者必须遵循订阅者协议，需要实现 <strong>监听事件</strong> 的方法 <code>on(event: Event&lt;Element&gt;)</code>。订阅者内部维护一个处理事件的闭包 <code>_handler</code>。当监听事件方法触发时，会立即执行处理事件闭包。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MARK: - Observer</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">protocol</span> <span class="title class_">ObserverType</span> &#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 监听事件</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">on</span>(<span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">Element</span>&gt;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Observer</span>&lt;<span class="title class_">Element</span>&gt;: <span class="title class_">ObserverType</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 处理事件的闭包</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _handler: (<span class="type">Event</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Void</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="params">handler</span>: <span class="keyword">@escaping</span> (<span class="type">Event</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Void</span>) &#123;</span><br><span class="line">        _handler <span class="operator">=</span> handler</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 实现 监听事件 的协议，内部处理事件</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">on</span>(<span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">Element</span>&gt;) &#123;</span><br><span class="line">        <span class="comment">// 处理事件</span></span><br><span class="line">        _handler(event)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后，我们来定义发布者，如下所示。发布者必须遵循发布者协议，需要实现 <strong>订阅操作</strong> 的方法 <code>subscribe&lt;O: ObserverType&gt;(observer: O) where O.Element == Element</code>。发布者内部维护一个发布事件的闭包 <code>_eventGenerator</code>。当订阅发生时（订阅操作方法被执行时），会立即执行发布事件的闭包。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MARK: - Observable</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">protocol</span> <span class="title class_">ObservableType</span> &#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 订阅操作</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">subscribe</span>&lt;<span class="type">O</span>: <span class="type">ObserverType</span>&gt;(<span class="params">observer</span>: <span class="type">O</span>) <span class="keyword">where</span> <span class="type">O</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Observable</span>&lt;<span class="title class_">Element</span>&gt;: <span class="title class_">ObservableType</span> &#123;</span><br><span class="line">    <span class="comment">// 定义 发布事件 的闭包</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _eventGenerator: (<span class="type">Observer</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Void</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="params">eventGenerator</span>: <span class="keyword">@escaping</span> (<span class="type">Observer</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Void</span>) &#123;</span><br><span class="line">        _eventGenerator <span class="operator">=</span> eventGenerator</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 实现 订阅操作 的协议，内部发布事件</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">subscribe</span>&lt;<span class="type">O</span>: <span class="type">ObserverType</span>&gt;(<span class="params">observer</span>: <span class="type">O</span>) <span class="keyword">where</span> <span class="type">O</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span> &#123;</span><br><span class="line">        <span class="comment">// 生成事件</span></span><br><span class="line">        _eventGenerator(observer <span class="keyword">as!</span> <span class="type">Observer</span>&lt;<span class="type">Element</span>&gt;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们来试用一下 RxDemo-01 所实现的 RxSwift。很显然，这种模式与原始的 RxSwift 的使用方式基本吻合。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MARK: - Test</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> observable <span class="operator">=</span> <span class="type">Observable</span>&lt;<span class="type">Int</span>&gt; &#123; (observer) <span class="keyword">in</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 0&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">0</span>))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 1&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">1</span>))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 2&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">2</span>))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 3&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">3</span>))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send completed&quot;</span>)</span><br><span class="line">    observer.on(event: .completed)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> observer <span class="operator">=</span> <span class="type">Observer</span>&lt;<span class="type">Int</span>&gt; &#123; (event) <span class="keyword">in</span></span><br><span class="line">    <span class="keyword">switch</span> event &#123;</span><br><span class="line">    <span class="keyword">case</span> .next(<span class="keyword">let</span> value):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;recive <span class="subst">\(value)</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">case</span> .error(<span class="keyword">let</span> error):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;recive <span class="subst">\(error)</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">case</span> .completed:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;recive completed&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">observable.subscribe(observer: observer)</span><br><span class="line"><span class="comment">// send 0</span></span><br><span class="line"><span class="comment">// recive 0</span></span><br><span class="line"><span class="comment">// send 1</span></span><br><span class="line"><span class="comment">// recive 1</span></span><br><span class="line"><span class="comment">// send 2</span></span><br><span class="line"><span class="comment">// recive 2</span></span><br><span class="line"><span class="comment">// send 3</span></span><br><span class="line"><span class="comment">// recive 3</span></span><br><span class="line"><span class="comment">// send completed</span></span><br><span class="line"><span class="comment">// recive completed</span></span><br></pre></td></tr></table></figure>
+
+<p>下图所示为 RxDemo-01 实现的 RxSwift 的内部调用关系。通过闭包实现将 <code>observer</code> 传递给 <code>observable</code>，在发布事件时能够将事件传递给 <code>observer</code>，从而形成一条看似自左向右流动的数据流。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-01.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="取消订阅-RxDemo-02"><a href="#取消订阅-RxDemo-02" class="headerlink" title="取消订阅(RxDemo-02)"></a>取消订阅(RxDemo-02)</h2><p>RxDemo-01 有一个明显的缺陷——无法取消订阅。我们来参考 RxSwift 的实现，它 <strong>并不是直接让订阅者支持取消订阅，而是通过一个第三方类型 <code>Disposable</code> 对订阅进行管理</strong>。<code>Disposable</code> 的核心作用是 <strong>提供一个状态位标识订阅是否已经取消</strong>。 </p>
+<p>关于由第三方类来管理订阅，而不是让订阅者自己管理的原因，我猜测有两个：一是出于职责单一的原则；二是为了支持函数式编程，抽取一个第三方类型作为返回值，从而在链式调用时保持类型一致。</p>
+<p><code>Disposable</code> 协议要求所有的 <code>Disposable</code> 类型都实现 <code>dispose</code> 方法，表示取消订阅。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protocol</span> <span class="title class_">Disposable</span> &#123;</span><br><span class="line">    <span class="comment">// 取消订阅</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">dispose</span>()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们定义两个遵循 <code>Dispoable</code> 协议的类型：<code>AnonymousDisposable</code> 和 <code>CompositeDisposable</code>。</p>
+<p><code>AnonymousDisposable</code> 作为一个匿名 <code>Disposable</code>，在本例中作为最底层的 <code>Disposable</code> 并没有什么作用，只是为了实现模式统一而已。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">AnonymousDisposable</span>: <span class="title class_">Disposable</span> &#123;</span><br><span class="line">    <span class="comment">// AnonymousDisposable 封装了 取消订阅 的闭包</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _disposeHandler: () -&gt; <span class="type">Void</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="keyword">_</span> <span class="params">disposeClosure</span>: <span class="keyword">@escaping</span> () -&gt; <span class="type">Void</span>) &#123;</span><br><span class="line">        _disposeHandler <span class="operator">=</span> disposeClosure</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">dispose</span>() &#123;</span><br><span class="line">        _disposeHandler()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>CompositeDisposable</code> 作为一个可管理多个 <code>Disposable</code> 的容器，它内部维持一个标志位表示订阅是否被取消。<code>CompositeDisposable</code> 所实现的 <code>dispose</code> 方法真正改变了标志位，并对其所维护的所有 <code>Disposable</code> 执行各自的 <code>dispose</code> 方法，从而完成它们定义的在取消订阅时需要执行的附带操作。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">CompositeDisposable</span>: <span class="title class_">Disposable</span> &#123;</span><br><span class="line">    <span class="comment">// 可用于管理一组 Disposable 的 CompositeDisposable</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断是否已销毁（取消订阅）的标志位</span></span><br><span class="line">    <span class="keyword">private(set)</span> <span class="keyword">var</span> isDisposed: <span class="type">Bool</span> <span class="operator">=</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment">// 管理一组 Disposable</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> disposables: [<span class="type">Disposable</span>] <span class="operator">=</span> []</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>() &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">add</span>(<span class="params">disposable</span>: <span class="type">Disposable</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> isDisposed &#123;</span><br><span class="line">            disposable.dispose()</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">        disposables.append(disposable)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">dispose</span>() &#123;</span><br><span class="line">        <span class="keyword">guard</span> <span class="operator">!</span>isDisposed <span class="keyword">else</span> &#123; <span class="keyword">return</span> &#125;</span><br><span class="line">        <span class="comment">// 销毁所有 disposable，并设置标志位</span></span><br><span class="line">        disposables.forEach &#123;</span><br><span class="line">            <span class="variable">$0</span>.dispose()</span><br><span class="line">        &#125;</span><br><span class="line">        isDisposed <span class="operator">=</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>很显然，这里执行 <code>dispose</code> 操作只是修改了状态，并没有释放订阅资源。只有当 <code>CompositeDisposable</code> 对象被释放后才算真正释放资源。在原版 RxSwift 中，<code>DisposeBag</code> 差不多就是 <code>CompositeDisposable</code>。这样也是为什么我们要把订阅交给 <code>DisposeBag</code> 来进行管理，<code>DisposeBag</code> 作为某个对象的属性，会随着对象的释放，从而自动释放真正的订阅资源。</p>
+<p>为了支持 <code>Disposable</code>，我们需要在 RxDemo-01 的基础上稍作修改即可，主要是修改发布者 <code>Observable</code> 。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MARK: - Observable</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">protocol</span> <span class="title class_">ObservableType</span> &#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 订阅操作</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">subscribe</span>&lt;<span class="type">O</span>: <span class="type">ObserverType</span>&gt;(<span class="params">observer</span>: <span class="type">O</span>) -&gt; <span class="type">Disposable</span> <span class="keyword">where</span> <span class="type">O</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Observable</span>&lt;<span class="title class_">Element</span>&gt;: <span class="title class_">ObservableType</span> &#123;</span><br><span class="line">    <span class="comment">// 定义 发布事件 的闭包</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _eventGenerator: (<span class="type">Observer</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Disposable</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="keyword">_</span> <span class="params">eventGenerator</span>: <span class="keyword">@escaping</span> (<span class="type">Observer</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Disposable</span>) &#123;</span><br><span class="line">        _eventGenerator <span class="operator">=</span> eventGenerator</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 实现 订阅操作 的协议，内部生成事件</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">subscribe</span>&lt;<span class="type">O</span>: <span class="type">ObserverType</span>&gt;(<span class="params">observer</span>: <span class="type">O</span>) -&gt; <span class="type">Disposable</span> <span class="keyword">where</span> <span class="type">O</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> composite <span class="operator">=</span> <span class="type">CompositeDisposable</span>()</span><br><span class="line">        <span class="comment">// 通过一个中间 Observer 对原始 Observer 进行封装，用于过滤事件的传递。</span></span><br><span class="line">        <span class="keyword">let</span> disposable <span class="operator">=</span> _eventGenerator(<span class="type">Observer</span> &#123; (event) <span class="keyword">in</span></span><br><span class="line">            <span class="keyword">guard</span> <span class="operator">!</span>composite.isDisposed <span class="keyword">else</span> &#123; <span class="keyword">return</span> &#125;</span><br><span class="line">            <span class="comment">// 事件传递给原始 observer</span></span><br><span class="line">            observer.on(event: event)</span><br><span class="line">            <span class="comment">// 通过 composite 管理 error、completed 时，自动取消订阅</span></span><br><span class="line">            <span class="keyword">switch</span> event &#123;</span><br><span class="line">            <span class="keyword">case</span> .error(<span class="keyword">_</span>), .completed:</span><br><span class="line">                composite.dispose()</span><br><span class="line">            default:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">        <span class="comment">// 将 _eventGenerator 返回的 AnonymousDisposable 加入至 CompositeDisposable 中进行管理</span></span><br><span class="line">        composite.add(disposable: disposable)</span><br><span class="line">        <span class="keyword">return</span> composite</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们来试用一下 RxDemo-02 所实现的 RxSwift。很显然，这种模式与原始的 RxSwift 的使用方式进一步吻合。这里，我们实现了取消订阅的功能。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MARK: - Test</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> observable <span class="operator">=</span> <span class="type">Observable</span>&lt;<span class="type">Int</span>&gt; &#123; (observer) -&gt; <span class="type">Disposable</span> <span class="keyword">in</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 0&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">0</span>))    <span class="comment">// observer.on(event: .next(0).map(&#123; $0 * 2 &#125;))</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 1&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">1</span>))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 2&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">2</span>))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 3&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">3</span>))</span><br><span class="line">    <span class="type">DispatchQueue</span>.main.asyncAfter(deadline: .now() <span class="operator">+</span> <span class="number">3</span>) &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;send completed&quot;</span>)</span><br><span class="line">        observer.on(event: .completed)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="type">AnonymousDisposable</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;dispose&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> observer <span class="operator">=</span> <span class="type">Observer</span>&lt;<span class="type">Int</span>&gt; &#123; (event) <span class="keyword">in</span></span><br><span class="line">    <span class="keyword">switch</span> event &#123;</span><br><span class="line">    <span class="keyword">case</span> .next(<span class="keyword">let</span> value):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;recive <span class="subst">\(value)</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">case</span> .error(<span class="keyword">let</span> error):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;recive <span class="subst">\(error)</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">case</span> .completed:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;recive completed&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> disposable <span class="operator">=</span> observable.subscribe(observer: observer)</span><br><span class="line"></span><br><span class="line"><span class="type">DispatchQueue</span>.main.asyncAfter(deadline: .now() <span class="operator">+</span> <span class="number">2</span>) &#123;</span><br><span class="line">    disposable.dispose()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// send 0</span></span><br><span class="line"><span class="comment">// recive 0</span></span><br><span class="line"><span class="comment">// send 1</span></span><br><span class="line"><span class="comment">// recive 1</span></span><br><span class="line"><span class="comment">// send 2</span></span><br><span class="line"><span class="comment">// recive 2</span></span><br><span class="line"><span class="comment">// send 3</span></span><br><span class="line"><span class="comment">// recive 3</span></span><br><span class="line"><span class="comment">// dispose</span></span><br><span class="line"><span class="comment">// send completed</span></span><br></pre></td></tr></table></figure>
+
+<p>RxDemo-02 的核心思想是在 RxDemo-01 的基础上对事件进行拦截和过滤，如下图所示。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-02.png?x-oss-process=image/resize,w_800"></p>
+<p>具体的实现方式如下所示，通过 <code>CompositeDisposable</code> 管理 <code>AnonymousDisposable</code>（原始 <code>subscribe</code> 中的闭包执行后的返回类型）。同时，在执行发布事件时，使用一个中间 Observer 接收原始事件，中间 Observer 引用外部 <code>CompositeDisposable</code> 的状态决定是否将事件发送给原始 Observer。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-03.png?x-oss-process=image/resize,w_800"></p>
+<p>使用 <code>CompositeDisposable</code> 的本质就是添加了一个中间层来解决管理订阅的问题。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cs-of-luxun.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="结构优化-RxDemo-03"><a href="#结构优化-RxDemo-03" class="headerlink" title="结构优化(RxDemo-03)"></a>结构优化(RxDemo-03)</h2><p>在 RxDemo-02 中，<code>AnonymousObserver</code> 引用了外部的 <code>CompositeDisposable</code> 中的订阅状态，从而决定事件的传递方向。这种代码逻辑由内而外实现，并不是很直观。</p>
+<p>为了更加清晰地描述这个事件流动方向，RxDemo-03 通过增加一个中间层，将原始 observer、中间 observer、事件转发逻辑聚合在同一层级下，让代码具有更好的可读性。这里我们实现一个遵循 <code>Disposable</code> 协议的 <code>Sink</code> 类型。<code>Sink</code> 是 <strong>水槽</strong> 的意思，象征着这里我们通过它来控制事件的流动方向，暗示了这个类的作用。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Sink</span>&lt;<span class="title class_">O</span>: <span class="title class_">ObserverType</span>&gt;: <span class="title class_">Disposable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> _disposed: <span class="type">Bool</span> <span class="operator">=</span> <span class="literal">false</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _forward: <span class="type">O</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _eventGenerator: (<span class="type">Observer</span>&lt;<span class="type">O</span>.<span class="type">Element</span>&gt;) -&gt; <span class="type">Disposable</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _composite <span class="operator">=</span> <span class="type">CompositeDisposable</span>()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="params">forward</span>: <span class="type">O</span>, <span class="params">eventGenerator</span>: <span class="keyword">@escaping</span> (<span class="type">Observer</span>&lt;<span class="type">O</span>.<span class="type">Element</span>&gt;) -&gt; <span class="type">Disposable</span>) &#123;</span><br><span class="line">        _forward <span class="operator">=</span> forward</span><br><span class="line">        _eventGenerator <span class="operator">=</span> eventGenerator</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">run</span>() &#123;</span><br><span class="line">        <span class="comment">// 通过一个中间 Observer 接收原始事件</span></span><br><span class="line">        <span class="comment">// 根据 CompositionDisposable 的状态决定是否传递给原始 Observer</span></span><br><span class="line">        <span class="keyword">let</span> observer <span class="operator">=</span> <span class="type">Observer</span>&lt;<span class="type">O</span>.<span class="type">Element</span>&gt;(forward)</span><br><span class="line">        <span class="comment">// 执行事件生成器</span></span><br><span class="line">        <span class="comment">// 将返回值 Disposable 加入到 CompositeDisposable 中进行管理</span></span><br><span class="line">        _composite.add(disposable: _eventGenerator(observer))</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">func</span> <span class="title function_">forward</span>(<span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">O</span>.<span class="type">Element</span>&gt;) &#123;</span><br><span class="line">        <span class="keyword">guard</span> <span class="operator">!</span>_disposed <span class="keyword">else</span> &#123; <span class="keyword">return</span> &#125;</span><br><span class="line">        <span class="comment">// 事件传递给原始 observer</span></span><br><span class="line">        _forward.on(event: event)</span><br><span class="line">        <span class="comment">// 通过 composite 管理 error、completed 时，自动取消订阅</span></span><br><span class="line">        <span class="keyword">switch</span> event &#123;</span><br><span class="line">        <span class="keyword">case</span> .completed, .error(<span class="keyword">_</span>):</span><br><span class="line">            dispose()</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">dispose</span>() &#123;</span><br><span class="line">        _disposed <span class="operator">=</span> <span class="literal">true</span></span><br><span class="line">        _composite.dispose()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在定义了 <code>Sink</code> 之后，我们就可以简化 <code>Observable</code> 中 <code>subscribe</code> 方法的具体实现。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Observable</span>&lt;<span class="title class_">Element</span>&gt;: <span class="title class_">ObservableType</span> &#123;</span><br><span class="line">    <span class="comment">// 定义 发布事件 的闭包</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _eventGenerator: (<span class="type">Observer</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Disposable</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="keyword">_</span> <span class="params">eventGenerator</span>: <span class="keyword">@escaping</span> (<span class="type">Observer</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Disposable</span>) &#123;</span><br><span class="line">        _eventGenerator <span class="operator">=</span> eventGenerator</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 实现 订阅操作 的协议，内部生成事件</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">subscribe</span>&lt;<span class="type">O</span>: <span class="type">ObserverType</span>&gt;(<span class="params">observer</span>: <span class="type">O</span>) -&gt; <span class="type">Disposable</span> <span class="keyword">where</span> <span class="type">O</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> sink <span class="operator">=</span> <span class="type">Sink</span>(forward: observer, eventGenerator: _eventGenerator)</span><br><span class="line">        sink.run()</span><br><span class="line">        <span class="keyword">return</span> sink</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>SinkDisposable</code> 引用了原始的事件发生器，并定义一个中间 Observer 转入至原始事件发生器，从而让中间 observer 接收原始事件。除此之外，<code>SinkDisposable</code> 还引用了原始 observer，当中间 observer 处理原始事件时，会判断订阅是否已经取消，从而决定是否将原始事件转发给原始 observer。此时，RxDemo-03 实现的 RxSwift 的内部调用关系如下所示。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-04.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="操作符-RxDemo-04"><a href="#操作符-RxDemo-04" class="headerlink" title="操作符(RxDemo-04)"></a>操作符(RxDemo-04)</h2><p>下面，我们来实现操作符，RxSwift 中包含了大量的操作符，它们基本上都是对函数式编程中 <strong>函子</strong>、<strong>单子</strong> 等进行了应用。我们以 <code>map</code> 为例进行介绍。</p>
+<p>如下所示，<code>map</code> 方法能够将一个普通函数应用到包装类型 <code>ObservableType</code> 上。<code>map</code> 方法最终返回一个 <code>Observable&lt;Result&gt;</code> 类型（同样遵循 <code>ObservableType</code> 协议），因此能够完美支持链式操作。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extension</span> <span class="title class_">ObservableType</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">map</span>&lt;<span class="type">Result</span>&gt;(<span class="keyword">_</span> <span class="params">transform</span>: <span class="keyword">@escaping</span> (<span class="type">Element</span>) <span class="keyword">throws</span> -&gt; <span class="type">Result</span>) -&gt; <span class="type">Observable</span>&lt;<span class="type">Result</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">Observable</span>&lt;<span class="type">Result</span>&gt; &#123; (observer) <span class="keyword">in</span>   <span class="comment">// observer 为原始 observer</span></span><br><span class="line">            <span class="comment">// 此闭包可看成是一个 eventGenerator</span></span><br><span class="line">            <span class="comment">// 向原始 observable 中传入一个中间 map observer，即由中间 map observer 替换原始 observer 监听原始事件</span></span><br><span class="line">            <span class="comment">// 中间 map observer 对原始事件进行转换后，转发给原始 observer</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">self</span>.subscribe(observer: <span class="type">Observer</span> &#123; (event) <span class="keyword">in</span></span><br><span class="line">                <span class="keyword">switch</span> event &#123;</span><br><span class="line">                <span class="keyword">case</span> .next(<span class="keyword">let</span> element):</span><br><span class="line">                    <span class="keyword">do</span> &#123;</span><br><span class="line">                        <span class="keyword">try</span> observer.on(event: .next(transform(element)))</span><br><span class="line">                    &#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">                        observer.on(event: .error(error))</span><br><span class="line">                    &#125;</span><br><span class="line">                <span class="keyword">case</span> .error(<span class="keyword">let</span> error):</span><br><span class="line">                    observer.on(event: .error(error))</span><br><span class="line">                <span class="keyword">case</span> .completed:</span><br><span class="line">                    observer.on(event: .completed)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们来试用一下 RxDemo-04 所实现的 RxSwift。这里，我们实现了 <code>map</code> 操作符的功能。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MARK: - Test</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> observable <span class="operator">=</span> <span class="type">Observable</span>&lt;<span class="type">Int</span>&gt; &#123; (observer) -&gt; <span class="type">Disposable</span> <span class="keyword">in</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 0&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">0</span>))    <span class="comment">// observer.on(event: .next(0).map(&#123; $0 * 2 &#125;))</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 1&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">1</span>))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 2&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">2</span>))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 3&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">3</span>))</span><br><span class="line">    <span class="type">DispatchQueue</span>.main.asyncAfter(deadline: .now() <span class="operator">+</span> <span class="number">3</span>) &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;send completed&quot;</span>)</span><br><span class="line">        observer.on(event: .completed)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="type">AnonymousDisposable</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;dispose&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> observer <span class="operator">=</span> <span class="type">Observer</span>&lt;<span class="type">Int</span>&gt; &#123; (event) <span class="keyword">in</span></span><br><span class="line">    <span class="keyword">switch</span> event &#123;</span><br><span class="line">    <span class="keyword">case</span> .next(<span class="keyword">let</span> value):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;recive <span class="subst">\(value)</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">case</span> .error(<span class="keyword">let</span> error):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;recive <span class="subst">\(error)</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">case</span> .completed:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;recive completed&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> disposable <span class="operator">=</span> observable.map &#123; <span class="variable">$0</span> <span class="operator">*</span> <span class="number">2</span> &#125;.subscribe(observer: observer)</span><br><span class="line"></span><br><span class="line"><span class="type">DispatchQueue</span>.main.asyncAfter(deadline: .now() <span class="operator">+</span> <span class="number">2</span>) &#123;</span><br><span class="line">    disposable.dispose()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// send 0</span></span><br><span class="line"><span class="comment">// recive 0</span></span><br><span class="line"><span class="comment">// send 1</span></span><br><span class="line"><span class="comment">// recive 2</span></span><br><span class="line"><span class="comment">// send 2</span></span><br><span class="line"><span class="comment">// recive 4</span></span><br><span class="line"><span class="comment">// send 3</span></span><br><span class="line"><span class="comment">// recive 6</span></span><br><span class="line"><span class="comment">// dispose</span></span><br><span class="line"><span class="comment">// send completed</span></span><br></pre></td></tr></table></figure>
+
+<p>RxDemo-04 中由于增加了操作符功能，其内部的调用关系也发生了变化。特别是，发布事件和过滤事件的逻辑，很显然，每增加一个操作符，就会增加一个 <code>SinkDisposable</code> 中间层，调用栈也会更深。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-05.png?x-oss-process=image/resize,w_800"></p>
+<p>如果我们仔细分析 RxDemo-04，其实我们可以发现内部隐藏了如下所示的调用关系链：observable -&gt; MapObserver -&gt; MapObservable -&gt; observer。实际执行时，调用关系如下所示：</p>
+<ol>
+<li>observable 调用 MapObserver.on 方法，将原始事件传递给 MapObserver；</li>
+<li>MapObserver 使用 map 方法将原始事件转换成 map 事件（即 map 后的数据），作为 MapObservable 发出的事件；</li>
+<li>MapObservable 调用 observer.on 方法，将 map 事件传给 observer。</li>
+</ol>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-06.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="分类细化-RxDemo-05"><a href="#分类细化-RxDemo-05" class="headerlink" title="分类细化(RxDemo-05)"></a>分类细化(RxDemo-05)</h2><p>在 RxDemo-04 中，为了增加 <code>map</code> 操作符，对 <code>ObservableType</code> 进行了扩展，其本质就是在原始的 Observable 和 Observer 之间插入了一个 MapObserver 和一个 MapObservable。本节，我们继续进行优化，对中间类也进行细分和定义。</p>
+<p>在 RxDemo-04 中，<code>Sink</code> 的主要作用是 <strong>根据订阅是否取消决定是否拦截事件的传递</strong>。这里我们可能会想到：中间订阅者（如：MapObserver）本身是不是就应该具备 <code>Sink</code> 的这种功能呢？事实上，RxSwift 就是让 <code>Sink</code> 作为所有 Observer 的基类。</p>
+<p>对于操作符，我们可以实现上述的模式；但是，对于不带操作符的情况，该如何处理呢？为了实现模式的统一，我们可以认为不带操作符的情况等同于带了 <strong>只返回原值的匿名操作符</strong>，即等同于 <code>map &#123; $0 &#125;</code>。针对此情况，我们也需要定义两个类 <code>AnonymousObserver</code> 和 <code>AnonymousObservable</code>。</p>
+<p>下面，我们来进行优化改进。</p>
+<p>首先，我们将原来的 <code>Observable&lt;Element&gt;</code> 改成抽象基类。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 抽象类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Observable</span>&lt;<span class="title class_">Element</span>&gt;: <span class="title class_">ObservableType</span> &#123;</span><br><span class="line"><span class="comment">//    // 定义 发布事件 的闭包，有子类来定义</span></span><br><span class="line"><span class="comment">//    private let _eventGenerator: (Observer&lt;Element&gt;) -&gt; Disposable</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    init(_ eventGenerator: @escaping (Observer&lt;Element&gt;) -&gt; Disposable) &#123;</span></span><br><span class="line"><span class="comment">//        _eventGenerator = eventGenerator</span></span><br><span class="line"><span class="comment">//    &#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 实现 订阅操作 的协议，内部生成事件</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">subscribe</span>&lt;<span class="type">O</span>: <span class="type">ObserverType</span>&gt;(<span class="params">observer</span>: <span class="type">O</span>) -&gt; <span class="type">Disposable</span> <span class="keyword">where</span> <span class="type">O</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span> &#123;</span><br><span class="line">        rxAbstractMethod()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">func</span> <span class="title function_">rxAbstractMethod</span>(<span class="params">file</span>: <span class="type">StaticString</span> <span class="operator">=</span> <span class="keyword">#file</span>, <span class="params">line</span>: <span class="type">UInt</span> <span class="operator">=</span> <span class="keyword">#line</span>) -&gt; <span class="type">Swift</span>.<span class="type">Never</span> &#123;</span><br><span class="line">    <span class="built_in">fatalError</span>(<span class="string">&quot;Abstract Method&quot;</span>, file: file, line: line)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其次，我们再一定一个新的类 <code>Producer&lt;Element&gt;</code> 代替 <code>Observable&lt;Element&gt;</code>。<code>Producer&lt;Element&gt;</code> 继承自 <code>Observable&lt;Element&gt;</code>，作为发布者的基类，该类内部没有时间生成器 <code>eventGenerator</code> 的闭包，由子类选择性进行定义。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Producer</span>&lt;<span class="title class_">Element</span>&gt;: <span class="title class_">Observable</span>&lt;<span class="title class_">Element</span>&gt; &#123;</span><br><span class="line">    <span class="comment">// 实现 订阅操作 的协议，内部生成事件</span></span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">subscribe</span>&lt;<span class="type">O</span>: <span class="type">ObserverType</span>&gt;(<span class="params">observer</span>: <span class="type">O</span>) -&gt; <span class="type">Disposable</span> <span class="keyword">where</span> <span class="type">O</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> run(observer: observer)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">run</span>&lt;<span class="type">O</span>: <span class="type">ObserverType</span>&gt;(<span class="params">observer</span>: <span class="type">O</span>) -&gt; <span class="type">Disposable</span> <span class="keyword">where</span> <span class="type">O</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span> &#123;</span><br><span class="line">        rxAbstractMethod()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后，我们来对 <code>Sink</code> 进行修改。在 RxDemo-04 中，<code>Sink</code> 即提供了事件生成的功能和事件转发的功能。这里，我们让 <code>Sink</code> 的职责更加单一，仅仅是提供事件转发的功能。修改结果如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Sink</span>&lt;<span class="title class_">O</span>: <span class="title class_">ObserverType</span>&gt;: <span class="title class_">Disposable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> _disposed: <span class="type">Bool</span> <span class="operator">=</span> <span class="literal">false</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _forward: <span class="type">O</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _composite <span class="operator">=</span> <span class="type">CompositeDisposable</span>()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="params">forward</span>: <span class="type">O</span>) &#123;</span><br><span class="line">        _forward <span class="operator">=</span> forward</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">forward</span>(<span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">O</span>.<span class="type">Element</span>&gt;) &#123;</span><br><span class="line">        <span class="keyword">guard</span> <span class="operator">!</span>_disposed <span class="keyword">else</span> &#123; <span class="keyword">return</span> &#125;</span><br><span class="line">        <span class="comment">// 事件传递给原始 observer</span></span><br><span class="line">        _forward.on(event: event)</span><br><span class="line">        <span class="comment">// 通过 composite 管理 error、completed 时，自动取消订阅</span></span><br><span class="line">        <span class="keyword">switch</span> event &#123;</span><br><span class="line">        <span class="keyword">case</span> .completed, .error(<span class="keyword">_</span>):</span><br><span class="line">            dispose()</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">dispose</span>() &#123;</span><br><span class="line">        _disposed <span class="operator">=</span> <span class="literal">true</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;dispose execute&quot;</span>)</span><br><span class="line">        _composite.dispose()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>为了便于泛型类型的转换，我们给 <code>ObservableType</code> 协议增加一个方法，并由 <code>Observable&lt;Element&gt;</code> 予以实现。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protocol</span> <span class="title class_">ObservableType</span> &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">asObservable</span>() -&gt; <span class="type">Observable</span>&lt;<span class="type">Element</span>&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Observable</span>&lt;<span class="title class_">Element</span>&gt;: <span class="title class_">ObservableType</span> &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">asObservable</span>() -&gt; <span class="type">Observable</span>&lt;<span class="type">Element</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们来分别实现 <code>Sink</code> 的子类 <code>AnonymousObserver</code> 和 <code>MapObserver</code> 以及 <code>Producer</code> 的子类 <code>AnonymousObservable</code> 和 <code>MapObservable</code>。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">AnonymousObserver</span>&lt;<span class="title class_">O</span>: <span class="title class_">ObserverType</span>&gt;: <span class="title class_">Sink</span>&lt;<span class="title class_">O</span>&gt;, <span class="title class_">ObserverType</span> &#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Element</span> <span class="operator">=</span> <span class="type">O</span>.<span class="type">Element</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">init</span>(<span class="params">forward</span>: <span class="type">O</span>) &#123;</span><br><span class="line">        <span class="keyword">super</span>.<span class="keyword">init</span>(forward: forward)    <span class="comment">// forward 为原始订阅者</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">on</span>(<span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">Element</span>&gt;) &#123;</span><br><span class="line">        <span class="comment">// 对原始事件进行转发</span></span><br><span class="line">        <span class="keyword">switch</span> event &#123;</span><br><span class="line">        <span class="keyword">case</span> .next(<span class="keyword">let</span> element):</span><br><span class="line">            <span class="keyword">self</span>.forward(event: .next(element))</span><br><span class="line">        <span class="keyword">case</span> .error(<span class="keyword">let</span> error):</span><br><span class="line">            <span class="keyword">self</span>.forward(event: .error(error))</span><br><span class="line">            <span class="keyword">self</span>.dispose()</span><br><span class="line">        <span class="keyword">case</span> .completed:</span><br><span class="line">            <span class="keyword">self</span>.forward(event: .completed)</span><br><span class="line">            <span class="keyword">self</span>.dispose()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">run</span>(<span class="params">parent</span>: <span class="type">AnonymousObservable</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Disposable</span> &#123;</span><br><span class="line">        <span class="comment">// 执行事件生成器</span></span><br><span class="line">        parent._eventGenerator(<span class="type">Observer</span>(<span class="keyword">self</span>))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AnonymousObservable</span>&lt;<span class="title class_">Element</span>&gt;: <span class="title class_">Producer</span>&lt;<span class="title class_">Element</span>&gt; &#123;</span><br><span class="line">    <span class="comment">// 持有事件生成器闭包</span></span><br><span class="line">    <span class="keyword">let</span> _eventGenerator: (<span class="type">Observer</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Disposable</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="params">eventGenerator</span>: <span class="keyword">@escaping</span> (<span class="type">Observer</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Disposable</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>._eventGenerator <span class="operator">=</span> eventGenerator</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">run</span>&lt;<span class="type">O</span>&gt;(<span class="params">observer</span>: <span class="type">O</span>) -&gt; <span class="type">Disposable</span> <span class="keyword">where</span> <span class="type">Element</span> <span class="operator">==</span> <span class="type">O</span>.<span class="type">Element</span>, <span class="type">O</span> : <span class="type">ObserverType</span> &#123;</span><br><span class="line">        <span class="comment">// 订阅发生时，生成一个中间订阅者 AnonymousObserver 来订阅原始事件，并将事件转发给原始订阅者</span></span><br><span class="line">        <span class="keyword">let</span> sink <span class="operator">=</span>  <span class="type">AnonymousObserver</span>(forward: observer)</span><br><span class="line">        sink.run(parent: <span class="keyword">self</span>)</span><br><span class="line">        <span class="keyword">return</span> sink</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MapObserver</span>&lt;<span class="title class_">Source</span>, <span class="title class_">Result</span>, <span class="title class_">O</span>: <span class="title class_">ObserverType</span>&gt;: <span class="title class_">Sink</span>&lt;<span class="title class_">O</span>&gt;, <span class="title class_">ObserverType</span> &#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Element</span> <span class="operator">=</span> <span class="type">Source</span></span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Result</span> <span class="operator">=</span> <span class="type">O</span>.<span class="type">Element</span></span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Transform</span> <span class="operator">=</span> (<span class="type">Source</span>) <span class="keyword">throws</span> -&gt; <span class="type">Result</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _transform: <span class="type">Transform</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="params">forward</span>: <span class="type">O</span>, <span class="params">transform</span>: <span class="keyword">@escaping</span> <span class="type">Transform</span>) &#123;  <span class="comment">// forward 为原始订阅者</span></span><br><span class="line">        <span class="keyword">self</span>._transform <span class="operator">=</span> transform</span><br><span class="line">        <span class="keyword">super</span>.<span class="keyword">init</span>(forward: forward)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">on</span>(<span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">Element</span>&gt;) &#123;</span><br><span class="line">        <span class="comment">// 对原始事件进行 map 转换，对结果进行转发</span></span><br><span class="line">        <span class="keyword">switch</span> event &#123;</span><br><span class="line">        <span class="keyword">case</span> .next(<span class="keyword">let</span> element):</span><br><span class="line">            <span class="keyword">do</span> &#123;</span><br><span class="line">                <span class="keyword">let</span> mappedElement <span class="operator">=</span> <span class="keyword">try</span> _transform(element)</span><br><span class="line">                <span class="keyword">self</span>.forward(event: .next(mappedElement <span class="keyword">as!</span> <span class="type">O</span>.<span class="type">Element</span>))</span><br><span class="line">            &#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">                <span class="keyword">self</span>.forward(event: .error(error))</span><br><span class="line">            &#125;</span><br><span class="line">        <span class="keyword">case</span> .error(<span class="keyword">let</span> error):</span><br><span class="line">            <span class="keyword">self</span>.forward(event: .error(error))</span><br><span class="line">            <span class="keyword">self</span>.dispose()</span><br><span class="line">        <span class="keyword">case</span> .completed:</span><br><span class="line">            <span class="keyword">self</span>.forward(event: .completed)</span><br><span class="line">            <span class="keyword">self</span>.dispose()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MapObservable</span>&lt;<span class="title class_">Source</span>, <span class="title class_">Result</span>&gt;: <span class="title class_">Producer</span>&lt;<span class="title class_">Result</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Transform</span> <span class="operator">=</span> (<span class="type">Source</span>) <span class="keyword">throws</span> -&gt; <span class="type">Result</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _transform: <span class="type">Transform</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _source: <span class="type">Observable</span>&lt;<span class="type">Source</span>&gt;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="params">source</span>: <span class="type">Observable</span>&lt;<span class="type">Source</span>&gt;, <span class="params">transform</span>: <span class="keyword">@escaping</span> <span class="type">Transform</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>._source <span class="operator">=</span> source</span><br><span class="line">        <span class="keyword">self</span>._transform <span class="operator">=</span> transform</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">func</span> <span class="title function_">run</span>&lt;<span class="type">O</span>: <span class="type">ObserverType</span>&gt;(<span class="params">observer</span>: <span class="type">O</span>) -&gt; <span class="type">Disposable</span> <span class="keyword">where</span> <span class="type">Result</span> <span class="operator">==</span> <span class="type">O</span>.<span class="type">Element</span> &#123;</span><br><span class="line">        <span class="comment">// 订阅发生时，生成一个中间订阅者 MapObserver 来订阅上游事件</span></span><br><span class="line">        <span class="keyword">let</span> sink <span class="operator">=</span> <span class="type">MapObserver</span>(forward: observer, transform: <span class="keyword">self</span>._transform)</span><br><span class="line">        <span class="keyword">self</span>._source.subscribe(observer: sink)</span><br><span class="line">        <span class="keyword">return</span> sink</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在我们再来看发布者、操作符，其实两者的本质都是一样，都是创建了一个发布者。对此，我们采用扩展的方式来提供相应的方法。如下所示：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extension</span> <span class="title class_">ObservableType</span> &#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">func</span> <span class="title function_">create</span>(<span class="keyword">_</span> <span class="params">eventGenerator</span>: <span class="keyword">@escaping</span> (<span class="type">Observer</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Disposable</span>) -&gt; <span class="type">Observable</span>&lt;<span class="type">Element</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">AnonymousObservable</span>(eventGenerator: eventGenerator)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extension</span> <span class="title class_">ObservableType</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">map</span>&lt;<span class="type">Result</span>&gt;(<span class="keyword">_</span> <span class="params">transform</span>: <span class="keyword">@escaping</span> (<span class="type">Element</span>) <span class="keyword">throws</span> -&gt; <span class="type">Result</span>) -&gt; <span class="type">Observable</span>&lt;<span class="type">Result</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">MapObservable</span>(source: <span class="keyword">self</span>.asObservable(), transform: transform)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后，我们再来验证一下实现结果，如下所示。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MARK: - Test</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> observable <span class="operator">=</span> <span class="type">Observable</span>&lt;<span class="type">Int</span>&gt;.create &#123; (observer) -&gt; <span class="type">Disposable</span> <span class="keyword">in</span>  <span class="comment">// observer 为 MapObserver</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 0&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">0</span>))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 1&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">1</span>))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 2&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">2</span>))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;send 3&quot;</span>)</span><br><span class="line">    observer.on(event: .next(<span class="number">3</span>))</span><br><span class="line">    <span class="type">DispatchQueue</span>.main.asyncAfter(deadline: .now() <span class="operator">+</span> <span class="number">3</span>) &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;send completed&quot;</span>)</span><br><span class="line">        observer.on(event: .completed)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="type">AnonymousDisposable</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;dispose&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> observer <span class="operator">=</span> <span class="type">Observer</span>&lt;<span class="type">Int</span>&gt; &#123; (event) <span class="keyword">in</span></span><br><span class="line">    <span class="keyword">switch</span> event &#123;</span><br><span class="line">    <span class="keyword">case</span> .next(<span class="keyword">let</span> value):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;recive <span class="subst">\(value)</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">case</span> .error(<span class="keyword">let</span> error):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;recive <span class="subst">\(error)</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">case</span> .completed:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;recive completed&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> disposable <span class="operator">=</span> observable.map &#123; <span class="variable">$0</span> <span class="operator">*</span> <span class="number">2</span> &#125;.map &#123; <span class="variable">$0</span> <span class="operator">+</span> <span class="number">1</span> &#125;.subscribe(observer: observer)</span><br><span class="line"></span><br><span class="line"><span class="type">DispatchQueue</span>.main.asyncAfter(deadline: .now() <span class="operator">+</span> <span class="number">2</span>) &#123;</span><br><span class="line">    disposable.dispose()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// send 0</span></span><br><span class="line"><span class="comment">// recive 1</span></span><br><span class="line"><span class="comment">// send 1</span></span><br><span class="line"><span class="comment">// recive 3</span></span><br><span class="line"><span class="comment">// send 2</span></span><br><span class="line"><span class="comment">// recive 5</span></span><br><span class="line"><span class="comment">// send 3</span></span><br><span class="line"><span class="comment">// recive 7</span></span><br><span class="line"><span class="comment">// dispose execute</span></span><br><span class="line"><span class="comment">// send completed</span></span><br></pre></td></tr></table></figure>
+
+<p>从运行结果而言，RxDemo-05 基本实现了分类细化，并且达到了取消订阅的功能。此时，上述例子中实际的订阅关系如下所示。相比 RxDemo-04，多了 <code>AnonymousObserver</code> 和 <code>AnonymousObservable</code>，但是整体的内部订阅关系链更加清晰了。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-07.png?x-oss-process=image/resize,w_800"></p>
+<p>此时，我们再来对照一下 RxSwift 和 RxDemo-05 中类的定义，如下表所示。各个类的功能基本相同，整体结构也是大同小异，只是在类名上略有差异。</p>
+<table>
+<thead>
+<tr>
+<th align="left">RxDemo-05</th>
+<th align="left">Producer</th>
+<th align="left">Sink</th>
+<th align="left">AnonymousObserver</th>
+<th align="left">AnonymousObservable</th>
+<th align="left">MapObserver</th>
+<th align="left">MapObservable</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">RxSwift</td>
+<td align="left">Producer</td>
+<td align="left">Sink</td>
+<td align="left">AnonymousObservableSink</td>
+<td align="left">AnonymousObservable</td>
+<td align="left">Map</td>
+<td align="left">MapSink</td>
+</tr>
+</tbody></table>
+<h2 id="订阅管理-RxDemo-06"><a href="#订阅管理-RxDemo-06" class="headerlink" title="订阅管理(RxDemo-06)"></a>订阅管理(RxDemo-06)</h2><p>如果，我们仔细对比，可以发现 RxSwift 中 <code>Producer</code> 的 <code>subscribe</code> 方法内部与 RxDemo-05 还是不太一样，前者内部还引用了一个 <code>SinkDisposer</code> 类。其作用是什么呢？事实上，其主要作用是管理 <code>disposeHandler</code>。细心的同学可能会发现 RxDemo-05 中有个 BUG：取消订阅时没有执行 <code>print(&quot;dispose&quot;)</code> 闭包。</p>
+<p>对此，我们也可以用类似的方式来解决，通过增加一个 <code>Diposer</code> 类来进行管理。具体代码见：RxDemo-06。</p>
+<p>当订阅发生时（即执行 <code>subscribe</code> 方法时），内部会产生一个递归的控制流，如下图所示。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-08.png?x-oss-process=image/resize,w_800"></p>
+<p>通过递归返回的方式构建整个订阅管理关系链，如下图所示。<code>diposer0</code> 是 <code>subscribe</code> 方法最终返回的 <code>Disposable</code> 对象。当我们对 <code>disposer0</code> 执行 <code>dispose</code> 方法时，内部会递归地执行 <code>dispose</code> 方法，最终取消订阅链中所有的订阅。</p>
+<p>注意：这里面会有循环引用，如 <code>MapObserver</code> 内部又引用了 <code>Disposer0</code>，RxDemo-06 以及 RxSwift 中的处理是给 <code>Disposer</code> 类内部添加一个状态，表示是否已经取消了订阅，从而避免循环引用导致的循环调用。这里的循环引用并不一定是坏事，它在下述的场景下起到了非常关键的作用。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rx-observer-pattern-stream-09.png?x-oss-process=image/resize,w_800"></p>
+<p>当事件中出现一个 <code>complete</code> 或 <code>error</code> 事件时，由于事件会依次传递至 <code>Observer</code>，最后一次传递时，即 <code>MapObserver</code> 进行传递时，会判断是否是 <code>complete</code> 或 <code>error</code> 事件，从而决定是否执行 <code>dispose</code> 方法。当 <code>MapObserver</code> 执行 <code>dipose</code> 方法时，会通过上述的循环引用，调用 <code>Disposer0</code> 执行 <code>dispose</code> 方法，从而实现整体取消订阅。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文通过逐步实现 RxSwift 核心部分中的功能，一窥其背后的设计思路。从中我们也看到了其对函数式编程的应用，以及其所呈现出来的流编程模式的底层实现原理。</p>
+<p>后续，我们将进一步探索原版 RxSwift 中其他的一些内容。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/ReactiveX/RxSwift">RxSwift repo</a></li>
+<li><a target="_blank" rel="noopener" href="http://reactivex.io/">ReactiveX</a></li>
+<li><a href="http://chuquan.me/2020/07/06/fp-functor-applicative-monad">函数式编程——Functor、Applicative、Monad</a></li>
+<li>《计算机程序的构造与解释》</li>
+<li><a target="_blank" rel="noopener" href="https://academy.realm.io/posts/try-swift-nyc-2017-krunoslav-zaher-modern-rxswift-architectures/">Modern RxSwift Architectures</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/@SergDort/learn-rx-by-implementing-observable-e5cb08c9c35">Learn Rx by implementing Observable</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/RxSwift/" rel="tag"># RxSwift</a>
+          
+            <a href="/tags/%E6%B5%81%E7%BC%96%E7%A8%8B/" rel="tag"># 流编程</a>
+          
+            <a href="/tags/%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/" rel="tag"># 函数式编程</a>
+          
+            <a href="/tags/%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85/" rel="tag"># 发布订阅</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/07/06/fp-functor-applicative-monad/" rel="next" title="函数式编程——Functor、Applicative、Monad">
+                <i class="fa fa-chevron-left"></i> 函数式编程——Functor、Applicative、Monad
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/09/14/mach-o-format/" rel="prev" title="Mach-O 格式">
+                Mach-O 格式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%91%E5%B8%83-%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.1.</span> <span class="nav-text">发布-订阅模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BE%E4%BE%8B"><span class="nav-number">1.1.1.</span> <span class="nav-text">举例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E7%BC%96%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">流编程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B"><span class="nav-number">1.3.</span> <span class="nav-text">函数式编程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">核心实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%8A%9F%E8%83%BD-RxDemo-01"><span class="nav-number">2.1.</span> <span class="nav-text">基本功能(RxDemo-01)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%96%E6%B6%88%E8%AE%A2%E9%98%85-RxDemo-02"><span class="nav-number">2.2.</span> <span class="nav-text">取消订阅(RxDemo-02)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E4%BC%98%E5%8C%96-RxDemo-03"><span class="nav-number">2.3.</span> <span class="nav-text">结构优化(RxDemo-03)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E7%AC%A6-RxDemo-04"><span class="nav-number">2.4.</span> <span class="nav-text">操作符(RxDemo-04)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%B1%BB%E7%BB%86%E5%8C%96-RxDemo-05"><span class="nav-number">2.5.</span> <span class="nav-text">分类细化(RxDemo-05)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A2%E9%98%85%E7%AE%A1%E7%90%86-RxDemo-06"><span class="nav-number">2.6.</span> <span class="nav-text">订阅管理(RxDemo-06)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

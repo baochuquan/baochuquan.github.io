@@ -1,38 +1,1388 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="LLVM,LLVM IR," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="概述在上一章中，我们介绍了如何构建抽象语法树 AST。这一章，我们进一步将抽象语法树转换成 LLVM IR。此外，我们会简单介绍 LLVM 的工作原理和使用方法。  注意：本章源码要求 LLVM 版本大于等于 3.7。  初始化设置为了支持 LLVM IR 代码生成，我们需要实现相关的初始化设置。 首先，我们在每一个 AST 类中定义虚拟代码生成方法，如下所示。 12345678910111213">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于 LLVM 自制编译器(3)——LLVM IR 代码生成">
+<meta property="og:url" content="http://chuquan.me/2022/08/07/compiler-for-kaleidoscope-03/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="概述在上一章中，我们介绍了如何构建抽象语法树 AST。这一章，我们进一步将抽象语法树转换成 LLVM IR。此外，我们会简单介绍 LLVM 的工作原理和使用方法。  注意：本章源码要求 LLVM 版本大于等于 3.7。  初始化设置为了支持 LLVM IR 代码生成，我们需要实现相关的初始化设置。 首先，我们在每一个 AST 类中定义虚拟代码生成方法，如下所示。 12345678910111213">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-06.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2022-08-07T14:10:12.000Z">
+<meta property="article:modified_time" content="2023-01-14T03:12:36.144Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="LLVM">
+<meta property="article:tag" content="LLVM IR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-06.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2022/08/07/compiler-for-kaleidoscope-03/"/>
+
+
+
+
+
+  <title>基于 LLVM 自制编译器(3)——LLVM IR 代码生成 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2022/08/07/compiler-for-kaleidoscope-03/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">基于 LLVM 自制编译器(3)——LLVM IR 代码生成</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2022-08-07T22:10:12+08:00">
+                2022-08-07
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2023-01-14T11:12:36+08:00">
+                2023-01-14
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LLVM/" itemprop="url" rel="index">
+                    <span itemprop="name">LLVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>在上一章中，我们介绍了如何构建抽象语法树 AST。这一章，我们进一步将抽象语法树转换成 LLVM IR。此外，我们会简单介绍 LLVM 的工作原理和使用方法。</p>
+<blockquote>
+<p>注意：本章源码要求 LLVM 版本大于等于 3.7。</p>
+</blockquote>
+<h1 id="初始化设置"><a href="#初始化设置" class="headerlink" title="初始化设置"></a>初始化设置</h1><p>为了支持 LLVM IR 代码生成，我们需要实现相关的初始化设置。</p>
+<p>首先，我们在每一个 AST 类中定义虚拟代码生成方法，如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// ExprAST - Base class for all expression nodes.</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ExprAST</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="keyword">virtual</span> ~<span class="built_in">ExprAST</span>() = <span class="keyword">default</span>;</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> Value *<span class="title">codegen</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// NumberExprAST - Expression class for numeric literals like &quot;1.0&quot;.</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">NumberExprAST</span> : <span class="keyword">public</span> ExprAST &#123;</span><br><span class="line">  <span class="type">double</span> Val;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">NumberExprAST</span>(<span class="type">double</span> Val) : <span class="built_in">Val</span>(Val) &#123;&#125;</span><br><span class="line">  <span class="function">Value *<span class="title">codegen</span><span class="params">()</span> <span class="keyword">override</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p><code>codegen()</code> 方法为对应 AST 节点及其所依赖的内容生成 IR，返回一个 LLVM <code>Value</code> 对象。</p>
+<p><code>Value</code> 是 LLVM 中用于表示 <strong>静态单赋值（Static Single Assignment，SSA）寄存器</strong> 或 <strong>SSA 形式</strong> 的类。静态单赋值，顾名思义，其要求每个变量只能赋值一次，并且每个变量在使用之前定义。因此，在重新计算之前，变量的值不会发生改变。</p>
+<p>其次，我们实现了一个 <code>LogError</code> 方法，用于在代码生成期间报告错误，比如：未声明的参数。如下所示：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Value *<span class="title">LogErrorV</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *Str)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">LogError</span>(Str);</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此外，我们定义了一系列全局静态变量，用于辅助代码生成，如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> std::unique_ptr&lt;LLVMContext&gt; TheContext;</span><br><span class="line"><span class="type">static</span> std::unique_ptr&lt;IRBuilder&lt;&gt;&gt; Builder;</span><br><span class="line"><span class="type">static</span> std::unique_ptr&lt;Module&gt; TheModule;</span><br><span class="line"><span class="type">static</span> std::map&lt;std::string, Value *&gt; NamedValues;</span><br></pre></td></tr></table></figure>
+<p><code>TheContenxt</code> 是一个不透明的对象，它包含许多 LLVM 核心数据结构，比如类型和常量值表。我们不需要详细了解它，只需要一个单例来传递其所需的 API。</p>
+<p><code>Builder</code> 对象是一个辅助对象，用于生成 LLVM 指令。<code>IRBuilder</code> 类模板的实例能够追踪插入指令的当前位置，并能够创建新指令。</p>
+<p><code>TheModule</code> 是一个包含一系列函数和全局变量的 LLVM 数据结构。在许多方面，它是 LLVM IR 用来包含代码的顶层结构。其持有了生成的所有 IR 的内存，这也是 <code>codegen()</code> 方法返回 <code>Value*</code> 指针，而不是 <code>unique_ptr&lt;Value&gt;</code> 的原因。</p>
+<p><code>NamedValues</code> 用于存储当前作用域内所定义的值及其 LLVM 表示形式。本质上就是代码的符号表。在 Kaleidoscope 中，唯一可以被引用的是函数参数。因此，在为函数体生成代码时，函数参数将存储在 <code>NamedValues</code> 中。</p>
+<p>在介绍了代码生成的基础设置之后，下面我们开始介绍如何为每个表达式生成代码。</p>
+<h1 id="表达式代码生成"><a href="#表达式代码生成" class="headerlink" title="表达式代码生成"></a>表达式代码生成</h1><p>表达式节点的 LLVM IR 代码生成非常简单。下面，我们分别进行介绍。</p>
+<h2 id="数值表达式"><a href="#数值表达式" class="headerlink" title="数值表达式"></a>数值表达式</h2><p>如下所示，为数值表达式的代码生成方法定义，其创建并返回一个 <code>ConstantFP</code>。事实上，在 LLVM IR 中，数字常量由 <code>ConstantFP</code> 类表示，其内部将数值保存在 <code>APFloat</code> 中（<code>APFloat</code> 能够保存任意精度浮点常量）。注意，在 LLVM IR 中，常量都是唯一且共享的。因此，API 通常使用 <code>foo::get(...)</code> 的用法，而不是 <code>new foo(..)</code> 或 <code>foo::Create(..)</code>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Value *<span class="title">NumberExprAST::codegen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> ConstantFP::<span class="built_in">get</span>(TheContext, <span class="built_in">APFloat</span>(Val));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="变量表达式"><a href="#变量表达式" class="headerlink" title="变量表达式"></a>变量表达式</h2><p>如下所示，为变量表达式的代码生成方法定义，其仅检查指定变量是否在符号表 <code>NameValues</code> 中（如果没有，则引用未知变量）并返回它的值。在目前的定义中，我们在 <code>NamedValues</code> 中仅存储函数参数。在后续文章节中，我们将在符号表中支持 <strong>循环归纳变量</strong>（Loop Induction Variable）和 <strong>局部变量</strong>（Local Variable）。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Value *<span class="title">VariableExprAST::codegen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// Look this variable up in the function.</span></span><br><span class="line">  Value *V = NamedValues[Name];</span><br><span class="line">  <span class="keyword">if</span> (!V)</span><br><span class="line">    <span class="built_in">LogErrorV</span>(<span class="string">&quot;Unknown variable name&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> V;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="二元表达式"><a href="#二元表达式" class="headerlink" title="二元表达式"></a>二元表达式</h2><p>如下所示，为二元表达式的代码生成方法定义，其基本思想是：<strong>分别为二元表达式的左部和右部递归生成代码，然后根据操作符的类型分别计算二元表达式的结果</strong>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Value *<span class="title">BinaryExprAST::codegen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  Value *L = LHS-&gt;<span class="built_in">codegen</span>();</span><br><span class="line">  Value *R = RHS-&gt;<span class="built_in">codegen</span>();</span><br><span class="line">  <span class="keyword">if</span> (!L || !R)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">switch</span> (Op) &#123;</span><br><span class="line">  <span class="keyword">case</span> <span class="string">&#x27;+&#x27;</span>:</span><br><span class="line">    <span class="keyword">return</span> Builder.<span class="built_in">CreateFAdd</span>(L, R, <span class="string">&quot;addtmp&quot;</span>);</span><br><span class="line">  <span class="keyword">case</span> <span class="string">&#x27;-&#x27;</span>:</span><br><span class="line">    <span class="keyword">return</span> Builder.<span class="built_in">CreateFSub</span>(L, R, <span class="string">&quot;subtmp&quot;</span>);</span><br><span class="line">  <span class="keyword">case</span> <span class="string">&#x27;*&#x27;</span>:</span><br><span class="line">    <span class="keyword">return</span> Builder.<span class="built_in">CreateFMul</span>(L, R, <span class="string">&quot;multmp&quot;</span>);</span><br><span class="line">  <span class="keyword">case</span> <span class="string">&#x27;&lt;&#x27;</span>:</span><br><span class="line">    L = Builder.<span class="built_in">CreateFCmpULT</span>(L, R, <span class="string">&quot;cmptmp&quot;</span>);</span><br><span class="line">    <span class="comment">// Convert bool 0/1 to double 0.0 or 1.0</span></span><br><span class="line">    <span class="keyword">return</span> Builder.<span class="built_in">CreateUIToFP</span>(L, Type::<span class="built_in">getDoubleTy</span>(TheContext), <span class="string">&quot;booltmp&quot;</span>);</span><br><span class="line">  <span class="keyword">default</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogErrorV</span>(<span class="string">&quot;invalid binary operator&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上述代码实现中，我们通过 LLVM <code>Builder</code> 类的相关方法来生成代码，其内部知道在何处创建指令，我们要做的就是指定指令的类型（如：<code>CreateFAdd</code>），指定使用的操作数（如：<code>L</code> 和 <code>R</code>），指定生成指令的名称（如：<code>addtmp</code>）。</p>
+<p>关于生成指令的名称，其实只是一个提示。比如如，上述代码中如果发出多个 <code>addtmp</code> 变量，LLVM 将自动为每个变量提供一个递增的、唯一的数字后缀。 指令的名称完全是可选的，它的作用仅仅是提高 LLVM IR 的可读性。</p>
+<p>LLVM 指令有着严格规则约束，比如，加法指令的左右操作数的类型必须相同，加法的结果类型必须与操作数类型相同。由于 Kaleidoscope 中的所有值都是双精度值类型，这使得 <code>add</code>、<code>sub</code> 和 <code>mul</code> 的代码非常简单。</p>
+<p>此外，LLVM 规定 <code>fcmp</code> 指令必须返回一个 <code>i1</code> 值（一个一位整数）。然而，我们定义的 Kaleidoscope 希望该值是 0.0 或 1.0（浮点数）。为了获得这些语义，我们将 <code>fcmp</code> 指令与 <code>uitofp</code> 指令结合起来。后者通可以将输入整数转换为浮点值。与此相反，如果我们使用 <code>sitofp</code> 指令，那么 Kaleidoscope 的 <code>&lt;</code> 运算符将根据输入值返回 0.0 和 -1.0。</p>
+<h2 id="函数调用表达式"><a href="#函数调用表达式" class="headerlink" title="函数调用表达式"></a>函数调用表达式</h2><p>如下所示，为函数调用表达式的代码生成方法定义。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Value *<span class="title">CallExprAST::codegen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// Look up the name in the global module table.</span></span><br><span class="line">  Function *CalleeF = TheModule-&gt;<span class="built_in">getFunction</span>(Callee);</span><br><span class="line">  <span class="keyword">if</span> (!CalleeF)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogErrorV</span>(<span class="string">&quot;Unknown function referenced&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// If argument mismatch error.</span></span><br><span class="line">  <span class="keyword">if</span> (CalleeF-&gt;<span class="built_in">arg_size</span>() != Args.<span class="built_in">size</span>())</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogErrorV</span>(<span class="string">&quot;Incorrect # arguments passed&quot;</span>);</span><br><span class="line"></span><br><span class="line">  std::vector&lt;Value *&gt; ArgsV;</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">unsigned</span> i = <span class="number">0</span>, e = Args.<span class="built_in">size</span>(); i != e; ++i) &#123;</span><br><span class="line">    ArgsV.<span class="built_in">push_back</span>(Args[i]-&gt;<span class="built_in">codegen</span>());</span><br><span class="line">    <span class="keyword">if</span> (!ArgsV.<span class="built_in">back</span>())</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> Builder.<span class="built_in">CreateCall</span>(CalleeF, ArgsV, <span class="string">&quot;calltmp&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上述方法实现中，在 LLVM Module 的符号表中查找对应的函数。LLVM Module 是 JIT 阶段存储函数的容器。通过为每个函数指定与用户指定的名称相同的名称，我们可以使用 LLVM 符号表为我们解析函数名称。</p>
+<p>当发生调用函数时，我们递归地对每个入参进行代码生成，并创建一个 LLVM 函数调用指令。注意，LLVM 默认使用 C 调用规范，允许这些函数调用同时调用标准库函数，如 <code>sin</code> 和 <code>cos</code>。</p>
+<h1 id="函数相关代码生成"><a href="#函数相关代码生成" class="headerlink" title="函数相关代码生成"></a>函数相关代码生成</h1><p>函数和原型的代码生成涉及一系列的细节处理，这也使得其代码实现不如表达式代码生成实现那么简洁优雅。下面，我们来分别介绍函数原型和函数定义的代码生成。</p>
+<h2 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型"></a>函数原型</h2><p>函数原型的代码生成也可以应用于函数定义和外部原型。如下所示，为函数原型的代码生成方法定义。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Function *<span class="title">PrototypeAST::codegen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Make the function type:  double(double,double) etc.</span></span><br><span class="line">    <span class="function">std::vector&lt;Type *&gt; <span class="title">Doubles</span><span class="params">(Args.size(), Type::getDoubleTy(*TheContext))</span></span>;</span><br><span class="line">    FunctionType *FT = FunctionType::<span class="built_in">get</span>(Type::<span class="built_in">getDoubleTy</span>(*TheContext), Doubles, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">    Function *F = Function::<span class="built_in">Create</span>(FT, Function::ExternalLinkage, Name, TheModule.<span class="built_in">get</span>());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Set names for all arguments.</span></span><br><span class="line">    <span class="type">unsigned</span> Idx = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;Arg : F-&gt;<span class="built_in">args</span>())</span><br><span class="line">        Arg.<span class="built_in">setName</span>(Args[Idx++]);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> F;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>PrototypeAST::codegen</code> 函数返回的类型是 <code>Function *</code>，而不是 <code>Value</code>。本质上，原型用于描述函数的外部接口，而不是表达式计算的值，因此其返回代码生成时对应的 LLVM 函数，即 <code>Function *</code> 类型。</p>
+<p><code>FunctionType::get</code> 函数为原型创建函数类型 <code>FunctionType</code>。由于 Kaleidoscope 中的所有函数参数都是双精度类型，因此在调用 <code>FunctionType::get</code> 之前，我们根据参数的数量 <code>Args.siz()</code> 创建了一个包含 <code>N</code> 个 LLVM 双精度类型的向量。然后，使用 <code>FunctionType::get</code> 方法创建一个函数类型，该函数类型接受 <code>N</code> 个双精度类型的值作为参数，返回一个双精度类型的值作为结果。</p>
+<p><code>Function::Create</code> 函数使用函数类型创建 IR 函数，其指定函数类型、链接和名称，以及写入的目标模块。<strong>外部链接（External Linkage）</strong> 表示该函数可以在当前模块外部进行定义，或者可以被模块外部的函数所调用。传入的 <code>Name</code> 参数表示用户指定的名称，由于指定了 <code>TheModule</code>，因此该名称会被注册在 <code>TheModule</code> 的符号表中。</p>
+<p>最后，我们为每个函数参数设置名称。这个步骤并非必要，但保持名称一致会使 IR 更具有更好的可读性，并且允许后续代码直接引用参数名称，而不必在原型的 AST 中进行查找。</p>
+<h2 id="函数定义"><a href="#函数定义" class="headerlink" title="函数定义"></a>函数定义</h2><p>如下所示，为函数定义的代码生成方法定义。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Function *<span class="title">FunctionAST::codegen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// First, check for an existing function from a previous &#x27;extern&#x27; declaration.</span></span><br><span class="line">    Function *TheFunction = TheModule-&gt;<span class="built_in">getFunction</span>(Proto-&gt;<span class="built_in">getName</span>());</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!TheFunction)</span><br><span class="line">        TheFunction = Proto-&gt;<span class="built_in">codegen</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!TheFunction)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Create a new basic block to start insertion into.</span></span><br><span class="line">    BasicBlock *BB = BasicBlock::<span class="built_in">Create</span>(*TheContext, <span class="string">&quot;entry&quot;</span>, TheFunction);</span><br><span class="line">    Builder-&gt;<span class="built_in">SetInsertPoint</span>(BB);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Record the function arguments in the NamedValues map.</span></span><br><span class="line">    NamedValues.<span class="built_in">clear</span>();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;Arg : TheFunction-&gt;<span class="built_in">args</span>())</span><br><span class="line">        NamedValues[std::<span class="built_in">string</span>(Arg.<span class="built_in">getName</span>())] = &amp;Arg;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (Value *RetVal = Body-&gt;<span class="built_in">codegen</span>()) &#123;</span><br><span class="line">        <span class="comment">// Finish off the function.</span></span><br><span class="line">        Builder-&gt;<span class="built_in">CreateRet</span>(RetVal);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Validate the generated code, checking for consistency.</span></span><br><span class="line">        <span class="built_in">verifyFunction</span>(*TheFunction);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> TheFunction;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Error reading body, remove function.</span></span><br><span class="line">    TheFunction-&gt;<span class="built_in">eraseFromParent</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于函数定义，我们首先在模块的符号表中查找该函数的已有版本。如果 <code>Module::getFunction</code> 返回 <code>null</code> 则表示不存在，因此我们将通过 <code>Proto-&gt;codegen</code> 来生成。</p>
+<p>然后，我们对 <code>Builder</code> 进行设置，具体分为两个步骤：</p>
+<ul>
+<li>通过 <code>BasicBlock::Create</code> 函数创建一个 <strong>基本块</strong>（Basic Block），基本块随后被插入到 <code>TheFunction</code> 中。</li>
+<li>通过 <code>Builder-&gt;SetInsertPoint</code> 函数设置基本块的末尾为指令的插入位置。LLVM 中的基本块是定义 <strong>控制流图</strong>（Control Flow Graph）中的函数的重要组成部分。 由于我们没有任何控制流语句，我们的函数此时只包含一个基本块。</li>
+</ul>
+<p>随后，我们将函数参数添加到 <code>NamedValues</code> 符号表中，以便 <code>VariableExprAST</code> 节点进行访问。</p>
+<p>当设置了代码插入点并注册了 <code>NamedValues</code> 符号表后，我们开始对函数体执行 <code>codegen()</code> 方法。如果没有发生错误，我们会进而创建一个 LLVM <code>ret</code> 指令，表示函数的终止。当函数构建完成后，我们调用 LLVM 的 <code>verifyFunction</code> 函数对生成的代码进行各种一致性检查，以确保我们的编译器是否一切正常。<code>verifyFunction</code> 函数非常重要，它能够检测出很多 bug。检测完毕且无错误，我们返回构造的函数。</p>
+<p>最后的实现逻辑是错误处理。当错误发生时，我们仅通过调用 <code>eraseFromParent</code> 函数来删除过程中生成的函数。这样能够允许用户重新定义他们之前输入的错误函数，如果我们不删除它，它将存在于符号表中，并且无法重新定义。</p>
+<h1 id="驱动器适配"><a href="#驱动器适配" class="headerlink" title="驱动器适配"></a>驱动器适配</h1><p>为了进行测试，我们对驱动器了进行简单的适配，将对 <code>codegen</code> 的调用插入到 <code>HandleDefinition</code>、<code>HandleExtern</code> 等函数，并在其内部打印 LLVM IR。</p>
+<p>对于顶层二元表达式，LLVM IR 的代码生成结果如下所示。我们可以看到解析器如何为将顶层表达式转换为匿名函数的，这对于我们后续支持 JIT 是非常有用的。此外，我们可以看到生成的 IR 是逐字翻译的，除了常量合并，没有作其他任何优化。在后续的文章中，我们会显式地进行优化。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ready&gt; <span class="number">4</span>+<span class="number">5</span>;</span><br><span class="line">Read top-level expression:</span><br><span class="line">define <span class="type">double</span> @__anon_expr() &#123;</span><br><span class="line">entry:</span><br><span class="line">  ret <span class="type">double</span> <span class="number">9.000000e+00</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于简单的函数定义，如下所示，分别是 LLVM IR 的代码生成结果，以及生成过程的示意图。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">ready&gt; <span class="function">def <span class="title">foo</span><span class="params">(a b)</span> a*a + 2*a*b + b*b</span>;</span><br><span class="line">Read function definition:</span><br><span class="line">define <span class="type">double</span> @<span class="built_in">foo</span>(<span class="type">double</span> %a, <span class="type">double</span> %b) &#123;</span><br><span class="line">entry:</span><br><span class="line">  %multmp = fmul <span class="type">double</span> %a, %a</span><br><span class="line">  %multmp1 = fmul <span class="type">double</span> <span class="number">2.000000e+00</span>, %a</span><br><span class="line">  %multmp2 = fmul <span class="type">double</span> %multmp1, %b</span><br><span class="line">  %addtmp = fadd <span class="type">double</span> %multmp, %multmp2</span><br><span class="line">  %multmp3 = fmul <span class="type">double</span> %b, %b</span><br><span class="line">  %addtmp4 = fadd <span class="type">double</span> %addtmp, %multmp3</span><br><span class="line">  ret <span class="type">double</span> %addtmp4</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-06.png?x-oss-process=image/resize,w_800"></p>
+<p>对于简单的函数调用，LLVM IR的代码生成结果如下所示。当我们调用 <code>bar</code> 函数时，其会消耗比较长的时间执行完毕。后续，我们添加条件控制流来优化递归。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ready&gt; <span class="function">def <span class="title">bar</span><span class="params">(a)</span> <span class="title">foo</span><span class="params">(a, <span class="number">4.0</span>)</span> + <span class="title">bar</span><span class="params">(<span class="number">31337</span>)</span></span>;</span><br><span class="line">Read function definition:</span><br><span class="line">define <span class="type">double</span> @<span class="built_in">bar</span>(<span class="type">double</span> %a) &#123;</span><br><span class="line">entry:</span><br><span class="line">  %calltmp = call <span class="type">double</span> @<span class="built_in">foo</span>(<span class="type">double</span> %a, <span class="type">double</span> <span class="number">4.000000e+00</span>)</span><br><span class="line">  %calltmp1 = call <span class="type">double</span> @<span class="built_in">bar</span>(<span class="type">double</span> <span class="number">3.133700e+04</span>)</span><br><span class="line">  %addtmp = fadd <span class="type">double</span> %calltmp, %calltmp1</span><br><span class="line">  ret <span class="type">double</span> %addtmp</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如下所示，为声明外部 <code>cos</code> 函数以及调用 <code>cos</code> 函数的 IR 代码。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ready&gt; <span class="function"><span class="keyword">extern</span> <span class="title">cos</span><span class="params">(x)</span></span>;</span><br><span class="line">Read <span class="keyword">extern</span>:</span><br><span class="line">declare <span class="type">double</span> @<span class="built_in">cos</span>(<span class="type">double</span>)</span><br><span class="line"></span><br><span class="line">ready&gt; <span class="built_in">cos</span>(<span class="number">1.234</span>);</span><br><span class="line">Read top-level expression:</span><br><span class="line">define <span class="type">double</span> @__anon_expr() &#123;</span><br><span class="line">entry:</span><br><span class="line">  %calltmp = call <span class="type">double</span> @<span class="built_in">cos</span>(<span class="type">double</span> <span class="number">1.234000e+00</span>)</span><br><span class="line">  ret <span class="type">double</span> %calltmp</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当我们退出测试进程时（MacOS 系统，输入 <code>cmd+D</code>），其会打印生成的 Module 的所有 IR 代码。我们可以看到很多方法相互引用，如下所示：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">ready&gt; ^D</span><br><span class="line">; ModuleID = <span class="string">&#x27;my cool jit&#x27;</span></span><br><span class="line">source_filename = <span class="string">&quot;my cool jit&quot;</span></span><br><span class="line"></span><br><span class="line">define double @foo(double %a, double %b) &#123;</span><br><span class="line">entry:</span><br><span class="line">  %multmp = fmul double %a, %a</span><br><span class="line">  %multmp1 = fmul double 2.000000e+00, %a</span><br><span class="line">  %multmp2 = fmul double %multmp1, %b</span><br><span class="line">  %addtmp = fadd double %multmp, %multmp2</span><br><span class="line">  %multmp3 = fmul double %b, %b</span><br><span class="line">  %addtmp4 = fadd double %addtmp, %multmp3</span><br><span class="line">  ret double %addtmp4</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">define double @bar(double %a) &#123;</span><br><span class="line">entry:</span><br><span class="line">  %calltmp = call double @foo(double %a, double 4.000000e+00)</span><br><span class="line">  %calltmp1 = call double @bar(double 3.133700e+04)</span><br><span class="line">  %addtmp = fadd double %calltmp, %calltmp1</span><br><span class="line">  ret double %addtmp</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">declare</span> double @cos(double)</span><br></pre></td></tr></table></figure>
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文，我们为解析器支持了 LLVM IR 代码生成功能，后续在此基础上，为 Kaleidoscope 支持 JIT 代码生成以及优化器。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl03.html">Kaleidoscope: Code generation to LLVM IR</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Static_single-assignment_form">Static single-assignment form</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/LLVM/" rel="tag"># LLVM</a>
+          
+            <a href="/tags/LLVM-IR/" rel="tag"># LLVM IR</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/07/31/compiler-for-kaleidoscope-02/" rel="next" title="基于 LLVM 自制编译器(2)——解析器、抽象语法树">
+                <i class="fa fa-chevron-left"></i> 基于 LLVM 自制编译器(2)——解析器、抽象语法树
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/08/14/compiler-for-kaleidoscope-04/" rel="prev" title="基于 LLVM 自制编译器(4)——代码优化器、JIT 编译器">
+                基于 LLVM 自制编译器(4)——代码优化器、JIT 编译器 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E8%AE%BE%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">初始化设置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A1%A8%E8%BE%BE%E5%BC%8F%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-number">3.</span> <span class="nav-text">表达式代码生成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E5%80%BC%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">3.1.</span> <span class="nav-text">数值表达式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%98%E9%87%8F%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">3.2.</span> <span class="nav-text">变量表达式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E5%85%83%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">3.3.</span> <span class="nav-text">二元表达式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">3.4.</span> <span class="nav-text">函数调用表达式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-number">4.</span> <span class="nav-text">函数相关代码生成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B"><span class="nav-number">4.1.</span> <span class="nav-text">函数原型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%AE%9A%E4%B9%89"><span class="nav-number">4.2.</span> <span class="nav-text">函数定义</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A9%B1%E5%8A%A8%E5%99%A8%E9%80%82%E9%85%8D"><span class="nav-number">5.</span> <span class="nav-text">驱动器适配</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

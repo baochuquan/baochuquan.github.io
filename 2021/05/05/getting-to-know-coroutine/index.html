@@ -1,38 +1,1391 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="协程,有栈协程,无栈协程,对称协程,非对称协程," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="工作中经常会听到 “协程” 这个概念，第一次听到时，我就去查阅相关教材，发现根本就没有介绍“协程”的。于是上网查阅了相关的解释，当时大概理解了它是干什么的，但是深入的细节并不了解。为了搞明白协程，趁着假期我好好研究了一下协程，然后产出本文作为学习笔记进行总结，以用于后续进行回顾。 要说明白“协程”，我们得先从进程和线程开始进行介绍。 进程 &amp; 线程进程的本质就是 一个程序的执行实例。在进程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初识协程">
+<meta property="og:url" content="http://chuquan.me/2021/05/05/getting-to-know-coroutine/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="工作中经常会听到 “协程” 这个概念，第一次听到时，我就去查阅相关教材，发现根本就没有介绍“协程”的。于是上网查阅了相关的解释，当时大概理解了它是干什么的，但是深入的细节并不了解。为了搞明白协程，趁着假期我好好研究了一下协程，然后产出本文作为学习笔记进行总结，以用于后续进行回顾。 要说明白“协程”，我们得先从进程和线程开始进行介绍。 进程 &amp; 线程进程的本质就是 一个程序的执行实例。在进程">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/coroutine-single-multi-thread-process-model.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/coroutine-user-kernel-thread.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/coroutine-example.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/coroutine-stackful.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2021-05-05T11:01:30.000Z">
+<meta property="article:modified_time" content="2021-09-10T15:06:44.768Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="协程">
+<meta property="article:tag" content="有栈协程">
+<meta property="article:tag" content="无栈协程">
+<meta property="article:tag" content="对称协程">
+<meta property="article:tag" content="非对称协程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/coroutine-single-multi-thread-process-model.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2021/05/05/getting-to-know-coroutine/"/>
+
+
+
+
+
+  <title>初识协程 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2021/05/05/getting-to-know-coroutine/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">初识协程</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2021-05-05T19:01:30+08:00">
+                2021-05-05
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2021-09-10T23:06:44+08:00">
+                2021-09-10
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/" itemprop="url" rel="index">
+                    <span itemprop="name">计算机原理</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>工作中经常会听到 “协程” 这个概念，第一次听到时，我就去查阅相关教材，发现根本就没有介绍“协程”的。于是上网查阅了相关的解释，当时大概理解了它是干什么的，但是深入的细节并不了解。为了搞明白协程，趁着假期我好好研究了一下协程，然后产出本文作为学习笔记进行总结，以用于后续进行回顾。</p>
+<p>要说明白“协程”，我们得先从进程和线程开始进行介绍。</p>
+<h1 id="进程-线程"><a href="#进程-线程" class="headerlink" title="进程 &amp; 线程"></a>进程 &amp; 线程</h1><p>进程的本质就是 <strong>一个程序的执行实例</strong>。<strong>在进程模型中，进程拥有对内存、I&#x2F;O 通道、I&#x2F;O 设备和文件等资源的控制权</strong>。</p>
+<p>线程则是为了解决进程的执行效率而提出的。对于多核 CPU，多线程进程可以充分利用多核的特性，成倍地提升执行效率。</p>
+<p>在现代操作系统中，我们可以认为线程是进程的更小粒度的划分，即进程包含了一个或多个线程。下图所示为，分别是单线程的进程模型和多线程的进程模型。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/coroutine-single-multi-thread-process-model.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="用户态线程-内核态线程"><a href="#用户态线程-内核态线程" class="headerlink" title="用户态线程 &amp; 内核态线程"></a>用户态线程 &amp; 内核态线程</h1><h2 id="用户态线程"><a href="#用户态线程" class="headerlink" title="用户态线程"></a>用户态线程</h2><p>在线程的概念提出时，操作系统并不支持线程，为了验证线程的可行性，研究人员就编写了一个线程的函数库，用函数库来实现线程。这个线程库包含了 <strong>创建线程</strong>、<strong>终止线程</strong> 等，开发者可以通过调用这些函数来实现所需的功能，如：<code>pthread_create</code>、<code>pthread_exit</code>、<code>pthread_join</code>、<code>pthread_yeild</code>。</p>
+<p>此时，操作系统内核对这个库一无所知，从内核的角度开，它还是按照正常的方式进行管理，即 <strong>只能一次在一个 CPU 核上运行</strong>。事实上，这也是用户态线程的缺点，这些线程只能占用一个核，无法做到并行加速，而且由于用户态线程对操作系统透明，操作系统无法主动切换线程。对此，开发者需要为用户态线程定制调度算法。</p>
+<h2 id="内核态线程"><a href="#内核态线程" class="headerlink" title="内核态线程"></a>内核态线程</h2><p>现代操作系统都已经支持内核态线程了，为了实现线程，内核里就需要有用来记录系统中所有线程的线程表。当需要创建一个新的线程时，就需要进行一次 <strong>系统调用</strong>，然后由操作系统对线程表进行更新。</p>
+<p>相比于用户态线程，由于操作系统知道内核态线程的存在，它就可以自由调度各个线程，从而充分利用多核，实现真正的并行。</p>
+<p>不过，内核态线程也有缺点。每当操作系统进行线程调度时，就需要陷入内核态，而操作系统从 <strong>用户态到内核态</strong> 的切换是由开销的，所以说，<strong>内核态线程切换的代价要比用户态线程大</strong>，这些开销主要包括以下几个方面：</p>
+<ul>
+<li>上下文切换：即寄存器切换</li>
+<li>特权模式切换：即调度算法中的动态特权级</li>
+<li>内核检查：内核代码对用户不信任，需要进行额外的检查</li>
+</ul>
+<p>除此之外，线程表是存储在操作系统中固定的堆栈空间中，因此内核态线程的数量是有限的，扩展性比不上用户态线程。</p>
+<h2 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h2><p>由于用户态线程和内核态线程的存在，我们也就能够理解教科书中所说的三种线程模型了，如下图所示：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/coroutine-user-kernel-thread.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h1><p>那么，协程到底是什么呢？事实上，协程就是 <strong>用户态线程</strong>。协程的调度完全由开发者进行控制，因此实现协程的关键也就是 <strong>实现一个用户态线程的调度器</strong>。由于协程是在用户态中实现调度，避免了内核态的上下文切换造成的性能损失，从而突破了线程在 IO 上的性能瓶颈。</p>
+<h2 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h2><p>在理解了用户态线程后，其实不难看出，一个线程多个协程的情况下，在内核看来只有一个线程在运行，这些协程事实上是在串行运行，只能使用一个 CPU 核。因此，<strong>想要高效利用 CPU，我们还是得使用线程</strong>。协程最大的优势在于 <strong>协程的切换比线程的切度更快</strong>。那么，什么场景下更适合使用协程呢？</p>
+<p>答案是：<strong>IO 密集型任务</strong>。IO 密集型任务的特点是 CPU 消耗少，其大部分时间都是在等待 IO 操作完成。对于这样的场景，一个线程足矣，因此适合采用协程。</p>
+<h2 id="挂起-恢复"><a href="#挂起-恢复" class="headerlink" title="挂起&#x2F;恢复"></a>挂起&#x2F;恢复</h2><p>相比于函数，协程最大的特点就是支持 <strong>挂起&#x2F;恢复</strong>。什么意思？我们来看下面这个场景就能明白。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/coroutine-example.png?x-oss-process=image/resize,w_800"></p>
+<p>上图中，控制流会在 <code>foo()</code> 和 <code>bar()</code> 之间进行切换。比如，在第 3 阶段时，控制流从 <code>foo()</code> 中再次转移到了 <code>bar()</code> 中，此时并不是简单的函数调用，而是从上一次离开 <code>bar()</code> 的位置 <code>std::cout &lt;&lt; &quot;1&quot;</code> 之后继续执行。</p>
+<p>由此可见，协程与简单的函数调用之间的区别。实现协程的这种能力的关键，就是要实现 <strong>挂起&#x2F;恢复</strong> 的能力。</p>
+<h2 id="协程分类"><a href="#协程分类" class="headerlink" title="协程分类"></a>协程分类</h2><p>现代编程语言中，有很多都支持协程，虽然它们在实现细节上差异较大，但是总体而言仍然有章可循。</p>
+<h3 id="按调用栈分类"><a href="#按调用栈分类" class="headerlink" title="按调用栈分类"></a>按调用栈分类</h3><p>由于协程必须支持 <strong>挂起&#x2F;恢复</strong>，因此对于挂起点的状态保存就显得极其关键。我们知道，线程在切换时，它的中断状态会保存在调用栈中。事实上，协程的中断状态也可以通过开辟相应的调用栈来保存。因此，<strong>按照是否开辟相应的调用栈</strong>，我们可以将协程分为两类：</p>
+<ul>
+<li><strong>有栈协程</strong>（Stackful Coroutine）：每个协程都有自己的调用栈，类似于线程的调用栈。</li>
+<li><strong>无栈协程</strong>（Stackless Coroutine）：协程没有自己的调用栈，挂起点的状态通过状态机或闭包等语法来实现。</li>
+</ul>
+<p>类似微信的 libco、阿里的 cooobjc、Golang 中的 goroutine、Lua 中的协程都是有栈协程；类似 ES6、Dart 中的 await&#x2F;async、Python 的 Generator、Kotlin 中的协程、C++20 中的 cooroutine 都是无栈协程。</p>
+<h4 id="有栈协程"><a href="#有栈协程" class="headerlink" title="有栈协程"></a>有栈协程</h4><p>有栈协程的一般实现是：在内存中给每个协程开辟一个栈内存，当协程挂起时会将它的运行时上下文（即栈空间）从系统栈中保存至其所分配的栈内存中，当协程恢复时会将其运行时上下文从栈内存中恢复至系统栈中。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/coroutine-stackful.png?x-oss-process=image/resize,w_800"></p>
+<p>上图所示为在协程 <code>foo()</code> 和 <code>bar()</code> 之间切换时，栈空间的变化。很显然，<strong>有栈协程会改变函数调用栈</strong>。由于有栈协程需要保存各个协程自己的运行时上下文，一般会通过堆来分配内存空间。如果内存分配过小，可能会产生栈溢出；如果内存分配过大，可能会产生内存浪费。因此，很多编程语言对此进行了各种优化。</p>
+<p>另一方面，当协程恢复时，需要将运行时上下文从堆中拷贝至栈中，这里也存在一定的开销。</p>
+<p>虽然，有栈协程有上述的缺点，但是它可以在 <strong>任意函数调用层级的位置进行挂起</strong>，并转移调度权。事实上，这也是有栈协程的重要特定之一。</p>
+<h4 id="无栈协程"><a href="#无栈协程" class="headerlink" title="无栈协程"></a>无栈协程</h4><p>与有栈协程相反，无栈协程不会为各个协程开辟相应的调用栈。无栈协程通常是 <strong>基于状态机或闭包</strong> 来实现。</p>
+<p>基于状态机的解决方案一般是通过状态机，记录上次协程挂起时的位置，并基于此决定协程恢复时开始执行的位置。这个状态必须存储在栈以外的地方，从而避免状态与栈一同销毁。</p>
+<p>以 <code>bar()</code> 为例，可以通过类似如下的方式实现挂起和恢复。从这种实现方式的角度来看，协程与函数无异，只不过前者会记录上次终端的位置，从而可以实现恢复执行的能力。当然，在实际过程中，恢复后的执行流可能会用到中断前的状态，因此无栈协程会将保存完整的状态，这些状态会被存储到堆上。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">bar</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">static</span> <span class="type">int</span> state = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">switch</span> (state) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0</span>: <span class="keyword">goto</span> LABEL0;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">1</span>: <span class="keyword">goto</span> LABEL1;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">2</span>: <span class="keyword">goto</span> LABEL2;</span><br><span class="line">    &#125;</span><br><span class="line">    LABEL0:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;1&quot;</span>;</span><br><span class="line">    LABEL1:</span><br><span class="line">    <span class="built_in">std</span>::count &lt;&lt; <span class="string">&quot;2&quot;</span>;</span><br><span class="line">    LABEL2:</span><br><span class="line">    <span class="built_in">std</span>::count &lt;&lt; <span class="string">&quot;3&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述只是一个简单的例子，具体场景中，无栈协程的控制流会依靠对协程本身编译生成的状态机的状态流来实现，变量保存也会通过闭包语法来实现。</p>
+<p>相比于有栈协程，无栈协程不需要修改调用栈，也无需额外的内存来保存调用栈，因此它的开销会更小。但是，相比于保存运行时上下文这种实现方式，无栈协程的实现还是存在比较多的限制，最大缺点就是，它无法实现在任意函数调用层级的位置进行挂起。</p>
+<h3 id="按调度方式分类"><a href="#按调度方式分类" class="headerlink" title="按调度方式分类"></a>按调度方式分类</h3><p>在调度过程中，根据协程调度权的目标，又可以将协程分为以下两种：</p>
+<ul>
+<li><strong>对称协程</strong>（Symmetric Coroutine）：任何一个协程都是相互独立且平等的，调度权可以在任意协程之间转移。</li>
+<li><strong>非对称协程</strong>（Asymmetric Coroutine）：协程出让调度权的目标只能是它的调用者，即协程之间存在调用和被调用关系。</li>
+</ul>
+<h4 id="对称协程"><a href="#对称协程" class="headerlink" title="对称协程"></a>对称协程</h4><p>对称协程实际上已经非常接近线程的样子了，例如 Go 语言中的 go routine 可以通过读写不同的 channel 来实现控制权的自由转移。</p>
+<h4 id="非对称协程"><a href="#非对称协程" class="headerlink" title="非对称协程"></a>非对称协程</h4><p>非对称协程的调用关系更加符合我们的思维方式，<strong>常见的语言对协程的实现大多是非对称协程</strong>，比如 Lua 的协程中当前协程调用 <code>yield</code> 总是会将调度权转移给 <code>resume</code> 它的协程。此外，还有 <code>async</code> 和 <code>await</code>，<code>await</code> 会将调度权转移到异步调用中。异步调用返回结果或抛出异常时总是会将调度权转回到 <code>await</code> 的位置。</p>
+<p>从实现角度来看，非对称协程的实现更加自然，也相对容易。事实上，我们只要对非对称协程稍作修改，即可实现对称协程的能力。我们可以在非对称协程的基础上，添加一个中立的第三方作为协程调度权的分发中心，所有的协程在挂起时都将控制权转移到分发中心，分发中心根据参数来决定将调度权转移给哪个协程，如 Lua 的第三方库 coro，以及 kotlin 协程框架中基于 Channel 的通信等。</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>本文对协程进行了初步的介绍。根据不同的维度，对协程进行分类讨论。事实上，不管怎么分类，<strong>协程的本质就是处理自身挂起和恢复的用户态线程</strong>。</p>
+<p>后续，有时间的话，希望能够深入研究一下几种编程语言中协程的具体实现。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li>Design of a Separable Transition-Diagram Compiler. Melvin Conway.</li>
+<li><a target="_blank" rel="noopener" href="https://www.cyhone.com/articles/analysis-of-cloudwu-coroutine/">云风coroutine协程库源码分析</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.boost.org/doc/libs/1_61_0/libs/coroutine/doc/html/coroutine/intro.html">Introduction - 1.61.0 - Boost C++ Libraries</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903962504593421">用户级线程和内核级线程，你分得清吗？</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/94018082">从头到尾理解有栈协程实现原理</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903960759762958">线程的来龙去脉，你了解吗？</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Melvin_Conway">Melvin Conway</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903832061739021">深入理解Flutter多线程</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.youxu.info/2014/12/04/coroutine/">编程珠玑番外篇-Q 协程的历史，现在和未来</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43705457/article/details/106857068">协程入门，这可能是全网最简单易懂的扫盲贴了</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43705457/article/details/106924435">有栈协程与无栈协程</a></li>
+<li><a target="_blank" rel="noopener" href="https://mthli.xyz/coroutines-in-c/">使用C语言实现协程</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.bennyhuo.com/2019/12/01/coroutine-implementations/">破解 Kotlin 协程 番外篇(2) - 协程的几类常见的实现</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%8D%8F%E7%A8%8B/" rel="tag"># 协程</a>
+          
+            <a href="/tags/%E6%9C%89%E6%A0%88%E5%8D%8F%E7%A8%8B/" rel="tag"># 有栈协程</a>
+          
+            <a href="/tags/%E6%97%A0%E6%A0%88%E5%8D%8F%E7%A8%8B/" rel="tag"># 无栈协程</a>
+          
+            <a href="/tags/%E5%AF%B9%E7%A7%B0%E5%8D%8F%E7%A8%8B/" rel="tag"># 对称协程</a>
+          
+            <a href="/tags/%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8D%8F%E7%A8%8B/" rel="tag"># 非对称协程</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/04/05/how-to-manage-your-shell-scripts-gracefully/" rel="next" title="如何优雅地管理你的 shell 脚本？">
+                <i class="fa fa-chevron-left"></i> 如何优雅地管理你的 shell 脚本？
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/06/07/ioc-di-sl/" rel="prev" title="控制反转、依赖注入、服务定位">
+                控制反转、依赖注入、服务定位 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B-%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">进程 &amp; 线程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E6%80%81%E7%BA%BF%E7%A8%8B-%E5%86%85%E6%A0%B8%E6%80%81%E7%BA%BF%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">用户态线程 &amp; 内核态线程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E6%80%81%E7%BA%BF%E7%A8%8B"><span class="nav-number">2.1.</span> <span class="nav-text">用户态线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E6%80%81%E7%BA%BF%E7%A8%8B"><span class="nav-number">2.2.</span> <span class="nav-text">内核态线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E6%AF%94"><span class="nav-number">2.3.</span> <span class="nav-text">对比</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%8F%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">协程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">3.1.</span> <span class="nav-text">适用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%82%E8%B5%B7-%E6%81%A2%E5%A4%8D"><span class="nav-number">3.2.</span> <span class="nav-text">挂起&#x2F;恢复</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E7%A8%8B%E5%88%86%E7%B1%BB"><span class="nav-number">3.3.</span> <span class="nav-text">协程分类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%89%E8%B0%83%E7%94%A8%E6%A0%88%E5%88%86%E7%B1%BB"><span class="nav-number">3.3.1.</span> <span class="nav-text">按调用栈分类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%89%E6%A0%88%E5%8D%8F%E7%A8%8B"><span class="nav-number">3.3.1.1.</span> <span class="nav-text">有栈协程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%A0%E6%A0%88%E5%8D%8F%E7%A8%8B"><span class="nav-number">3.3.1.2.</span> <span class="nav-text">无栈协程</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%89%E8%B0%83%E5%BA%A6%E6%96%B9%E5%BC%8F%E5%88%86%E7%B1%BB"><span class="nav-number">3.3.2.</span> <span class="nav-text">按调度方式分类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E7%A7%B0%E5%8D%8F%E7%A8%8B"><span class="nav-number">3.3.2.1.</span> <span class="nav-text">对称协程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8D%8F%E7%A8%8B"><span class="nav-number">3.3.2.2.</span> <span class="nav-text">非对称协程</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

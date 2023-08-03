@@ -1,38 +1,1463 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Xcode,Workspace,Project,Target,Product,Scheme,Build Phase,Build Setting,Build Configuration," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="Xcode 有非常多的概念，比如：workspace、project、target、product、scheme 等，这些概念之间有着千丝万缕的关系，当我们理解了这些概念及其关系之后，会对整个 Xcode 工程体系有一个整体的理解，对我们自身工程能力的提升也会有所帮助。本文将对这些概念及其关系进行梳理，从而为后续的学习提供基础。 整体关系下图所示是 Xcode 的核心概念之间的关系示意图，我们简单">
+<meta property="og:type" content="article">
+<meta property="og:title" content="理解 Xcode 中的各种概念">
+<meta property="og:url" content="http://chuquan.me/2021/12/03/understand-concepts-in-xcode/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="Xcode 有非常多的概念，比如：workspace、project、target、product、scheme 等，这些概念之间有着千丝万缕的关系，当我们理解了这些概念及其关系之后，会对整个 Xcode 工程体系有一个整体的理解，对我们自身工程能力的提升也会有所帮助。本文将对这些概念及其关系进行梳理，从而为后续的学习提供基础。 整体关系下图所示是 Xcode 的核心概念之间的关系示意图，我们简单">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-02.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-target-03.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-target-01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-target-02.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-target-05.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-target-06.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-target-07.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2021-12-03T14:44:50.000Z">
+<meta property="article:modified_time" content="2021-12-24T14:48:39.232Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="Xcode">
+<meta property="article:tag" content="Workspace">
+<meta property="article:tag" content="Project">
+<meta property="article:tag" content="Target">
+<meta property="article:tag" content="Product">
+<meta property="article:tag" content="Scheme">
+<meta property="article:tag" content="Build Phase">
+<meta property="article:tag" content="Build Setting">
+<meta property="article:tag" content="Build Configuration">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-02.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2021/12/03/understand-concepts-in-xcode/"/>
+
+
+
+
+
+  <title>理解 Xcode 中的各种概念 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2021/12/03/understand-concepts-in-xcode/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">理解 Xcode 中的各种概念</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2021-12-03T22:44:50+08:00">
+                2021-12-03
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2021-12-24T22:48:39+08:00">
+                2021-12-24
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Xcode/" itemprop="url" rel="index">
+                    <span itemprop="name">Xcode</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Xcode 有非常多的概念，比如：workspace、project、target、product、scheme 等，这些概念之间有着千丝万缕的关系，当我们理解了这些概念及其关系之后，会对整个 Xcode 工程体系有一个整体的理解，对我们自身工程能力的提升也会有所帮助。本文将对这些概念及其关系进行梳理，从而为后续的学习提供基础。</p>
+<h1 id="整体关系"><a href="#整体关系" class="headerlink" title="整体关系"></a>整体关系</h1><p>下图所示是 Xcode 的核心概念之间的关系示意图，我们简单地进行介绍一下。</p>
+<ul>
+<li><strong>Workspace</strong>：Xcode 提供的一个工作空间，其可以包含多个 project。通过组合 project，我们可以实现非常庞大、复杂的工程。</li>
+<li><strong>Project</strong>：一个 Xcode 工程的核心，project 维护并管理源代码、资源文件、框架和库等。此外，project 还提供了默认的 build configurations，用于指导构建 product。<strong>其中，每个 build configuration 包含一组 build setting</strong>。</li>
+<li><strong>Target</strong>：其包含构建特定 product 所需的 build configuration、build rule、build phase，并指定对应的构建产物 product。</li>
+<li><strong>Product</strong>：基于 project 的源文件，根据 build phase、build rule 以及 project 和 target 的 build configuration 所构建的产物。</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-02.png?x-oss-process=image/resize,w_800"></p>
+<p>下面，我们分别介绍一下这几个核心概念。</p>
+<h1 id="Workspace"><a href="#Workspace" class="headerlink" title="Workspace"></a>Workspace</h1><p>Xcode Workspace 主要用于为 Xcode project 提供一个工作空间，通过组合 project 可以实现一个复杂的工程。</p>
+<p><strong>一个 workspace 可以包含任意数量的 project，以及任意其他要处理的文件</strong>。<strong>Xcode 能够记录或推导这些 project 和 target 之间显式或隐式的依赖关系</strong>。</p>
+<ul>
+<li>对于隐式依赖，比如，在同一个 workspace 中，project A 构建了一个库，该库又被 project B 链接，那么 Xcode 会在构建 project B 之前，自动构建 project A（即使 build setting 中并没有明确此依赖关系）。</li>
+<li>对于显式依赖，我们必须创建 project 进行引用。</li>
+</ul>
+<p>Workspace 也是 Xcode 工作流的一种扩展。比如：文件的索引（indexing）是在 workspace 中进行的，因此代码补全、定义跳转以及其他内容感知的相关功能都可以在 workspace 下的所有 project 中使用。</p>
+<p>默认情况下，workspace 中的所有 project 都在同一个目录下构建，即 workspace 构建目录。<strong>由于同一个 workspace 下的 project 的所有文件都在同一个构建目录下，所以该目录下的所有文件对于每一个 project 都是可见的</strong>。因此，如果有两个或多个 project 使用了相同的库，我们无需将它们复制到每个 project 中。如果某个 project 指定了构建目录，那么在构建该 project 时，该构建目录会被 project 所在的 workspace 的构建目录所覆盖。</p>
+<p>同一个 workspace 下的每个 project 都是独立的。因此，为了不影响其他 project 或不受其他 project 影响，我们可以在不打开 workspace 的情况下直接打开 project，或者将 project 添加到另一个 workspace。由于 <strong>一个 project 可以同时属于多个 workspace</strong>，因此我们可以以任意组合 project，而无需重新配置任何 project 或 workspace。</p>
+<h1 id="Project"><a href="#Project" class="headerlink" title="Project"></a>Project</h1><p><strong>Xcode Project 是一个 Xcode 工程的核心部分，其本质上是一个文件、资源、构建信息所组成的仓库，能够构建一个或多个 product</strong>。一个 project 包含了所有用于构建 product 的元素，并且维护了这些元素之间的关系。<strong>Project 包含一个或多个 target，这些 target 各自定义了如何构建一个 product</strong>。一个 project 为其所包含的所有 target 定义了默认的 build configurations，其中的每个 target 又可以指定自己的 build configurations，target 定义的 build configurations 能够覆盖 project 定义的 build configurations。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-target-03.png?x-oss-process=image/resize,w_800"></p>
+<p>Project 使用一个 <code>.pbxproj</code> 为后缀的文件进行描述，其主要包含了以下内容：</p>
+<ul>
+<li>对源文件的引用，如上图左侧导航栏所示。<ul>
+<li>源代码，包含头文件和实现文件</li>
+<li>库和框架，内部或外部的</li>
+<li>资源文件</li>
+<li>图片文件</li>
+<li>nil 文件</li>
+</ul>
+</li>
+<li>用于在 Xcode 项目导航栏中组织源文件的组（Group）</li>
+<li><strong>Project 级别的 build configurations</strong>。如上图所示，我们会为一个 project 指定多个 build configuration，比如，我们会定义 Debug 和 Release 两种类型的 build configuration，并分别为它们定义 build settings，如上图所示。</li>
+<li><strong>一个或多个 target</strong>，每个 target 均包含以下内容：<ul>
+<li>对应 product 的引用</li>
+<li>构建 product 所需源文件的引用</li>
+<li>用于构建 product 的 build configurations</li>
+</ul>
+</li>
+<li>用于调试或测试的可执行环境，其中每个可执行环境均包含以下内容：<ul>
+<li>当通过 Xcode 运行或调试时，要启动哪个可执行文件</li>
+<li>当执行可执行文件时，要传递哪些命令行参数</li>
+<li>当程序运行时，要设置哪些环境变量</li>
+</ul>
+</li>
+</ul>
+<p>我们可以通过 scheme 来指定某一时刻哪个 target、哪个 build configuration 是有效的。</p>
+<h1 id="Target"><a href="#Target" class="headerlink" title="Target"></a>Target</h1><p><strong>Xcode Target 主要用于指导如何从 project 或 workspace 构建 product，其定义了构建系统的输入——源文件和处理源文件的配置，从而构建 product</strong>。</p>
+<p>如下所示，当我们通过 Xcode 创建 project 时，Xcode 会默认自动创建 target 用于指导构建主 app，此外 Xcode 会默认勾选 【include Tests】选项从而创建测试相关的 target，分别用于单元测试、UI 测试。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-target-01.png?x-oss-process=image/resize,w_800"></p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-target-02.png?x-oss-process=image/resize,w_800"></p>
+<p>Target 中构建 product 的 build configurations 主要包括：build settings、build configuration 的名称（如：Debug）以及对 project 级别的 build configuration 的引用。</p>
+<p>对于 build settings，我们应该都很熟悉，在日常开发中我们一般都通过 Xcode 项目编辑器直接进行编辑。Target 默认继承 project 定义的 build settings，当然，target 也可以通过自定义 build settings 进行覆盖。</p>
+<p>一个 target 及其创建的 product 可以与另一个 target 产生关联。如果 target A 需要 target B 的输出才能构建，即 target A 依赖了 target B。如果两个 target 在同一个 workspace 中，那么 Xcode 就能够找到其中的依赖关系，在这种场景下，Xcode 会按顺序构建 product。这种关系称为隐式依赖。</p>
+<p>我们还可以在 build settings 中显式地指定 target 的依赖项，并且我们可以将 Xcode 认为具有隐式依赖关系的两个 target 指定为不相关。比如：我们可以在同一个 workspace 中同时构建一个库和一个链接了这个库的应用程序。但是，如果我们想要链接到某个版本的库，而 workspace 中构建的这个库并不是这个版本，那么我们可以在 build settings 中创建一个显式依赖，它将覆盖隐式依赖。</p>
+<p>同一时刻只能有一个活跃的 target，由 scheme 指定。</p>
+<h1 id="Product"><a href="#Product" class="headerlink" title="Product"></a>Product</h1><p>Xcode Product 是基于 project 或 workspace 提供的源文件，根据 project 和 target 的 build configuration 构建而成的产物。苹果预定义了几种 Product 类型，主要有：应用程序（application）、测试（test）、静态库（static library）、框架（framework）等。这些 Product 类型，可以从文件的后缀进行区分。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-target-05.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="Build-Settings"><a href="#Build-Settings" class="headerlink" title="Build Settings"></a>Build Settings</h1><p>Xcode Build Settings 是一组变量，包含有关 product 构建过程的各种信息。比如：build settings 中的信息可以指定 Xcode 传递哪些选项给编译器。</p>
+<p>我们可以在 project 级别或 target 级别设置 build settings。每个 project 级别的 build setting 都会应用到 project 中的所有 target，除非 target 显式地覆盖了 build setting。</p>
+<p>每个 target 组织构建一个 product 所需的所有源文件。Build Configuration 则指定了一组 build settings，从而以特定方式为 target 构建 product。比如：对于构建 Debug 和 Release 类型的 product，我们会分别定义两个 build configuration，每个 build configuration 各自包含一组 build settings。</p>
+<p>Xcode 中的 build setting 有两个部分：</p>
+<ul>
+<li><strong>setting title</strong>：标识了 build setting，并且可以被其他 setting 所使用。</li>
+<li><strong>setting definition</strong>：一个常量或公式，Xcode 在构建时会用它来确定 build setting 的值。</li>
+</ul>
+<p>Build setting 也可能有一个显示名称，用于在 Xcode 用户界面中显示 build setting。如下所示就是 Xcode 中的一些 build setting。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">ALWAYS_SEARCH_USER_PATHS: &#x27;NO&#x27;</span><br><span class="line">CLANG_ANALYZER_NONNULL: &#x27;YES&#x27;</span><br><span class="line">CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION: YES_AGGRESSIVE</span><br><span class="line">CLANG_CXX_LANGUAGE_STANDARD: gnu++14</span><br><span class="line">CLANG_CXX_LIBRARY: libc++</span><br><span class="line">CLANG_ENABLE_MODULES: &#x27;YES&#x27;</span><br><span class="line">CLANG_ENABLE_OBJC_ARC: &#x27;YES&#x27;</span><br><span class="line">CLANG_ENABLE_OBJC_WEAK: &#x27;YES&#x27;</span><br><span class="line">GCC_WARN_UNUSED_FUNCTION: &#x27;YES&#x27;</span><br><span class="line">GCC_WARN_UNUSED_VARIABLE: &#x27;YES&#x27;</span><br><span class="line">IPHONEOS_DEPLOYMENT_TARGET: &#x27;10.0&#x27;</span><br><span class="line">MTL_ENABLE_DEBUG_INFO: INCLUDE_SOURCE</span><br><span class="line">MTL_FAST_MATH: &#x27;YES&#x27;</span><br><span class="line">ONLY_ACTIVE_ARCH: &#x27;YES&#x27;</span><br><span class="line">SDKROOT: iphoneos</span><br><span class="line">SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG</span><br><span class="line">SWIFT_OPTIMIZATION_LEVEL: &quot;-Onone&quot;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>当我们使用模板创建一个新的 project 时，除了 Xcode 提供的默认的 build settings，我们还可以为 project 或 target 创建自定义的 build setting。我们还可以指定 <strong>条件式 build setting</strong>。条件式 build setting 的值取决于是否满足一个或多个先决条件。例如：我们可以根据 target 的架构决定是否使用某个 SDK。</p>
+<h1 id="Build-Phases"><a href="#Build-Phases" class="headerlink" title="Build Phases"></a>Build Phases</h1><p>Xcode Build Phases 是一系列在构建一个 target 期间执行的任务，如下图所示。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-target-06.png?x-oss-process=image/resize,w_800"></p>
+<p>在 Xcode 中，主要包含 7 种类型的 build phase，分别如下：</p>
+<ul>
+<li><strong>Compile sources</strong><ul>
+<li>将可编译的源文件（如 Swift、Objective-C、Lex、Yacc）与当前 target 进行关联，并进行编译。如果有必要，为每个源文件指定编译选项。</li>
+<li><strong>此种类型的 build phase 可以为每个 target 使用一次，但是对于 Aggregate Target 和 External Build Tool Target，此种类型的 build phase 无法使用</strong>。</li>
+</ul>
+</li>
+<li><strong>Copy bundle resources</strong><ul>
+<li>将资源与当前 target 进行关联，在合适时进行处理，并将它们复制到 product 的 Resource 子文件夹中。</li>
+<li><strong>此种类型的 build phase 可以为每个 target 使用一次，并且当且仅当 target 的 product 支持嵌入式资源时才能使用</strong>。</li>
+</ul>
+</li>
+<li><strong>Copy files</strong><ul>
+<li>将其他 target 的 product 与当前 target 进行关联，必要时对他们进行 code sign，然后将它们复制到目标地址（一般是 product 中的一个子文件夹）。</li>
+<li><strong>此种类型的 build phase 在所有构建过程或进行安装构建过程中使用，每个 target 可以多次使用它</strong>。</li>
+</ul>
+</li>
+<li><strong>Headers</strong><ul>
+<li>将 public header、private header、project header 文件与当前 target 进行关联。public&#x2F;private header 定义对外的 API，并且会被复制到 product 中进行安装。比如：一个 framework target 中的 public&#x2F;private header 会被复制到 product 的 Headers 和 PrivateHeaders 子文件夹中。project header 定义 target 使用的 API，但不会复制到 product 中。</li>
+<li><strong>每个 target 只能使用一次此种类型的 build phase</strong>。</li>
+</ul>
+</li>
+<li><strong>Link binary with libraries</strong><ul>
+<li>将 Apple frameworks 等库与当前 target 进行关联。这些库可以是平台库、其他 target 生成的库、外部预构建的 XCFramework 和库。这些库可以被指定为必选的或可选的（弱链接——即库不存在，应用程序也可以加载）。</li>
+<li><strong>此种类型的 build phase 可以为每个 target 使用一次，但是对于 Aggregate Target 和 External Build Tool Target，此种类型的 build phase 无法使用</strong>。</li>
+</ul>
+</li>
+<li><strong>Run script</strong><ul>
+<li>在构建过程中运行指定的 shell 脚本。此脚本可以使用当前 target 的 build settings 所定义的变量，比如：$(SRCROOT)，表示包含目标源文件的目录。此外，还允许我们提供输入和输出文件的列表。当没有提供输入和输出文件时，脚本也会运行。当提供输入和输出文件时，脚本仅在之前从未运行、或输入文件发生过变化、或输出文件发生过丢失时运行。</li>
+<li><strong>此种类型的 build phase 在所有构建过程或进行安装构建过程中使用，每个 target 可以多次使用它</strong>。</li>
+</ul>
+</li>
+<li><strong>Target dependencies</strong><ul>
+<li>显式指定在同一 project（非同一 workspace）或链接 project 中的其他 target，这些 target 必须在当前 target 自身构建之前进行构建。比如：依赖于 project 中另一个框架的 target 通常会配置有对该框架的 target 依赖项。Xcode 能够隐式地推断出一些依赖项，但是此 build phase 能够提供对依赖项及其构建顺序的更优的控制。</li>
+</ul>
+</li>
+</ul>
+<h1 id="Scheme"><a href="#Scheme" class="headerlink" title="Scheme"></a>Scheme</h1><p>Xcode Scheme 定义一组操作，默认有：Build、Test、Launch、Profile、Analyze、Archive。每一种操作定义了一系列的指令，包括：target、build configuration、arguments、options 等等，这些参数、指令共同构成一个构建方案，从而用于构建一个或多个 target。</p>
+<p>我们可以拥有任意数量的 scheme，但一次只能激活一个 scheme，对应在 Xcode 的右上角我们每次只能选中一个 scheme。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-target-07.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文简单梳理了一下 Workspace、Project、Target、Product、Scheme 等概念，对 Xcode 的整个构建体系有了一个大致的认识。</p>
+<p>后续我们再来详细介绍一下这些概念在 Xcode 中具体是如何表示的。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/featuredarticles/XcodeConcepts/Concept-Targets.html">Xcode Concepts</a></li>
+<li><a target="_blank" rel="noopener" href="https://michele.io/the-project-file-part-1/">The Project File Part 1: Composition</a></li>
+<li><a target="_blank" rel="noopener" href="https://michele.io/the-project-file-part-2/">The Project File Part 2: Schemes and Targets</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.monobjc.net/xcode-project-file-format.html">Xcode Project File Format</a></li>
+<li><a target="_blank" rel="noopener" href="http://yulingtianxia.com/blog/2016/09/28/Let-s-Talk-About-project-pbxproj/">Let’s Talk About project.pbxproj</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/genify/nei/blob/master/doc/ObjectiveCGenRules/XcodeProjectRules/xcode_project_file_format.md">Xcode Project File Format</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/lxlx1798/p/9369537.html">Xcode 编辑器之Workspace，Project，Scheme，Target</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/2ddba8c0062c">iOS Xcode工程目录的 folder 和 group的区别</a></li>
+<li><a target="_blank" rel="noopener" href="https://help.apple.com/xcode/mac/11.4/index.html?localePath=en.lproj#/dev0bee46f46">Configure schemes</a></li>
+<li><a target="_blank" rel="noopener" href="http://github.com/CocoaPods/Xcodeproj">Xcodeproj</a></li>
+<li><a target="_blank" rel="noopener" href="https://help.apple.com/xcode/mac/current/#/dev50bab713d">What are build phases?</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Xcode/" rel="tag"># Xcode</a>
+          
+            <a href="/tags/Workspace/" rel="tag"># Workspace</a>
+          
+            <a href="/tags/Project/" rel="tag"># Project</a>
+          
+            <a href="/tags/Target/" rel="tag"># Target</a>
+          
+            <a href="/tags/Product/" rel="tag"># Product</a>
+          
+            <a href="/tags/Scheme/" rel="tag"># Scheme</a>
+          
+            <a href="/tags/Build-Phase/" rel="tag"># Build Phase</a>
+          
+            <a href="/tags/Build-Setting/" rel="tag"># Build Setting</a>
+          
+            <a href="/tags/Build-Configuration/" rel="tag"># Build Configuration</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/11/21/how-to-develop-command-line-tool-with-claide/" rel="next" title="如何使用 CLAide 开发命令行工具？">
+                <i class="fa fa-chevron-left"></i> 如何使用 CLAide 开发命令行工具？
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/12/14/understand-files-in-xcode/" rel="prev" title="理解 Xcode 中的各种文件">
+                理解 Xcode 中的各种文件 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E5%85%B3%E7%B3%BB"><span class="nav-number">1.</span> <span class="nav-text">整体关系</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Workspace"><span class="nav-number">2.</span> <span class="nav-text">Workspace</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Project"><span class="nav-number">3.</span> <span class="nav-text">Project</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Target"><span class="nav-number">4.</span> <span class="nav-text">Target</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Product"><span class="nav-number">5.</span> <span class="nav-text">Product</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Build-Settings"><span class="nav-number">6.</span> <span class="nav-text">Build Settings</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Build-Phases"><span class="nav-number">7.</span> <span class="nav-text">Build Phases</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Scheme"><span class="nav-number">8.</span> <span class="nav-text">Scheme</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">9.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">10.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

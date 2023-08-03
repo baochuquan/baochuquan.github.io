@@ -1,38 +1,1529 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="协程,作用域,计算续体,异步函数,async/await," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="对于异步与并发，一直以来，业界都有着非常广泛的研究，针对特定场景提出了很多相关的技术，如：Future&#x2F;Promise、Actor、CSP、异步函数等等。本文，我们来介绍一个近些年才出现的一个概念——结构化并发（Structured Concurrency）。 2016 年，ZeroMQ 的作者 Martin Sústrik 于在其 C 语言结构化并发库 libdill 中首次提出">
+<meta property="og:type" content="article">
+<meta property="og:title" content="结构化并发">
+<meta property="og:url" content="http://chuquan.me/2023/03/11/structured-concurrency/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="对于异步与并发，一直以来，业界都有着非常广泛的研究，针对特定场景提出了很多相关的技术，如：Future&#x2F;Promise、Actor、CSP、异步函数等等。本文，我们来介绍一个近些年才出现的一个概念——结构化并发（Structured Concurrency）。 2016 年，ZeroMQ 的作者 Martin Sústrik 于在其 C 语言结构化并发库 libdill 中首次提出">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/structured-concurrency-logo.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/goto-harmful-01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/goto-harmful-03.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/goto-harmful-02.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-02.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-03.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-08.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-04.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/coroutine-user-kernel-thread.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-05.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-06.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-07.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-09.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-10.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-11.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-12.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-13.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-14.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-15.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2023-03-11T14:03:51.000Z">
+<meta property="article:modified_time" content="2023-04-02T14:59:49.645Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="协程">
+<meta property="article:tag" content="作用域">
+<meta property="article:tag" content="计算续体">
+<meta property="article:tag" content="异步函数">
+<meta property="article:tag" content="async&#x2F;await">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/structured-concurrency-logo.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2023/03/11/structured-concurrency/"/>
+
+
+
+
+
+  <title>结构化并发 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2023/03/11/structured-concurrency/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">结构化并发</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2023-03-11T22:03:51+08:00">
+                2023-03-11
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2023-04-02T22:59:49+08:00">
+                2023-04-02
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%82%E6%AD%A5%E4%B8%8E%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">异步与并发</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/structured-concurrency-logo.png?x-oss-process=image/resize,w_800"></p>
+<!-- more --->
+
+<p>对于异步与并发，一直以来，业界都有着非常广泛的研究，针对特定场景提出了很多相关的技术，如：Future&#x2F;Promise、Actor、CSP、异步函数等等。本文，我们来介绍一个近些年才出现的一个概念——<strong>结构化并发（Structured Concurrency）</strong>。</p>
+<p>2016 年，ZeroMQ 的作者 Martin Sústrik 于在其 C 语言结构化并发库 libdill 中首次提出了“结构化并发”的概念。事实上，这个概念其实是受到了更早期 Dijkstra 所提出的 <strong>结构化编程（Structured Programming）</strong> 的启发。</p>
+<p>为了引出结构化并发，我们首先来介绍一下什么是结构化编程，这一切要从 GOTO 有害论说起。</p>
+<h1 id="GOTO-有害论"><a href="#GOTO-有害论" class="headerlink" title="GOTO 有害论"></a>GOTO 有害论</h1><p>计算机发展的早期，程序员使用汇编语言进行编程，在之后的一段时期，诞生了比汇编略微高级的编程语言，如 FORTRAN、FLOW-MATIC 等。这些语言虽然在一定程度上提高了可读性，但是仍然存在很大的局限性。如下所示就是一段 FLOW-MATIC 代码。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/goto-harmful-01.png?x-oss-process=image/resize,w_800"></p>
+<p>由于当时块语法还没有发明，因此 FLOW-MATIC 不支持 <code>if</code> 块、循环块、函数调用、块修饰符等现代语言必备的基础特性。整段代码就是一系列按顺序排列并打平的命令。关于控制流，程序支持两种方式，分别是：</p>
+<ul>
+<li><strong>顺序执行</strong></li>
+<li><strong>跳转执行</strong>，即 GOTO 语句。</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/goto-harmful-03.png?x-oss-process=image/resize,w_800"></p>
+<p>顺序执行的逻辑非常简单，它总是能够找到执行入口与出口。与之相反，跳转执行则充满了不确定性。如果程序中存在 GOTO 语句，那么它可以在 <strong>任何时候跳转至任何指令位置</strong>。一旦程序大量使用了 GOTO 语句，那么最终将变成 <strong>面条式代码（Spaghetti code）</strong>。</p>
+<p>如下所示，我们对 FLOW-MATIC 代码的控制流使用箭头进行变标记，可以发现整个逻辑变成了一团糟，如同面条一般。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/goto-harmful-02.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="结构化编程"><a href="#结构化编程" class="headerlink" title="结构化编程"></a>结构化编程</h1><p>在发表 <a target="_blank" rel="noopener" href="https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf">《Goto Statement Considered Harmful》</a> 之后，Dijkstra 又发表了 <a target="_blank" rel="noopener" href="https://www.cs.utexas.edu/users/EWD/ewd02xx/EWD249.PDF">《Notes on Structured Programming》</a> 表达了其理想的编程范式，提出了 <strong>结构化编程</strong> 的概念。</p>
+<p>结构化编程在现在看来是理所当然的，但是在当时并不是。结构化编程的核心是 <strong>基于块语句，实现代码逻辑的抽象与封装，从而保证控制流具有单一入口和单一出口</strong>。现代编程语言中的条件语句、循环语句、函数定义与调用都是结构化编程的体现。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-01.png?x-oss-process=image/resize,w_800"></p>
+<p>相比 GOTO 语句，基于块的控制流有一个显著的特征：控制流从程序入口进入，中途可能会经历条件、循环、函数调用等控制流转换，但是最终控制流都会从程序出口退出。这种编程范式使得代码结构变得更加结构化，思维模型变得更加简单，也为编译器在低层级提供了优化的可能。</p>
+<p>因此，完全禁用 GOTO 语句已经成为了大部分现代编程语言的选择。虽然，少部分编程语言仍然支持 GOTO，但是它们大都支持高德纳（Donald Ervin Knuth）所提出的前进分支和后退分支不得交叉的理论。类似 <code>break</code>、<code>continue</code> 等控制流命令，依然遵循结构化的基本原则：<strong>控制流拥有单一的入口与出口</strong>。</p>
+<p>如今，我们基于现代编程语言所编写的程序，绝大部分都是结构化的，结构化编程范式早已深入人心。</p>
+<h1 id="并发编程"><a href="#并发编程" class="headerlink" title="并发编程"></a>并发编程</h1><p>在单线程编程模型中，编程语言 <strong>通过代码块避免控制流随意跳转</strong>，从而实现程序的结构化。但是，在多线程编程（并发编程）模型中，线程之间控制和归属关系仍然存在很多问题，其面临的问题与 GOTO 的问题非常相似，这也是结构化并发所要解决的问题。</p>
+<p>下面，我们先来看一下非结构化并发的问题。</p>
+<h2 id="非结构化并发"><a href="#非结构化并发" class="headerlink" title="非结构化并发"></a>非结构化并发</h2><p>我们首先来看一个使用 Swift 编写的非结构化并发的例子，如下所示。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="type">DispatchQueue</span>.global().async &#123;</span><br><span class="line">        foo(completion: &#123; <span class="built_in">print</span>(<span class="string">&quot;main get <span class="subst">\(<span class="variable">$0</span>)</span>&quot;</span>) &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">func</span> <span class="title function_">foo</span>(<span class="params">completion</span>: <span class="keyword">@escaping</span> (<span class="type">Int</span>) -&gt; <span class="type">Void</span>) &#123;</span><br><span class="line">    <span class="type">DispatchQueue</span>.global().async &#123;</span><br><span class="line">        bar(completion: &#123;</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;foo get <span class="subst">\(<span class="variable">$0</span>)</span>&quot;</span>)</span><br><span class="line">            completion(<span class="variable">$0</span>)</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">func</span> <span class="title function_">bar</span>(<span class="params">completion</span>: <span class="keyword">@escaping</span> (<span class="type">Int</span>) -&gt; <span class="type">Void</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> result <span class="operator">=</span> <span class="type">Int</span>(arc4random())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;bar get <span class="subst">\(result)</span>&quot;</span>)</span><br><span class="line">    completion(result)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 主线程执行</span></span><br><span class="line">main()</span><br></pre></td></tr></table></figure>
+
+<p>上述代码中，主线程执行 <code>main</code> 方法是一个结构化的过程。而 <code>main</code> 和 <code>foo</code> 内部则以非阻塞的方式执行并发任务，并通过 <code>completion</code> 获取结果。<code>bar</code> 内部则以阻塞的方式执行计算任务，并调用 <code>completion</code> 返回结果。</p>
+<p>进一步分析这段代码中各个方法，可以发现 <code>main</code> 和 <code>foo</code> 中的并发任务派发其实是一种函数间的无条件 “跳转” 行为。虽然，<code>main</code> 和 <code>foo</code> 都会立即将控制流返回至调用者，但是它们各自生成了新的并发任务。这些并发任务并不知道自己从哪里来，它们的初始调用不存在于其所属线程的调用栈中，其生命周期也与调用者的作用域完全无关。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-02.png?x-oss-process=image/resize,w_800"></p>
+<p>这样的非结构化并发不仅使得代码的控制流变得非常复杂，而且还会带来了一个致命的后果：<strong>由于和调用者具有不同的调用栈，因此无法得知原始的调用者，进而无法以抛出的方式向上传递错误</strong>。</p>
+<p>在非结构化并发的编程范式下，我们在调用任意一个方法，我们都会存在很多担忧：</p>
+<ul>
+<li>方法是否会产生一个后台任务？</li>
+<li>方法虽然返回了，它所产生的后台任务是否仍然在运行？什么时候完成？其又会产生什么行为？</li>
+<li>作为调用者，应该在哪里处理回调？如何处理回调？</li>
+<li>是否保持这个方法用到的资源？后台任务是否会自动持有这些资源？还是要手动释放资源？</li>
+<li>后台任务是否可以被管理？如果取消这些后台任务？</li>
+<li>后台任务时候会产生其他后台任务？这些任务是否可以被正确管理？当任务取消时，二次派发的任务是否也会被取消？</li>
+</ul>
+<p>这些问题都是非结构化并发可能存在的问题，而结构化并发正是为了解决这些问题而提出的。</p>
+<h2 id="结构化并发"><a href="#结构化并发" class="headerlink" title="结构化并发"></a>结构化并发</h2><p>那么，到底什么是结构化并发呢？结构化并发的核心是 <strong>在并发模型下，也要保证控制流的单一入口和单一出口</strong>。程序可以产生多个控制流来实现并发，但是所有并发控制流在出口时都应该处于完成或取消状态，控制流最终在出口处完成合并。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-03.png?x-oss-process=image/resize,w_800"></p>
+<p>在结构化并发的编程范式下，<code>foo</code> 方法将所产生的并发控制流最终都会收束至 <code>foo</code> 方法中，<code>main</code> 方法也是如此，实现了真正的自包含。此时，我们调用黑盒方法，能够确信即使方法会产生额外的并发任务，控制流最终也会回归到方法调用的位置，一切尽在掌握之中！</p>
+<h1 id="通用实现模式"><a href="#通用实现模式" class="headerlink" title="通用实现模式"></a>通用实现模式</h1><h2 id="整体技术栈"><a href="#整体技术栈" class="headerlink" title="整体技术栈"></a>整体技术栈</h2><p>大多数情况下，结构化并发的实现技术栈如下图所示。从上层到底层可以分为五个部分，分别是：</p>
+<ul>
+<li>作用域（Scope）</li>
+<li>异步函数（Async function）</li>
+<li>协程（Coroutine）</li>
+<li>计算续体（Continuation）</li>
+<li>内核态线程（Kernel Thread）</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-08.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="作用域"><a href="#作用域" class="headerlink" title="作用域"></a>作用域</h2><p>结构化编程是以 <strong>代码块（Code Block）</strong> 为基本要素进行组织的，而结构化并发则是以 <strong>作用域（Scope）</strong> 为基本要素进行组织的。在不同的编程语言或技术框架中，对于作用域的命名所有不同，如：Kotlin 称为 <code>Scope</code>，Swift 称为 <code>Task</code>，Python trio 称为 <code>nursery</code>，C libdll 称为 <code>bundle</code>。</p>
+<p>类似于块语法用于标注结构化编程中的代码逻辑块，作用域则用于标注并发操作的执行范围。下图所示，为作用域标识并发操作作用域的示意图。另外，作用域之间的关系只有包含和并列关系，而没有部分重叠关系，这一点与块语法规则相同。这使得作用域之间的关系变得非常清晰，而易于管理。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-04.png?x-oss-process=image/resize,w_800"></p>
+<p>在基于作用域的实现模式下，很多并发问题变得简单很多，比如：</p>
+<ul>
+<li>对于数据交换：以作用域为中心进行数据交互和传递，避免多线程数据操作导致问题。</li>
+<li>对于返回值&#x2F;异常传递：以作用域构成的关系链进行传递，类似于 UI 事件传递。</li>
+<li>对于异步取消：以作用域为粒度，取消其所包含的异步任务以及子作用域，从而递归取消所有异步任务。</li>
+</ul>
+<h2 id="异步函数"><a href="#异步函数" class="headerlink" title="异步函数"></a>异步函数</h2><p>很多编程语言都支持了异步函数，为了与同步函数进行区分，基本都提供了特定的关键词来进行声明或调用，比如：<code>async</code>&#x2F;<code>await</code>，<code>suspend</code>、<code>yield</code>&#x2F;<code>resume</code> 等。通过异步函数，我们可以通过同步调用的方式来编写代码，从而避免出现低于回调，进而提高代码的可读性。</p>
+<p>如果编程语言只提供了异步函数，而不支持作用域，事实上也能够避免内部异步任务生命周期超出外部调用方法声明周期，因为异步函数的调用是通过以阻塞式的方式执行的。</p>
+<p>相比而言，作用域的作用则在于管理多任务并发执行，解决多任务取消，值&#x2F;异常传递等问题，这些是异步函数所无法解决的。</p>
+<h2 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h2><p>对于并发任务本身，其运算调度则由线程来支持。但是在高并发的场景下，基于传统意义上的线程池可能会面临性能瓶颈，如：线程爆炸、线程切换等。</p>
+<p>为了解决性能和效率问题，大部分支持结构化并发的编程语言都以 <strong>协程（Coroutine）</strong> 作为运算调度的最小单元。那么到底什么是协程？协程本质上就是 <strong>用户态线程</strong>，关于协程的进一步介绍可以阅读我之前写过的一篇博客—— <a href="http://chuquan.me/2021/05/05/getting-to-know-coroutine/">《初识协程》</a>。</p>
+<p>我们知道操作系统线程模型主要有 3 种，如下图所示。其中，纯用户态线程模型是早期单核 CPU 的产物，纯内核态线程模式是多核 CPU 下相对高效的模型。现代操作系统普遍采用的是组合式线程模型，支持提供远超 CPU 核心数量的用户态线程池。用户态线程的切换不涉及线程资源（包括寄存器、栈指针、栈内存等）切换，因此性能开销相对较小。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/coroutine-user-kernel-thread.png?x-oss-process=image/resize,w_800"></p>
+<p>在传统的同步编程模式下，我们始终维护一个线性的调用栈，而在基于作用域和协程实现的并发编程模式下，我们可以维护一个树形的调用栈，如下图所示。基于树形调用栈，我们可以有效记录父子并发任务之间的调用关系，便于问题定位与追踪。注意，协程可以根据是否基于调用栈实现，分为有栈协程和无栈协程，这里我们以有栈协程为例，介绍结构化并发的优势。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-05.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="计算续体"><a href="#计算续体" class="headerlink" title="计算续体"></a>计算续体</h2><p>在代码层面，异步函数之后的代码是怎么实现等待异步函数执行完成之后再执行的呢？试想一下如下这段伪代码，为什么 <code>print result</code> 会等待异步函数 <code>asyncOperation</code> 完成之后才会执行的呢？怎么做到的？</p>
+<pre><code>val result = await asyncOperation()
+print result
+</code></pre>
+<p>事实上，这样要归功于 <strong>计算续体（Continuation）</strong>。知道回调函数的人很多，但是知道计算续体的人并不多。<strong>当一个计算过程在中间被打断，其剩余部分可以使用一个对象进行表示</strong>，这个对象就是计算续体。当然，操作系统暂停一个线程时保存的那些数据快照，也可以看成是一个计算续体。基于计算续体，我们就能实现从上次中断的地方继续执行。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-06.png?x-oss-process=image/resize,w_800"></p>
+<p>既然可以利用续体来等待异步操作执行完成，那么执行过程中运行时系统是如何选择哪些部分作为续体呢？对此，大多数编程语言会提供相关的关键词进行修饰，最常见的就是 <code>async</code> 和 <code>await</code>。一般 <code>async</code> 用于声明一个异步函数，<code>await</code> 用于挂起（执行）一个异步函数。事实上，计算续体就是异步函数的底层实现技术。</p>
+<p>当使用 <code>await</code> 调用一个异步函数时，那么编译器会 <strong>将后续部分的代码转换成续体，当异步任务执行完毕之后，再将值传递至续体中继续执行，有点类似于方法回调</strong>。</p>
+<p>在不同的编程语言中，计算续体的表示也有所不同。Kotlin 和 Swift 使用 <code>Continuation</code> 表示，Lua 使用 <code>Coroutine Object</code> 表示，JavaScript 使用 <code>Generator</code> 表示，Dart 使用 <code>Async Generator</code> 表示。</p>
+<h3 id="续体与栈帧"><a href="#续体与栈帧" class="headerlink" title="续体与栈帧"></a>续体与栈帧</h3><p>事实上，计算续体与函数栈帧有着非常紧密的关系，前者是保存和恢复栈帧的一种机制。</p>
+<p>在函数调用时，每个函数都会创建一个栈帧，其包含函数的局部变量、参数以及返回地址等信息。栈帧被存放在进程空间的栈区，当函数返回时，对应的栈帧会从栈中弹出，程序恢复到调用该函数的地方。</p>
+<p>计算续体则是将 <strong>当前栈帧</strong> 以及 <strong>程序计算器</strong> 等信息保存至一个对象中，然后将该对象传递给一个续体函数。续体函数可以在需要时将保存的状态恢复，从而继续执行程序。</p>
+<p>因此，从运行时层面看，计算续体就是当前函数的栈帧与现场状态；从代码层面看，计算续体就是等待异步操作完成的后续代码。</p>
+<h3 id="CPS-变换"><a href="#CPS-变换" class="headerlink" title="CPS 变换"></a>CPS 变换</h3><p>提到计算续体，我们就不得不提一下 <strong>CPS 变换（Continuation-Passing-Style Transformation）</strong>。</p>
+<p>CPS 变换本质上就是 **将等待执行的代码转换成一个函数，计算续体作为函数的参数，参数名通常命名成 <code>Continuation</code>**。</p>
+<p>下面，我们以 Swift 为例进行介绍。假如，我们有一个旧版 <code>oldLoad</code> 方法，通过闭包进行异步回调。此时，我们希望设计基于异步函数的新版 <code>newLoad</code> 方法，但是内部仍然使用旧版 <code>oldLoad</code> 方法进行复用。在这种场景下，我们就可以利用 CPS 变换来实现预期目标。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># 旧版方法</span><br><span class="line"><span class="keyword">func</span> <span class="title function_">oldLoad</span>(<span class="params">completion</span>: <span class="keyword">@escaping</span> ([<span class="type">String</span>]<span class="operator">?</span>, <span class="type">Error</span>?) -&gt; <span class="type">Void</span>)</span><br><span class="line"></span><br><span class="line"># 新版方法</span><br><span class="line"><span class="keyword">func</span> <span class="title function_">newLoad</span>() <span class="keyword">async</span> <span class="keyword">throws</span> -&gt; [<span class="type">String</span>] &#123;</span><br><span class="line">    <span class="keyword">try</span> <span class="keyword">await</span> withUnsafeThrowingContinuation &#123; continuation <span class="keyword">in</span></span><br><span class="line">        oldLoad &#123; values, error <span class="keyword">in</span></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">let</span> values <span class="operator">=</span> values &#123;</span><br><span class="line">                continuation.resume(returing: values)</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> <span class="keyword">let</span> error <span class="operator">=</span> error &#123;</span><br><span class="line">                continuation.resume(throwing: error)   </span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                assertFailure(<span class="string">&quot;both parameters are nil&quot;</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下图所示，当我们使用新版 <code>newLoad</code> 方法时，等待异步执行的代码被封装成了一个函数，函数的参数是一个 <code>Continuation</code>。我们可以根据不同的情况向 <code>Continuation</code> 传递值或错误，从而让等待异步执行的代码继续执行。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-07.png?x-oss-process=image/resize,w_800"></p>
+<p>事实上，Kotlin 协程就是通过 CPS 转换实现的，其在编译期间对调用挂起函数的上下文进行拆分，完成 CPS 转换。这也是为什么 Kotlin 可以不用修改 VM 或 OS 就能够支持协程的原因。</p>
+<h1 id="并发调度模型"><a href="#并发调度模型" class="headerlink" title="并发调度模型"></a>并发调度模型</h1><p>通过上一节我们知道了结构化并发所涉及的各种技术。下面，我们来通过一段 Swift 代码，介绍一下并发任务的调度模型。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">save</span>(<span class="keyword">_</span> <span class="params">contents</span>: [<span class="type">Contents</span>]) <span class="keyword">async</span> <span class="keyword">throws</span> -&gt; [<span class="type">ID</span>] &#123; <span class="operator">...</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">func</span> <span class="title function_">handle</span>(<span class="keyword">_</span> <span class="params">contents</span>: [<span class="type">Content</span>]) <span class="keyword">async</span> <span class="keyword">throws</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> ids <span class="operator">=</span> <span class="keyword">try</span> <span class="keyword">await</span> save(contents)</span><br><span class="line">    <span class="keyword">for</span> (id, content) <span class="keyword">in</span> <span class="built_in">zip</span>(ids, contents) &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;<span class="subst">\(id)</span>: <span class="subst">\(content)</span>&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>假设一个线程调用了一个 <code>handle</code> 方法。在这个阶段，最近的堆栈将是 <code>handle</code>。当 <code>handle</code> 遇到内部的 <code>await</code> 关键词修饰的异步操作时，运行时会将 <code>handle</code> 方法的计算续体存储至堆中，从而等待异步操作完成。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-09.png?x-oss-process=image/resize,w_800"></p>
+<p>当运行时发现存在空闲的线程时，则将异步操作 <code>save</code> 加入对应线程的栈中并开始执行。但是 <code>save</code> 方法内部又存在异步 I&#x2F;O 操作，因此 <code>save</code> 方法的计算续体又会被存储至堆中，从而等待 I&#x2F;O 操作完成。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-10.png?x-oss-process=image/resize,w_800"></p>
+<p>在等待 I&#x2F;O 操作的过程中，线程会被让出，从而允许其他任务进行复用。下图中，运行时会将 <code>otherWork1</code> 方法加入线程并执行。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-11.png?x-oss-process=image/resize,w_800"></p>
+<p>当 <code>save</code> 所等待的 I&#x2F;O 操作完成之后，运行时会寻找空闲的线程，并将 <code>save</code> 的计算续体加入栈中并执行。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-12.png?x-oss-process=image/resize,w_800"></p>
+<p>当 <code>save</code> 执行完毕，运行时会将与 <code>save</code> 计算续体关联等待的 <code>handle</code> 续体取出，选择一个空闲的线程来执行。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-13.png?x-oss-process=image/resize,w_800"></p>
+<p>在 <code>handle</code> 计算续体执行过程中，会调用同步方法如 <code>zip</code>，那么栈上将会正常加入 <code>zip</code> 的栈帧。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-14.png?x-oss-process=image/resize,w_800"></p>
+<p><code>zip</code> 执行完毕之后，对应的栈帧出栈，继续执行 <code>hanle</code> 计算续体。由于这里是一个 <code>for</code> 循环，<code>zip</code> 栈帧的入栈和出栈会循环往复多次。最终，<code>handle</code> 计算续体也执行完毕。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/concurrency-15.png?x-oss-process=image/resize,w_800"></p>
+<!--# 应用-->
+<!--最后，我们来举一个例子看看不同编程语言是如何使用结构化并发来解决并发问题的。假如，我们需要一张图片来显示头像，图片有两个备选分别是 imageA 和imageB，其中 imageA 被分割成了两部分：imageA-1 和imageA-2。当 imageA-1 和 imageA-2 同时下载完成后才能使用。此时，我们需要构造三个下载任务，只要有一个完整的图片下载成功，就取消其他下载任务。-->
+
+<!--下面，我们来分别看一下 Kotlin 和 Swift 可以如何使用结构化合并解决这个问题的。-->
+
+<!--## Kotlin 结构化并发-->
+<!--```kotlin-->
+<!--import kotlinx.coroutines.*-->
+
+<!--fun downloadImage(imageName: String): String {-->
+<!--    // 模拟下载过程，打印下载状态以及返回图片名称-->
+<!--    println("开始下载 $imageName")-->
+<!--    Thread.sleep(1000)-->
+<!--    println("完成下载 $imageName")-->
+<!--    return imageName-->
+<!--}-->
+
+<!--suspend fun downloadImageA(): String {-->
+<!--    val imageA1 = async { downloadImage("imageA-1") }-->
+<!--    val imageA2 = async { downloadImage("imageA-2") }-->
+<!--    return "${imageA1.await()},${imageA2.await()}"-->
+<!--}-->
+
+<!--suspend fun downloadImageB(): String {-->
+<!--    return async { downloadImage("imageB") }.await()-->
+<!--}-->
+
+<!--fun main() = runBlocking<Unit> {-->
+<!--    // 创建一个父级 CoroutineScope-->
+<!--    coroutineScope {-->
+<!--        // 在父级 CoroutineScope 内创建一个新的 CoroutineScope，并将 downloadImageA 协程放在其中，启动 imageA 任务。-->
+<!--        val scopeForImageA = CoroutineScope(coroutineContext)-->
+<!--        val imageAJob = scopeForImageA.launch { downloadImageA() }-->
+
+<!--        // 在父级 CoroutineScope 内启动 imageB 任务-->
+<!--        val imageBJob = launch { downloadImage("imageB") }-->
+
+<!--        // 等待 imageA 和 imageB 中有一个完成-->
+<!--        val downloadedImage = select<String> {-->
+<!--            imageAJob.onJoin {-->
+<!--                imageBJob.cancel()-->
+<!--            }-->
+<!--            imageBJob.onJoin {-->
+<!--                scopeForImageA.cancel()-->
+<!--            }-->
+<!--        }-->
+
+<!--        // 输出完成的图片-->
+<!--        println("成功下载：$downloadedImage")-->
+<!--    }-->
+<!--}-->
+<!--```-->
+
+<!--## Swift 结构化并发-->
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文通过 GOTO 有害论引出编程历史中结构化编程的演化。以结构化编程作为类比，介绍了结构化并发的核心观点，以及结构化并发的设计理念。结构化并发主要包括作用域、异步函数、计算续体、协程等技术，此外还需要运行时系统的调度，才能最终实现理想的结构化并发。</p>
+<p>关于高级编程语言中结构化并发的实践，后续我们将继续在其他文章中进行讨论。目前原生支持结构化并发的编程语言并不多，幸运的是移动端开发的编程语言 Kotlin、Swift 是支持的，后面我们会研究一下这两者对于结构化并发的实现。另外，有时间的话，我们也会介绍一些结构化并发的辅助框架，比如：trio、libdll 等，进而加深对于结构化并发的理解。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Continuation">Continuation</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Structured_concurrency">Structured concurrency</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Structured_programming">Structured programming</a></li>
+<li><a target="_blank" rel="noopener" href="https://pic.plover.com/knuth-GOTO.pdf">Structured Programming with go to Statements</a></li>
+<li><a target="_blank" rel="noopener" href="http://jacques.rouillard.org/A_l_epoch/goto.pdf">Go To Statement Considered Harmful</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cs.utexas.edu/~EWD/ewd02xx/EWD249.PDF">Notes on structured programming</a></li>
+<li><a target="_blank" rel="noopener" href="https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/">Notes on structured concurrency, or: Go statement considered harmful</a></li>
+<li><a target="_blank" rel="noopener" href="https://250bpm.com/blog:71/index.html">Structured Concurrency</a></li>
+<li><a target="_blank" rel="noopener" href="https://250bpm.com/blog:124/index.html">Structured Concurrency in High-level Languages</a></li>
+<li><a target="_blank" rel="noopener" href="https://archive.fosdem.org/2019/schedule/event/structured_concurrency/">Structured Concurrency Finding our way out of callback hell</a></li>
+<li><a target="_blank" rel="noopener" href="https://vorpus.org/blog/some-thoughts-on-asynchronous-api-design-in-a-post-asyncawait-world/">Some thoughts on asynchronous API design in a post-async&#x2F;await world</a></li>
+<li><a target="_blank" rel="noopener" href="https://trio.discourse.group/t/structured-concurrency-resources/21">Structured concurrency resources</a></li>
+<li><a target="_blank" rel="noopener" href="https://trio.discourse.group/t/structured-concurrency-kickoff/55">Structured Concurrency Kickoff</a></li>
+<li><a target="_blank" rel="noopener" href="https://elizarov.medium.com/structured-concurrency-722d765aa952">Structured concurrency</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=_hfBv0a09Jc">KotlinConf 2017 - Introduction to Coroutines by Roman Elizarov</a></li>
+<li><a target="_blank" rel="noopener" href="https://gist.github.com/belm0/4c6d11f47ccd31a231cde04616d6bb22">Structured concurrency and Lua(part1)</a></li>
+<li><a target="_blank" rel="noopener" href="https://gist.github.com/belm0/abbe9acb832eafa10dcbfd2b26eb74fc">Structured concurrency and Lua(part2)</a></li>
+<li><a target="_blank" rel="noopener" href="https://gist.github.com/belm0/20bc069ca676fcfc591f29930069f788">Structured concurrency and Lua(part2)</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/videos/play/wwdc2021/10134/">Explore structured concurrency in Swift</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/videos/play/wwdc2021/10254/">Swift concurrency: Behind the scenes</a></li>
+<li>《swift 异步与并发》</li>
+<li><a target="_blank" rel="noopener" href="https://aisia.moe/2018/02/08/kotlin-coroutine-kepa/">Kotlin协程 - 先入个门吧</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.kotlincn.net/docs/reference/coroutines/basics.html">Kotlin协程</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%8D%8F%E7%A8%8B/" rel="tag"># 协程</a>
+          
+            <a href="/tags/%E4%BD%9C%E7%94%A8%E5%9F%9F/" rel="tag"># 作用域</a>
+          
+            <a href="/tags/%E8%AE%A1%E7%AE%97%E7%BB%AD%E4%BD%93/" rel="tag"># 计算续体</a>
+          
+            <a href="/tags/%E5%BC%82%E6%AD%A5%E5%87%BD%E6%95%B0/" rel="tag"># 异步函数</a>
+          
+            <a href="/tags/async-await/" rel="tag"># async/await</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/01/15/actor/" rel="next" title="浅谈 Actor 模型">
+                <i class="fa fa-chevron-left"></i> 浅谈 Actor 模型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/04/22/prototype-based-inheritance/" rel="prev" title="基于原型的继承模式">
+                基于原型的继承模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GOTO-%E6%9C%89%E5%AE%B3%E8%AE%BA"><span class="nav-number">1.</span> <span class="nav-text">GOTO 有害论</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E5%8C%96%E7%BC%96%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">结构化编程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">并发编程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E7%BB%93%E6%9E%84%E5%8C%96%E5%B9%B6%E5%8F%91"><span class="nav-number">3.1.</span> <span class="nav-text">非结构化并发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E5%8C%96%E5%B9%B6%E5%8F%91"><span class="nav-number">3.2.</span> <span class="nav-text">结构化并发</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E5%AE%9E%E7%8E%B0%E6%A8%A1%E5%BC%8F"><span class="nav-number">4.</span> <span class="nav-text">通用实现模式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%8A%80%E6%9C%AF%E6%A0%88"><span class="nav-number">4.1.</span> <span class="nav-text">整体技术栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="nav-number">4.2.</span> <span class="nav-text">作用域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E5%87%BD%E6%95%B0"><span class="nav-number">4.3.</span> <span class="nav-text">异步函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E7%A8%8B"><span class="nav-number">4.4.</span> <span class="nav-text">协程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E7%BB%AD%E4%BD%93"><span class="nav-number">4.5.</span> <span class="nav-text">计算续体</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%AD%E4%BD%93%E4%B8%8E%E6%A0%88%E5%B8%A7"><span class="nav-number">4.5.1.</span> <span class="nav-text">续体与栈帧</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CPS-%E5%8F%98%E6%8D%A2"><span class="nav-number">4.5.2.</span> <span class="nav-text">CPS 变换</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E8%B0%83%E5%BA%A6%E6%A8%A1%E5%9E%8B"><span class="nav-number">5.</span> <span class="nav-text">并发调度模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

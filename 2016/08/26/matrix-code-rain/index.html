@@ -1,38 +1,1390 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="源码解读,Matrix-Code-Rain," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="最近自己的博客刚刚建起来，想好好经营一下。内容比较少，另外希望能产出一些高质量的文章，所以不想将CSDN博客上的文章迁移过来。那么就得自己发点干货了。废话不多说，转入正题。   数个月前在github上阅读过一个小项目的源码——Matrix-code-rain。其效果是黑客帝国中代码在屏幕上从上至下滑落。DEMO见此链接。如下截图所示即代码雨效果图:   首先观察效果图，大致分为三个部分: 左上角">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码解读——Matrix-Code-Rain">
+<meta property="og:url" content="http://chuquan.me/2016/08/26/matrix-code-rain/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="最近自己的博客刚刚建起来，想好好经营一下。内容比较少，另外希望能产出一些高质量的文章，所以不想将CSDN博客上的文章迁移过来。那么就得自己发点干货了。废话不多说，转入正题。   数个月前在github上阅读过一个小项目的源码——Matrix-code-rain。其效果是黑客帝国中代码在屏幕上从上至下滑落。DEMO见此链接。如下截图所示即代码雨效果图:   首先观察效果图，大致分为三个部分: 左上角">
+<meta property="og:locale">
+<meta property="og:image" content="http://images.chuquan.me/blog-images/matrix-code-rain.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/matrix-code-rain.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2016-08-26T02:59:37.000Z">
+<meta property="article:modified_time" content="2020-11-17T14:49:33.911Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="源码解读">
+<meta property="article:tag" content="Matrix-Code-Rain">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://images.chuquan.me/blog-images/matrix-code-rain.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2016/08/26/matrix-code-rain/"/>
+
+
+
+
+
+  <title>源码解读——Matrix-Code-Rain | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2016/08/26/matrix-code-rain/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">源码解读——Matrix-Code-Rain</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2016-08-26T10:59:37+08:00">
+                2016-08-26
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2020-11-17T22:49:33+08:00">
+                2020-11-17
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">前端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近自己的博客刚刚建起来，想好好经营一下。内容比较少，另外希望能产出一些高质量的文章，所以不想将CSDN博客上的文章迁移过来。那么就得自己发点干货了。废话不多说，转入正题。  </p>
+<p>数个月前在github上阅读过一个小项目的源码——<a target="_blank" rel="noopener" href="https://github.com/neilcarpenter/Matrix-code-rain">Matrix-code-rain</a>。其效果是黑客帝国中代码在屏幕上从上至下滑落。<a target="_blank" rel="noopener" href="http://neilcarpenter.com/demos/canvas/matrix/">DEMO</a>见此链接。如下截图所示即代码雨效果图:<br><img src="http://images.chuquan.me/blog-images/matrix-code-rain.png?x-oss-process=image/resize,w_800" alt="代码雨">  </p>
+<p>首先观察效果图，大致分为三个部分: 左上角的<code>帧频监测模块</code>、左下角的<code>快照工具栏</code>、<code>代码雨</code>主体。  </p>
+<p>项目的index.html文件中的body部分包含了两个主要的元素:  </p>
+<ul>
+<li>id&#x3D;”info”的div元素  </li>
+<li>id&#x3D;”canvas”的画布<br>前者提供了<code>快照</code>功能，以旋转方式显示&#x2F;隐藏的特效（该效果是以CSS3实现的）；后者实现了<code>帧频检测</code>功能以及主效果<code>代码雨</code>。</li>
+</ul>
+<p>下面先把JS主干代码贴出，并做简要解读。  </p>
+<h1 id="主干代码"><a href="#主干代码" class="headerlink" title="主干代码"></a>主干代码</h1><p>这里仅标出代码主干，具体细节请查看源码。代码的主干很简单，如下所示:  </p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> stats = <span class="keyword">new</span> <span class="title class_">Stats</span>();</span><br><span class="line">stats.<span class="property">domElement</span>.<span class="property">style</span>.<span class="property">position</span> = <span class="string">&#x27;absolute&#x27;</span>;</span><br><span class="line">stats.<span class="property">domElement</span>.<span class="property">style</span>.<span class="property">left</span> = <span class="string">&#x27;0px&#x27;</span>;</span><br><span class="line">stats.<span class="property">domElement</span>.<span class="property">style</span>.<span class="property">top</span> = <span class="string">&#x27;0px&#x27;</span>;</span><br><span class="line"><span class="variable language_">document</span>.<span class="property">body</span>.<span class="title function_">appendChild</span>( stats.<span class="property">domElement</span> );</span><br><span class="line"><span class="keyword">var</span> M = &#123;</span><br><span class="line">...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">eventListenerz</span>(<span class="params"></span>)&#123;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">window</span>.<span class="property">onload</span> = <span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">	M.<span class="title function_">init</span>();</span><br><span class="line">	<span class="title function_">eventListenerz</span>();</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>先简单分析一下主干代码，然后再分析具体细节:<br>开头五行代码，引用了一个外部JS文件(stats.min.js)定义的一个构造函数<code>Stats()</code>，然后初始化一个对象，这个对象的功能就是<code>帧频检测</code>，最后把它放到左上角。<br>接着初始化一个对象M，这个对象内部定义了很多属性和方法: </p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> M = &#123;</span><br><span class="line">	<span class="comment">// 属性</span></span><br><span class="line">	<span class="comment">// 关于每一栏canvas的属性设置</span></span><br><span class="line">	<span class="attr">setting</span>: &#123;</span><br><span class="line">		<span class="attr">COL_WIDTH</span>: <span class="number">15</span>,	<span class="comment">// 每一栏的宽度</span></span><br><span class="line">		<span class="attr">COL_HEIGHT</span>: <span class="number">25</span>, <span class="comment">// 每一栏的高度</span></span><br><span class="line">		<span class="attr">VELOCITY_PARAMS</span>: &#123;</span><br><span class="line">			<span class="attr">min</span>: <span class="number">4</span>, <span class="comment">// 代码雨的最小速度</span></span><br><span class="line">			<span class="attr">max</span>: <span class="number">8</span>	<span class="comment">// 代码雨的最大速度</span></span><br><span class="line">		&#125;,</span><br><span class="line">		<span class="attr">CODE_LENGTH_PARAMS</span>: &#123;</span><br><span class="line">			<span class="attr">min</span>: <span class="number">20</span>,<span class="comment">// 代码雨的最小长度</span></span><br><span class="line">			<span class="attr">max</span>: <span class="number">40</span>	<span class="comment">// 代码雨的最大长度</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;,</span><br><span class="line">	</span><br><span class="line">	<span class="attr">animation</span>: <span class="literal">null</span>,</span><br><span class="line">	</span><br><span class="line">	<span class="attr">c</span>: <span class="literal">null</span>,</span><br><span class="line">	<span class="attr">ctx</span>: <span class="literal">null</span>,</span><br><span class="line">	</span><br><span class="line">	<span class="attr">lineC</span>: <span class="literal">null</span>,</span><br><span class="line">	<span class="attr">ctx2</span>: <span class="literal">null</span>,</span><br><span class="line">	</span><br><span class="line">	<span class="attr">video</span>: <span class="literal">null</span>,</span><br><span class="line">	</span><br><span class="line">	<span class="attr">WIDTH</span>: <span class="variable language_">window</span>.<span class="property">innerWidth</span>,</span><br><span class="line">	<span class="attr">HEIGHT</span>: <span class="variable language_">window</span>.<span class="property">innerHeight</span>,</span><br><span class="line">	</span><br><span class="line">	<span class="attr">COLUMNS</span>: <span class="literal">null</span>,	<span class="comment">// canvas列数</span></span><br><span class="line">	<span class="attr">canvii</span>: [],</span><br><span class="line">	<span class="attr">font</span>: <span class="string">&#x27;30px matrix-code&#x27;</span>,</span><br><span class="line">	<span class="attr">letters</span>: [<span class="string">&#x27;a&#x27;</span>, <span class="string">&#x27;b&#x27;</span>, <span class="string">&#x27;c&#x27;</span>, ...],</span><br><span class="line">	</span><br><span class="line">	<span class="attr">codes</span>: [],</span><br><span class="line">	</span><br><span class="line">	<span class="attr">createCodeLoop</span>: <span class="literal">null</span>,</span><br><span class="line">	<span class="attr">codesCounter</span>: <span class="number">0</span>,</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 方法  </span></span><br><span class="line">	<span class="title function_">init</span>(),  </span><br><span class="line">	<span class="title function_">loop</span>(),  </span><br><span class="line">	<span class="title function_">draw</span>(),  </span><br><span class="line">	<span class="title function_">createCode</span>(),  </span><br><span class="line">	<span class="title function_">createCanvii</span>(),  </span><br><span class="line">	<span class="title function_">createLines</span>(),  </span><br><span class="line">	<span class="title function_">assignColumn</span>(),  </span><br><span class="line">	<span class="title function_">randomFromInterval</span>(),</span><br><span class="line">	<span class="title function_">snapshot</span>()  </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>然后定义一个添加事件监听的函数<code>eventListenerz</code>。  </p>
+<p>当页面加载后执行如下代码:  </p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">window</span>.<span class="property">onload</span> = &#123;</span><br><span class="line">	M.<span class="title function_">init</span>();	<span class="comment">// 初始化M</span></span><br><span class="line">	<span class="title function_">eventListenerz</span>();	<span class="comment">//添加事件监听</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>M.init()</code>做了以下这些事:</p>
+<ol>
+<li>将canvas元素赋值给M.c；</li>
+<li>获取画布上的绘图环境，并赋值给M.ctx（后面称之为<code>画布</code>）；</li>
+<li>获取页面的高度、宽度并设置画布的高度和宽度，让画布充满整个页面；</li>
+<li>设置画布背景色为黑色；</li>
+<li>设置画布的字体为<code>30px matrix-code</code>；</li>
+<li>创造屏幕质感，画一条条的横线。这里动态创建了一个canvas元素，并设置画布的宽高与页面一致，通过调用<code>M.createLines()</code>方法来绘制满屏的横线，其实为了效果更好每条横线下面紧挨一条颜色更淡的横线，达到色差缓冲的效果；  </li>
+<li>根据网页的宽度、预设的canvas宽度，计算网页横向能放多少个canvas；</li>
+<li>针对每一栏canvas初始化一个codes数组，数组的0索引的值是一个对象:   <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="string">&#x27;open&#x27;</span>: <span class="literal">true</span>, </span><br><span class="line">	<span class="string">&#x27;position&#x27;</span>: &#123;<span class="string">&#x27;x&#x27;</span>, <span class="number">0</span>, <span class="string">&#x27;y&#x27;</span>: <span class="number">0</span>&#125;,</span><br><span class="line">	<span class="string">&#x27;strength&#x27;</span>: <span class="number">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>调用<code>M.loop()</code>方法，该方法内部调用了<code>requestAnimationFrame</code>，并把其任务ID赋值给<code>M.animation</code>。然后是loop方法的主体，调用<code>M.draw()</code>——想必就是绘制代码雨的效果。此外，同时更新<code>帧频检测器</code>的数据状态，达到循环动画的效果。</li>
+<li>调用<code>M.createCode()</code>方法，该方法什么作用？请继续往下阅读。</li>
+</ol>
+<p>这时候，代码的大体流程已经知道了，我们只要了解<code>M.draw()</code>是如何绘制代码雨，以及<code>M.createCode()</code>是如何初始化的即可。</p>
+<h1 id="代码雨"><a href="#代码雨" class="headerlink" title="代码雨"></a>代码雨</h1><p>先来看我绘制的一张图，改图简要的介绍了代码雨的组成，在看具体分析之前大家可以先自己想想其实现方式。  </p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/matrix-code-rain.png?x-oss-process=image/resize,w_800" alt="代码雨原理图"></p>
+<p>要了解代码雨原理，首先了解<code>M.draw()</code>是如何工作的。</p>
+<p><strong>M.draw()</strong><br><code>M.draw()</code>做了以下工作:  </p>
+<ol>
+<li>清理画布，避免之前绘制的图像遗留在画布上产生重影；</li>
+<li>设置如何将新图像绘制到已有图像之上，默认为<code>source-over</code>；</li>
+<li>对每一canvas进行处理。<br> 1). 当其codes[0]包含canvas属性时，获取其速度值、canvas的高度，x、y坐标，canvas元素，canvas画布。然后根据其位置将这个canvas添加到主canvas上。<br> a. 当y坐标小于网页高度时（即canvas的y坐标还在网页范围内），更新y坐标(y减去速度值)；<br> b. 否则，将y坐标设为0，这就达到了同一列不停的循环的效果。</li>
+</ol>
+<p>看到第3步，对比<strong>代码主干</strong>一节中第8步，我们发现：<code>M.draw()</code>阶段时每一栏的canvas的codes数组根本没有canvas属性。这种情况下，第3步中的处理条件根本无法达到。所以肯定缺少初始化的一步，这肯定包含在<code>M.createCode()</code>中，其实看方法名也能看出来。</p>
+<p><strong>M.createCode()</strong><br><code>M.createCode()</code>做了以下工作:  </p>
+<ol>
+<li>判断<code>M.codesCounter</code>是否大于canvas列数。如果是，清除M.createCodeLoop的定时任务，并返回。否则，继续往下执行。推断一下：毕竟网页横向被分解成了很多个canvas，有多少个canvas，<code>M.createCode()</code>就会被调用多少次吧。  </li>
+<li>给局部变量randomInterval赋值为<code>M.randomFromInterval(0,100)</code>的执行结果。直接跳到这段代码看看，哦，生成一个0到100之间的随机数。  </li>
+<li>给局部变量colum赋值为<code>M.assignColumn()</code>的执行结果。直接跳到这段代码看看：随机获取一个canvas的索引，如果该canvas的codes[0]的open属性为true，则置为false，并返回canvas的索引；否则直接返回false。仔细想想，这段代码把open置为false后，并没有还原成true。   </li>
+<li>根据column索引值，对对应一列的canvas进行处理。<br> 1). 随机获取一个代码雨长度值，并赋值给codeLength；<br> 2). 随机获取一个代码雨速度值，并赋值给codeVelocity；<br> 3). 获取代码雨字符表的长度，并赋值给lettersLength；<br> 4). 设置该canvas的codes[0].position属性，起始的x坐标与列索引有关，y坐标都为0；<br> 5). 设置该canvas的codes[0].velocity属性，为随机获取的速度值；<br> 6). 设置该canvas的codes[0].strength属性，为其速度&#x2F;速度上限值，这个到底什么作用呢？先放着继续往下看；<br> 7). 根据代码雨长度值，获取相应数量的字符，这是通过在字符表中随机获取的，并将字符依次赋值给该canvas的codes[1], codes[2]…<br> 8). 调用<code>M.createCanvii(column)</code>。这里把canvas的列索引值传递进去了，想必就是进行绘制操作了。<br> 9). <code>M.codesCount</code>++，这一步验证了第1步的猜想。</li>
+<li>根据局部变量randomInterval来设置另一列canvas的初始化。</li>
+</ol>
+<p><strong>M.createCanvii()</strong><br>上面一节第8步对<code>M.createCanvii(col)</code>的作用进行了猜想，下面我们来看看是不是符合我们的猜想。<br><code>M.createCanvii(col)</code>做了以下工作:  </p>
+<ol>
+<li>获取该列canvas要显示的字符数，赋值给codeLen；</li>
+<li>获取该列canvas的高度，通过字符数*每个字符的高度即可得到；</li>
+<li>获取该列canvas的速度，通过codes[0].velocity即可得到；</li>
+<li>获取该列canvas的strength，此时我们还是不知道这是个什么参数；</li>
+<li>创建一个canvas元素，并获取其画布环境，并设置其宽度和高度；</li>
+<li>根据codeLen，绘制所有字符，这里并不是单纯的绘制。前5个和最后4个不太一样，哪里不一样呢？之前不明白其含义的strength出现了，原来是为了让两端的颜色变淡一些。</li>
+<li>绘制完毕后，将该列canvas的codes[0].canvas的值赋为这里绘创建的canvas元素。哦，这时候，**M.draw()**一节的第3步的条件就成立了，就可以把这个创建的canvas添加到网页的主canvas了。</li>
+</ol>
+<p>现在一切就明了了，接下来有兴趣的话可以看看<code>快照工具栏</code>的效果实现。</p>
+<h1 id="快照工具栏"><a href="#快照工具栏" class="headerlink" title="快照工具栏"></a>快照工具栏</h1><p>先来看看CSS3提供的几个动画方法和特性:   </p>
+<p><strong>transform</strong>: <em>none | transform-functions</em>  </p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">matrix</span>():		<span class="comment">/*定义转换*/</span>  </span><br><span class="line"><span class="title function_">translate</span>():	<span class="comment">/*原点坐标偏移*/</span></span><br><span class="line"><span class="title function_">scale</span>():		<span class="comment">/*缩放*/</span>  </span><br><span class="line"><span class="title function_">rotate</span>():		<span class="comment">/*沿轴旋转*/</span>   </span><br><span class="line"><span class="title function_">skew</span>():		<span class="comment">/*沿轴倾斜*/</span>   </span><br><span class="line"><span class="title function_">perspective</span>():	<span class="comment">/*定义透视*/</span>  </span><br></pre></td></tr></table></figure>
+
+<p><strong>transition</strong>: <em>property duration timing-function delay</em>  </p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">transition-property</span>: none|all|property;  </span><br><span class="line"><span class="attribute">transition-duration</span>: <span class="built_in">time</span>(s/ms);  </span><br><span class="line"><span class="attribute">transition-timing-function</span>: linear|ease|ease-in|ease-out|ease-in-out|<span class="built_in">cubic-bezier</span>(n,n,n)   </span><br></pre></td></tr></table></figure>
+<p>transform属性的是transform-function，上述只列出了6类方法，每一类方法对应还有针对2D, 3D的方法。 </p>
+<p>很明显，快照工具栏的旋转显示&#x2F;隐藏方式是以<code>tramsform</code>分别对<code>显示时定义一个状态</code>，<code>隐藏时定义一个状态</code>，然后通过CSS3的<code>transition</code>属性来进行状态切换设置。  </p>
+<p>果然代码中也是以这种方式实现的:<br><strong>显示状态</strong>  </p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">transform-origin</span>: bottom center;</span><br><span class="line"><span class="attribute">transform</span>: <span class="built_in">rotate</span>(<span class="number">0deg</span>);</span><br><span class="line"><span class="attribute">transition</span>: transform <span class="number">1s</span> ease-in-out;</span><br></pre></td></tr></table></figure>
+<p><strong>隐藏状态</strong></p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">transform</span>: <span class="built_in">rotate</span>(<span class="number">180deg</span>);</span><br></pre></td></tr></table></figure>
+<p><strong>状态转移方式</strong>  </p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">transition</span>: transform <span class="number">1s</span> ease-in-out;  </span><br></pre></td></tr></table></figure>
+<p>两个状态、转移方式都定义好了，那么就可以通过事件了切换这两者的状态了。用toggle的方法来添加&#x2F;删除类来达到状态切换的效果。果然，JS代码中有一个函数<code>eventListenerz()</code>就包含了状态切换的处理。<br>此外，快照工具栏还有一个主要功能: 快照。还是在上面那个函数里面，包含了这两行代码:  </p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> snapshotBtn = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;snapshot&#x27;</span>);</span><br><span class="line">snapshotBtn.<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, M.<span class="property">snapshot</span>, <span class="literal">false</span>);</span><br></pre></td></tr></table></figure>
+<p>第一行代码获取了<code>快照</code>按钮的buttn元素；第二行代码则是对该按钮添加了一个click事件监听以及相应的回调函数。<br><code>M.snapshot</code>是其内部定义的一个方法。其源码如下:  </p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">snapshot</span>: <span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">	M.<span class="title function_">createLines</span>(M.<span class="property">ctx</span>);</span><br><span class="line">	<span class="variable language_">window</span>.<span class="title function_">open</span>(M.<span class="property">c</span>.<span class="title function_">toDataURL</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>M.c为页面的主canvas，对其调用<code>toDataURL()</code>方法，该方法将canvas进行转化成一个特定格式的图片（默认PNG），并返回一个data URI。最后新开一个窗口显示该图片。</p>
+<p>（完）</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag"># 源码解读</a>
+          
+            <a href="/tags/Matrix-Code-Rain/" rel="tag"># Matrix-Code-Rain</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/14/blog-introduce/" rel="next" title="关于此博客">
+                <i class="fa fa-chevron-left"></i> 关于此博客
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/29/my-paintings/" rel="prev" title="【我的绘画作品】">
+                【我的绘画作品】 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BB%E5%B9%B2%E4%BB%A3%E7%A0%81"><span class="nav-number">1.</span> <span class="nav-text">主干代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E9%9B%A8"><span class="nav-number">2.</span> <span class="nav-text">代码雨</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BF%AB%E7%85%A7%E5%B7%A5%E5%85%B7%E6%A0%8F"><span class="nav-number">3.</span> <span class="nav-text">快照工具栏</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

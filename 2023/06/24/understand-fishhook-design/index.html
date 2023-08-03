@@ -1,38 +1,1449 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="源码解读,静态链接,动态链接,fishhook,PIC,GOT,PLT,延迟绑定," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="最近在三刷《程序员的自我修养：链接、装载与库》，为了加深对于相关知识的理解，我又阅读了 fishhook 的源码。本文希望从程序的链接原理出发，详细介绍 fishhook 的设计原理，学习其中的设计思想。 概述Fishhook 是 Facebook 开源的一款面向 iOS&#x2F;macOS 平台的 符号动态重绑定 工具，允许开发者在运行时修改 Mach-O 中的符号（函数），从而实现 动态库">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何从链接原理的角度理解 fishhook 的设计思想？">
+<meta property="og:url" content="http://chuquan.me/2023/06/24/understand-fishhook-design/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="最近在三刷《程序员的自我修养：链接、装载与库》，为了加深对于相关知识的理解，我又阅读了 fishhook 的源码。本文希望从程序的链接原理出发，详细介绍 fishhook 的设计原理，学习其中的设计思想。 概述Fishhook 是 Facebook 开源的一款面向 iOS&#x2F;macOS 平台的 符号动态重绑定 工具，允许开发者在运行时修改 Mach-O 中的符号（函数），从而实现 动态库">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/executable-file-01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/executable-file-02.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/static-linking-01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/dynamic-linking-01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cs-of-luxun.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/dynamic-linking-02.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/dynamic-linking-03.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/dynamic-linking-04.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/dynamic-linking-05.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2023-06-24T14:29:35.000Z">
+<meta property="article:modified_time" content="2023-07-15T07:42:21.324Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="源码解读">
+<meta property="article:tag" content="静态链接">
+<meta property="article:tag" content="动态链接">
+<meta property="article:tag" content="fishhook">
+<meta property="article:tag" content="PIC">
+<meta property="article:tag" content="GOT">
+<meta property="article:tag" content="PLT">
+<meta property="article:tag" content="延迟绑定">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/executable-file-01.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2023/06/24/understand-fishhook-design/"/>
+
+
+
+
+
+  <title>如何从链接原理的角度理解 fishhook 的设计思想？ | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2023/06/24/understand-fishhook-design/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">如何从链接原理的角度理解 fishhook 的设计思想？</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2023-06-24T22:29:35+08:00">
+                2023-06-24
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2023-07-15T15:42:21+08:00">
+                2023-07-15
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近在三刷《程序员的自我修养：链接、装载与库》，为了加深对于相关知识的理解，我又阅读了 fishhook 的源码。本文希望从程序的链接原理出发，详细介绍 fishhook 的设计原理，学习其中的设计思想。</p>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>Fishhook 是 Facebook 开源的一款面向 iOS&#x2F;macOS 平台的 <strong>符号动态重绑定</strong> 工具，允许开发者在运行时修改 Mach-O 中的符号（函数），从而实现 <strong>动态库</strong> 的函数 hook 能力。</p>
+<p>Fishhook 提供了两个用于符号重绑定的接口，分别是：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">rebind_symbols</span><span class="params">(<span class="keyword">struct</span> rebinding rebindings[], <span class="type">size_t</span> rebindings_nel)</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">rebind_symbols_image</span><span class="params">(<span class="type">void</span> *header,</span></span><br><span class="line"><span class="params">                         <span class="type">intptr_t</span> slide,</span></span><br><span class="line"><span class="params">                         <span class="keyword">struct</span> rebinding rebindings[],</span></span><br><span class="line"><span class="params">                         <span class="type">size_t</span> rebindings_nel)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>rebind_symbols</code> 可以在所有动态库范围内进行符号重绑定，而 <code>rebind_symbols_image</code> 则限制了动态库的范围，只能指定某一个动态库。</p>
+<p>这里，我们先预设几个问题，后面会逐步进行解答：</p>
+<ul>
+<li>问题一：fishhook 是在什么时候完成函数 hook 的？</li>
+<li>问题二：fishhook 为什么只支持 hook 动态库函数？</li>
+</ul>
+<p>为了能介绍清楚 fishhook 的实现原理，本文我将重点介绍程序的链接原理，包括：静态链接、动态链接。其中，涉及到的术语和概念主要是基于 ELF 可执行文件（或目标文件），在真正介绍 fishhook 的原理时，我会将 Mach-O 中的术语与 ELF 进行比较和映射，从而达到一个举一反三的效果。</p>
+<h1 id="可执行文件格式"><a href="#可执行文件格式" class="headerlink" title="可执行文件格式"></a>可执行文件格式</h1><p>在介绍链接原理之前，我们有必要先了解一下可执行文件（目标文件）的基本格式，不同的平台有着不同的格式，分别是：</p>
+<ul>
+<li>对于 Windows 平台，其采用的是 <strong>PE（Portable Executable）</strong> 格式</li>
+<li>对于 Linux 平台，其采用的是 <strong>ELF（Executable Linkable Format）</strong> 格式</li>
+<li>对于 iOS&#x2F;macOS 平台，其采用的是 <strong>Mach-O（Mach Object）</strong> 格式</li>
+</ul>
+<p>尽管不同平台的可执行文件格式不同，但是它们的组织结构和规则是基本类似的。如下图所示，不同格式的可执行文件基本都包含如下几个部分：</p>
+<ul>
+<li>文件头</li>
+<li>segment 表</li>
+<li>section 表</li>
+<li>section 数据</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/executable-file-01.png?x-oss-process=image/resize,w_800"></p>
+<p>文件头用于描述可执行文件的元信息，包括：文件类型、系统版本、segment 表的位置和大小、section 表的位置和大小等等。Section 表本质上是一个索引表，其存储了每一个 section 的元信息，比如对应 section 在文件中的位置和大小。至于 section，它是可执行文件的基本组成单元，常见 section 有：<code>.text</code>、<code>.data</code>、<code>.bss</code>、<code>.symtab</code>、<code>.strtab</code> 等。</p>
+<p>那么 segment 表的作用又是什么呢？</p>
+<h2 id="section-与-segment"><a href="#section-与-segment" class="headerlink" title="section 与 segment"></a>section 与 segment</h2><p>事实上，两者的区别主要在于：section 用于描述可执行文件的静态存储布局，segment 用于描述可执行文件的装载内存布局。</p>
+<p>我们知道可执行文件是以 section 为基本单元存储的，section 的类型非常多，如：<code>.data</code>、<code>.text</code>、<code>.rodata</code> 等。假如，我们的可执行文件中有两个 section，分别是 <code>.init</code> 和 <code>.text</code>，两者的大小分别是 3500B 和 4100B。假设系统的页面大小为 4KB，我们来分别看一下基于 section 装载和基于 segment 装载的内存占用情况。</p>
+<p>下图右部所示为基于 section 装载的内存占用情况，其中 <code>.init</code> 单独占用一个页，且页没有全部使用；<code>.text</code> 会单独占用两个页，且第二页绝大多数内存空间没有使用，总共浪费内存 3 x 4KB - 3500B - 4100B &#x3D; 4688B。</p>
+<p>下图左部所示为基于 segment 装载的内存占用情况，<code>.text</code> 占用了两个页，且与 <code>.init</code> 共享了一个页，总共浪费内存 2 x 4KB - 3500B - 4100B &#x3D; 592B。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/executable-file-02.png?x-oss-process=image/resize,w_800"></p>
+<p>很显然，相比于基于 section 装载，基于 segment 装载对于内存占用的优化非常明显，内存碎片更少。在实际中，程序在装载时会将相同权限的 section 合并在一个 segment 中，比如：<code>.init</code> 和 <code>.text</code> 都合并成为可读可执行权限的 segment，作为代码段；可读可写的 section 合并在为一个 segment，作为数据段。</p>
+<h1 id="程序的链接原理"><a href="#程序的链接原理" class="headerlink" title="程序的链接原理"></a>程序的链接原理</h1><p><strong>链接（Linking）</strong> 的本质是把多个目标文件相互拼接到一起，使得函数调用、变量访问等指令能够找到正确的内存地址。然而，这一切都是围绕着 <strong>符号（Symbol）</strong> 完成的。</p>
+<p>那么到底什么是符号？举个例子，目标文件 B 调用了目标文件 A 中的函数 <code>foo</code>。对此，我们认为目标文件 A 定义了函数 <code>foo</code>，目标文件 B 引用了函数 <code>foo</code>。在链接过程中，我们将函数和变量统称为 <strong>符号（Symbol）</strong>，函数名和和变量名统称为 <strong>符号名（Symbol Name）</strong>。因此，我们也可以认为目标文件 A 包含了函数 <code>foo</code> 的 <strong>符号定义（Symbol Definition）</strong>，目标文件 B 包含了函数 <code>foo</code> 的 <strong>符号引用（Symbol Reference）</strong>。</p>
+<p>这时候问题来了，链接过程是如何基于符号完成对二进制指令中内存地址的修正呢？对此，我们可以先来了解一下静态链接。</p>
+<h2 id="静态链接"><a href="#静态链接" class="headerlink" title="静态链接"></a>静态链接</h2><p>静态链接会在编译期将多个目标文件合并为一个可执行文件。因此，里面包含了所有的符号、重定位项、字符串等。</p>
+<p>在编译过程中，编译器会为每一个变量或函数生成一个符号项，符号项包含的信息主要有：</p>
+<ul>
+<li><strong>符号名</strong>：即一个指向字符串表的索引，比如：字符串 <code>foo</code> 在字符串表中的偏移量。</li>
+<li><strong>符号类型</strong>：类型有很多，比如：全局符号、局部符号、未定义符号等。</li>
+<li><strong>符号值</strong>：<strong>符号定义</strong> 的内存地址，用于修正二进制指令中的内存地址。这个地址修正的过程被称为 <strong>重定位</strong>。</li>
+</ul>
+<p>此外，编译器还会为每个变量引用或函数引用生成一个重定位项。由于每一个重定位项记录了每一次对于符号的引用，因此，我们可以将其称为符号引用项。这样也就构成了符号定义和符号引用的一对多关系，毕竟，我们可以在不同的地方引用同一个变量或函数。</p>
+<p>基于如下示意图，静态链接的整体工作原理大概可以分为以下三个步骤：</p>
+<ul>
+<li>根据重定位项中的符号索引，去符号表找到对应的符号项，并获取到对应符号的符号值，即内存地址。</li>
+<li>根据重定位项中的重定位地址，找到代码段中对应的字节地址，将其修正为步骤一获取到的内存地址。</li>
+<li>遍历重定位表中的所有重定位项，重复步骤一和步骤二。</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/static-linking-01.png?x-oss-process=image/resize,w_800"></p>
+<p>由于静态链接时，程序所依赖的所有目标文件都已经合并在了一个可执行文件中，因此几乎不存在符号项中的符号值（内存地址）不确定的情况，对此，静态链接器只需要基于重定位表进行重定位即可。这其实就是大家常说『静态链接的重点是重定位』的原因。</p>
+<h2 id="动态链接"><a href="#动态链接" class="headerlink" title="动态链接"></a>动态链接</h2><p>动态链接的基本思想是 <strong>将程序按照模块拆分成各个独立的部分，在运行时将它们链接在一起形成一个完整的程序</strong>，而不是像静态链接一样在编译时把所有的模块都链接成一个独立的可执行文件。因此，动态链接可以有效解决静态链接存在的 <strong>内存空间浪费</strong> 和 <strong>程序更新困难</strong> 的问题。</p>
+<p>那么对于动态链接，我们是否可以直接采用静态链接的做法呢？这种方案理论上可以，但却不是最优解，因为静态链接会修改代码段，我们很难让共享对象在被多次重定位之后也能继续安全稳定的运行。</p>
+<p>举一个例子，如下所示，一个动态共享对象 <code>X</code> 内部会引用外部的一个变量 <code>a</code>。当程序 <code>A</code> 与动态共享对象 <code>X</code> 完成重定位后，<code>X</code> 代码段中的某个指令的访存地址可能是一个值；当程序 <code>B</code> 与动态共享对象 <code>X</code> 完成重定位后，<code>X</code> 代码段中同位置的访存地址可能会被修改成另一个值。这时候，必然会出现其他程序无法正常执行的情况。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/dynamic-linking-01.png?x-oss-process=image/resize,w_800"></p>
+<p>关于如何解决多进程之间的重定位冲突问题，我们可以引用下图所示的经典名言来描述动态链接的解决方案。当然，在具体的实现中，动态链接根据链接的时机，还可以分为 <strong>装载时链接（Load-Time Linking）</strong> 和 <strong>延迟链接（Lazy Linking）</strong>。两者的实现思路只有略微的差异，下面我们将分别进行介绍。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cs-of-luxun.png?x-oss-process=image/resize,w_800"></p>
+<h3 id="装载时链接"><a href="#装载时链接" class="headerlink" title="装载时链接"></a>装载时链接</h3><p>下图所示为装载时链接的工作原理示意图。对于共享对象而言，其代码段会被多个进程所共享，因此不能直接在代码段中进行重定位，修改内存地址。考虑到多进程共享对象时，共享对象会为每个进程拷贝一份数据段，支持修改。因此，一种称为 <strong>地址无关代码（PIC，Position-Independent Code）</strong> 的技术诞生了，其基本思想是：在编译时配置 PIC 编译选项，将指令部分中需要被修改的部分分离出来，跟数据部分放在一起。这样指令部分可以保持不变，而数据部分可以在每个进程中有一个独立的副本。</p>
+<p>对于 PIC 技术，代码运行性能会比静态链接要差一点。因为指令在访问外部变量或外部函数时，必须先通过指针去数据段找到对应的位置，再从中取出真实的内存地址，很显然多了一次间接操作，损耗了性能。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/dynamic-linking-02.png?x-oss-process=image/resize,w_800"></p>
+<p>在装载前，共享对象 <code>X</code> 的符号表中的外部符号 <code>bar</code> 的内存地址是未定义的。但是，程序 <code>A</code> 的符号表中的符号 <code>bar</code> 的内存地址是确定的（因为符号 <code>bar</code> 的符号定义位于程序 <code>A</code> 中）。因此，在装载时我们就可以决议出共享对象 <code>X</code> 的外部符号 <code>bar</code> 的地址。这个过程，我们称之为 <strong>装载时绑定（Load-Time Binding）</strong> 或 <strong>装载时符号绑定（Load-Time Symbol Binding）</strong>。</p>
+<p>当外部符号 <code>bar</code> 的内存地址绑定完成后，我们就可以进行后续的重定位了。其步骤和静态链接的重定位类似，主要包括以下几步：</p>
+<ul>
+<li>根据动态重定位项中的符号索引，去动态符号表中找到对应的符号项，并获取对应符号的符号值，即装载时绑定的内存地址。</li>
+<li>根据动态重定位项中的重定位地址，找到 <strong>数据段</strong> 中对应的字节地址，将其修正为步骤一获取到的内存地址。</li>
+<li>遍历动态重定位表中的所有重定位项，重复步骤一和步骤二。</li>
+</ul>
+<p>在 PIC 技术中，编译器会在数据段中为每一个符号存储一个占位桩（stub），用于存储符号的真实内存地址。这些占位桩组成了一个表，我们称之为 <strong>全局偏移表（GOT，Global Offset Table）</strong>。</p>
+<p>综上述可以看出，装载时链接包含了两个重要的步骤，分别是装载时绑定和重定位。虽然中间多了一步间接索引内存地址，损耗了一些性能，但是程序的灵活性和复用性提高了很多。</p>
+<h3 id="延迟链接"><a href="#延迟链接" class="headerlink" title="延迟链接"></a>延迟链接</h3><p>考虑到程序运行的局部性，实际上在进程生命周期中很多变量或函数并不会被调用。于是，诞生了延迟链接技术，可以支持进程只在第一次调用符号时才进行链接。</p>
+<p>下图所示为延迟链接的工作原理示意图，本质上与装载时链接差不多，主要区别在于：装载时链接在数据段中使用了 GOT 存储符号地址，延迟链接则在数据段中使用了 <strong>过程链接表（PLT，Procedure Linkage Table）</strong> 存储符号地址。当 PLT 表项中符号的内存地址未决议时，PLT 表项中的占位桩（stub）存储的是一段代码的地址。当这段代码完成符号绑定和重定位后，会将符号的真实内存地址回填到占位桩中，覆盖默认的代码地址，从而实现仅在第一次调用符号时才进行链接。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/dynamic-linking-03.png?x-oss-process=image/resize,w_800"></p>
+<p>延迟链接的关键是如何实现在第一次调用符号时进行链接，这个过程包含了 <strong>延迟绑定（Lazy Binding）</strong> 和重定位。关于 PLT 的存储，很多目标文件会将其存储在命名为 <code>got.plt</code> 的 section 中，Mach-O 和 ELF 都是如此，这一点需要注意。</p>
+<h1 id="Fishhook-实现原理"><a href="#Fishhook-实现原理" class="headerlink" title="Fishhook 实现原理"></a>Fishhook 实现原理</h1><h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><p>上述介绍了程序的链接原理，尤其是在理解了动态链接之后，如果你细想思考一下，很容易就能想到 fishhook 的设计思想。</p>
+<p>下图展示了 fishhook 的设计思想，非常简单巧妙，核心思想就是 <strong>将目标符号（函数）对应的 GOT 表项或 PLT 表项中存储的符号值（内存地址），替换成 hook 函数的内存地址</strong>。通过这种方式，无论是装载时链接还是延迟链接，我们都可以实现对动态共享库函数的 hook。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/dynamic-linking-04.png?x-oss-process=image/resize,w_800"></p>
+<p>下面，我们来介绍一下 fishhook 实现细节中与 Mach-O 的相关概念。</p>
+<h2 id="Non-lazy-Symbol-Pointer-Lazy-Symbol-Pointer"><a href="#Non-lazy-Symbol-Pointer-Lazy-Symbol-Pointer" class="headerlink" title="Non-lazy Symbol Pointer &amp; Lazy Symbol Pointer"></a>Non-lazy Symbol Pointer &amp; Lazy Symbol Pointer</h2><p>如下所示为《Mach-O Programming Topics》中对两者的解释：</p>
+<blockquote>
+<p> Non-lazy symbol references are resolved (bound to their definitions) by the dynamic linker when a module is loaded.A non-lazy symbol reference is essentially a symbol pointer—a pointer-sized piece of data. The compiler generates non-lazy symbol references for data symbols or function addresses.</p>
+<p> Lazy symbol references are resolved by the dynamic linker the first time they are used (not at load time). Subsequent calls to the referenced symbol jump directly to the symbol’s definition.Lazy symbol references are made up of a symbol pointer and a symbol stub, a small amount of code that directly dereferences and jumps through the symbol pointer. The compiler generates lazy symbol references when it encounters a call to a function defined in another file.</p>
+</blockquote>
+<p>Non-lazy Symbol Pointer 存储的是指向符号定义的指针，它与 GOT 中的表项定义非常类似。由 Non-lazy Symbol Pointer 组成的表，在 Mach-O 中我们称为 Non-lazy Symbol Pointer Table。</p>
+<p>Lazy Symbol Pointer 包含一个指向符号定义的指针、一个占位桩以及一段代码（可用于延迟绑定和重定位），它与 PLT 中的表项定义非常类似。由 Lazy Symbol Pointer 组成的表，在 Mach-O 中我们称之为 Lazy Symbol Pointer Table。</p>
+<h2 id="Indirect-Symbol-Table"><a href="#Indirect-Symbol-Table" class="headerlink" title="Indirect Symbol Table"></a>Indirect Symbol Table</h2><p>上述的 Non-lazy Symbol Pointer 和 Lazy Symbol Pointer 并没有包含符号名相关的信息，然而在实际的符号查找、绑定的过程是需要用到的。因此，对于 Non-lazy Symbol Pointer Table 和 Lazy Symbol Pointer Table 各自有一个同步的间接符号表，可以用于配合完成链接工作。Fishhook 也是借助 Indirect Symbol Table 间接获取符号名，然后与目标符号进行判等比较，从而最终完成 hook 工作。</p>
+<p>Indirect Symbol Table 与 Symbol Pointer Table 的表项是一一对应的，比如：Indirect Symbol Table 中第 1601 项存储的就是 Symbol Pointer Table 中第 1601 项的符号索引，如下图所示。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/dynamic-linking-05.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="Symbol-Pointer-目标符号地址替换"><a href="#Symbol-Pointer-目标符号地址替换" class="headerlink" title="Symbol Pointer 目标符号地址替换"></a>Symbol Pointer 目标符号地址替换</h2><p>Fishhook 的核心是 <strong>完成 Symbol Pointer 的地址替换</strong>，无论是 Non-lazy Symbol Pointer 还是 Lazy Symbol Pointer。其实现的关键步骤主要包括以下几步：</p>
+<ul>
+<li>查找数据段，即 <code>SEG_DATA</code> 或 <code>SEG_DATA_CONST</code></li>
+<li>在数据段中查找 <code>LAZY_SYMNBOL_POINTERS</code> 和 <code>NON_LAZY_SYMBOL_POINTERS</code> 类型的 section</li>
+<li>分别对 <code>LAZY_SYMBOL_POINTERS</code> 和 <code>NON_LAZY_SYMBOL_POINTERS</code> section 进行 Symbol Pointer 目标符号地址替换</li>
+</ul>
+<p>Symbol Pointer 目标符号地址替换的过程主要有以下几步：</p>
+<ul>
+<li>根据 <code>LAZY_SYMBOL_POINTERS</code> 或 <code>NON_LAZY_SYMBOL_POINTERS</code> section 获取其对应的 Indirect Symbol Table</li>
+<li>遍历 section，同步遍历 Indirect Symbol Table，获取对应的符号名</li>
+<li>遍历过程中，判断符号名是否与目标符号名匹配。如果匹配，则将 Symbol Pointer 的符号地址替换成 hook 函数的地址；否则，继续遍历，直到结束。</li>
+</ul>
+<p>这里涉及到了 fishhook 中的两个函数实现，分别是 <code>rebind_symbols_for_image</code> 函数和 <code>perform_rebinding_with_section</code> 函数，有兴趣的朋友可以自行阅读，本文就不粘贴代码了。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>至此，我们从链接原理的角度介绍了 fishhook 的设计思路。通过这种自顶向下的方法来分析，我们很快就可以联想到如何去实现一个针对 ELF 格式的 hook 工具。</p>
+<p>最后，我们再来回顾一下本文开头预留的几个问题。</p>
+<p>问题一：fishhook 是在什么时候完成函数 hook 的？fishhook 会在调用 <code>rebind_symbols</code> 或 <code>rebind_symbols_image</code> 方法时去遍历镜像，从而完成对目标符号的地址替换。</p>
+<p>问题二：fishhook 为什么只支持 hook 动态库函数？动态库的 PIC 技术支持在数据段进行重定位，因此允许我们进行目标地址修改。而 fishhook 的整个机制就是建立在动态链接原理的基础上，因此仅支持 hook 动态库函数。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li>《程序员的自我修养：装载、链接与库》</li>
+<li><a target="_blank" rel="noopener" href="https://studfile.net/preview/2082911/">OS X ABI Mach-O File Format Reference</a></li>
+<li>Mach-O Programming Topics</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebook/fishhook">fishhook</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dyld.3.html">BSD Library Functions Manual——dyld(3)</a></li>
+<li><a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man3/dladdr.3.html">dladdr(3) — Linux manual page</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag"># 源码解读</a>
+          
+            <a href="/tags/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5/" rel="tag"># 静态链接</a>
+          
+            <a href="/tags/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5/" rel="tag"># 动态链接</a>
+          
+            <a href="/tags/fishhook/" rel="tag"># fishhook</a>
+          
+            <a href="/tags/PIC/" rel="tag"># PIC</a>
+          
+            <a href="/tags/GOT/" rel="tag"># GOT</a>
+          
+            <a href="/tags/PLT/" rel="tag"># PLT</a>
+          
+            <a href="/tags/%E5%BB%B6%E8%BF%9F%E7%BB%91%E5%AE%9A/" rel="tag"># 延迟绑定</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/04/22/prototype-based-inheritance/" rel="next" title="基于原型的继承模式">
+                <i class="fa fa-chevron-left"></i> 基于原型的继承模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/07/30/introduction-to-taskloop/" rel="prev" title="如何优雅地管理你的定时任务？">
+                如何优雅地管理你的定时任务？ <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">可执行文件格式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#section-%E4%B8%8E-segment"><span class="nav-number">2.1.</span> <span class="nav-text">section 与 segment</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E7%9A%84%E9%93%BE%E6%8E%A5%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">程序的链接原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5"><span class="nav-number">3.1.</span> <span class="nav-text">静态链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5"><span class="nav-number">3.2.</span> <span class="nav-text">动态链接</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A3%85%E8%BD%BD%E6%97%B6%E9%93%BE%E6%8E%A5"><span class="nav-number">3.2.1.</span> <span class="nav-text">装载时链接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BB%B6%E8%BF%9F%E9%93%BE%E6%8E%A5"><span class="nav-number">3.2.2.</span> <span class="nav-text">延迟链接</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Fishhook-%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">4.</span> <span class="nav-text">Fishhook 实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3"><span class="nav-number">4.1.</span> <span class="nav-text">核心思想</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Non-lazy-Symbol-Pointer-Lazy-Symbol-Pointer"><span class="nav-number">4.2.</span> <span class="nav-text">Non-lazy Symbol Pointer &amp; Lazy Symbol Pointer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Indirect-Symbol-Table"><span class="nav-number">4.3.</span> <span class="nav-text">Indirect Symbol Table</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Symbol-Pointer-%E7%9B%AE%E6%A0%87%E7%AC%A6%E5%8F%B7%E5%9C%B0%E5%9D%80%E6%9B%BF%E6%8D%A2"><span class="nav-number">4.4.</span> <span class="nav-text">Symbol Pointer 目标符号地址替换</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

@@ -1,38 +1,2098 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Mach-O," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="概述Mach-O 的全称是 Mach Object File Format，它可以用来表示可执行文件、目标代码或共享库、动态库等。Mach 内核的操作系统，如：macOS，iPadOS，iOS 采用的都是 Mach-O。本文我们来学习一下 Mach-O 的内部结构，通过学习 Mach-O，可以了解应用程序是如何加载到系统中的，如何执行的。 基本结构Mach-O 文件的内部组成可以分为三个部分：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mach-O 格式">
+<meta property="og:url" content="http://chuquan.me/2020/09/14/mach-o-format/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="概述Mach-O 的全称是 Mach Object File Format，它可以用来表示可执行文件、目标代码或共享库、动态库等。Mach 内核的操作系统，如：macOS，iPadOS，iOS 采用的都是 Mach-O。本文我们来学习一下 Mach-O 的内部结构，通过学习 Mach-O，可以了解应用程序是如何加载到系统中的，如何执行的。 基本结构Mach-O 文件的内部组成可以分为三个部分：">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/mach-o-overview.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2020-09-14T07:39:17.000Z">
+<meta property="article:modified_time" content="2020-12-20T07:43:12.005Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="Mach-O">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/mach-o-overview.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2020/09/14/mach-o-format/"/>
+
+
+
+
+
+  <title>Mach-O 格式 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2020/09/14/mach-o-format/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Mach-O 格式</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2020-09-14T15:39:17+08:00">
+                2020-09-14
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2020-12-20T15:43:12+08:00">
+                2020-12-20
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>Mach-O 的全称是 Mach Object File Format，它可以用来表示可执行文件、目标代码或共享库、动态库等。Mach 内核的操作系统，如：macOS，iPadOS，iOS 采用的都是 Mach-O。本文我们来学习一下 Mach-O 的内部结构，通过学习 Mach-O，可以了解应用程序是如何加载到系统中的，如何执行的。</p>
+<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>Mach-O 文件的内部组成可以分为三个部分：</p>
+<ul>
+<li><strong>Header</strong><ul>
+<li>每一个 Mach-O 文件的起始部分，用于将文件标识为 Mach-O 文件。Header 还包含关于文件的其他信息，如：文件类型、CPU 架构类型等。</li>
+</ul>
+</li>
+<li><strong>Load Commands</strong>：<ul>
+<li>Load Commands 包含了一系列不同的 <strong>加载命令（Load Commands）</strong>，可用于指导如何设置并加载二进制数据。在 Mach-O 的文件布局中，Load Commands 紧跟在 Header 之后。Load Commands 有诸多功能，比如：<ul>
+<li>指定文件在虚拟内存中的初始布局</li>
+<li>指定动态链接时的符号表位置</li>
+<li>指定程序主线程的初始执行状态</li>
+<li>指定共享库的名称，共享库包含程序所导入符号的定义。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Data</strong><ul>
+<li>Data 包含了多个 segment，每个 segment 包含 0 个或多个 section。每个 segment 中的 section 具有相同的类型，如：代码或数据。每个 segment 定义了一个虚拟内存区域，动态链接器能够将其映射到进程的地址空间。segment 和 section 的数量和布局则是由 load commands 和文件类型指定的。</li>
+<li>对于用户级完全链接的 Mach-O 文件，其最后一个 segment 是 <strong>LINKEDIT</strong> segment。该 segment 包含了符号链接的信息表，如：符号表、字符串表等，动态链接器基于这些信息将可执行程序或 Mach-O bundle 与其依赖的库进行链接接。</li>
+</ul>
+</li>
+</ul>
+<p>下图所示为 Mach-O 文件的基本结构：</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/mach-o-overview.png?x-oss-process=image/resize,w_800"></p>
+<p>下面我们来对 Mach-O 文件 Header 和 Load Commands 进行着重分析。Load Command 中涉及到的一些其他数据结构，如 section 则存储在 Data 之中。</p>
+<hr>
+<h1 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h1><p>Header 的数据结构如下所示（在 <code>/usr/include/mach-o/loader.h</code> 中定义）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mach_header</span> &#123;</span></span><br><span class="line">	<span class="type">uint32_t</span>	magic;		    <span class="comment">/* mach magic number identifier */</span></span><br><span class="line">	<span class="type">cpu_type_t</span>	cputype;	    <span class="comment">/* cpu specifier */</span></span><br><span class="line">	<span class="type">cpu_subtype_t</span>	cpusubtype;	<span class="comment">/* machine specifier */</span></span><br><span class="line">	<span class="type">uint32_t</span>	filetype;	    <span class="comment">/* type of file */</span></span><br><span class="line">	<span class="type">uint32_t</span>	ncmds;		    <span class="comment">/* number of load commands */</span></span><br><span class="line">	<span class="type">uint32_t</span>	sizeofcmds;	    <span class="comment">/* the size of all the load commands */</span></span><br><span class="line">	<span class="type">uint32_t</span>	flags;		    <span class="comment">/* flags */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>magic</code><ul>
+<li>指定文件的类型为 Mach-O。如果文件希望其布局与 CPU 字节序相同，则使用 <code>MH_MAGIC</code>；如果文件希望其布局与 CPU 字节序相反，则使用 <code>MH_CIGAM</code>。</li>
+</ul>
+</li>
+<li><code>cputype</code><ul>
+<li>指定文件运行的目标架构，可能包含两种类型：<ul>
+<li><code>CPU_TYPE_POWERPC</code>：基于 PowerPC CPU 的 Mac 计算机。</li>
+<li><code>CPU_TYPE_I386</code>：基于 Intel CPU 的 Mac 计算机。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>cpusubtype</code><ul>
+<li>指定 CPU 确切型号。如果希望能够 PowerPC 或 Intel 的所有处理器上执行，可以设置为 <code>CPU_SUBTYPE_POWERPC_ALL</code> 或 <code>CPU_SUBTYPE_I386_ALL</code>。</li>
+</ul>
+</li>
+<li><code>filetype</code><ul>
+<li>指定文件的类型。其包含以下这些值：<ul>
+<li><code>MH_OBJECT</code>：表示 <strong>中间目标文件</strong>。这是一种非常紧凑的格式，它将所有的 section 放在了一个 segment 中。<strong>编译器和汇编器通常会为每一个源代码文件生成一个中间目标文件，文件一般以 <code>.o</code> 作为后缀</strong>。</li>
+<li><code>MH_EXECUTE</code>：表示 <strong>标准的可执行程序</strong>。</li>
+<li><code>MH_BUNDLE</code>：表示 <strong>插件</strong> 或 <strong>bundle</strong>。非独立的二进制文件，<strong>由可执行文件显式进行加载</strong>。<strong>文件一般以 <code>.bundle</code> 作为后缀</strong>。</li>
+<li><code>MH_DYLIB</code>：表示 <strong>动态共享库</strong>。其包含一些额外的表来支持多个模块。<strong>文件一般以 <code>.dylib</code> 作为后缀</strong>，framework 的主共享库除外，其没有文件后缀名。</li>
+<li><code>MH_CORE</code>：表示 <strong>核心转储文件</strong>。操作系统会在程序崩溃时创建该文件。核心转储文件存储了程序崩溃时的完整地址空间。我们可以通过在核心转储文件上运行 <code>gdb</code> 来判断崩溃的原因。</li>
+<li><code>MH_DYLINKER</code>：表示 <strong>动态链接器</strong>。<code>dyld</code> 的文件类型就是 <code>MH_DYLINKER</code>。</li>
+<li><code>MH_DSYM</code>：表示 <strong>存储了二进制符号信息的文件</strong>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>ncmds</code><ul>
+<li>指定 load commands 的数量。</li>
+</ul>
+</li>
+<li><code>sizeofcmds</code><ul>
+<li>指定 load commands 所占据的字节数。</li>
+</ul>
+</li>
+<li><code>flags</code><ul>
+<li>指定 Mach-O 文件的某些可选功能的状态，下面是一些我们可以操作该字段的掩码：<ul>
+<li><code>MH_NOUNDEFS</code>：表示目标文件在构建时不包含未定义的引用。</li>
+<li><code>MH_INCRLNK</code>：表示目标文件是相对于一个基本文件的增量链接输出，无法再次链接。</li>
+<li><code>MH_DYLDLINK</code>：表示目标文件是动态链接器的输入，无法再次静态链接。</li>
+<li><code>MH_TWOLEVEL</code>：表示镜像采用二级命名空间绑定。</li>
+<li><code>MH_BINDATLOAD</code>：表示当文件加载完毕之后，动态链接器应该对未定义引用进行绑定。</li>
+<li><code>MH_PREBOUND</code>：表示文件的未定义引用是预先绑定的。</li>
+<li><code>MH_PREBINDABLE</code>：表示文件没有预绑定，但是可以重新对其进行预绑定。<strong>仅在 <code>MH_PREBOUND</code> 未设置时使用</strong>。</li>
+<li><code>MH_NOFIXPREBINDING</code>：表示动态链接器不会将关于此可执行文件的信息通知预绑定代理。</li>
+<li><code>MH_ALLMODSBOUND</code>：表示将此二进制文件绑定到它所依赖的库的所有二级命名空间 module。<strong>仅在 <code>MH_PREBINDABLE</code> 和 <code>MH_TWOLEVEL</code> 设置时使用</strong>。</li>
+<li><code>MH_CANONICAL</code>：表示文件已取消预绑定。</li>
+<li><code>MH_SPLIT_SEGS</code>：表示文件的只读段和读写段是分离的。</li>
+<li><code>MH_FORCE_FLAT</code>：表示可执行文件强制所有镜像使用扁平的命名空间绑定。</li>
+<li><code>MH_SUBSECTIONS_VIA_SYMBOLS</code>：表示目标文件的 sections 可以分为独立的块。如果其他代码未使用这些块，则会被清理掉。</li>
+<li><code>MH_NOMULTIDEFS</code>：表示确保子镜像没有针对同一符号的多种定义。因此可以使用两级命名空间提示。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>注意</strong>：对于所有的文件类型（<code>MH_OBJECT</code> 除外），对于给定的 CPU 架构，segments 必须页对齐：PowerPC 和 x86 处理器的页面大小均为 4KB。这使得内核能够直接为 segment 分配虚拟内存页面。</p>
+<h1 id="Load-Commands"><a href="#Load-Commands" class="headerlink" title="Load Commands"></a>Load Commands</h1><p>Load commands 位于 Header 之后，它们用于指定文件的逻辑结构、文件在虚拟内存中的布局。所有类型的 <strong>加载命令</strong> 都具有相同的两个字段，用于指定命令类型以及命令数据的大小，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">load_command</span> &#123;</span></span><br><span class="line">	<span class="type">uint32_t</span> cmd;		<span class="comment">/* type of load command */</span></span><br><span class="line">	<span class="type">uint32_t</span> cmdsize;	<span class="comment">/* total size of command in bytes */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>cmd</code><ul>
+<li>指定加载命令的类型。下面列出了有效的加载命令的类型。<ul>
+<li><code>LC_UUID</code>：表示 <code>uuid_command</code> 加载命令。用于指定一个镜像或其对应的 dSYM 文件的 128 位 UUID。</li>
+<li><code>LC_SEGMENT</code>：表示 <code>segment_command</code> 加载命令。将指定的 segment 映射到加载此文件的进程的地址空间中。此外，还定义了 segment 所包含的所有 sections。</li>
+<li><code>LC_SYMTAB</code>：表示 <code>symtab_command</code> 加载命令。用于指定此文件的符号表。<strong>动态链接或静态链接此文件时都会调用符号表信息，调试器也使用符号表将符号映射到生成符号的原始代码文件</strong>。</li>
+<li><code>LC_DYSYMTAB</code>：表示 <code>dysymtab_command</code> 加载命令。用于指定 <strong>动态链接器使用的额外符号表信息</strong>。</li>
+<li><code>LC_THREAD</code>、<code>LC_UNIXTHREAD</code>：表示 <code>thread_command</code> 加载命令。对于可执行文件，<code>LC_UNIXTHREAD</code> 定义了进程主线程的初始化状态；<code>LC_THREAD</code> 与 <code>LC_UNIXTHREAD</code> 类似，但是不会导致内核分配栈区。</li>
+<li><code>LC_LOAD_DYLIB</code>：表示 <code>dylib_command</code> 加载命令。用于定义此文件会链接的动态链接库的名称。</li>
+<li><code>LC_ID_DYLIB</code>：表示 <code>dylib_command</code> 加载命令。用于定义动态链接器的名称。</li>
+<li><code>LC_PREBOUND_DYLIB</code>：表示 <code>prebound_dylib_command</code> 加载命令。对于此文件预先链接到的共享库，通过此加载命令指定共享库中使用的 module。</li>
+<li><code>LC_LOAD_DYLINKER</code>：表示 <code>dylinker_command</code> 加载命令。用于指定 <strong>内核加载此文件所使用的动态链接器</strong>。</li>
+<li><code>LC_ID_DYLINKER</code>：表示 <code>dylinker_command</code> 加载命令。用于指定此文件是动态链接器。</li>
+<li><code>LC_ROUTINES</code>：表示 <code>routines_command</code> 加载命令。包含共享库初始化进程的地址。</li>
+<li><code>LC_TWOLEVEL_HINTS</code>：表示 <code>twolevel_hints_command</code> 加载命令。包含两级命名空间查找表。</li>
+<li><code>LC_SUB_FRAMEWORK</code>：表示 <code>sub_framework_command</code> 加载命令。将此文件标识为 umbrella framework 的子 framework 的实现。umbrella framework 的名称存储在字符串参数中。</li>
+<li><code>LC_SUB_UMBRELLA</code>：表示 <code>sub_umbrella_command</code> 加载命令。将一个文件标记为此 umbrella framework 的子 umbrella。</li>
+<li><code>LC_SUB_LIBRARY</code>：表示 <code>sub_library_command</code> 加载命令。用于定义 <code>LC_SUB_LIBRARY</code> 加载命令的属性，标识为此 framework 的子 library，并将该 framework 标记为一个 umbrella framework。</li>
+<li><code>LC_SUB_CLIENT</code>：表示 <code>sub_client_command</code> 加载命令。当包含 <code>LC_SUB_CLIENT</code> 加载命令，且包含另一个 framework 或 bundle 的名称时，子 framework 就可以允许被它们所链接。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>cmdsize</code><ul>
+<li>指定数据结构的大小，以字节为单位。不同类型的加载命令，除了包含上述两个基本字段之外，还包含其他的数据字段。</li>
+</ul>
+</li>
+</ul>
+<p>表：</p>
+<p>下面依次来介绍各种不同类型的加载命令。</p>
+<h2 id="uuid-command"><a href="#uuid-command" class="headerlink" title="uuid_command"></a>uuid_command</h2><p><code>uuid_command</code> 加载命令用于指定镜像或其对应的 dSYM 文件的 128 位通用唯一标识符（UUID）。<code>uuid_command</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">uuid_command</span> &#123;</span></span><br><span class="line">    <span class="type">uint32_t</span>	cmd;		<span class="comment">/* LC_UUID */</span></span><br><span class="line">    <span class="type">uint32_t</span>	cmdsize;	<span class="comment">/* sizeof(struct uuid_command) */</span></span><br><span class="line">    <span class="type">uint8_t</span>	uuid[<span class="number">16</span>];	<span class="comment">/* the 128-bit uuid */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>uuid</code><ul>
+<li>128 位的 UUID。</li>
+</ul>
+</li>
+</ul>
+<h2 id="segment-command"><a href="#segment-command" class="headerlink" title="segment_command"></a>segment_command</h2><p><code>segment_command</code> 命令用于指定一个 segment 的字节范围，该范围中的数据通过加载器映射到程序的地址空间。<code>segment_command</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">segment_command</span> &#123;</span> <span class="comment">/* for 32-bit architectures */</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmd;		<span class="comment">/* LC_SEGMENT */</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmdsize;	<span class="comment">/* includes sizeof section structs */</span></span><br><span class="line">	<span class="type">char</span>		segname[<span class="number">16</span>];	<span class="comment">/* segment name */</span></span><br><span class="line">	<span class="type">uint32_t</span>	vmaddr;		<span class="comment">/* memory address of this segment */</span></span><br><span class="line">	<span class="type">uint32_t</span>	vmsize;		<span class="comment">/* memory size of this segment */</span></span><br><span class="line">	<span class="type">uint32_t</span>	fileoff;	<span class="comment">/* file offset of this segment */</span></span><br><span class="line">	<span class="type">uint32_t</span>	filesize;	<span class="comment">/* amount to map from the file */</span></span><br><span class="line">	<span class="type">vm_prot_t</span>	maxprot;	<span class="comment">/* maximum VM protection */</span></span><br><span class="line">	<span class="type">vm_prot_t</span>	initprot;	<span class="comment">/* initial VM protection */</span></span><br><span class="line">	<span class="type">uint32_t</span>	nsects;		<span class="comment">/* number of sections in segment */</span></span><br><span class="line">	<span class="type">uint32_t</span>	flags;		<span class="comment">/* flags */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>segname</code><ul>
+<li>用于描述 segment 名称的 C 字符串。**苹果定义 segment 名称以两个下划线为前缀，并由大写字母组成，如：<code>__TEXT</code>、<code>__DATA</code>**。</li>
+</ul>
+</li>
+<li><code>vmaddr</code><ul>
+<li>指定 segment 在虚拟内存中的起始地址。</li>
+</ul>
+</li>
+<li><code>vmsize</code><ul>
+<li>指定 segment 在虚拟内存中占据的字节数。</li>
+</ul>
+</li>
+<li><code>fileoff</code><ul>
+<li>指定要映射到 <code>vmaddr</code> 位置的数据在此文件中的偏移。</li>
+</ul>
+</li>
+<li><code>filesize</code><ul>
+<li>指定 segment 在磁盘上占据的字节数。对于运行时比构建时需要更多内存的 segment，<code>vmsize</code> 可以大于 <code>filesize</code>。比如，链接器为 <code>MH_EXECUTABLE</code> 文件生成的 <code>__PAGESIZE</code> segment，其 <code>vmsize</code> 是 <code>0x1000</code>，而 <code>filesize</code> 却是 <code>0</code>。因为 <code>__PAGEZERO</code> 不包含数据，因此在运行前没有必要占据任何空间。类似的，静态链接器通常在 <code>__DATA</code> segment 的末尾分配未初始化的数据。</li>
+</ul>
+</li>
+<li><code>maxprot</code><ul>
+<li>指定 segment 的最大允许的虚拟内存保护级别。</li>
+</ul>
+</li>
+<li><code>initprot</code><ul>
+<li>指定 segment 的初始化虚拟内存保护级别。</li>
+</ul>
+</li>
+<li><code>nsects</code><ul>
+<li>指定紧跟在此加载命令之后的 section 数量。</li>
+</ul>
+</li>
+<li><code>flags</code><ul>
+<li>定义一组影响 segment 加载的标志位，如下：<ul>
+<li><code>SG_HIGHVM</code>：segment 的文件内容占虚拟内存空间的高位部分，低位部分填充零。</li>
+<li><code>SG_NORELOC</code>：segment 没有任何重定位的内容，也没有要重定位的内容。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Segment 定义了 Mach-O 中的一段字节，并定义了当这段字节映射到到虚拟内存时的地址和内存保护级别。比如，segment 始终关于虚拟内存页面对齐的。一个 segment 包含 0 个或多个 section。相比加载前，运行时的 segment 可能需要更多的内存。比如：由链接器为 PowerPC 生成的可执行文件中，<code>__PAGEZERO</code> segment 虚拟内存大小为 1 页，但在磁盘上的大小却为 0。由于 <code>__PAGEZERO</code> 不包含任何数据，因此不需要占用可执行文件中的任何空间。</p>
+<p>为了紧凑起见，中间目标文件仅包含一个 segment。该 segment 没有名称，它包含所有的 section。</p>
+<p>以下是 OS X 可执行文件中可能会包含的 segment：</p>
+<ul>
+<li><code>__PAGEZERO</code>：静态链接器创建 <code>__PAGEZERO</code> segment 作为可执行文件的第一个 segment。该 segment 的虚拟内存地址为 0，并且未分配保护权限，这些权限的组合会导致对 NULL 的访问立即崩溃。<code>__PAGEZERO</code> segment 的大小为当前体系结构的一个完整 VM 页面的大小。<code>__PAGEZERO</code> segment 中没有数据，所以它在文件中不占空间。</li>
+<li><code>__TEXT</code>：<code>__TEXT</code> segment 包含可执行代码和其他只读数据。为了允许内核将其直接从可执行文件映射到可共享的内存，静态链接器将此 segment 的虚拟内存权限设置为禁止写入。当该 segment 映射到内存中时，可以在对其内存感兴趣的进程之间进行共享。（这主要用于 framework，bundle 以及共享库，但是可以在 OS X 中运行同一可执行文件的多个副本，在这种情况下也是如此。）只读属性还表示页面组成 <code>__TEXT</code> segment 的文件永远都不需要写回到磁盘。当内核需要释放物理内存时，它可以简单地丢弃一个或多个 <code>__TEXT</code> 页面，并在下次需要它们时从磁盘中重新读取。</li>
+<li><code>__DATA</code>：<code>_DATA</code> segment 包含可写数据。静态链接器设置此 segment 的虚拟内存权限为允许读写。因为是可写的，所以在逻辑上会为与该库连接的每个进程复制框架或共享库的 <code>__DATA</code> segment。当组成 <code>__DATA</code> segment 的内存页是可读写时，内核将其标记为 <strong>写时复制</strong>（Copy-on-write）。因此，当一个进程写入这些页面时，该进程将会得到属于自己的页面私有副本。</li>
+<li><code>__OBJC</code>：<code>__OBJC</code> segment 包含由 Objective-C 语言运行时支持的库所使用的数据。</li>
+<li><code>__IMPORT</code>：<code>IMPORT</code> segment 包含符号插桩以及指向可执行文件中未定义符号的非惰性指针。只有 IA-32 体系结构的可执行文件会生成此 segment。</li>
+<li><code>__LINKEDIT</code>：<code>__LINKEDIT</code> segment 包含动态链接器所需要的原始数据，如：符号、字符串、重定位表项。</li>
+</ul>
+<h3 id="section"><a href="#section" class="headerlink" title="section"></a>section</h3><p>紧跟在 <code>segment_command</code> 数据结构之后的是一个 section 数据结构的数组，section 的数量由 <code>segment_command</code> 的 <code>nsects</code> 字段确定。多个 section 组成一个 segment。</p>
+<p><code>section</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">section</span> &#123;</span>                <span class="comment">/* for 32-bit architectures */</span></span><br><span class="line">	<span class="type">char</span>		sectname[<span class="number">16</span>];	<span class="comment">/* name of this section */</span></span><br><span class="line">	<span class="type">char</span>		segname[<span class="number">16</span>];	<span class="comment">/* segment this section goes in */</span></span><br><span class="line">	<span class="type">uint32_t</span>	addr;		    <span class="comment">/* memory address of this section */</span></span><br><span class="line">	<span class="type">uint32_t</span>	size;		    <span class="comment">/* size in bytes of this section */</span></span><br><span class="line">	<span class="type">uint32_t</span>	offset;		    <span class="comment">/* file offset of this section */</span></span><br><span class="line">	<span class="type">uint32_t</span>	align;		    <span class="comment">/* section alignment (power of 2) */</span></span><br><span class="line">	<span class="type">uint32_t</span>	reloff;	    	<span class="comment">/* file offset of relocation entries */</span></span><br><span class="line">	<span class="type">uint32_t</span>	nreloc;		    <span class="comment">/* number of relocation entries */</span></span><br><span class="line">	<span class="type">uint32_t</span>	flags;	    	<span class="comment">/* flags (section type and attributes)*/</span></span><br><span class="line">	<span class="type">uint32_t</span>	reserved1;  	<span class="comment">/* reserved (for offset or index) */</span></span><br><span class="line">	<span class="type">uint32_t</span>	reserved2;	    <span class="comment">/* reserved (for count or sizeof) */</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>sectname</code><ul>
+<li>指定 section 的名称。**苹果定义 section 的名称以两个下划线开头，并由小写字母组成，如：<code>__text</code>、<code>__data</code>**。</li>
+</ul>
+</li>
+<li><code>segname</code><ul>
+<li>指定最终应包含此 section 的 segment 的名称。为了紧凑起见，中间目标文件（<code>MH_OBJECT</code> 类型的文件）仅包含一个 segment，所有的 section 都放在其中。静态链接器在构建最终产物（非 <code>MH_OBJECT</code> 类型的文件）时，会将每个 section 放在指定的 segment 中。</li>
+</ul>
+</li>
+<li><code>addr</code><ul>
+<li>指定 section 在虚拟内存中的起始地址。</li>
+</ul>
+</li>
+<li><code>size</code><ul>
+<li>指定 section 在虚拟内存中占据的字节数。</li>
+</ul>
+</li>
+<li><code>offset</code><ul>
+<li>指定 section 在此文件中的偏移。</li>
+</ul>
+</li>
+<li><code>align</code><ul>
+<li>指定 section 的对齐方式。</li>
+</ul>
+</li>
+<li><code>reloff</code><ul>
+<li>指定 section 的第一个重定位项在文件中的偏移。</li>
+</ul>
+</li>
+<li><code>nreloc</code><ul>
+<li>指定 section 的重定位项的数量。</li>
+</ul>
+</li>
+<li><code>flags</code><ul>
+<li>该字段可分为两个部分：低 8 位指定 section 的类型、高 24 位包含指定 section 的其他属性的一组标志。这些类型和标志主要被静态链接器和文件分析工具（如：<code>otool</code>）用来确定如何修改或显示 section。section 的类型有以下这些：<ul>
+<li><code>S_REGULAR</code>：表示 section 没有特殊类型。<strong>标准工具创建的 <code>__TEXT,__text</code> 就是此类 section</strong>。</li>
+<li><code>S_ZEROFILL</code>：<strong>按需填充零</strong>，当首次读取或写入该 section 时，其中的每个页面都会自动填充零。</li>
+<li><code>S_CSTRING_LITERALS</code>：表示 section 只包含常量 C 字符传。<strong>标准工具创建的 <code>__TEXT,__cstring</code> 就是此类 section</strong>。</li>
+<li><code>S_4BYTE_LITERALS</code>：表示 section 只包含 4 字节长的常量值。<strong>标准工具创建的 <code>__TEXT,__literal4</code> 就是此类 section</strong>。</li>
+<li><code>S_8BYTE_LITERALS</code>：表示 section 只包含 8 字节长的常量值。<strong>标准工具创建的 <code>__TEXT,__literal8</code> 就是此类 section</strong>。</li>
+<li><code>S_NON_LAZY_SYMBOL_POINTERS</code>：表示 section 只包含符号的非惰性指针。<strong>标准工具创建的 <code>__DATA,__nl_symbol_ptrs</code> 就是此类 section</strong>。</li>
+<li><code>S_LAZY_SYMBOL_POINTERS</code>：表示 section 只包含符号的惰性指针。<strong>标准工具创建的 <code>__DATA,__la_symbol_ptrs</code> 就是此类 section</strong>。</li>
+<li><code>S_SYMBOL_STUBS</code>：表示 section 只包含符号插桩（stub）。<strong>标准工具创建的 <code>__TEXT,__symbol_stub</code> 和 <code>__TEXT,__picsymbol_stub</code> 就是此类 section</strong>。</li>
+<li><code>S_MOD_INIT_FUNC_POINTERS</code>：表示 section 只包含指向模块构建方法的指针。<strong>标准工具创建的 <code>__DATA,__mod_init_func</code> 就是此类 section</strong>。</li>
+<li><code>S_MOD_TERM_FUNC_POINTERS</code>：表示 section 只包含指向模块析构方法的指针。<strong>标准工具创建的 <code>__DATA,__mod_term_func</code> 就是此类 section</strong>。</li>
+<li><code>S_COALESCED</code>：表示 section 只包含由静态链接器或动态链接器合并的符号。多个文件包含同一符号的合并定义，而不会引起 <code>multiple-defined-symbol</code> 报错。</li>
+<li><code>S_GB_ZEROFILL</code>：表示 section 是一个按需填充零的 section。section 可以大于 4 GB。该 section 只能放在仅包含零填充 section 的 segment 中。如果将零填充 section 放在包含非零填充 section 的 segment 中，那么可能会导致这些 section 无法没读取。最终导致静态链接器无法生成输出文件。</li>
+</ul>
+</li>
+<li>section 的属性有以下这些：<ul>
+<li><code>S_ATTR_PURE_INSTRUCTIONS</code>：表示 section 只包含可执行机器码。<strong>标准工具会为 <code>__TEXT,__text</code>、<code>__TEXT,__symbol_stub</code>、<code>__TEXT,__picsymbol_stub</code> 等 section 设置该属性</strong>。</li>
+<li><code>S_ATTR_SOME_INSTRUCTIONS</code>：表示 section 包含一部分可执行机器码。</li>
+<li><code>S_ATTR_NO_TOC</code>：表示 section 包含合并符号。</li>
+<li><code>S_ATTR_EXT_RELOC</code>：表示 section 包含必须要被重定位的引用。这些引用引用其他文件中的数据（未定义符号）。为了支持外部重定位，包含此 section 的 segment 的最大虚拟内存保护级别必须允许读取和写入。</li>
+<li><code>S_ATTR_LOC_RELOC</code>：表示 section 包含的引用必须被重定位。它们引用的是此文件中的数据。</li>
+<li><code>S_ATTR_STRIP_STATIC_SYMS</code>：如果镜像的 <code>mach_header</code> 中的 <code>MH_DYLDLINK</code> 标志位被设置了，那么 section 中的静态符号就可以被删除。</li>
+<li><code>S_ATTR_NO_DEAD_STRIP</code>：表示 section 的内容如果没有被引用，不能被删除。</li>
+<li><code>S_ATTR_LIVE_SUPPORT</code>：如果 section 引用的代码存在，但是无法检测到该引用，那么不能被删除。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Mach-O 文件中的每个 section 都具有类型和一组属性标志位。在中间目标文件中，静态链接器通过 section 的类型和属性决定如何将这些 section 拷贝到最终产物中。目标文件分析工具（如：<code>otool</code>）使用 section 的类型和属性来确定如何读取和显示 section。动态链接器也会用到某些 section 类型和属性。</p>
+<p>以下是一些重要的符号类型和属性的静态链接变体：</p>
+<ul>
+<li><strong>regular section</strong>：在一个 regular section 中，一个外部符号只能有一个定义存在于中间目标文件。如果静态链接器找到两个外部符号的定义，则会报错。</li>
+<li><strong>coalesced section</strong>：在最终的产物中，静态链接器对于 coalesced section 中的每一个符号只保留一个定义。为了支持复杂的语言特性（如 C++ 的虚表和 RTTI），编译器可以在每个中间目标文件中为一个特定的符号创建一个定义。之后，静态链接器和动态链接器会将重复的定义减少为单个定义。</li>
+<li><strong>带弱定义的 coalesced section</strong>：弱符号定义只可能出现在 coalesced section 中。当静态链接器找到符号的重复定义时，它会丢弃任何具有弱定义属性的合并符号定义。如果没有非弱定义，则是会用第一个弱定义。此功能旨在支持 C++ 模板。它允许显式模板实例覆盖隐式模板实例。C++ 编译器将显式定义放在 regular section 中，并将隐式定义放在 coalesced section 中，并标记为弱定义。用弱定义构建的的中间目标文件（以及静态归档库）只能与 OX X v10.2 及更高版本中的静态链接器一起使用。如果最终产物（应用程序和共享库）应该在 OS X 的早期版本中使用，则不应包含较弱的定义。</li>
+</ul>
+<p>以下是 <code>__TEXT</code> segment 中的几种 section：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Segment and Section</th>
+<th align="left">content</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>__TEXT,__text</code></td>
+<td align="left">可执行的机器码。编译器通常在此部分中放置可执行代码，而不放置任何形式的表或数据。</td>
+</tr>
+<tr>
+<td align="left"><code>__TEXT,__cstring</code></td>
+<td align="left">常量 C 字符串。C 字符串是一系列非空字节，以空字节 <code>\0</code> 结尾。静态链接器会在构建最终产物时合并 C 字符串常量，并删除重复项。</td>
+</tr>
+<tr>
+<td align="left"><code>__TEXT,__picsymbol_stub</code></td>
+<td align="left">与位置无关的间接符号插桩。</td>
+</tr>
+<tr>
+<td align="left"><code>__TEXT,__symbol_stub</code></td>
+<td align="left">间接符号插桩。</td>
+</tr>
+<tr>
+<td align="left"><code>__TEXT,__const</code></td>
+<td align="left">初始化的常量。编译器将所有声明为 const 的不可重定位数据放在此 section 中。</td>
+</tr>
+<tr>
+<td align="left"><code>__TEXT,__literal4</code></td>
+<td align="left">4 字节文本值。编译器在此 section 中放置单精度浮点常量。在构建最终产物时，静态链接器会合并这些值，并删除重复项。在某些架构中，编译器使用即时加载指令比添加到此 section 中更加高效。</td>
+</tr>
+<tr>
+<td align="left"><code>__TEXT,__literal8</code></td>
+<td align="left">8 字节文本值。同上</td>
+</tr>
+</tbody></table>
+<p>以下是 <code>__DATA</code> segment 中的几种 section：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Segment and Section</th>
+<th align="left">content</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>__DATA,__data</code></td>
+<td align="left">初始化的可变变量，例如可写的 C 字符串和数据数组。</td>
+</tr>
+<tr>
+<td align="left"><code>__DATA,__la_symbol_ptr</code></td>
+<td align="left">惰性符号指针，它们是对从其他文件导入的函数的间接引用。</td>
+</tr>
+<tr>
+<td align="left"><code>__DATA,__nl_symbol_ptr</code></td>
+<td align="left">非惰性符号指针，它们是对从其他文件导入的数据项的间接引用。</td>
+</tr>
+<tr>
+<td align="left"><code>__DATA,__dyld</code></td>
+<td align="left">动态链接器使用的占位 section。</td>
+</tr>
+<tr>
+<td align="left"><code>__DATA,__const</code></td>
+<td align="left">初始化的可重定位常量变量。</td>
+</tr>
+<tr>
+<td align="left"><code>__DATA,__mod_init_func</code></td>
+<td align="left">模块构造函数。C++ 编译器将静态构造函数放在此处。</td>
+</tr>
+<tr>
+<td align="left"><code>__DATA,__mod_term_func</code></td>
+<td align="left">模块析构函数。</td>
+</tr>
+<tr>
+<td align="left"><code>__DATA,__bss</code></td>
+<td align="left">未初始化的静态变量的数据，例如 <code>static int i;</code></td>
+</tr>
+<tr>
+<td align="left"><code>__DATA,__common</code></td>
+<td align="left">位于全局范围内（函数声明之外）的未初始化的导入符号定义，例如，<code>int i;</code></td>
+</tr>
+</tbody></table>
+<p>以下是 <code>__IMPORT</code> segment 中的几种 section：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Segment and Section</th>
+<th align="left">content</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>__IMPORT,__jump_table</code></td>
+<td align="left">动态库中的函数调用插桩。</td>
+</tr>
+<tr>
+<td align="left"><code>__IMPORT,__pointers</code></td>
+<td align="left">非惰性符号指针，它们是对从其他文件中导入的函数的直接引用。</td>
+</tr>
+</tbody></table>
+<h2 id="twolevel-hints-command"><a href="#twolevel-hints-command" class="headerlink" title="twolevel_hints_command"></a>twolevel_hints_command</h2><p><code>twolevel_hints_command</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">twolevel_hints_command</span> &#123;</span></span><br><span class="line">    <span class="type">uint32_t</span> cmd;	    <span class="comment">/* LC_TWOLEVEL_HINTS */</span></span><br><span class="line">    <span class="type">uint32_t</span> cmdsize;	<span class="comment">/* sizeof(struct twolevel_hints_command) */</span></span><br><span class="line">    <span class="type">uint32_t</span> offset;	<span class="comment">/* offset to the hint table */</span></span><br><span class="line">    <span class="type">uint32_t</span> nhints;	<span class="comment">/* number of hints in the hint table */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>offset</code><ul>
+<li>指定 <code>twolevel_hint</code> 数组在文件中的偏移。</li>
+</ul>
+</li>
+<li><code>nhints</code><ul>
+<li>指定 <code>twolevel_hint</code> 的数量。</li>
+</ul>
+</li>
+</ul>
+<p>静态链接器在编译一个两级命名空间镜像时，会将 <code>LC_TWOLEVEL_HINTS</code> 加载命令、两级命名空间提示表写入输出文件中。</p>
+<p>默认，<code>ld</code> 不会在 <code>MH_BUNDLE</code> 中写入 <code>LC_TWOLEVEL_HINTS</code> 加载命令和两级命名空间提示表。</p>
+<h3 id="twolevel-hint"><a href="#twolevel-hint" class="headerlink" title="twolevel_hint"></a>twolevel_hint</h3><p><code>twolevel_hint</code> 用于表示两级命名空间提示表中的一个项。<code>twolevel_hint</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">twolevel_hint</span> &#123;</span></span><br><span class="line">    <span class="type">uint32_t</span> </span><br><span class="line">	isub_image:<span class="number">8</span>,	<span class="comment">/* index into the sub images */</span></span><br><span class="line">	itoc:<span class="number">24</span>;	    <span class="comment">/* index into the table of contents */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>isub_image</code><ul>
+<li>表示符号已定义的子镜像（subimage）。用来索引组成综合镜像（umbrella image）的子镜像。如果该字段为 0，则表示符号位于综合镜像中。如果镜像不是一个 umbrella framework 或 library，那么该字段也是 0。</li>
+</ul>
+</li>
+<li><code>itoc</code><ul>
+<li><code>isub_image</code> 所指定镜像的符号索引。</li>
+</ul>
+</li>
+</ul>
+<p>两级命名空间提示表为动态链接器提供了建议的位置，从而在当前镜像所链接的库中搜索符号。</p>
+<p>两级命名空间镜像中每一个未定义的符号在二级命名空间提示表中有着对应的索引项。</p>
+<p><strong>静态链接器在构建两级命名空间镜像时将 <code>LC_TWOLEVEL_HINTS</code> 加载命令和两级命名空间提示表写入到输出文件中。</strong></p>
+<p><strong>默认情况下，链接器不会在 <code>MH_BUNDLE</code> 文件中写入 <code>LC_TWOLEVEL_HINTS</code> 加载命令和两级命名空间提示表。</strong></p>
+<h3 id="lc-str"><a href="#lc-str" class="headerlink" title="lc_str"></a>lc_str</h3><p><code>lc_str</code> 用于定义一个可变长度的字符串。<code>lc_str</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">union</span> <span class="title">lc_str</span> &#123;</span></span><br><span class="line">	<span class="type">uint32_t</span>	offset;	<span class="comment">/* offset to the string */</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> __LP64__</span></span><br><span class="line">	<span class="type">char</span>		*ptr;	<span class="comment">/* pointer to the string */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> </span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>offset</code><ul>
+<li>表示从包含此字符串的加载命令的开始到字符串数据开始的偏移。</li>
+</ul>
+</li>
+<li><code>ptr</code><ul>
+<li>表示指向字节数组的指针。在运行时，该指针包含字符串数据的虚拟内存地址。在 Mach-O 文件中没有使用 <code>ptr</code> 字段。</li>
+</ul>
+</li>
+</ul>
+<p>加载命令使用 <code>lc_str</code> 数据结构存储可变长度的数据，如库名。除非另有说明，否则数据由 C 字符串组成。</p>
+<p>指针指向的数据存储在加载命令之后，并且将数据大小存储在加载命令之中。该字符串应该以 null 终止。我们还可以通过从加载命令数据结构的 <code>cmdsize</code> 字段减去加载命令数据结构大小来确定字符串的大小。</p>
+<h2 id="dylib-command"><a href="#dylib-command" class="headerlink" title="dylib_command"></a>dylib_command</h2><p><code>dylib_command</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">dylib_command</span> &#123;</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmd;		<span class="comment">/* LC_ID_DYLIB, LC_LOAD_&#123;,WEAK_&#125;DYLIB, LC_REEXPORT_DYLIB */</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmdsize;	<span class="comment">/* includes pathname string */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">dylib</span>	<span class="title">dylib</span>;</span>	<span class="comment">/* the library identification */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>dylib</code><ul>
+<li>用于描述共享库的属性。</li>
+</ul>
+</li>
+</ul>
+<p><strong>对于文件所链接的每一个共享库，静态链接器都会创建一个 <code>LC_LOAD_DYLIB</code> 加载命令，并且将其 <code>dylib</code> 字段设置为目标库的 <code>LC_ID_DYLD</code> 加载命令的 <code>dylib</code> 字段值。所有 <code>LC_LOAD_DYLIB</code> 加载命令组成一个列表，该列表根据文件中的位置进行排序，最早的 <code>LC_LOAD_DYLIB</code> 命令在列表的最前面。对于两级命名空间文件，符号表中未定义的符号项通过索引此列表来引用其父级共享库。该索引称之为 <code>library ordinal</code>，它存储在 <code>nlist</code> 数据结构的 <code>n_desc</code> 字段中。</strong></p>
+<p><strong>在运行时，动态链接器使用 <code>LC_LOAD_DYLIB</code> 加载命令的 <code>dyld</code> 字段中的名称来查找共享库</strong>。如果找到了库，则动态链接器会将 <code>LC_LOAD_DYLIB</code> 加载命令的版本信息与库的版本信息进行比较。为了使动态链接器能够成功链接共享库，共享库的兼容版本必须小于等于 <code>LC_LOAD_DYLIB</code> 加载命令中的兼容版本。</p>
+<p>动态链接器使用时间戳来确定它是否可以使用预绑定信息。当前版本由 <code>NSVersionOfRunTimeLibrary</code> 函数返回，从而允许你确定程序正在使用的库的版本。</p>
+<h3 id="dylib"><a href="#dylib" class="headerlink" title="dylib"></a>dylib</h3><p>动态链接器使用 <code>dylib</code> 来匹配要链接的共享库。仅在 <code>dylib_command</code> 加载命令中被用到。</p>
+<p><code>dylib</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">dylib</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> <span class="title">lc_str</span>  <span class="title">name</span>;</span>			<span class="comment">/* library&#x27;s path name */</span></span><br><span class="line">    <span class="type">uint32_t</span> timestamp;			<span class="comment">/* library&#x27;s build time stamp */</span></span><br><span class="line">    <span class="type">uint32_t</span> current_version;		<span class="comment">/* library&#x27;s current version number */</span></span><br><span class="line">    <span class="type">uint32_t</span> compatibility_version;	<span class="comment">/* library&#x27;s compatibility vers number*/</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>name</code><ul>
+<li><code>lc_str</code> 类型的数据结构。用于指定共享库的名称。</li>
+</ul>
+</li>
+<li><code>timestamp</code><ul>
+<li>表示共享库构建的时间戳。</li>
+</ul>
+</li>
+<li><code>current_version</code><ul>
+<li>表示共享库的当前版本。</li>
+</ul>
+</li>
+<li><code>compatibility_version</code><ul>
+<li>表示共享库的兼容版本。</li>
+</ul>
+</li>
+</ul>
+<h2 id="dylinker-command"><a href="#dylinker-command" class="headerlink" title="dylinker_command"></a>dylinker_command</h2><p><code>dylinker_command</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">dylinker_command</span> &#123;</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmd;		<span class="comment">/* LC_ID_DYLINKER, LC_LOAD_DYLINKER or LC_DYLD_ENVIRONMENT */</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmdsize;	<span class="comment">/* includes pathname string */</span></span><br><span class="line">	<span class="class"><span class="keyword">union</span> <span class="title">lc_str</span>    <span class="title">name</span>;</span>	<span class="comment">/* dynamic linker&#x27;s path name */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>name</code><ul>
+<li><code>lc_str</code> 类型的数据结构。用于指定动态链接器的名称。</li>
+</ul>
+</li>
+</ul>
+<p><strong>动态链接的每个可执行文件都包含一个 <code>LC_LOAD_DYLINKER</code> 加载命令，该命令指定内核必须加载指定名称的动态链接器。动态链接器本身使用 <code>LC_ID_DYLINKER</code> 加载命令指定其名称</strong>。</p>
+<h2 id="prebound-dylib-command"><a href="#prebound-dylib-command" class="headerlink" title="prebound_dylib_command"></a>prebound_dylib_command</h2><p>对于可执行文件链接到的每一个预绑定的库，静态链接器都会添加一个 <code>LC_PREBOUND_DYLIB</code> 命令。</p>
+<p><code>prebound_dylib_command</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">prebound_dylib_command</span> &#123;</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmd;		        <span class="comment">/* LC_PREBOUND_DYLIB */</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmdsize;	        <span class="comment">/* includes strings */</span></span><br><span class="line">	<span class="class"><span class="keyword">union</span> <span class="title">lc_str</span>	<span class="title">name</span>;</span>		    <span class="comment">/* library&#x27;s path name */</span></span><br><span class="line">	<span class="type">uint32_t</span>	nmodules;	        <span class="comment">/* number of modules in library */</span></span><br><span class="line">	<span class="class"><span class="keyword">union</span> <span class="title">lc_str</span>	<span class="title">linked_modules</span>;</span>	<span class="comment">/* bit vector of linked modules */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>name</code><ul>
+<li><code>lc_str</code> 类型的数据结构。用于指定预绑定共享库的名称。</li>
+</ul>
+</li>
+<li><code>nmodules</code><ul>
+<li>指定预绑定共享库所包含模块的数量。</li>
+</ul>
+</li>
+<li><code>linked_modules</code><ul>
+<li><code>lc_str</code> 类型的数据结构。它是一个可变长度的位集，每个位表示相应的模块是否已经链接到当前文件中，1 表示是，0 表示否。第一个模块是第一个字节的低位。</li>
+</ul>
+</li>
+</ul>
+<h2 id="thread-command"><a href="#thread-command" class="headerlink" title="thread_command"></a>thread_command</h2><p><code>thread_command</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">thread_command</span> &#123;</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmd;		<span class="comment">/* LC_THREAD or  LC_UNIXTHREAD */</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmdsize;	<span class="comment">/* total size of this command */</span></span><br><span class="line">	<span class="comment">/* uint32_t flavor		   flavor of thread state */</span></span><br><span class="line">	<span class="comment">/* uint32_t count		   count of uint32_t&#x27;s in thread state */</span></span><br><span class="line">	<span class="comment">/* struct XXX_thread_state state   thread state for this flavor */</span></span><br><span class="line">	<span class="comment">/* ... */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="routines-command"><a href="#routines-command" class="headerlink" title="routines_command"></a>routines_command</h2><p><code>routines_command</code> 描述共享库构建函数的位置，动态链接器会在调用任何程序之前调用该函数。<code>routines_command</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">routines_command</span> &#123;</span> <span class="comment">/* for 32-bit architectures */</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmd;		    <span class="comment">/* LC_ROUTINES */</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmdsize;	    <span class="comment">/* total size of this command */</span></span><br><span class="line">	<span class="type">uint32_t</span>	init_address;	<span class="comment">/* address of initialization routine */</span></span><br><span class="line">	<span class="type">uint32_t</span>	init_module;	<span class="comment">/* index into the module table that */</span></span><br><span class="line">				                <span class="comment">/*  the init routine is defined in */</span></span><br><span class="line">	<span class="type">uint32_t</span>	reserved1;</span><br><span class="line">	<span class="type">uint32_t</span>	reserved2;</span><br><span class="line">	<span class="type">uint32_t</span>	reserved3;</span><br><span class="line">	<span class="type">uint32_t</span>	reserved4;</span><br><span class="line">	<span class="type">uint32_t</span>	reserved5;</span><br><span class="line">	<span class="type">uint32_t</span>	reserved6;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>init_address</code><ul>
+<li>表示构建函数在虚拟内存中的地址。</li>
+</ul>
+</li>
+<li><code>init_module</code><ul>
+<li>表示包含构建函数的模块在模块表中的索引。</li>
+</ul>
+</li>
+</ul>
+<p>当使用 <code>-init</code> 选项指定一个共享库构建函数时，静态链接器会添加一个 <code>LC_ROUTINES</code> 命令。</p>
+<h2 id="sub-framework-command"><a href="#sub-framework-command" class="headerlink" title="sub_framework_command"></a>sub_framework_command</h2><p><code>sub_framework_command</code> 加载命令用于指定 subframework 所属的 umbrella framework。<code>sub_framework_command</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sub_framework_command</span> &#123;</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmd;		    <span class="comment">/* LC_SUB_FRAMEWORK */</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmdsize;	    <span class="comment">/* includes umbrella string */</span></span><br><span class="line">	<span class="class"><span class="keyword">union</span> <span class="title">lc_str</span> 	<span class="title">umbrella</span>;</span>	<span class="comment">/* the umbrella framework name */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>umbrella</code><ul>
+<li>表示此文件所属的 umbrella framework 的名称。</li>
+</ul>
+</li>
+</ul>
+<h2 id="sub-umbrella-command"><a href="#sub-umbrella-command" class="headerlink" title="sub_umbrella_command"></a>sub_umbrella_command</h2><p><code>sub_umbrella_command</code> 加载命令用于指定 framework 的一个 subumbrella。与 subframework 不同，任何客户端都可以链接到一个 subumbrella。</p>
+<p><code>sub_umbrella_command</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sub_umbrella_command</span> &#123;</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmd;		        <span class="comment">/* LC_SUB_UMBRELLA */</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmdsize;	        <span class="comment">/* includes sub_umbrella string */</span></span><br><span class="line">	<span class="class"><span class="keyword">union</span> <span class="title">lc_str</span> 	<span class="title">sub_umbrella</span>;</span>	<span class="comment">/* the sub_umbrella framework name */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>sub_umbrella</code><ul>
+<li><code>lc_str</code> 类型的数据结构。用于指定 subumbrella 的名称。</li>
+</ul>
+</li>
+</ul>
+<h2 id="sub-library-command"><a href="#sub-library-command" class="headerlink" title="sub_library_command"></a>sub_library_command</h2><p>指定此 framework 的一个 sublibrary，并将此 framework 标记为 umbrella framework。与 subframework 不同，任何客户端都可以链接到一个 sublibrary。</p>
+<p><code>sub_library_command</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sub_library_command</span> &#123;</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmd;		        <span class="comment">/* LC_SUB_LIBRARY */</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmdsize;	        <span class="comment">/* includes sub_library string */</span></span><br><span class="line">	<span class="class"><span class="keyword">union</span> <span class="title">lc_str</span> 	<span class="title">sub_library</span>;</span>	<span class="comment">/* the sub_library name */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>sub_library</code><ul>
+<li><code>lc_str</code> 类型的数据结构。用于指定此文件所属的 sublibrary 的名称。</li>
+</ul>
+</li>
+</ul>
+<h2 id="sub-client-command"><a href="#sub-client-command" class="headerlink" title="sub_client_command"></a>sub_client_command</h2><p><code>sub_client_command</code> 加载命令用于指定允许链接到此 subframework 的文件的名称。否则，需要该文件链接到该文件所在的 umbrella framework。</p>
+<p><code>sub_client_command</code> 的数据结构如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sub_client_command</span> &#123;</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmd;		<span class="comment">/* LC_SUB_CLIENT */</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmdsize;	<span class="comment">/* includes client string */</span></span><br><span class="line">	<span class="class"><span class="keyword">union</span> <span class="title">lc_str</span> 	<span class="title">client</span>;</span>		<span class="comment">/* the client name */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>client</code><ul>
+<li><code>lc_str</code> 类型的数据结构。用于指定允许链接到此 library 的客户端的名称。</li>
+</ul>
+</li>
+</ul>
+<p>如果在调用 <code>ld</code> 时带上 <code>-allowable_client &lt;name&gt;</code> 选项，其中 <code>&lt;name&gt;</code> 可以是一个 framework 的安装名称，也可以是一个 bundle 的客户端名称，那么 <code>ld</code> 工具会在产物中生成一个 <code>sub_client_command</code> 加载命令。</p>
+<h2 id="symtab-command"><a href="#symtab-command" class="headerlink" title="symtab_command"></a>symtab_command</h2><p><code>symtab_command</code> 加载命令用于描述符号表的数据结构以及位置和大小信息。<code>symtab_command</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">symtab_command</span> &#123;</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmd;		<span class="comment">/* LC_SYMTAB */</span></span><br><span class="line">	<span class="type">uint32_t</span>	cmdsize;	<span class="comment">/* sizeof(struct symtab_command) */</span></span><br><span class="line">	<span class="type">uint32_t</span>	symoff;		<span class="comment">/* symbol table offset */</span></span><br><span class="line">	<span class="type">uint32_t</span>	nsyms;		<span class="comment">/* number of symbol table entries */</span></span><br><span class="line">	<span class="type">uint32_t</span>	stroff;		<span class="comment">/* string table offset */</span></span><br><span class="line">	<span class="type">uint32_t</span>	strsize;	<span class="comment">/* string table size in bytes */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>symoff</code><ul>
+<li>指定符号表表项在文件中的起始位置。<strong>符号表是一组 <code>nlist</code> 数据结构组成的一个表</strong>。</li>
+</ul>
+</li>
+<li><code>nsyms</code><ul>
+<li>指定符号表中的表项数量。</li>
+</ul>
+</li>
+<li><code>stroff</code><ul>
+<li>指定字符串表在文件中的起始位置。</li>
+</ul>
+</li>
+<li><code>strsize</code><ul>
+<li>指定字符串表的大小。单位为字节。</li>
+</ul>
+</li>
+</ul>
+<h3 id="nlist"><a href="#nlist" class="headerlink" title="nlist"></a>nlist</h3><p><code>nlist</code> 是表示符号表中的表项的数据结构。<code>nlist</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">nlist</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> __LP64__</span></span><br><span class="line">		<span class="type">char</span> *n_name;	<span class="comment">/* for use when in-core */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">		<span class="type">uint32_t</span> n_strx;	<span class="comment">/* index into the string table */</span></span><br><span class="line">	&#125; n_un;</span><br><span class="line">	<span class="type">uint8_t</span> n_type;		<span class="comment">/* type flag, see below */</span></span><br><span class="line">	<span class="type">uint8_t</span> n_sect;		<span class="comment">/* section number or NO_SECT */</span></span><br><span class="line">	<span class="type">int16_t</span> n_desc;		<span class="comment">/* see &lt;mach-o/stab.h&gt; */</span></span><br><span class="line">	<span class="type">uint32_t</span> n_value;	<span class="comment">/* value of this symbol (or stab offset) */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>u_un</code><ul>
+<li>保存了指向字符串表的索引，<code>n_str</code>。如果希望指定一个空字符串（””），可以将字段设置为 0。联合体中的 <code>n_name</code> 字段并不会用在 Mach-O 文件中。</li>
+</ul>
+</li>
+<li><code>n_type</code><ul>
+<li>一个字节值，包含使用四个位掩码访问的数据。<ul>
+<li><code>N_STAB</code>（0xE0）：如果设置了这 3 位，则表示该符号是符号调试表（stab）表项。在这种情况下，整个 <code>n_type</code> 字段都被解释为 stab 值。</li>
+<li><code>N_PEXT</code>（0x10）：如果设置了此位，则表示该符号被标记为具有有限的全局作用域。静态链接器处理该文件时会将每个设置了 <code>N_PEXT</code> 位的符号清除 <code>N_EXT</code> 位（<code>ld</code> 的 <code>-keep_private_externs</code> 选项关闭了此行为）。对于 OS X GCC，我们可以使用 <code>__private_extern__</code> 方法属性来设置此位。</li>
+<li><code>N_TYPE</code>（0x0E）：这些位定义了符号的类型。</li>
+<li><code>N_EXT</code>（0x01）：如果设置了这 3 位，则表示该符号是一个外部符号，该符号可以在此文件外部定义，也可以在此文件中定义并可以被外部文件引用。</li>
+</ul>
+</li>
+<li>上述提到的 <code>N_TYPE</code> 字段包含以下这些值：<ul>
+<li><code>N_UNDF</code>（0x0）：表示符号未定义。未定义符号是指在此模块中引用但是在其他模块中定义的符号。此时，<code>n_sect</code> 字段为 <code>NO_SECT</code>。</li>
+<li><code>N_ABS</code>（0x2）：表示符号是绝对的。链接器不会修改绝对符号的值。此时，<code>n_sect</code> 字段为 <code>NO_SECT</code>。</li>
+<li><code>N_SECT</code>（0xE）：表示符号定义在 <code>n_sect</code> 所指定的 section 中。</li>
+<li><code>N_PBUD</code>（0xC）：表示符号未定义，并且镜像为该符号使用了一个预绑定的值。此时，<code>n_sect</code> 字段为 <code>NO_SECT</code>。</li>
+<li><code>N_INDR</code>（0xA）：表示符号的定义与另一个符号相同。<code>n_value</code> 字段是一个指向字符串表的索引，用于指定另一个符号的名称。链接该符号时，此符号与另一个符号具有相同定义的类型和值。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>n_sect</code><ul>
+<li>表示 section 的编号，在对应 section 中可以找到该符号；如果该字段的值为 <code>NO_SECT</code>，则表示在该镜像中找不到该符号。section 在 segment 中是按顺序排列的，从 1 开始连续编号。</li>
+</ul>
+</li>
+<li><code>n_desc</code><ul>
+<li>一个 16 位的值，为非稳定符号提供关于该符号性质的附加信息。可以使用 <code>REFERENCE_TYPE</code>（0xF）掩码来访问其值。值的定义有以下这些：<ul>
+<li><code>REFERENCE_FLAG_UNDEFINED_NON_LAZY</code>（0x0）：表示该符号引用了外部非惰性（数据）符号。</li>
+<li><code>REFERENCE_FLAG_UNDEFINED_LAZY</code>（0x1）：表示该符号引用了外部惰性符号。比如一个函数调用。</li>
+<li><code>REFERENCE_FLAG_DEFINED</code>（0x2）：表示符号定义在本模块内。</li>
+<li><code>REFERENCE_FLAG_PRIVATE_DEFINED</code>（0x3）：表示符号定义在本模块内，并且只对本共享库内的模块可见。</li>
+<li><code>REFERENCE_FLAG_PRIVATE_UNDEFINED_NON_LAZY</code>（0x4）：表示符号定义在了此文件中的其他模块内，是一个非惰性（数据）符号，并且只对本共享库内的模块可见。</li>
+<li><code>REFERENCE_FLAG_PRIVATE_UNDEFINED_LAZY</code>（0x5）：表示符号定义在了此文件中的其他模块内，是一个惰性（函数）符号，并且只对本共享库内的模块可见。</li>
+</ul>
+</li>
+<li>掩码以外的位的值的定义有以下这些：<ul>
+<li><code>REFERENCED_DYNAMICALLY</code>（0x10）：对于被动态加载器 API （如：<code>dlsym</code>、<code>NSLookupSymbolInImage</code>）引用的已定义符号，或者该位必须被设置。<code>strip</code> 工具使用该位来避免删除必须存在的符号：如果符号设置了该位，则 <code>strip</code> 不会删除它。</li>
+<li><code>N_DESC_DISCARDED</code>（0x20）：在一个完全链接的镜像中，动态链接器会在运行时用到该位。因此，不要在完全链接的图像中设置此位。</li>
+<li><code>N_NO_DEAD_STRIP</code>（0x20）：当在一个可重定位目标文件（文件类型为 <code>MH_OBJECT</code>）中对一个已定义符号进行设置时，表示静态链接器用于不会对符号进行 dead-strip 处理。</li>
+<li><code>N_WEAK_REF</code>（0x40）：表示此未定义符号是一个弱引用。如果动态链接器找不到该符号的定义，那么将会符号地址位置为 0。静态链接器在给定合适的弱链接标志的情况下会设置此符号。</li>
+<li><code>N_WEAK_DEF</code>（0x80）：表示此符号是一个弱定义。如果静态链接器或动态链接器为该符号找到了另一个（非弱）定义，那么弱定义会被忽略。只有在已合并的 section 中的符号可以被标记为弱定义。</li>
+</ul>
+</li>
+<li>如果文件是一个两级命名空间镜像（即，如果设置了 <code>mach_header</code> 的 <code>MH_TWOLEVEL</code> 标志位），那么 <code>n_desc</code> 的高 8 位则指向未定义符号的定义所位于的 library。使用 <code>GET_LIBRARY_ORDINAL 宏 </code> 来读取此值，使用 <code>SET_LIBRARY_ORIDINAL</code> 宏来设置此值。0 表示指定当前镜像。1 到 253 则是根据此文件中的 <code>LC_LOAD_COMMAND</code> 加载命令的顺序指定 library 的编号。254 用于会被动态查找的未定义的符号。对于能够从可执行程序中加载符号的插件，会将其链接至 255，从而指定可执行镜像。对于扁平命名空间镜像，高 8 位必须为 0。</li>
+</ul>
+</li>
+<li><code>n_value</code><ul>
+<li>即符号的值。符号表表项的类型（<code>n_type</code> 字段指定）不同，那么值的形式也不同。对于 <code>N_SECT</code> 符号类型，<code>n_value</code> 是符号的地址。</li>
+</ul>
+</li>
+</ul>
+<p>公共符号必须是 <code>N_UNDF</code> 类型，并且必须设置 <code>N_EXT</code> 位。公共符号的 <code>n_value</code> 是符号的数据的大小（以字节为单位）。在 C 语言中，公共符号是在此文件中声明但未初始化的变量。公共符号只能出现在 <code>MH_OBJECT</code> 类型的 Mach-O 文件中。</p>
+<h2 id="dysymtab-command"><a href="#dysymtab-command" class="headerlink" title="dysymtab_command"></a>dysymtab_command</h2><p><code>dysymtab_command</code> 加载命令描述了用于动态链接的符号表的各部分的大小和位置。<code>dysymtab_command</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">dysymtab_command</span> &#123;</span></span><br><span class="line">    <span class="type">uint32_t</span> cmd;	        <span class="comment">/* LC_DYSYMTAB */</span></span><br><span class="line">    <span class="type">uint32_t</span> cmdsize;	    <span class="comment">/* sizeof(struct dysymtab_command) */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> ilocalsym; 	<span class="comment">/* index to local symbols */</span></span><br><span class="line">    <span class="type">uint32_t</span> nlocalsym;	    <span class="comment">/* number of local symbols */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> iextdefsym;    <span class="comment">/* index to externally defined symbols */</span></span><br><span class="line">    <span class="type">uint32_t</span> nextdefsym;    <span class="comment">/* number of externally defined symbols */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> iundefsym;	    <span class="comment">/* index to undefined symbols */</span></span><br><span class="line">    <span class="type">uint32_t</span> nundefsym;	    <span class="comment">/* number of undefined symbols */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> tocoff;	    <span class="comment">/* file offset to table of contents */</span></span><br><span class="line">    <span class="type">uint32_t</span> ntoc;	        <span class="comment">/* number of entries in table of contents */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> modtaboff;	    <span class="comment">/* file offset to module table */</span></span><br><span class="line">    <span class="type">uint32_t</span> nmodtab;	    <span class="comment">/* number of module table entries */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> extrefsymoff;	<span class="comment">/* offset to referenced symbol table */</span></span><br><span class="line">    <span class="type">uint32_t</span> nextrefsyms;	<span class="comment">/* number of referenced symbol table entries */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> indirectsymoff;<span class="comment">/* file offset to the indirect symbol table */</span></span><br><span class="line">    <span class="type">uint32_t</span> nindirectsyms; <span class="comment">/* number of indirect symbol table entries */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> extreloff;	    <span class="comment">/* offset to external relocation entries */</span></span><br><span class="line">    <span class="type">uint32_t</span> nextrel;	    <span class="comment">/* number of external relocation entries */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> locreloff;	    <span class="comment">/* offset to local relocation entries */</span></span><br><span class="line">    <span class="type">uint32_t</span> nlocrel;	    <span class="comment">/* number of local relocation entries */</span></span><br><span class="line">&#125;;	</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>ilocalsym</code><ul>
+<li>指定本地符号组中第一个符号的索引。</li>
+</ul>
+</li>
+<li><code>nlocalsym</code><ul>
+<li>指定本地符号组中所有符号的数量。</li>
+</ul>
+</li>
+<li><code>iextdefsym</code><ul>
+<li>指定已定义的外部符号组中第一个符号的索引。</li>
+</ul>
+</li>
+<li><code>nextdefsym</code><ul>
+<li>指定已定义的外部符号组中所有符号的数量。</li>
+</ul>
+</li>
+<li><code>iundefsym</code><ul>
+<li>指定未定义的外部符号组中第一个符号的索引。</li>
+</ul>
+</li>
+<li><code>nundefsym</code><ul>
+<li>指定未定义的外部符号组中所有符号的数量。</li>
+</ul>
+</li>
+<li><code>tocoff</code><ul>
+<li>指定内容数据表在文件中的偏移。</li>
+</ul>
+</li>
+<li><code>ntoc</code><ul>
+<li>指定内容数据表的表项数量</li>
+</ul>
+</li>
+<li><code>modtaboff</code><ul>
+<li>指定模块表数据在文件中的偏移。</li>
+</ul>
+</li>
+<li><code>nmodtab</code><ul>
+<li>指定模块表的表项数量。</li>
+</ul>
+</li>
+<li><code>extrefsymoff</code><ul>
+<li>指定外部引用表数据在文件中的偏移。</li>
+</ul>
+</li>
+<li><code>nextrefsyms</code><ul>
+<li>指定外部引用表数据的表项数量。</li>
+</ul>
+</li>
+<li><code>indirectsymoff</code><ul>
+<li>指定间接符号表数据在文件中的偏移。</li>
+</ul>
+</li>
+<li><code>nindirectsyms</code><ul>
+<li>指定间接符号表的表项数量。</li>
+</ul>
+</li>
+<li><code>extreloff</code><ul>
+<li>指定外部重定位表数据在文件中的偏移。</li>
+</ul>
+</li>
+<li><code>nextrel</code><ul>
+<li>指定外部重定位表的表项数量。</li>
+</ul>
+</li>
+<li><code>locrelloff</code><ul>
+<li>指定本地重定位表数据在文件中的偏移。</li>
+</ul>
+</li>
+<li><code>nlocrel</code><ul>
+<li>指定本地重定位表的表项数量。</li>
+</ul>
+</li>
+</ul>
+<p><code>LC_DYSYMTAB</code> 加载命令包含符号表的一组索引和一组文件偏移量，这些文件偏移量定义了其他几个表的位置。文件中未使用的表的字段应设置为 0。</p>
+<h3 id="dylib-table-of-contents"><a href="#dylib-table-of-contents" class="headerlink" title="dylib_table_of_contents"></a>dylib_table_of_contents</h3><p><code>dylib_table_of_contents</code> 用于描述一个动态共享库内容表的表项。<code>dylib_table_of_contents</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">dylib_table_of_contents</span> &#123;</span></span><br><span class="line">    <span class="type">uint32_t</span> symbol_index;	<span class="comment">/* the defined external symbol (index into the symbol table) */</span></span><br><span class="line">    <span class="type">uint32_t</span> module_index;	<span class="comment">/* index into the module table this symbol is defined in */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>symbol_index</code><ul>
+<li>一个符号表表项的索引，该表项引用了这个已定义的外部符号。</li>
+</ul>
+</li>
+<li><code>module_index</code><ul>
+<li>一个模块表表项的索引，表示这个已定义的外部符号所在的模块。</li>
+</ul>
+</li>
+</ul>
+<h3 id="dylib-module"><a href="#dylib-module" class="headerlink" title="dylib_module"></a>dylib_module</h3><p><code>dylib_module</code> 用于描述一个动态共享库的模块表表项。<code>dylib_module</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">dylib_module</span> &#123;</span></span><br><span class="line">    <span class="type">uint32_t</span> module_name;	<span class="comment">/* the module name (index into string table) */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> iextdefsym;	<span class="comment">/* index into externally defined symbols */</span></span><br><span class="line">    <span class="type">uint32_t</span> nextdefsym;	<span class="comment">/* number of externally defined symbols */</span></span><br><span class="line">    <span class="type">uint32_t</span> irefsym;		<span class="comment">/* index into reference symbol table */</span></span><br><span class="line">    <span class="type">uint32_t</span> nrefsym;		<span class="comment">/* number of reference symbol table entries */</span></span><br><span class="line">    <span class="type">uint32_t</span> ilocalsym;		<span class="comment">/* index into symbols for local symbols */</span></span><br><span class="line">    <span class="type">uint32_t</span> nlocalsym;		<span class="comment">/* number of local symbols */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> iextrel;		<span class="comment">/* index into external relocation entries */</span></span><br><span class="line">    <span class="type">uint32_t</span> nextrel;		<span class="comment">/* number of external relocation entries */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> iinit_iterm;	<span class="comment">/* low 16 bits are the index into the init section, high 16 bits are the index into the term section */</span></span><br><span class="line">    <span class="type">uint32_t</span> ninit_nterm;	<span class="comment">/* low 16 bits are the number of init section entries, high 16 bits are the number of term section entries */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span>			    <span class="comment">/* for this module address of the start of */</span></span><br><span class="line">	objc_module_info_addr;  <span class="comment">/*  the (__OBJC,__module_info) section */</span></span><br><span class="line">    <span class="type">uint32_t</span>			    <span class="comment">/* for this module size of */</span></span><br><span class="line">	objc_module_info_size;	<span class="comment">/*  the (__OBJC,__module_info) section */</span></span><br><span class="line">&#125;;	</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>module_name</code><ul>
+<li>一个字符串表的表项索引，该表项描述了这个模块的名称。</li>
+</ul>
+</li>
+<li><code>iextdefsym</code><ul>
+<li>表示该模块的第一个已定义外部符号在符号表中的索引。</li>
+</ul>
+</li>
+<li><code>nextdefsym</code><ul>
+<li>表示该模块的所有已定义外部符号的数量。</li>
+</ul>
+</li>
+<li><code>irefsym</code><ul>
+<li>表示该模块在外部引用表中的第一个表项的索引。</li>
+</ul>
+</li>
+<li><code>nrefsym</code><ul>
+<li>表示该模块在外部引用表中的占有表项的数量。</li>
+</ul>
+</li>
+<li><code>ilocalsym</code><ul>
+<li>表示该模块的第一个本地符号在符号表中的索引。</li>
+</ul>
+</li>
+<li><code>nlocalsym</code> <ul>
+<li>表示该模块的所有本地符号的数量。</li>
+</ul>
+</li>
+<li><code>iexterel</code><ul>
+<li>表示该模块在外部重定位表中的第一个表项的索引。</li>
+</ul>
+</li>
+<li><code>nextrel</code><ul>
+<li>表示该模块在外部重定位表中占有表项的数量。</li>
+</ul>
+</li>
+<li><code>iinit_iterm</code><ul>
+<li>指定了模块构造 section 的索引（低 16 位）；指定了模块析构 section 的索引（高 16 位）。</li>
+</ul>
+</li>
+<li><code>ninit_nterm</code><ul>
+<li>指定了模块构造 section 中的指针数量（低 16 位）；指定了模块析构 section 中的指针数量（高 16 位）。</li>
+</ul>
+</li>
+<li><code>objc_module_info_addr</code><ul>
+<li>表该模块数据部分的起始静态链接地址，位于 <code>__module_info</code> section <code>__OBJC</code> segment。</li>
+</ul>
+</li>
+<li><code>objc_module_info_size</code><ul>
+<li>表示 <code>__OBJC</code> segment 的 <code>__module_info</code> section 使用该模块的数据的字节数。</li>
+</ul>
+</li>
+</ul>
+<h3 id="dylib-reference"><a href="#dylib-reference" class="headerlink" title="dylib_reference"></a>dylib_reference</h3><p><code>dylib_reference</code> 为共享库中的模块提供的外部引用表项定义属性。<code>dylib_reference</code> 的数据结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">dylib_reference</span> &#123;</span></span><br><span class="line">    <span class="type">uint32_t</span> isym:<span class="number">24</span>,	<span class="comment">/* index into the symbol table */</span></span><br><span class="line">    		  flags:<span class="number">8</span>;	<span class="comment">/* flags to indicate the type of reference */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段说明</strong></p>
+<ul>
+<li><code>isym</code><ul>
+<li>表示被引用符号在符号表中的索引。</li>
+</ul>
+</li>
+<li><code>flags</code><ul>
+<li>用于表示引用的类型。</li>
+</ul>
+</li>
+</ul>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://studfile.net/preview/2082911/">Mach-O_File_Format.pdf</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Mach-O/" rel="tag"># Mach-O</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/08/24/rxswift-core-implement/" rel="next" title="RxSwift 核心实现原理">
+                <i class="fa fa-chevron-left"></i> RxSwift 核心实现原理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/10/02/zsh-completion-tutorial/" rel="prev" title="Zsh 自动补全脚本入门">
+                Zsh 自动补全脚本入门 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">基本结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Header"><span class="nav-number">3.</span> <span class="nav-text">Header</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Load-Commands"><span class="nav-number">4.</span> <span class="nav-text">Load Commands</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#uuid-command"><span class="nav-number">4.1.</span> <span class="nav-text">uuid_command</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#segment-command"><span class="nav-number">4.2.</span> <span class="nav-text">segment_command</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#section"><span class="nav-number">4.2.1.</span> <span class="nav-text">section</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#twolevel-hints-command"><span class="nav-number">4.3.</span> <span class="nav-text">twolevel_hints_command</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#twolevel-hint"><span class="nav-number">4.3.1.</span> <span class="nav-text">twolevel_hint</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lc-str"><span class="nav-number">4.3.2.</span> <span class="nav-text">lc_str</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dylib-command"><span class="nav-number">4.4.</span> <span class="nav-text">dylib_command</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#dylib"><span class="nav-number">4.4.1.</span> <span class="nav-text">dylib</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dylinker-command"><span class="nav-number">4.5.</span> <span class="nav-text">dylinker_command</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#prebound-dylib-command"><span class="nav-number">4.6.</span> <span class="nav-text">prebound_dylib_command</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#thread-command"><span class="nav-number">4.7.</span> <span class="nav-text">thread_command</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#routines-command"><span class="nav-number">4.8.</span> <span class="nav-text">routines_command</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sub-framework-command"><span class="nav-number">4.9.</span> <span class="nav-text">sub_framework_command</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sub-umbrella-command"><span class="nav-number">4.10.</span> <span class="nav-text">sub_umbrella_command</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sub-library-command"><span class="nav-number">4.11.</span> <span class="nav-text">sub_library_command</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sub-client-command"><span class="nav-number">4.12.</span> <span class="nav-text">sub_client_command</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#symtab-command"><span class="nav-number">4.13.</span> <span class="nav-text">symtab_command</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#nlist"><span class="nav-number">4.13.1.</span> <span class="nav-text">nlist</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dysymtab-command"><span class="nav-number">4.14.</span> <span class="nav-text">dysymtab_command</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#dylib-table-of-contents"><span class="nav-number">4.14.1.</span> <span class="nav-text">dylib_table_of_contents</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dylib-module"><span class="nav-number">4.14.2.</span> <span class="nav-text">dylib_module</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dylib-reference"><span class="nav-number">4.14.3.</span> <span class="nav-text">dylib_reference</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

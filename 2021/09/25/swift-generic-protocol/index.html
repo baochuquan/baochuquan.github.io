@@ -1,38 +1,1401 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="泛型协议,类型擦除,thunk,抽象类型成员,类型参数," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="之前在一些分享会上经常听到 类型擦除（Type Erase）这个概念，从其命名上大概知道它要干什么，但是对于为什么要用它？以及什么场景下使用它？对此，我并没有深刻的理解。于是，借着假期好好研究了一下。问题的一切要从泛型协议说起。 协议如何支持泛型？我们知道，在 Swift 中，protocol 支持泛型的方式与 class&#x2F;struct&#x2F;enum 不同，具体说来：  对于 cl">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Swift 泛型协议">
+<meta property="og:url" content="http://chuquan.me/2021/09/25/swift-generic-protocol/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="之前在一些分享会上经常听到 类型擦除（Type Erase）这个概念，从其命名上大概知道它要干什么，但是对于为什么要用它？以及什么场景下使用它？对此，我并没有深刻的理解。于是，借着假期好好研究了一下。问题的一切要从泛型协议说起。 协议如何支持泛型？我们知道，在 Swift 中，protocol 支持泛型的方式与 class&#x2F;struct&#x2F;enum 不同，具体说来：  对于 cl">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/existential-container.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cs-of-luxun.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2021-09-25T01:40:42.000Z">
+<meta property="article:modified_time" content="2022-05-25T06:52:17.558Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="泛型协议">
+<meta property="article:tag" content="类型擦除">
+<meta property="article:tag" content="thunk">
+<meta property="article:tag" content="抽象类型成员">
+<meta property="article:tag" content="类型参数">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/existential-container.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2021/09/25/swift-generic-protocol/"/>
+
+
+
+
+
+  <title>Swift 泛型协议 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2021/09/25/swift-generic-protocol/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Swift 泛型协议</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2021-09-25T09:40:42+08:00">
+                2021-09-25
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2022-05-25T14:52:17+08:00">
+                2022-05-25
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Swift/" itemprop="url" rel="index">
+                    <span itemprop="name">Swift</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>之前在一些分享会上经常听到 <strong>类型擦除</strong>（Type Erase）这个概念，从其命名上大概知道它要干什么，但是对于为什么要用它？以及什么场景下使用它？对此，我并没有深刻的理解。于是，借着假期好好研究了一下。问题的一切要从泛型协议说起。</p>
+<h1 id="协议如何支持泛型？"><a href="#协议如何支持泛型？" class="headerlink" title="协议如何支持泛型？"></a>协议如何支持泛型？</h1><p>我们知道，在 Swift 中，protocol 支持泛型的方式与 class&#x2F;struct&#x2F;enum 不同，具体说来：</p>
+<ul>
+<li>对于 class&#x2F;struct&#x2F;enum，其采用 <strong>类型参数（Type Parameters）</strong> 的方式。</li>
+<li>对于 protocol，其采用 <strong>抽象类型成员（Abstract Type Member）</strong> 的方式，具体技术称为 <strong>关联类型（Associated Type）</strong>。</li>
+</ul>
+<p>分别如下所示：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// class</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GenericClass</span>&lt;<span class="title class_">T</span>&gt; &#123; <span class="operator">...</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// struct</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">GenericStruct</span>&lt;<span class="title class_">T</span>&gt; &#123; <span class="operator">...</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// enum</span></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">GenericEnum</span>&lt;<span class="title class_">T</span>&gt; &#123; <span class="operator">...</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// protocol</span></span><br><span class="line"><span class="keyword">protocol</span> <span class="title class_">GenericProtocol</span> &#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">AbstractType</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">next</span>() -&gt; <span class="type">AbstractType</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时候我们可能会有一个疑问：为什么 class&#x2F;enum&#x2F;struct 使用类型参数，而 protocol 则使用抽象类型成员？我查阅了很多讨论，原因可以归纳为两点：</p>
+<ul>
+<li>采用类型参数的泛型其实是定义了整个类型家族，我们可以通过传入类型参数可以转换成具体类型（类似于函数调用时传入不同参数），如：<code>Array&lt;Int&gt;</code>，<code>Array&lt;String&gt;</code>，很显然类型参数适用于多次表达。然而，协议的表达是一次性的，我们只会实现 <code>GenericProtocol</code>，而不会特定地实现 <code>GenericProtocol&lt;Int&gt;</code> 或 <code>GenericProtocol&lt;String&gt;</code>。</li>
+<li>协议在 Swift 中有两个目的，第一个目的是 <strong>用来实现多继承</strong>（Swift 语言被设计成单继承），第二个目的是 <strong>强制实现者必须遵守协议所指定的泛型约束</strong>。很明显，<strong>协议并不是用来表示某种类型，而是用来约束某种类型</strong>，比如：<code>GenericProtocol</code> 约束了 <code>next()</code> 方法的返回类型，而不是定义 <code>GenericProtocol</code> 的类型。而抽象类型成员则可以用来实现类型约束的。</li>
+</ul>
+<h1 id="如何存储非泛型协议？"><a href="#如何存储非泛型协议？" class="headerlink" title="如何存储非泛型协议？"></a>如何存储非泛型协议？</h1><p>下面，我们来看一下协议的存储。首先，我们来考虑非泛型协议。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protocol</span> <span class="title class_">Drawable</span> &#123; </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">draw</span>() </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Point</span>: <span class="title class_">Drawable</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> x, y: <span class="type">Double</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">draw</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Line</span>: <span class="title class_">Drawable</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> x1, y1, x2, y2: <span class="type">Double</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">draw</span>() &#123; <span class="operator">...</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> value: <span class="type">Drawable</span> <span class="operator">=</span> arc4random()<span class="operator">%</span><span class="number">2</span> <span class="operator">==</span> <span class="number">0</span> <span class="operator">?</span> <span class="type">Point</span>(x: <span class="number">0</span>, y: <span class="number">0</span>) : <span class="type">Line</span>(x1: <span class="number">0</span>, y1: <span class="number">0</span>, x2: <span class="number">1</span>, y2: <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>从上述代码可以看出，value 既可以表示 Point 类型，又可以表示 Line 类型。事实上，value 的实际类型是编译器生成的一种特殊数据类型 <code>Existential Container</code>。<code>Existential Container</code> 对具体类型进行封装，从而实现存储一致性。关于 Existential Container 的具体内容，可以参考<a href="http://chuquan.me/2020/02/19/swift-performance-protocol-type-generic-type/">《Swift性能优化(2)——协议与泛型的实现》</a>。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/existential-container.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="如何存储泛型协议？"><a href="#如何存储泛型协议？" class="headerlink" title="如何存储泛型协议？"></a>如何存储泛型协议？</h1><p>接下来，我们再来考虑泛型协议的存储。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protocol</span> <span class="title class_">Generator</span> &#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">AbstractType</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">generate</span>() -&gt; <span class="type">AbstractType</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">IntGenerator</span>: <span class="title class_">Generator</span> &#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">AbstractType</span> <span class="operator">=</span> <span class="type">Int</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">generate</span>() -&gt; <span class="type">Int</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">StringGenerator</span>: <span class="title class_">Generator</span> &#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">AbstractType</span> <span class="operator">=</span> <span class="type">String</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">generate</span>() -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;zero&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> value: <span class="type">Generator</span> <span class="operator">=</span> arc4random()<span class="operator">%</span><span class="number">2</span> <span class="operator">==</span> <span class="number">0</span> <span class="operator">?</span> <span class="type">IntGenerator</span>() : <span class="type">StringGenerator</span>()</span><br></pre></td></tr></table></figure>
+<p>通过非泛型协议的例子，我们理所当然会觉得上述代码没有问题，因为有 <code>Existential Container</code> 类型可以保证存储一致性。</p>
+<p>事实上，上述代码从表面上看的确不会有问题，但是我们忽略了泛型协议的本质——约束类型。我们可以在上述代码的基础上，继续加上如下代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> x <span class="operator">=</span> value.generate()</span><br></pre></td></tr></table></figure>
+<p>由于 <code>Generator</code> 协议约束了 <code>generate()</code> 方法的返回类型，在本例中，<code>x</code> 的类型既可能是 <code>Int</code>，又可能是 <code>String</code>。而 Swift 本身又是一种强类型语言，所有的类型必须在编译时确定。因此，swift 无法直接支持泛型协议的存储。</p>
+<p>所以，在实际开发中，Xcode 会对以下这种类型的定义报错。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> value: <span class="type">Generator</span> <span class="operator">=</span> <span class="type">IntGenerator</span>()</span><br><span class="line"><span class="comment">// Error: Protocol &#x27;Generator&#x27; can only be used as a generic constraint because it has Self or associated type requirements</span></span><br></pre></td></tr></table></figure>
+
+<p>那么，如何解决泛型协议的存储呢？</p>
+<h1 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h1><p>问题的本质是要将泛型协议的所约束的类型进行擦除，即 <strong>类型擦除 （Type Erase）</strong>，从而骗过编译器，解决该问题的思路有两种：</p>
+<ul>
+<li>泛型协议转换成非泛型协议。</li>
+<li>泛型协议封装成的具体类型。</li>
+</ul>
+<p>对于『泛型协议转换成非泛型协议』，由于泛型协议的实现采用的是抽象类型成员，而不是类型参数，只能基于抽象类型成员进行泛型约束，然而通过转换而来的协议本质上仍然是泛型协议，如下所示。此方法无效。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protocol</span> <span class="title class_">BoolGenerator</span>: <span class="title class_">Generator</span> <span class="title class_">where</span> <span class="title class_">AbstractType</span> == <span class="title class_">String</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">BoolGeneratorObj</span>: <span class="title class_">BoolGenerator</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">generate</span>() -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;bool&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> value: <span class="type">BoolGenerator</span> <span class="operator">=</span> <span class="type">BoolGeneratorObj</span>()</span><br><span class="line"><span class="comment">// Error: Protocol &#x27;BoolGenerator&#x27; can only be used as a generic constraint because it has Self or associated type requirements</span></span><br></pre></td></tr></table></figure>
+
+<p>对于『泛型协议封装成的具体类型』，事实上，这是业界普遍的解决方案，swift 中很多系统库都是采用这种思路来解决的。</p>
+<p>为此，我们可以使用 thunk 技术来解决。什么是 thunk？<strong>一个 thunk 通常是一个子程序，它被创造出来，用于协助调用其他的子程序</strong>。说到底，就是通过创造一个中间层来解决遇到的问题。</p>
+<blockquote>
+<p>thunk 技术应用非常广泛，比如：oc swift 混编时，我们可以在调用栈中看到存在 thunk 函数。</p>
+</blockquote>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cs-of-luxun.png?x-oss-process=image/resize,w_800"></p>
+<p>具体的解决方法是：</p>
+<ul>
+<li>定义一个『中间层结构体』，该结构体实现了协议的所有方法。</li>
+<li>在『中间层结构体』实现的具体协议方法中，再转发给『实现协议的抽象类型』。</li>
+<li>在『中间层结构体』的初始化过程中，『实现协议的抽象类型』会被当做参数传入（依赖注入）。</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protocol</span> <span class="title class_">Generator</span> &#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">AbstractType</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">generate</span>() -&gt; <span class="type">AbstractType</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">GeneratorThunk</span>&lt;<span class="title class_">T</span>&gt;: <span class="title class_">Generator</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _generate: () -&gt; <span class="type">T</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>&lt;<span class="type">G</span>: <span class="type">Generator</span>&gt;(<span class="keyword">_</span> <span class="params">gen</span>: <span class="type">G</span>) <span class="keyword">where</span> <span class="type">G</span>.<span class="type">AbstractType</span> <span class="operator">==</span> <span class="type">T</span> &#123;</span><br><span class="line">        _generate <span class="operator">=</span> gen.generate</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">generate</span>() -&gt; <span class="type">T</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> _generate()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当我们拥有一个 thunk，我们可以把它当做类型使用（需要提供具体类型）。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">StringGenerator</span>: <span class="title class_">Generator</span> &#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">AbstractType</span> <span class="operator">=</span> <span class="type">String</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">generate</span>() -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;zero&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> gens: <span class="type">GeneratorThunk</span>&lt;<span class="type">String</span>&gt; <span class="operator">=</span> <span class="type">GeneratorThunk</span>(<span class="type">StringGenerator</span>())</span><br></pre></td></tr></table></figure>
+
+<p>采用 thunk 技术，我们把泛型协议封装成的具体类型，其本质就是对泛型协议进行了 <strong>类型擦除（Type Erase）</strong>，从而解决了泛型类型的存储问题。</p>
+<h1 id="类型擦除"><a href="#类型擦除" class="headerlink" title="类型擦除"></a>类型擦除</h1><p>关于类型擦除，在 Swift 标准库的实现中，一般会创建一个包装类型（class 或 struct）将遵循了协议的对象进行封装。包装类型本身也遵循协议，它会将对协议方法的调用传递到内部的对象中。包装类型一般命名为 <code>Any&#123;protocol-name&#125;</code>，如：<code>AnySequence</code>、<code>AnyCollection</code>。</p>
+<p>下面，是以 Swift 标准库的方式对泛型协议进行类型擦除。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protocol</span> <span class="title class_">Printer</span> &#123;</span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">T</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">print</span>(<span class="params">val</span>: <span class="type">T</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">AnyPrinter</span>&lt;<span class="title class_">U</span>&gt;: <span class="title class_">Printer</span> &#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">T</span> <span class="operator">=</span> <span class="type">U</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> _print: (<span class="type">U</span>) -&gt; ()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">init</span>&lt;<span class="type">Base</span>: <span class="type">Printer</span>&gt;(<span class="params">base</span> : <span class="type">Base</span>) <span class="keyword">where</span> <span class="type">Base</span>.<span class="type">T</span> <span class="operator">==</span> <span class="type">U</span> &#123;</span><br><span class="line">        _print <span class="operator">=</span> base.print</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">print</span>(<span class="params">val</span>: <span class="type">T</span>) &#123;</span><br><span class="line">        _print(val)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Logger</span>&lt;<span class="title class_">U</span>&gt;: <span class="title class_">Printer</span> &#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">T</span> <span class="operator">=</span> <span class="type">U</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">print</span>(<span class="params">val</span>: <span class="type">T</span>) &#123;</span><br><span class="line">        <span class="type">NSLog</span>(<span class="string">&quot;<span class="subst">\(val)</span>&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> logger <span class="operator">=</span> <span class="type">Logger</span>&lt;<span class="type">Int</span>&gt;()</span><br><span class="line"><span class="keyword">let</span> printer <span class="operator">=</span> <span class="type">AnyPrinter</span>(base: logger)</span><br><span class="line">printer.print(<span class="number">5</span>)        <span class="comment">// prints 5</span></span><br></pre></td></tr></table></figure>
+<p>在这里，<code>AnyPrinter</code> 并没有显式地引用 <code>base</code> 实例。事实上我们也不能这么做，因为我们不能在 <code>AnyPrinter</code> 中声明一个 <code>Printer&lt;T&gt;</code> 的属性。对此，我们使用一个方法指针 <code>_print</code> 指向了 <code>base</code> 的 <code>print</code> 方法，通过这种方式，<code>base</code> 被柯里化成了 <code>self</code>，从而隐式地引用了 <code>base</code> 实例。</p>
+<h1 id="具体应用"><a href="#具体应用" class="headerlink" title="具体应用"></a>具体应用</h1><p>在 RxSwift 中，就有针对泛型协议类型擦除的相关应用，我们来看下面这段代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">protocol</span> <span class="title class_">ObserverType</span> &#123;</span><br><span class="line">    <span class="comment">/// The type of elements in sequence that observer can observe.</span></span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Element</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/// Notify observer about sequence event.</span></span><br><span class="line">    <span class="comment">/// - parameter event: Event that occurred.</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">on</span>(<span class="keyword">_</span> <span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">Element</span>&gt;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// A type-erased `ObserverType`.</span></span><br><span class="line"><span class="comment">/// Forwards operations to an arbitrary underlying observer with the same `Element` type, hiding the specifics of the underlying observer type.</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">struct</span> <span class="title class_">AnyObserver</span>&lt;<span class="title class_">Element</span>&gt; : <span class="title class_">ObserverType</span> &#123;</span><br><span class="line">    <span class="comment">/// Anonymous event handler type.</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">typealias</span> <span class="type">EventHandler</span> <span class="operator">=</span> (<span class="type">Event</span>&lt;<span class="type">Element</span>&gt;) -&gt; <span class="type">Void</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> observer: <span class="type">EventHandler</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/// Construct an instance whose `on(event)` calls `eventHandler(event)`</span></span><br><span class="line">    <span class="comment">/// - parameter eventHandler: Event handler that observes sequences events.</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">init</span>(<span class="params">eventHandler</span>: <span class="keyword">@escaping</span> <span class="type">EventHandler</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.observer <span class="operator">=</span> eventHandler</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/// Construct an instance whose `on(event)` calls `observer.on(event)`</span></span><br><span class="line">    <span class="comment">/// - parameter observer: Observer that receives sequence events.</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">init</span>&lt;<span class="type">Observer</span>: <span class="type">ObserverType</span>&gt;(<span class="keyword">_</span> <span class="params">observer</span>: <span class="type">Observer</span>) <span class="keyword">where</span> <span class="type">Observer</span>.<span class="type">Element</span> <span class="operator">==</span> <span class="type">Element</span> &#123;</span><br><span class="line">        <span class="keyword">self</span>.observer <span class="operator">=</span> observer.on</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/// Send `event` to this observer.</span></span><br><span class="line">    <span class="comment">/// - parameter event: Event instance.</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">func</span> <span class="title function_">on</span>(<span class="keyword">_</span> <span class="params">event</span>: <span class="type">Event</span>&lt;<span class="type">Element</span>&gt;) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.observer(event)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/// Erases type of observer and returns canonical observer.</span></span><br><span class="line">    <span class="comment">/// - returns: type erased observer.</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">func</span> <span class="title function_">asObserver</span>() -&gt; <span class="type">AnyObserver</span>&lt;<span class="type">Element</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ObserverType</code> 是一个泛型协议，<code>AnyObserver</code> 是一个用于类型擦除的包装类型。<code>AnyObserver</code> 定义了方法指针（闭包），指向实现协议的抽象类型实例所声明的方法。同时 <code>AnyObserver</code> 自身又遵循 <code>ObserverType</code> 协议，在调用 <code>AnyObserver</code> 对应的协议时，它会将方法调用转发至对应方法指针所对应的方法。</p>
+<p>除了 <code>AnyObserver</code> 之外，<code>Observable</code> 同样也是一个用于类型擦除的包装类型，其工作原理也是基本相似。</p>
+<p>此外，swift 标准库中也大量应用了类型擦除，比如：<code>AnySequence</code>、<code>AnyIterator</code>、<code>AnyIndex</code>、<code>AnyHashable</code>、<code>AnyCollection</code> 等等。后续有时间，我们再来看看标准库中对于泛型协议的类型擦除是怎么做的，可以肯定的是，其实现原理基本是一致的。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文，我们通过泛型协议的例子，了解了类型擦除的作用。这里，类型擦除将泛型协议所关联的类型信息进行了擦除，本质上是通过类型参数的方式，让实现抽象类型成员具体化。在面向协议编程中，类型擦除也是一种非常常见的手段，后续我们阅读相关代码时，也就不会对包装类型产生迷惑了。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="http://www.russbishop.net/swift-why-associated-types">Swift: Why Associated Types?</a></li>
+<li><a target="_blank" rel="noopener" href="http://russbishop.net/swift-associated-types">Swift: Associated Types</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.russbishop.net/swift-associated-types-cont">Swift: Associated Types, cont.</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.russbishop.net/inception">Inception</a></li>
+<li><a target="_blank" rel="noopener" href="https://robnapier.net/type-erasure-in-stdlib">Type-erasure in Stdlib</a></li>
+<li><a target="_blank" rel="noopener" href="https://robnapier.net/erasure">A Little Respect for AnySequence</a></li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/27725803/how-to-use-generic-protocol-as-a-variable-type">How to use generic protoco as a variable type</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Thunk">Thunk. Wikipedia</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2015/05/thunk.html">Thunk 函数的含义和用法</a></li>
+<li><a target="_blank" rel="noopener" href="https://milen.me/writings/swift-generic-protocols/">Swift Generic Protocols</a></li>
+<li><a target="_blank" rel="noopener" href="https://toutiao.io/posts/211178/app_preview">当 Swift 中的协议遇到泛型</a></li>
+<li><a target="_blank" rel="noopener" href="https://academy.realm.io/cn/posts/altconf-hector-matos-type-erasure-magic/">神奇的类型擦除</a></li>
+<li><a target="_blank" rel="noopener" href="https://academy.realm.io/posts/tryswift-gwendolyn-weston-type-erasure/">Keep Calm and Type Erase On</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.benjamin-encz.de/post/compile-time-vs-runtime-type-checking-swift/">Compile Time vs. Run Time Type Checking in Swift</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ef4a9b56f951">swift的泛型协议为什么不用<T>语法</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/swiftworld/swift-world-type-erasure-5b720bc0318a">Swift World: Type Erasure</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/rnapier/MyAnySequence/blob/master/MyAnySequence.playground/Contents.swift">MySequence</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%B3%9B%E5%9E%8B%E5%8D%8F%E8%AE%AE/" rel="tag"># 泛型协议</a>
+          
+            <a href="/tags/%E7%B1%BB%E5%9E%8B%E6%93%A6%E9%99%A4/" rel="tag"># 类型擦除</a>
+          
+            <a href="/tags/thunk/" rel="tag"># thunk</a>
+          
+            <a href="/tags/%E6%8A%BD%E8%B1%A1%E7%B1%BB%E5%9E%8B%E6%88%90%E5%91%98/" rel="tag"># 抽象类型成员</a>
+          
+            <a href="/tags/%E7%B1%BB%E5%9E%8B%E5%8F%82%E6%95%B0/" rel="tag"># 类型参数</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/08/25/how-to-develop-command-line-tool-with-spm/" rel="next" title="如何使用 Swift Package Manager 开发命令行工具？">
+                <i class="fa fa-chevron-left"></i> 如何使用 Swift Package Manager 开发命令行工具？
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/10/10/swift-type-erase/" rel="prev" title="Swift 类型擦除">
+                Swift 类型擦除 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE%E5%A6%82%E4%BD%95%E6%94%AF%E6%8C%81%E6%B3%9B%E5%9E%8B%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">协议如何支持泛型？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%AD%98%E5%82%A8%E9%9D%9E%E6%B3%9B%E5%9E%8B%E5%8D%8F%E8%AE%AE%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">如何存储非泛型协议？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%AD%98%E5%82%A8%E6%B3%9B%E5%9E%8B%E5%8D%8F%E8%AE%AE%EF%BC%9F"><span class="nav-number">3.</span> <span class="nav-text">如何存储泛型协议？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">解决方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B%E6%93%A6%E9%99%A4"><span class="nav-number">5.</span> <span class="nav-text">类型擦除</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%BA%94%E7%94%A8"><span class="nav-number">6.</span> <span class="nav-text">具体应用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

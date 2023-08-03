@@ -1,38 +1,1396 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="总结," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="又到了一年一次例行总结的时候，写篇文章来回顾一下这一年的经历、收获和成长吧。 自由市场今年年初，部门内出现了不少人员变动，印象中有 @周剑、@向南、@孝发、@全义 等都提了离职。一方面，考虑到公司因政策影响无法上市，未来非常不明朗；另一方面，我工作 4 年至今未曾接触自由市场。因此，想了解一下自己在市场中属于什么水平，看看有没有好的机会。 我从 1 月 20 日第一次面试，到 3 月 17">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2022 年度总结">
+<meta property="og:url" content="http://chuquan.me/2022/12/31/2022-summary/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="又到了一年一次例行总结的时候，写篇文章来回顾一下这一年的经历、收获和成长吧。 自由市场今年年初，部门内出现了不少人员变动，印象中有 @周剑、@向南、@孝发、@全义 等都提了离职。一方面，考虑到公司因政策影响无法上市，未来非常不明朗；另一方面，我工作 4 年至今未曾接触自由市场。因此，想了解一下自己在市场中属于什么水平，看看有没有好的机会。 我从 1 月 20 日第一次面试，到 3 月 17">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-08.png?x-oss-process=image/resize,w_600">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-02.jpeg?x-oss-process=image/resize,w_200">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-05.jpeg?x-oss-process=image/resize,w_600">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-04.jpeg?x-oss-process=image/resize,w_600">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-06.jpeg?x-oss-process=image/resize,w_600">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-03.jpeg?x-oss-process=image/resize,w_600">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-07.jpeg?x-oss-process=image/resize,w_600">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-01.jpeg?x-oss-process=image/resize,w_280">
+<meta property="article:published_time" content="2022-12-31T11:04:03.000Z">
+<meta property="article:modified_time" content="2023-01-15T05:35:10.303Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="总结">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-08.png?x-oss-process=image/resize,w_600">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2022/12/31/2022-summary/"/>
+
+
+
+
+
+  <title>2022 年度总结 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2022/12/31/2022-summary/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">2022 年度总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2022-12-31T19:04:03+08:00">
+                2022-12-31
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2023-01-15T13:35:10+08:00">
+                2023-01-15
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%94%9F%E6%B4%BB/" itemprop="url" rel="index">
+                    <span itemprop="name">生活</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-08.png?x-oss-process=image/resize,w_600"></p>
+<!-- more --->
+
+<p>又到了一年一次例行总结的时候，写篇文章来回顾一下这一年的经历、收获和成长吧。</p>
+<h1 id="自由市场"><a href="#自由市场" class="headerlink" title="自由市场"></a>自由市场</h1><p>今年年初，部门内出现了不少人员变动，印象中有 @周剑、@向南、@孝发、@全义 等都提了离职。一方面，考虑到公司因政策影响无法上市，未来非常不明朗；另一方面，我工作 4 年至今未曾接触自由市场。因此，想了解一下自己在市场中属于什么水平，看看有没有好的机会。</p>
+<p>我从 1 月 20 日第一次面试，到 3 月 17 日最后一次面试，中间经历了过年，有两个多星期没有安排面试，总共历时 2 个月。简历差不多投递了十几家公司，基本都是知名的互联网大厂和中厂，最终差不多面试了 30 场，也是心力交瘁，自我介绍和项目介绍都背麻了…不过，好在结果还是挺好的，除了有一家技术面面挂了，其他的基本上要么是流程到了 HR 面，要么是我主动结束面试流程，还有几家是给了书面 Offer 或口头 Offer。</p>
+<p>这三个月业余时间一直在复习基础、刷算法题、复盘面试，期间和 @瑀晗、@金俊 也经常交流面试情况和工作选择。万万没想到的是 @瑀晗 和 @金俊 最终去了同一家公司的同一个小组，换了个公司做同事。当然，这期间基本上没有放在太多心思在工作和学习上，但总的来说，收获还是挺大的，大概有几点：</p>
+<ul>
+<li>了解了自己在大厂职级体系中所对应的水平，因此个人自信心增长了不少。</li>
+<li>了解了岗位所需要的知识体系，看到了自己的短板，摸清了各个公司面试重点和套路。</li>
+<li>了解了更加高阶的岗位要求是什么，找到了自己努力和进阶的方向。</li>
+</ul>
+<p>当然，最终我没有选择跳槽，主要原因还是 @碧峰 说的 “有更大的发挥空间和成长空间”。另外，还有几个次要原因：</p>
+<ul>
+<li>觉得通过面试已经找到了努力的方向，如果换个地方，可能适应环境都要花费很久，而且很多东西都要从头开始。</li>
+<li>觉得外面的公司绝大多数都太卷，薪资性价比不是特别高。</li>
+<li>觉得整体大环境不好，裁员比比皆是，有点不稳定，担心“毕业”。</li>
+</ul>
+<p>在作出决定之前，@李哲 转岗去了搜题，大哥找我聊了一次；在作出决定之后，我找大哥又聊了一次。在得到了大哥的一些承诺之后，开始逐步接管客户端团队，负责 Android&#x2F;iOS&#x2F;Cocos&#x2F;Flutter 的日常事务和工作安排，这时候差不多 4 月份了。</p>
+<h1 id="关于工作"><a href="#关于工作" class="headerlink" title="关于工作"></a>关于工作</h1><p>今年的工作角色发生了转变，从 iOS Owner 转变成客户端负责人。这一年来，自己也推动了一些事情的落地。</p>
+<p>第一件事是优化 Zeta Math 上课路径效果。经过综合考虑后，设计了一套基于 Cocos View 复用，支持代码热更新、内容增量更新的技术方案。相比于第一版基于 Native 实现的方案，新版本的视觉效果和用户体验好了很多。项目整体开发经历了一个月，最终顺利上线。</p>
+<p>第二件事是 GitLab CICD 建设，搭建了一套基于 Danger 的 Lua&#x2F;Swift&#x2F;Kotlin 的静态代码检查能力。由于 Lua 较为小众，没有现成的插件可供使用，对此，开发了一个 ruby gem——<a target="_blank" rel="noopener" href="https://rubygems.org/gems/danger-luacheck">danger-luacheck</a>。Dart 的静态代码检查能力暂时还没支持，后续有时间再整吧。</p>
+<p>当然，CICD 能做的事远远不止这些，包括：单元测试、依赖分析、编译检查、代码扫描等等。等到后续人手充足，时间充裕，再捡起来。</p>
+<p>第三件事是去 Flutter 化。海豚自习 App 的首页四个 Tab，包括一部分二级页都是用 Flutter 写的。在需求迭代过程中，Flutter 开发的很多痛点逐步暴露出来了，主要包括以下这些：</p>
+<ul>
+<li>调试不方便。特别是涉及到 Native 和 Flutter 混合调试时，大部分情况只能使用日志进行调试。</li>
+<li>线上问题多。由于我们的 Tab 也是 Flutter 实现的，因此 Flutter 页面曝光率是 100%。对此，线上经常出现白屏、内存泄露、页面卡顿、图片锯齿等问题。由于我们对于 Flutter 的投入太少，很多东西都无法解决。</li>
+<li>新人不友好。新入职的同学基本都没有 Flutter 开发经验，从头开始学得占用一段时间。最头疼的是，我们的需求变动最频繁的几个 Flutter 页面都非常复杂，新人上手的成本非常高。</li>
+<li>提效不明显。在开发效率方面，Flutter 的目标是 Native 的 2 倍，然而在实践中，我觉得顶多也就 1.5 倍左右。有时候也会遇到 Native 很容易实现，而 Flutter 却很难实现的情况。另外很多情况下，还需要双端同时开发插件。</li>
+</ul>
+<p>一方面，考虑到后续几个 Tab 首页的需求迭代会越来越多；另一方面，希望能够让更多的同学参与到这些需求的开发中。于是，开始规划 Tab 重写。很幸运地，在国庆前找到了一个空档期，所有同学都参与了 Tab 重写，同样也花了一个月的时间，顺利上线。上线后的优化效果的确很明显，白屏没有人报了，崩溃率也下降了不少，页面流畅度也提升了不少。</p>
+<p>第四件事是基于 page scheme 的动态弹窗管理能力建设。构想并建设 page scheme 主要基于几个事实：</p>
+<ul>
+<li>一个定制弹窗需求。对此，我调研了淘宝的 PopLayer 方案，设计了一套基于 WebView 的弹窗方案，称之为 WebLayer。</li>
+<li>一个卡牌激励需求。对此，我们上线了基于 MQTT 的长连接能力，并设计了一套基于页面白名单和黑名单的消息处理能力。</li>
+<li>统一页面曝光需求。这是一个技术需求，希望能够在当前页面上报埋点时，携带上级页面的信息，此外，还能够处理页面停留时长、网络请求时长等信息。</li>
+<li>统跳链接信息维护。一直以来，包括小猿搜题、海豚自习馆等诸多 App，我们都是通过手动维护一个 wiki 来记录统跳信息。这里，我希望能够通过代码生成统跳信息，甚至还包括其他的页面信息、参数信息等等。</li>
+</ul>
+<p>最终，我构想了一套 page scheme 能力，通过项目代码生成不同版本的 page scheme 文件，后台可以根据 page scheme 配置指定的页面显示弹窗或一些其他能力。服务器将后台配置结合消息数据，通过 MQTT 或 HTTP 的方式下发至 App，App 再进行处理。</p>
+<p>期望的项目终极形态是，支持在运营在后台配置任意弹窗，包括：WebLayer、Native 弹窗等，支持指定页面显示（或不显示）。其中，WebLayer 支持类似弹窗、新手引导、红包雨、气泡等各种运营效果。</p>
+<p>目前，page scheme 能力的搭建还在进行中，客户端的相关能力基本已经完成，包括：弹窗管理器、page scheme 定义、配置文件生成、MQTT 分派、WebLayer 管理器等。后续，还要继续推动后台相关的基础设施的搭建。整体来讲，我个人觉得这个项目还是比较有意义的，并且具有一定的创新性，期待上线后的效果。</p>
+<h1 id="关于学习"><a href="#关于学习" class="headerlink" title="关于学习"></a>关于学习</h1><h2 id="开源代码"><a href="#开源代码" class="headerlink" title="开源代码"></a>开源代码</h2><p>今年阅读了四个开源项目的代码，分别是：getopt、git、Aspects、PromiseKit。</p>
+<p>关于 getopt 源码，主要是出于两个契机。一个是自己看完了《C 语言教程》；一个是出于优化 nox 的目的。最终，产出了一篇源码解读文章 <a href="http://chuquan.me/2022/04/04/getopt/">《源码解读——getopt》</a>。</p>
+<p>关于 git 源码，我首先精读了创世版的代码，也就是 Linus Torvalds 写的那个版本。然后看了下 2.0.0 版本的代码，核心的数据结构和设计原理没有太大的变化。同时又看了《Pro Git》的部分章节，最终对 Git 的底层设计原理有了一个比较清晰的认识。对此，写了篇文章 <a href="http://chuquan.me/2022/05/21/understand-principle-of-git/">《深入理解 Git 底层实现原理》</a>，并在团队内部做了次技术分享。</p>
+<p>关于 Aspects 源码，框架的实现非常精简，只有一份代码文件。当然，也是非常仔细的阅读了一遍，整理了一下思路，并写了篇文章 <a href="http://chuquan.me/2022/11/13/understand-principle-of-aspects/">《深入理解 Aspects 设计原理》</a>。</p>
+<p>关于 PromiseKit 源码，是因为年底的时候对于异步编程比较感兴趣，想到辅导的代码里也用到了，于是想来学习了一下。最后也产出了两篇相关的文章：</p>
+<ul>
+<li><a href="http://chuquan.me/2022/10/16/promise-core-implement/">《Promise 核心实现原理》</a></li>
+<li><a href="http://chuquan.me/2022/10/29/promisekit/">《源码解读——PromiseKit》</a></li>
+</ul>
+<h2 id="技术书籍"><a href="#技术书籍" class="headerlink" title="技术书籍"></a>技术书籍</h2><p>今年自己读书相关的计划完成的还可以，主要看了以下这么些：</p>
+<ul>
+<li>《C语言教程》</li>
+<li>《C++ Primer Plus》</li>
+<li>《Software Engineering at Google》</li>
+<li>《编译原理》：泛读了一下，另外看了两遍哈工大的编译原理公开课。</li>
+<li>《How to write your own compiler》：这本书花了一个月的业余时间，精读、翻译、实验，但是发现其所使用的 LLVM 版本过低，导致我花了很多时间用于解决各种报错。最后几章节的一些报错实在解决不了了，遂放弃。</li>
+<li>《Kaleidoscope: Implementing a Language with LLVM》：这本书差不多用了两个月的业余时间，精读、翻译、实验。</li>
+<li>《大型网站技术架构》</li>
+<li>《Swift 异步与并发》</li>
+<li>《计算之魂》</li>
+</ul>
+<p>除了技术书籍之外，其他的就看了毛选的卷一，看了一半，确实能感受到教员的伟大。后面，有时间有心境的时候，还是要好好读读毛选。</p>
+<h2 id="博客文章"><a href="#博客文章" class="headerlink" title="博客文章"></a>博客文章</h2><p>今年总共写了 20 来篇博客，有一半是对于《Kaleidoscope: Implementing a Language with LLVM》的章节翻译，当然也包含了一部分自己精读后的理解。除此之外，一部分是跟编译原理工具有关，一部分是跟异步编程有关，其他的还有一些琐碎的主题。整体来说，涉及的技术广度还不是很大。</p>
+<h2 id="学习英语"><a href="#学习英语" class="headerlink" title="学习英语"></a>学习英语</h2><p>因为今年年初的面试经历，了解到外企的一些高级岗位还是有英语要求的，特别是口语。考虑到未来失业了能多一个选择🐶，于是想着从现在开始好好练练口语。苦于没有语言环境，最后抱着试试看的心态，买了个流利说的课。想着坚持一年，看看效果。从4月份到现在，总体感觉是有点帮助的，至少语感，语言组织要比以前好很多。后续再看看，要不要考虑一下真人一对一。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-02.jpeg?x-oss-process=image/resize,w_200"></p>
+<h1 id="关于生活"><a href="#关于生活" class="headerlink" title="关于生活"></a>关于生活</h1><p>今年生活中最大的里程碑就是还完了房贷，好歹少还了大几十万的利息。</p>
+<p>其次，便是休了一个长假，国庆节 + 8 天年假 + 1 个周末，总共休假 17 天。假期计划分三段行程：湖州长兴、南京、合肥。</p>
+<p>在长兴的几天，见了假期最后一天的老弟，走了几家亲戚，和发小看了场”乡BA”、吃了顿夜宵。在家的几天，和老姐、外甥去了次太湖龙之梦。龙之梦确实非常大，比环球影城大不少，但是有些主题公园还没有完全造好。我们只体验了动物世界主题公园，整体感觉还是挺不错的，比北京动物园强多了。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-05.jpeg?x-oss-process=image/resize,w_600"></p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-04.jpeg?x-oss-process=image/resize,w_600"></p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-06.jpeg?x-oss-process=image/resize,w_600"></p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-03.jpeg?x-oss-process=image/resize,w_600"></p>
+<p>因为疫情原因，本来去南京玩的计划取消了，直接去了合肥。在合肥待的时间比较久，于是定了计划，把《Software Engineering at Google》看完了。由于国庆期间天气太极端，不是极端热就是寒潮降温，周边玩也没玩好。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-07.jpeg?x-oss-process=image/resize,w_600"></p>
+<p>国庆前两天，偶然看了下北京健康宝，发现弹窗3。因为可能会耽误回京，导致后面几天每天都在尝试消弹窗，也没什么心情出去玩。</p>
+<p>一整年来，因为疫情反复，也没有出去好好玩玩。2023 年放开了之后，希望一切都能恢复正常吧。</p>
+<h1 id="关于运动"><a href="#关于运动" class="headerlink" title="关于运动"></a>关于运动</h1><p>今年一直在保持运动，跟 @龙哥 一伙人组了局，同时部门内部又组了个局，基本上每周都能打次球，甚至打两次。</p>
+<p>另外，今年算是把跑步坚持了下来。从 7 月份开始，每周跑一次十公里。配速从 6:00 提高到了最快  5:16。可惜，到了十一月份，因为疫情，再加上室外过于寒冷，风又太大，就暂停了。希望明年能够从开春就坚持跑步，保持每周十公里，争取能参加一次马拉松。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/2022-summary-01.jpeg?x-oss-process=image/resize,w_280"></p>
+<h1 id="新年愿景"><a href="#新年愿景" class="headerlink" title="新年愿景"></a>新年愿景</h1><p>2022 年一直处于较为紧张和规律的状态，收获也挺多，看了些书，读了些源码，写了些博客，希望 2023 年能够继续保持吧。</p>
+<p>另外，身体才是革命的本钱。少熬夜，多喝水。保护视力，坚持运动。</p>
+<p>最后，祝新年快乐~</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%80%BB%E7%BB%93/" rel="tag"># 总结</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/12/05/future-and-promise/" rel="next" title="Future 和 Promise">
+                <i class="fa fa-chevron-left"></i> Future 和 Promise
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/01/15/actor/" rel="prev" title="浅谈 Actor 模型">
+                浅谈 Actor 模型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%87%AA%E7%94%B1%E5%B8%82%E5%9C%BA"><span class="nav-number">1.</span> <span class="nav-text">自由市场</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E5%B7%A5%E4%BD%9C"><span class="nav-number">2.</span> <span class="nav-text">关于工作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E5%AD%A6%E4%B9%A0"><span class="nav-number">3.</span> <span class="nav-text">关于学习</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E6%BA%90%E4%BB%A3%E7%A0%81"><span class="nav-number">3.1.</span> <span class="nav-text">开源代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E4%B9%A6%E7%B1%8D"><span class="nav-number">3.2.</span> <span class="nav-text">技术书籍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%9A%E5%AE%A2%E6%96%87%E7%AB%A0"><span class="nav-number">3.3.</span> <span class="nav-text">博客文章</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0%E8%8B%B1%E8%AF%AD"><span class="nav-number">3.4.</span> <span class="nav-text">学习英语</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E7%94%9F%E6%B4%BB"><span class="nav-number">4.</span> <span class="nav-text">关于生活</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E8%BF%90%E5%8A%A8"><span class="nav-number">5.</span> <span class="nav-text">关于运动</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%B0%E5%B9%B4%E6%84%BF%E6%99%AF"><span class="nav-number">6.</span> <span class="nav-text">新年愿景</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

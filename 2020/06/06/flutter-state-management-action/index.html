@@ -1,38 +1,1441 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="状态管理,Provider,BLoC,Redux,InheritedWidget,Notification,EventBus," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="概述iOS 和 Android 的原生开发模式是命令式编程模式。命令式编程要求开发者一步步描述整个构建过程，从而引导程序去构建用户界面。 Flutter 则采用了声明式编程模式，框架隐藏了具体的构建过程，开发者只需要声明状态，框架会自动构建用户界面。这也就意味着 Flutter 构建的用户界面就是当前的状态。  状态管理App 在运行中总是会更新用户界面，因此我们需要对状态进行有效的管理。状态管理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flutter 状态管理实践">
+<meta property="og:url" content="http://chuquan.me/2020/06/06/flutter-state-management-action/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="概述iOS 和 Android 的原生开发模式是命令式编程模式。命令式编程要求开发者一步步描述整个构建过程，从而引导程序去构建用户界面。 Flutter 则采用了声明式编程模式，框架隐藏了具体的构建过程，开发者只需要声明状态，框架会自动构建用户界面。这也就意味着 Flutter 构建的用户界面就是当前的状态。  状态管理App 在运行中总是会更新用户界面，因此我们需要对状态进行有效的管理。状态管理">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ui-equals-function-of-state.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-direct.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-state-block.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-state-notification.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-inherited-notification.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-inherited-event.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cs-of-luxun.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-provider.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-provider.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/redux-pattern.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-provider.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/bloc-pattern.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2020-06-06T13:57:28.000Z">
+<meta property="article:modified_time" content="2021-08-19T08:55:12.453Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="状态管理">
+<meta property="article:tag" content="Provider">
+<meta property="article:tag" content="BLoC">
+<meta property="article:tag" content="Redux">
+<meta property="article:tag" content="InheritedWidget">
+<meta property="article:tag" content="Notification">
+<meta property="article:tag" content="EventBus">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ui-equals-function-of-state.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2020/06/06/flutter-state-management-action/"/>
+
+
+
+
+
+  <title>Flutter 状态管理实践 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2020/06/06/flutter-state-management-action/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Flutter 状态管理实践</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2020-06-06T21:57:28+08:00">
+                2020-06-06
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2021-08-19T16:55:12+08:00">
+                2021-08-19
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Flutter/" itemprop="url" rel="index">
+                    <span itemprop="name">Flutter</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>iOS 和 Android 的原生开发模式是命令式编程模式。命令式编程要求开发者一步步描述整个构建过程，从而引导程序去构建用户界面。</p>
+<p>Flutter 则采用了声明式编程模式，框架隐藏了具体的构建过程，开发者只需要声明状态，框架会自动构建用户界面。这也就意味着 Flutter 构建的用户界面就是当前的状态。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ui-equals-function-of-state.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="状态管理"><a href="#状态管理" class="headerlink" title="状态管理"></a>状态管理</h1><p>App 在运行中总是会更新用户界面，因此我们需要对状态进行有效的管理。状态管理本质上就是 <strong>如何解决状态读&#x2F;写的问题</strong>。对此，我们将从两个方面去评估状态管理方案：</p>
+<ul>
+<li><strong>状态访问</strong></li>
+<li><strong>状态更新</strong></li>
+</ul>
+<p>此外，根据 Flutter 原生支持的情况，我们将 Flutter 状态管理方案分为两类：</p>
+<ul>
+<li><strong>Flutter 内置的状态管理方案</strong></li>
+<li><strong>基于 Pub 的状态管理方案</strong></li>
+</ul>
+<p>下文，我们将以 Flutter 官方的计数器例子来介绍 Flutter 中的状态管理方案，并逐步进行优化。</p>
+<p>关于本文涉及的源码，见<a target="_blank" rel="noopener" href="https://github.com/baochuquan/state_manager_demo">【Demo 传送门】</a>。</p>
+<h2 id="Flutter-内置的状态管理方案"><a href="#Flutter-内置的状态管理方案" class="headerlink" title="Flutter 内置的状态管理方案"></a>Flutter 内置的状态管理方案</h2><h3 id="直接访问-直接更新"><a href="#直接访问-直接更新" class="headerlink" title="直接访问 + 直接更新"></a>直接访问 + 直接更新</h3><p>Flutter 模板工程就是【直接访问 + 直接更新】的状态管理方案。这种方案的状态访问&#x2F;更新示意图如下所示。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-direct.png?x-oss-process=image/resize,w_800"></p>
+<p>很显然，【直接访问 + 直接更新】方案只适合于在单个 <code>StatefulWidget</code> 中进行状态管理。那么对于多层级的 Widget 结构该如何进行状态管理呢？</p>
+<h3 id="状态传递-闭包传递"><a href="#状态传递-闭包传递" class="headerlink" title="状态传递 + 闭包传递"></a>状态传递 + 闭包传递</h3><p>对于多层级的 Widget 结构，状态是无法直接访问和更新的。因为 Widget 和 State 是分离的，并且 State 一般都是私有的，所以子 Widget 是无法直接访问&#x2F;更新父 Widget 的 State。</p>
+<p>对于这种情况，最直观的状态管理方案就是：【状态传递 + 闭包传递】。对于状态访问，父 Widget 在创建子 Widget 时就将状态传递给子 Widget；对于状态更新，父 Widget 将更新状态的操作封装在闭包中，传递给子 Widget。</p>
+<p>这里存在一个问题：当 Widget 树层级比较深时，如果中间有些 Widget 并不需要访问或更新父 Widget 的状态时，这些中间 Widget 仍然需要进行辅助传递。很显然，这种方案在 Widget 树层级较深时，效率比较低，只适合于较浅的 Widget 树层级。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-state-block.png?x-oss-process=image/resize,w_800"></p>
+<h3 id="状态传递-Notification"><a href="#状态传递-Notification" class="headerlink" title="状态传递 + Notification"></a>状态传递 + Notification</h3><p>那么如何优化多层级 Widget 树结构下的状态管理方案呢？我们首先从状态更新方面进行优化。</p>
+<p>【状态传递 + Notification】方案采用 Notification 定向地优化了状态更新的方式。</p>
+<p>通知（Notification）是 Flutter 中一个重要的机制，在 Widget 树中，每个节点都可以分发通知，通知会沿着当前节点向上传递，所有父节点都可以通过 <code>NotificationListener</code> 来监听通知。Flutter 中将这种由子向父的传递通知的机制称为 <strong>通知冒泡</strong>（Notification Bubbling）。通知冒泡和用户触摸事件冒泡是相似的，但有一点不同：<strong>通知冒泡可以中止，而用户触摸事件无法中止</strong>。</p>
+<p>下图所示为这种方案的状态访问&#x2F;更新示意图。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-state-notification.png?x-oss-process=image/resize,w_800"></p>
+<p>具体的实现源码如下所示：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 与 父 Widget 绑定的 State</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_PassStateNotificationDemoPageState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">PassStateNotificationDemoPage</span>&gt; </span>&#123;</span><br><span class="line">  <span class="built_in">int</span> _counter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">void</span> _incrementCounter() &#123;</span><br><span class="line">    setState(() &#123;</span><br><span class="line">      _counter++;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="comment">// 父 Widget 使用 NotificationListener 监听通知</span></span><br><span class="line">    <span class="keyword">return</span> NotificationListener&lt;IncrementNotification&gt;(</span><br><span class="line">      onNotification: (notification) &#123;</span><br><span class="line">        setState(() &#123;</span><br><span class="line">          _incrementCounter();</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;  <span class="comment">// true: 阻止冒泡；false: 继续冒泡</span></span><br><span class="line">      &#125;,</span><br><span class="line">      child: Scaffold(</span><br><span class="line">        ...</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="language-markdown">子 Widget</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_IncrementButton</span> <span class="keyword">extends</span> <span class="title">StatelessWidget</span> </span>&#123;</span><br><span class="line">  <span class="built_in">int</span> counter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  _IncrementButton(<span class="keyword">this</span>.counter);</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> GestureDetector(</span><br><span class="line">        onTap: () =&gt; IncrementNotification(<span class="string">&quot;加一操作&quot;</span>).dispatch(context),   <span class="comment">// 点击按钮触发通知派发</span></span><br><span class="line">        child: ...)</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="language-markdown">自定义通知</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IncrementNotification</span> <span class="keyword">extends</span> <span class="title">Notification</span> </span>&#123;</span><br><span class="line">  <span class="keyword">final</span> <span class="built_in">String</span> msg;</span><br><span class="line">  IncrementNotification(<span class="keyword">this</span>.msg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="InheritedWidget-Notification"><a href="#InheritedWidget-Notification" class="headerlink" title="InheritedWidget + Notification"></a>InheritedWidget + Notification</h3><p>【传递传递 + Notification】方案定向优化了状态的更新，那么如何进一步优化状态的访问呢？</p>
+<p>【InheritedWidget + Notification】方案采用 <code>InhertiedWidget</code> 实现了在多层级 Widget 树中直接访问状态的能力。</p>
+<p><code>InheritedWidget</code> 是 Flutter 中非常重要的一个功能型组件，其提供了一种数据在 Widget 树中从上到下传递、共享的方式。这与 Notification 的传递方向正好相反。我们在父 Widget 中通过 <code>InheritedWidget</code> 共享一个数据，那么任意子 Widget 都能够直接获取到共享的数据。</p>
+<p>下图所示为这种方案的状态访问&#x2F;更新示意图。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-inherited-notification.png?x-oss-process=image/resize,w_800"></p>
+<p>具体的源码实现如下所示：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// <span class="language-markdown">与父 Widget 绑定的 State</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_InheritedWidgetNotificationDemoPageState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">InheritedWidgetNotificationDemoPage</span>&gt; </span>&#123;</span><br><span class="line">  <span class="built_in">int</span> _counter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">void</span> _incrementCounter() &#123;</span><br><span class="line">    setState(() &#123;</span><br><span class="line">      _counter++;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> CounterInheritedWidget(</span><br><span class="line">      counter: _counter,</span><br><span class="line">      child: NotificationListener&lt;IncrementNotification&gt;(</span><br><span class="line">        onNotification: (notification) &#123;</span><br><span class="line">          setState(() &#123;</span><br><span class="line">            _incrementCounter();</span><br><span class="line">          &#125;);</span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">true</span>;  <span class="comment">// true: 阻止冒泡；false: 继续冒泡</span></span><br><span class="line">        &#125;,</span><br><span class="line">        child: Scaffold(</span><br><span class="line">                ...</span><br><span class="line">            ),</span><br><span class="line">          ),</span><br><span class="line">        ),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="language-markdown">子 Widget</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_IncrementButton</span> <span class="keyword">extends</span> <span class="title">StatelessWidget</span> </span>&#123;</span><br><span class="line">  _IncrementButton();</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="comment">// 直接获取状态</span></span><br><span class="line">    <span class="keyword">final</span> counter = CounterInheritedWidget.of(context).counter;</span><br><span class="line">    <span class="keyword">return</span> GestureDetector(</span><br><span class="line">        onTap: () =&gt; IncrementNotification(<span class="string">&quot;加一&quot;</span>).dispatch(context),   <span class="comment">// 派发通知</span></span><br><span class="line">        child: ...</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="language-markdown">对使用自定义的 InheritedWidget 子类对状态进行封装</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CounterInheritedWidget</span> <span class="keyword">extends</span> <span class="title">InheritedWidget</span> </span>&#123;</span><br><span class="line">  <span class="keyword">final</span> <span class="built_in">int</span> counter;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 需要在子树中共享的数据，保存点击次数</span></span><br><span class="line">  CounterInheritedWidget(&#123;<span class="meta">@required</span> <span class="keyword">this</span>.counter, Widget child&#125;) : <span class="keyword">super</span>(child: child);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 定义一个便捷方法，方便子树中的widget获取共享数据</span></span><br><span class="line">  <span class="keyword">static</span> CounterInheritedWidget of(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> context.dependOnInheritedWidgetOfExactType&lt;CounterInheritedWidget&gt;();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="built_in">bool</span> updateShouldNotify(CounterInheritedWidget old) &#123;</span><br><span class="line">    <span class="comment">// 如果返回true，则子树中依赖(build函数中有调用)本widget</span></span><br><span class="line">    <span class="comment">// 的子widget的`state.didChangeDependencies`会被调用</span></span><br><span class="line">    <span class="keyword">return</span> old.counter != counter;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="InheritedWidget-EventBus"><a href="#InheritedWidget-EventBus" class="headerlink" title="InheritedWidget + EventBus"></a>InheritedWidget + EventBus</h3><p>虽然【InheritedWidget + Notification】方案在状态访问和状态更新方面都进行了优化，但是从其状态管理示意图上看，状态的更新仍然具有优化空间。</p>
+<p>【InheritedWidget + EventBus】方案则采用了 <strong>事件总线</strong>（Event Bus）的方式管理状态更新。</p>
+<p>事件总线是 Flutter 中的一种全局广播机制，可以实现跨页面事件通知。事件总线通常是一种订阅者模式，其包含发布者和订阅者两种角色。</p>
+<p>【InheritedWidget + EventBus】方案将子 Widget 作为发布者，父 Widget 作为订阅者。当子 Widget 进行状态更新时，则发出事件，父 Widget 监听到事件后进行状态更新。</p>
+<p>下图所示为这种方案的状态访问&#x2F;更新示意图。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-inherited-event.png?x-oss-process=image/resize,w_800"></p>
+<p>具体的源码实现如下所示：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// <span class="language-markdown">与父 Widget 绑定的状态</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_InheritedWidgetEventBusDemoPageState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">InheritedWidgetEventBusDemoPage</span>&gt; </span>&#123;</span><br><span class="line">  <span class="built_in">int</span> _counter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">void</span> _incrementCounter() &#123;</span><br><span class="line">    setState(() &#123;</span><br><span class="line">      _counter++;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> initState() &#123;</span><br><span class="line">    <span class="keyword">super</span>.initState();</span><br><span class="line">    <span class="comment">// 订阅事件</span></span><br><span class="line">    bus.<span class="keyword">on</span>(EventBus.incrementEvent, (_) &#123;</span><br><span class="line">      _incrementCounter();</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> dispose() &#123;</span><br><span class="line">    <span class="comment">// 取消订阅</span></span><br><span class="line">    bus.off(EventBus.incrementEvent);</span><br><span class="line">    <span class="keyword">super</span>.dispose();</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="language-markdown">子 Widget</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_IncrementButton</span> <span class="keyword">extends</span> <span class="title">StatelessWidget</span> </span>&#123;</span><br><span class="line">  _IncrementButton();</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">final</span> counter = CounterInheritedWidget.of(context).counter;</span><br><span class="line">    <span class="keyword">return</span> GestureDetector(</span><br><span class="line">        onTap: () =&gt; bus.emit(EventBus.incrementEvent), <span class="comment">// 发布事件</span></span><br><span class="line">        child: ...</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="两种方案的对比"><a href="#两种方案的对比" class="headerlink" title="两种方案的对比"></a>两种方案的对比</h4><p>【InheritedWidget + Notification】和【InheritedWidget + EventBus】的区别主要在于状态更新。两者对于状态的更新其实并没有达到最佳状态，都是通过一种间接的方式实现的。</p>
+<p>相比而言，事件总线是基于全局，逻辑难以进行收敛，并且还要管理监听事件、取消订阅。从这方面而言，【InheritedWidget + Notification】方案更优。</p>
+<p>从状态管理示意图而言，显然【InheritedWidget + Notification】还有进一步的优化空间。这里，我们可能会想：状态能否直接提供更新方法，当子 Widget 获取到状态后，直接调用状态的更新方法呢？</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cs-of-luxun.png?x-oss-process=image/resize,w_800"></p>
+<p>对此，官方推荐了一套基于第三方 Pub 的 Provider 状态管理方案。</p>
+<h2 id="基于-Pub-的状态管理方案"><a href="#基于-Pub-的状态管理方案" class="headerlink" title="基于 Pub 的状态管理方案"></a>基于 Pub 的状态管理方案</h2><h3 id="Provider"><a href="#Provider" class="headerlink" title="Provider"></a>Provider</h3><p>【Provider】的本质是 <strong>基于 <code>InheritedWidget</code> 和 <code>ChangeNotifier</code> 进行了封装</strong>。此外，使用缓存提升了性能，避免不必要的重绘。</p>
+<p>下图所示为这种方案的状态访问&#x2F;更新示意图。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-provider.png?x-oss-process=image/resize,w_800"></p>
+<p>具体的源码实现如下所示：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// <span class="language-markdown">与父 Widget 绑定的 State</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_ProviderDemoPageState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">ProviderDemoPage</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> ChangeNotifierProvider&lt;CounterProviderState&gt;(</span><br><span class="line">      create: (_) =&gt; CounterProviderState(),    <span class="comment">// 创建状态</span></span><br><span class="line">      child: Scaffold(</span><br><span class="line">        appBar: AppBar(</span><br><span class="line">          title: Text(widget.title),</span><br><span class="line">        ),</span><br><span class="line">        body: Center(</span><br><span class="line">          child: Column(</span><br><span class="line">            mainAxisAlignment: MainAxisAlignment.center,</span><br><span class="line">            children: &lt;Widget&gt;[</span><br><span class="line">              Text(</span><br><span class="line">                <span class="string">&#x27;You have pushed the button this many times:&#x27;</span>,</span><br><span class="line">              ),</span><br><span class="line">              <span class="comment">// 使用 provider 提供的 builder 使用状态</span></span><br><span class="line">              Consumer&lt;CounterProviderState&gt;(builder: (context, counter, _) =&gt; Text(<span class="string">&quot;<span class="subst">$&#123;counter.value&#125;</span>&quot;</span>, style: Theme.of(context).textTheme.display1)),</span><br><span class="line">              _IncrementButton(),</span><br><span class="line">            ],</span><br><span class="line">          ),</span><br><span class="line">        ),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="language-markdown">子 Widget</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_IncrementButton</span> <span class="keyword">extends</span> <span class="title">StatelessWidget</span> </span>&#123;</span><br><span class="line">  _IncrementButton();</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="comment">// 访问状态</span></span><br><span class="line">    <span class="keyword">final</span> _counter = Provider.of&lt;CounterProviderState&gt;(context);</span><br><span class="line">    <span class="keyword">return</span> GestureDetector(</span><br><span class="line">        onTap: () =&gt; _counter.incrementCounter(),   <span class="comment">// 更新状态</span></span><br><span class="line">        child: ...</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="language-markdown">自定义的状态，继承自 ChangeNotifier</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CounterProviderState</span> <span class="title">with</span> <span class="title">ChangeNotifier</span> </span>&#123;</span><br><span class="line">  <span class="built_in">int</span> _counter = <span class="number">0</span>;</span><br><span class="line">  <span class="built_in">int</span> <span class="keyword">get</span> value =&gt; _counter;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 状态提供的更新方法</span></span><br><span class="line">  <span class="keyword">void</span> incrementCounter() &#123;</span><br><span class="line">    _counter++;</span><br><span class="line">    notifyListeners();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Flutter 社区早期使用的 Scoped Model 方案与 Provider 的实现原理基本是一致的。</p>
+</blockquote>
+<h3 id="Redux"><a href="#Redux" class="headerlink" title="Redux"></a>Redux</h3><p>对于声明式（响应式）编程中的状态管理，Redux 是一种常见的状态管理方案。【Redux】方案的状态管理示意图与【Provider】方案基本上是一致的。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-provider.png?x-oss-process=image/resize,w_800"></p>
+<p>在这个基础上，<strong>Redux 对于状态更新的过程进行了进一步的细分和规划</strong>，使得其数据的流动过程如下所示。</p>
+<ul>
+<li>所有的状态都存储在 Store 中。一般会把 Store 放在 App 顶层。</li>
+<li>View 获取 Store 中存储的状态。</li>
+<li>当事件发生时，发出一个 action。</li>
+<li>Reducer 接收到 action，遍历 action 表，找到匹配的 action，根据 action 生成新的状态存储到 Store 中。</li>
+<li>Store 存储新状态后，通知依赖该状态的 view 更新。</li>
+</ul>
+<p>一个 Store 存储多个状态，适合用于全局状态管理。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/redux-pattern.png?x-oss-process=image/resize,w_800"></p>
+<p>具体的实现源码如下所示。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// <span class="language-markdown">与父 Widget 绑定的 State</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_ReduxDemoPageState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">ReduxDemoPage</span>&gt; </span>&#123;</span><br><span class="line">  <span class="comment">// 初始化 Store，该过程包括了对 State 的初始化</span></span><br><span class="line">  <span class="keyword">final</span> store = Store&lt;CounterReduxState&gt;(reducer, initialState: CounterReduxState.initState());</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> StoreProvider&lt;CounterReduxState&gt;(</span><br><span class="line">      store: store,</span><br><span class="line">      child: Scaffold(</span><br><span class="line">        appBar: AppBar(</span><br><span class="line">          title: Text(widget.title),</span><br><span class="line">        ),</span><br><span class="line">        body: Center(</span><br><span class="line">          child: Column(</span><br><span class="line">            mainAxisAlignment: MainAxisAlignment.center,</span><br><span class="line">            children: &lt;Widget&gt;[</span><br><span class="line">              Text(</span><br><span class="line">                <span class="string">&#x27;You have pushed the button this many times:&#x27;</span>,</span><br><span class="line">              ),</span><br><span class="line">              <span class="comment">// 通过 StoreConnector 访问状态</span></span><br><span class="line">              StoreConnector&lt;CounterReduxState, <span class="built_in">int</span>&gt;(</span><br><span class="line">                converter: (store) =&gt; store.state.value,</span><br><span class="line">                builder: (context, count) &#123;</span><br><span class="line">                  <span class="keyword">return</span> Text(<span class="string">&quot;<span class="subst">$count</span>&quot;</span>, style: Theme.of(context).textTheme.display1);</span><br><span class="line">                &#125;,</span><br><span class="line">              ),</span><br><span class="line">              _IncrementButton(),</span><br><span class="line">            ],</span><br><span class="line">          ),</span><br><span class="line">        ),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="language-markdown">子 Widget</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_IncrementButton</span> <span class="keyword">extends</span> <span class="title">StatelessWidget</span> </span>&#123;</span><br><span class="line">  _IncrementButton();</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> StoreConnector&lt;CounterReduxState, VoidCallback&gt;(</span><br><span class="line">      converter: (store) &#123;</span><br><span class="line">        <span class="keyword">return</span> () =&gt; store.dispatch(Action.increment);  <span class="comment">// 发出 Action 以进行状态更新</span></span><br><span class="line">      &#125;,</span><br><span class="line">      builder: (context, callback) &#123;</span><br><span class="line">        <span class="keyword">return</span> GestureDetector(</span><br><span class="line">            onTap: callback,</span><br><span class="line">            child: StoreConnector&lt;CounterReduxState, <span class="built_in">int</span>&gt;(</span><br><span class="line">              converter: (store) =&gt; store.state.value,</span><br><span class="line">              builder: (context, count) &#123;</span><br><span class="line">                <span class="keyword">return</span> ...;</span><br><span class="line">              &#125;,</span><br><span class="line">            )</span><br><span class="line">        );</span><br><span class="line">      &#125;,</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="language-markdown">自定义状态</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CounterReduxState</span> </span>&#123;</span><br><span class="line">  <span class="built_in">int</span> _counter = <span class="number">0</span>;</span><br><span class="line">  <span class="built_in">int</span> <span class="keyword">get</span> value =&gt; _counter;</span><br><span class="line"></span><br><span class="line">  CounterReduxState(<span class="keyword">this</span>._counter);</span><br><span class="line"></span><br><span class="line">  CounterReduxState.initState() &#123;</span><br><span class="line">    _counter = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="language-markdown">自定义 Action</span></span></span><br><span class="line"><span class="keyword">enum</span> Action&#123;</span><br><span class="line">  increment</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="language-markdown">自定义 Reducer</span></span></span><br><span class="line">CounterReduxState reducer(CounterReduxState state, <span class="built_in">dynamic</span> action) &#123;</span><br><span class="line">  <span class="keyword">if</span> (action == Action.increment) &#123;</span><br><span class="line">    <span class="keyword">return</span> CounterReduxState(state.value + <span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> state;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="BLoC"><a href="#BLoC" class="headerlink" title="BLoC"></a>BLoC</h3><p>【BLoC】方案是谷歌的两位工程师 Paolo Soares 和 Cong Hui 提出的一种状态管理方案，其状态管理示意图同样与【Provider】方案是一致的。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/state-manage-of-provider.png?x-oss-process=image/resize,w_800"></p>
+<p>【BLoC】方案的底层实现与【Provider】是非常相似的，也是基于 <code>InheritedWidget</code> 进行状态访问，并且对状态进行了封装，从而提供直接更新状态的方法。</p>
+<p>但是，BLoC 的核心思想是 <strong>基于流来管理数据</strong>，并且将业务逻辑均放在 BLoC 中进行，从而实现视图与业务的分离。</p>
+<ul>
+<li>BLoC 使用 Sink 作为输入，使用 Stream 作为输出。</li>
+<li>BLoC 内部会对输入进行转换，产生特定的输出。</li>
+<li>外部使用 StreamBuilder 监听 BLoC 的输出（即状态）。</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/bloc-pattern.png?x-oss-process=image/resize,w_800"></p>
+<p>具体的实现源码如下所示。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// <span class="language-markdown">与父 Widget 绑定的 State</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_BlocDemoPageState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">BlocDemoPage</span>&gt; </span>&#123;</span><br><span class="line">  <span class="comment">// 创建状态</span></span><br><span class="line">  <span class="keyword">final</span> bloc = CounterBloc();</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="comment">// 以 InheritedWidget 的方式提供直接方案</span></span><br><span class="line">    <span class="keyword">return</span> BlocProvider(</span><br><span class="line">      bloc: bloc,</span><br><span class="line">      child: Scaffold(</span><br><span class="line">        appBar: AppBar(</span><br><span class="line">          title: Text(widget.title),</span><br><span class="line">        ),</span><br><span class="line">        body: Center(</span><br><span class="line">          child: Column(</span><br><span class="line">            mainAxisAlignment: MainAxisAlignment.center,</span><br><span class="line">            children: &lt;Widget&gt;[</span><br><span class="line">              Text(</span><br><span class="line">                <span class="string">&#x27;You have pushed the button this many times:&#x27;</span>,</span><br><span class="line">              ),</span><br><span class="line">              <span class="comment">// 状态访问</span></span><br><span class="line">              StreamBuilder&lt;<span class="built_in">int</span>&gt;(stream: bloc.value, initialData: <span class="number">0</span>, builder: (BuildContext context, AsyncSnapshot&lt;<span class="built_in">int</span>&gt; snapshot) &#123;</span><br><span class="line">                <span class="keyword">return</span> Text(<span class="string">&quot;<span class="subst">$&#123;snapshot.data&#125;</span>&quot;</span>, style: Theme.of(context).textTheme.display1);</span><br><span class="line">              &#125;,),</span><br><span class="line">              _IncrementButton(),</span><br><span class="line">            ],</span><br><span class="line">          ),</span><br><span class="line">        ),</span><br><span class="line">      )</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="language-markdown">子 Widget</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_IncrementButton</span> <span class="keyword">extends</span> <span class="title">StatelessWidget</span> </span>&#123;</span><br><span class="line">  _IncrementButton();</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> GestureDetector(</span><br><span class="line">        onTap: () =&gt; BlocProvider.of(context).increment(),  <span class="comment">// 状态更新</span></span><br><span class="line">        child: ClipOval(child: Container(width: <span class="number">50</span>, height: <span class="number">50</span>, alignment: Alignment.center,color: Colors.blue, child: StreamBuilder&lt;<span class="built_in">int</span>&gt;(stream: BlocProvider.of(context).value, initialData: <span class="number">0</span>, builder: (BuildContext context, AsyncSnapshot&lt;<span class="built_in">int</span>&gt; snapshot) &#123;</span><br><span class="line">          <span class="comment">// 状态访问</span></span><br><span class="line">          <span class="keyword">return</span> Text(<span class="string">&quot;<span class="subst">$&#123;snapshot.data&#125;</span>&quot;</span>, textAlign: TextAlign.center,style: TextStyle(fontSize: <span class="number">24</span>, color: Colors.white));</span><br><span class="line">        &#125;,),),)</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="language-markdown">自定义 BLoC Provider，继承自 InheritedWidget </span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BlocProvider</span> <span class="keyword">extends</span> <span class="title">InheritedWidget</span> </span>&#123;</span><br><span class="line">  <span class="keyword">final</span> CounterBloc bloc;</span><br><span class="line"></span><br><span class="line">  BlocProvider(&#123;<span class="keyword">this</span>.bloc, Key key, Widget child&#125;) : <span class="keyword">super</span>(key: key, child: child);</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="built_in">bool</span> updateShouldNotify(_) =&gt; <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> CounterBloc of(BuildContext context) =&gt; (context.inheritFromWidgetOfExactType(BlocProvider) <span class="keyword">as</span> BlocProvider).bloc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="language-markdown">自定义的状态</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CounterBloc</span> </span>&#123;</span><br><span class="line">  <span class="built_in">int</span> _counter;</span><br><span class="line">  StreamController&lt;<span class="built_in">int</span>&gt; _counterController;</span><br><span class="line"></span><br><span class="line">  CounterBloc() &#123;</span><br><span class="line">    _counter = <span class="number">0</span>;</span><br><span class="line">    _counterController = StreamController&lt;<span class="built_in">int</span>&gt;.broadcast();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  Stream&lt;<span class="built_in">int</span>&gt; <span class="keyword">get</span> value =&gt; _counterController.stream;</span><br><span class="line"></span><br><span class="line">  increment() &#123;</span><br><span class="line">    _counterController.sink.add(++_counter);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  dispose() &#123;</span><br><span class="line">    _counterController.close();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>一般而言，对于普通的项目来说【Provider】方案是一种非常容易理解，并且实用的状态管理方案。</p>
+<p>对于大型的项目而言，【Redux】 有一套相对规范的状态更新流程，但是模板代码会比较多；对于重业务的项目而言，【BLoC】能够将复杂的业务内聚到 BLoC 模块中，实现业务分离。</p>
+<p>总之，各种状态管理方案都有着各自的优缺点，这些需要我们在实践中去发现和总结，从而最终找到一种适合自己项目的状态管理方案。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://flutter.cn/docs/development/data-and-backend/state-mgmt/options">状态 (State) 管理参考</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/5bac54c45188255c681589d3#heading-5">[译]让我来帮你理解和选择Flutter状态管理方案</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/5cd91bb0f265da034e7eaca3#heading-4">Flutter状态管理 - 初探与总结</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/5b97fa0d5188255c5546dcf8">Flutter | 状态管理探索篇——Scoped Model（一）</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/5ba26c086fb9a05ce57697da">Flutter | 状态管理探索篇——Redux（二）</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/5bb6f344f265da0aa664d68a">Flutter | 状态管理探索篇——BLoC（三）</a></li>
+<li>《Flutter 实战》</li>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/5baa4b90e51d450e6d00f12e#heading-13">Dart | 什么是Stream</a></li>
+<li><a target="_blank" rel="noopener" href="https://dart.cn/tutorials/language/streams">异步编程：使用 stream</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/av55808989/">使用 Flutter 构建响应式移动应用</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/5b6cfcade51d451915575b7b#heading-15">Flutter入门三部曲(3) - 数据传递&#x2F;状态管理 | 掘金技术征文</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/5cd91bb0f265da034e7eaca3#heading-4">Flutter状态管理-初探与总结</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86/" rel="tag"># 状态管理</a>
+          
+            <a href="/tags/Provider/" rel="tag"># Provider</a>
+          
+            <a href="/tags/BLoC/" rel="tag"># BLoC</a>
+          
+            <a href="/tags/Redux/" rel="tag"># Redux</a>
+          
+            <a href="/tags/InheritedWidget/" rel="tag"># InheritedWidget</a>
+          
+            <a href="/tags/Notification/" rel="tag"># Notification</a>
+          
+            <a href="/tags/EventBus/" rel="tag"># EventBus</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/04/20/implementing-swift-generic/" rel="next" title="Swift 泛型底层实现原理">
+                <i class="fa fa-chevron-left"></i> Swift 泛型底层实现原理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/07/06/fp-functor-applicative-monad/" rel="prev" title="函数式编程——Functor、Applicative、Monad">
+                函数式编程——Functor、Applicative、Monad <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">状态管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Flutter-%E5%86%85%E7%BD%AE%E7%9A%84%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E6%96%B9%E6%A1%88"><span class="nav-number">2.1.</span> <span class="nav-text">Flutter 内置的状态管理方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E8%AE%BF%E9%97%AE-%E7%9B%B4%E6%8E%A5%E6%9B%B4%E6%96%B0"><span class="nav-number">2.1.1.</span> <span class="nav-text">直接访问 + 直接更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E4%BC%A0%E9%80%92-%E9%97%AD%E5%8C%85%E4%BC%A0%E9%80%92"><span class="nav-number">2.1.2.</span> <span class="nav-text">状态传递 + 闭包传递</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E4%BC%A0%E9%80%92-Notification"><span class="nav-number">2.1.3.</span> <span class="nav-text">状态传递 + Notification</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#InheritedWidget-Notification"><span class="nav-number">2.1.4.</span> <span class="nav-text">InheritedWidget + Notification</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#InheritedWidget-EventBus"><span class="nav-number">2.1.5.</span> <span class="nav-text">InheritedWidget + EventBus</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%A4%E7%A7%8D%E6%96%B9%E6%A1%88%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="nav-number">2.1.5.1.</span> <span class="nav-text">两种方案的对比</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-Pub-%E7%9A%84%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E6%96%B9%E6%A1%88"><span class="nav-number">2.2.</span> <span class="nav-text">基于 Pub 的状态管理方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Provider"><span class="nav-number">2.2.1.</span> <span class="nav-text">Provider</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Redux"><span class="nav-number">2.2.2.</span> <span class="nav-text">Redux</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLoC"><span class="nav-number">2.2.3.</span> <span class="nav-text">BLoC</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

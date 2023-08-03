@@ -1,38 +1,1444 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="LLVM,可变变量," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="概述通过第 1 章至第 6 章，我们实现了一门简单的函数式编程语言。在这个过程中，我们学习了解析器相关的技术，如何构建并表示 AST，如何构建 LLVM IR，如何对生成代码进行优化，如何使用 JIT 进行编译等等。 Kaleidoscope 是一门函数式编程语言，函数式的特点之一是变量不可重复赋值，这使得 LLVM IR 代码生成非常容易。特别是，函数式编程语言能够直接以 SSA 形式构建 LL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于 LLVM 自制编译器(7)——语言扩展：可变变量">
+<meta property="og:url" content="http://chuquan.me/2022/09/04/compiler-for-kaleidoscope-07/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="概述通过第 1 章至第 6 章，我们实现了一门简单的函数式编程语言。在这个过程中，我们学习了解析器相关的技术，如何构建并表示 AST，如何构建 LLVM IR，如何对生成代码进行优化，如何使用 JIT 进行编译等等。 Kaleidoscope 是一门函数式编程语言，函数式的特点之一是变量不可重复赋值，这使得 LLVM IR 代码生成非常容易。特别是，函数式编程语言能够直接以 SSA 形式构建 LL">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-29.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-30.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2022-09-04T15:03:40.000Z">
+<meta property="article:modified_time" content="2023-01-14T03:13:14.812Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="LLVM">
+<meta property="article:tag" content="可变变量">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-29.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2022/09/04/compiler-for-kaleidoscope-07/"/>
+
+
+
+
+
+  <title>基于 LLVM 自制编译器(7)——语言扩展：可变变量 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2022/09/04/compiler-for-kaleidoscope-07/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">基于 LLVM 自制编译器(7)——语言扩展：可变变量</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2022-09-04T23:03:40+08:00">
+                2022-09-04
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2023-01-14T11:13:14+08:00">
+                2023-01-14
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LLVM/" itemprop="url" rel="index">
+                    <span itemprop="name">LLVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>通过第 1 章至第 6 章，我们实现了一门简单的函数式编程语言。在这个过程中，我们学习了解析器相关的技术，如何构建并表示 AST，如何构建 LLVM IR，如何对生成代码进行优化，如何使用 JIT 进行编译等等。</p>
+<p>Kaleidoscope 是一门函数式编程语言，函数式的特点之一是变量不可重复赋值，这使得 LLVM IR 代码生成非常容易。特别是，函数式编程语言能够直接以 SSA 形式构建 LLVM IR。由于 LLVM 要求输入代码使用 SSA 形式，虽然这是一个非常好的特性，但是会让新手不知道如何为命令式编程语言中的可变变量生成代码。</p>
+<h1 id="可变变量的实现难点"><a href="#可变变量的实现难点" class="headerlink" title="可变变量的实现难点"></a>可变变量的实现难点</h1><p>那么，为什么可变变量难以构建 SSA 呢？下面，我们先来看一个例子，如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> G, H;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">test</span><span class="params">(_Bool Condition)</span> </span>&#123;</span><br><span class="line">  <span class="type">int</span> X;</span><br><span class="line">  <span class="keyword">if</span> (Condition)</span><br><span class="line">    X = G;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    X = H;</span><br><span class="line">  <span class="keyword">return</span> X;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在例子中，我们有一个 <code>X</code> 变量，其值取决于程序的执行路径。由于这里有两个潜在的目标值，我们需要插入一个 phi 节点来合并这两个值。因此，我们希望生成的 LLVM IR 如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">@G = weak global i32 <span class="number">0</span>   ; type of @G is i32*</span><br><span class="line">@H = weak global i32 <span class="number">0</span>   ; type of @H is i32*</span><br><span class="line"></span><br><span class="line">define i32 @<span class="built_in">test</span>(i1 %Condition) &#123;</span><br><span class="line">entry:</span><br><span class="line">  br i1 %Condition, label %cond_true, label %cond_false</span><br><span class="line"></span><br><span class="line">cond_true:</span><br><span class="line">  %X<span class="number">.0</span> = load i32, i32* @G</span><br><span class="line">  br label %cond_next</span><br><span class="line"></span><br><span class="line">cond_false:</span><br><span class="line">  %X<span class="number">.1</span> = load i32, i32* @H</span><br><span class="line">  br label %cond_next</span><br><span class="line"></span><br><span class="line">cond_next:</span><br><span class="line">  %X<span class="number">.2</span> = phi i32 [ %X<span class="number">.1</span>, %cond_false ], [ %X<span class="number">.0</span>, %cond_true ]</span><br><span class="line">  ret i32 %X<span class="number">.2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在生成的 LLVM IR 通过 <code>load</code> 指令显式地加载全局变量 <code>G</code> 和 <code>H</code>，分别用于 <code>if</code> 语句的 <code>then/else</code> 分支逻辑 <code>cond_true</code> 和 <code>cond_false</code> 基本块。为了将传入值进行合并，<code>cond_next</code> 基本块中的 phi 节点 <code>X.2</code> 根据控制流选择正确值。如果控制流来自 <code>cond_false</code> 基本块，则 <code>X.2</code> 使用 <code>X.1</code> 的值；如果控制流来自 <code>cond_true</code> 基本块，则 <code>X.2</code> 使用 <code>X.0</code> 的值。</p>
+<p>这里的问题在于：<strong>当对可变变量进行赋值时，由谁来负责插入 phi 节点</strong>？</p>
+<p>事实上，通过编译前端创建并插入 phi 节点是一个非常复杂且低效的操作。相对而言，通过编译前端实现控制流的 phi 节点还算简单。</p>
+<h1 id="LLVM-内存模型"><a href="#LLVM-内存模型" class="headerlink" title="LLVM 内存模型"></a>LLVM 内存模型</h1><p>那么，我们该如何实现可变变量呢？事实上，我们可以借助内存模型原理来解决这个问题。</p>
+<p>我们知道，LLVM 要求所有的寄存器值必须采用 SSA 形式，但是 LLVM 并不要求内存对象必须采用 SSA 形式。</p>
+<p>基于此，我们可以为函数中的每个可变对象创建一个栈变量（它存在于内存中，因为它在栈上）。为了理解这种方法，我们首先介绍一下 LLVM 如何是表示栈变量的。</p>
+<p>在 LLVM 中，所有内存访问都是显式的，使用 <code>load</code> &#x2F; <code>store</code> 指令，没有（或不需要）<code>address-of</code> 运算符。注意，<code>@G</code> &#x2F; <code>@H</code> 全局变量的类型实际上是 <code>i32*</code>，即使该变量被定义为 <code>i32</code>。 这意味着 <code>@G</code> 为全局数据区域中的 <code>i32</code> 定义了内存空间，但它的名称实际上是指该内存空间的地址。 <strong>栈变量的工作方式类似，只是它们并不使用全局变量进行声明，而使用 <code>alloca</code> 指令进行声明</strong>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">define i32 @<span class="built_in">example</span>() &#123;</span><br><span class="line">entry:</span><br><span class="line">  %X = alloca i32           ; type of %X is i32*.</span><br><span class="line">  ...</span><br><span class="line">  %tmp = load i32, i32* %X  ; load the stack value %X from the stack.</span><br><span class="line">  %tmp2 = add i32 %tmp, <span class="number">1</span>   ; increment it</span><br><span class="line">  store i32 %tmp2, i32* %X  ; store it back</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+<p>上述代码展示了如何在 LLVM IR 中声明和操作栈变量。使用 <code>alloca</code> 指令分配的栈内存是完全通用的，我们可以将栈槽的地址传递给函数，也可以将其存储在其他变量中。下面，我们通过 <code>alloca</code> 指令来代替使用 phi 节点，具体如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">@G = weak global i32 <span class="number">0</span>   ; type of @G is i32*</span><br><span class="line">@H = weak global i32 <span class="number">0</span>   ; type of @H is i32*</span><br><span class="line"></span><br><span class="line">define i32 @<span class="built_in">test</span>(i1 %Condition) &#123;</span><br><span class="line">entry:</span><br><span class="line">  %X = alloca i32           ; type of %X is i32*.</span><br><span class="line">  br i1 %Condition, label %cond_true, label %cond_false</span><br><span class="line"></span><br><span class="line">cond_true:</span><br><span class="line">  %X<span class="number">.0</span> = load i32, i32* @G</span><br><span class="line">  store i32 %X<span class="number">.0</span>, i32* %X   ; Update X</span><br><span class="line">  br label %cond_next</span><br><span class="line"></span><br><span class="line">cond_false:</span><br><span class="line">  %X<span class="number">.1</span> = load i32, i32* @H</span><br><span class="line">  store i32 %X<span class="number">.1</span>, i32* %X   ; Update X</span><br><span class="line">  br label %cond_next</span><br><span class="line"></span><br><span class="line">cond_next:</span><br><span class="line">  %X<span class="number">.2</span> = load i32, i32* %X  ; Read X</span><br><span class="line">  ret i32 %X<span class="number">.2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过基于栈变量的方式，我们无需创建 phi 节点也能够处理任意可变变量，具体包含以下几个点。</p>
+<ul>
+<li><strong>将可变变量转换成栈变量</strong></li>
+<li><strong>将读取可变变量转换成加载栈变量</strong></li>
+<li><strong>将更新可变变量转换成存储栈变量</strong></li>
+<li><strong>将读取可变变量地址转换成读取栈变量地址</strong></li>
+</ul>
+<p><strong>简而言之，我们通过一个额外的栈变量来存储不同分支所计算得到值，从而避免手动构建 phi 节点。</strong></p>
+<p>虽然基于栈变量的方法解决了我们当前的问题，但是它引入了另一个问题。很显然，这种情况下，对于非常简单和常见的操作，我们也会引入了大量的栈操作，从而引发性能问题。幸运的是，LLVM 优化器有一个名为 <code>mem2reg</code> 的优化通道能够对此进行优化，该优化通道能将类似的栈分配提优化为寄存器，并在适当的时候插入 phi 节点。例如，我们通过执行 <code>mem2reg</code> Pass，可以得到如下所示的代码。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ llvm-as &lt; example.ll | opt -mem2reg | llvm-dis</span><br><span class="line">@G = weak global i32 <span class="number">0</span></span><br><span class="line">@H = weak global i32 <span class="number">0</span></span><br><span class="line"></span><br><span class="line">define i32 @<span class="built_in">test</span>(i1 %Condition) &#123;</span><br><span class="line">entry:</span><br><span class="line">  br i1 %Condition, label %cond_true, label %cond_false</span><br><span class="line"></span><br><span class="line">cond_true:</span><br><span class="line">  %X<span class="number">.0</span> = load i32, i32* @G</span><br><span class="line">  br label %cond_next</span><br><span class="line"></span><br><span class="line">cond_false:</span><br><span class="line">  %X<span class="number">.1</span> = load i32, i32* @H</span><br><span class="line">  br label %cond_next</span><br><span class="line"></span><br><span class="line">cond_next:</span><br><span class="line">  %X<span class="number">.01</span> = phi i32 [ %X<span class="number">.1</span>, %cond_false ], [ %X<span class="number">.0</span>, %cond_true ]</span><br><span class="line">  ret i32 %X<span class="number">.01</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-29.png?x-oss-process=image/resize,w_800"></p>
+<p><code>mem2reg</code> Pass 实现了用于构造 SSA 的标准 <strong>迭代支配边界</strong>（Iterated Dominance Frontier）算法，并包含大量优化手段。<code>mem2reg</code> 优化通道可以用来处理可变变量，我们强烈建议使用它。注意，<code>mem2reg</code> 仅在某些情况下适用于可变变量：</p>
+<ul>
+<li><code>mem2reg</code> 是 <code>alloca</code> 驱动的，其查找 <code>alloca</code> 指令，如果可以处理，则对它们进行优化。它不适用于全局变量或堆分配。</li>
+<li><code>mem2reg</code> 仅在函数的入口块中查找 <code>alloca</code> 指令。在入口块即保证了 <code>alloca</code> 只会执行一次，这样能够使分析更加简单。</li>
+<li><code>mem2reg</code> 只优化用于直接加载和存储的 <code>alloca</code> 指令。如果将栈对象的地址传递给函数，或者涉及任何指针运算，则不会优化 <code>alloca</code>。</li>
+<li><code>mem2reg</code> 仅适用于一等类型的值的分配（例如指针、标量和向量），并且仅当分配的数组大小为 1（或 .ll 文件丢失）时。 <code>mem2reg</code> 不能将结构体或数组优化为寄存器。 注意，LLVM 还有其他更加强大的优化通道，如：<code>sroa</code> Pass，其能够在很多情况下可以优化结构体、联合体、数组。</li>
+</ul>
+<p>我们强烈建议使用上述方式来构建 SSA，通过额外的栈变量避免手动构建 phi 节点，然后使用 LLVM 优化通道进行优化，内部自动构建 phi 节点，如：<code>mem2reg</code> Pass。推荐使用这种方式主要有几个原因：</p>
+<ul>
+<li>具备良好的验证和测试。经典的 Clang 编译器就采用该方法来处理局部可变变量。</li>
+<li>构建速度快。<code>mem2reg</code> 支持在多种场景下进行加速构建。</li>
+<li>支持生成调试所需信息。LLVM 中的调试信息依赖于公开变量的地址，基于变量地址才能将调试信息附加至变量中。这种技术与这种调试信息风格非常自然地吻合。</li>
+</ul>
+<p>这种方式能够让我们的编译前端的启动和运行变得更加容易，并且实现起来非常简单。下面，让我们在 Kaleidoscope 中扩展可变变量！</p>
+<h1 id="可变变量"><a href="#可变变量" class="headerlink" title="可变变量"></a>可变变量</h1><p>上文，我们介绍了可变变量的实现难点，以及一种基于栈变量的解决方案。接下来，我们来进行实战，为 Kaleidoscope 进行语言扩展，支持可变变量。</p>
+<p>为了支持可变变量，我们期望实现两个功能：</p>
+<ul>
+<li><strong>基于 <code>=</code> 运算符实现已有变量可变</strong></li>
+<li><strong>基于 <code>var/in</code> 关键词实现局部变量定义</strong></li>
+</ul>
+<p>如下所示，是我们期望实现的最终目标。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"># Define <span class="string">&#x27;:&#x27;</span> <span class="keyword">for</span> sequencing: as a low-precedence <span class="keyword">operator</span> that ignores operands</span><br><span class="line"><span class="meta"># and just returns the RHS.</span></span><br><span class="line">def binary : <span class="number">1</span> (x y) y;</span><br><span class="line"></span><br><span class="line"># Recursive fib, we could <span class="keyword">do</span> <span class="keyword">this</span> before.</span><br><span class="line"><span class="function">def <span class="title">fib</span><span class="params">(x)</span></span></span><br><span class="line"><span class="function">  <span class="title">if</span> <span class="params">(x &lt; <span class="number">3</span>)</span> then</span></span><br><span class="line"><span class="function">    1</span></span><br><span class="line"><span class="function">  <span class="keyword">else</span></span></span><br><span class="line"><span class="function">    <span class="title">fib</span><span class="params">(x<span class="number">-1</span>)</span>+<span class="title">fib</span><span class="params">(x<span class="number">-2</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"># Iterative fib.</span><br><span class="line"><span class="function">def <span class="title">fibi</span><span class="params">(x)</span></span></span><br><span class="line"><span class="function">  var a </span>= <span class="number">1</span>, b = <span class="number">1</span>, c <span class="built_in">in</span></span><br><span class="line">  (<span class="keyword">for</span> i = <span class="number">3</span>, i &lt; x in</span><br><span class="line">     c = a + b :</span><br><span class="line">     a = b :</span><br><span class="line">     b = c) :</span><br><span class="line">  b;</span><br><span class="line"></span><br><span class="line"># Call it.</span><br><span class="line"><span class="built_in">fibi</span>(<span class="number">10</span>);</span><br></pre></td></tr></table></figure>
+
+<h1 id="已有变量可变"><a href="#已有变量可变" class="headerlink" title="已有变量可变"></a>已有变量可变</h1><p>首先，我们来实现第一个功能——已有变量可变。</p>
+<p>在我们之前的实现中，Kaleidoscope 在代码生成时的符号表是由 <code>NamedValues</code> 负责管理。符号表存储的键值对，键位变量名，值为 LLVM <code>Value*</code>。</p>
+<p>为了实现已有变量可变，我们需要修改一下 <code>NamedValues</code> 存储的键值对的类型，使得 <code>NamedValues</code> 能够保存可变变量的内存位置。</p>
+<p>目前，Kaleidoscope 只支持两种类型的变量：函数的传入参数、<code>for</code> 循环的归纳变量。为了保持一致性，除了其他用户定义的变量外，我们还允许对这些变量进行更新。 这意味着它们都需要占用内存空间。</p>
+<p>对此，我们首先对符号表 <code>NamedValues</code> 进行修改，将键值对中值的类型修改为 <code>AllocaInst*</code>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> std::map&lt;std::string, AllocaInst*&gt; NamedValues;</span><br></pre></td></tr></table></figure>
+
+<p>由于我们需要创建 <code>alloca</code> 指令，我们还需要一个辅助函数来保证 <code>alloca</code> 指令在函数入口块创建。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// CreateEntryBlockAlloca - Create an alloca instruction in the entry block of</span></span><br><span class="line"><span class="comment">/// the function.  This is used for mutable variables etc.</span></span><br><span class="line"><span class="function"><span class="type">static</span> AllocaInst *<span class="title">CreateEntryBlockAlloca</span><span class="params">(Function *TheFunction,</span></span></span><br><span class="line"><span class="params"><span class="function">                                          <span class="type">const</span> std::string &amp;VarName)</span> </span>&#123;</span><br><span class="line">  IRBuilder&lt;&gt; <span class="built_in">TmpB</span>(&amp;TheFunction-&gt;<span class="built_in">getEntryBlock</span>(),</span><br><span class="line">                 TheFunction-&gt;<span class="built_in">getEntryBlock</span>().<span class="built_in">begin</span>());</span><br><span class="line">  <span class="keyword">return</span> TmpB.<span class="built_in">CreateAlloca</span>(Type::<span class="built_in">getDoubleTy</span>(TheContext), <span class="number">0</span>,</span><br><span class="line">                           VarName.<span class="built_in">c_str</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码创建了一个 <code>IRBuilder</code> 对象，它指向入口块的第一条指令（<code>.begin()</code>）。然后创建一个具有指定名称的 <code>alloca</code> 并返回。由于 Kaleidoscope 中的所有值都是双精度类型，所以不需要传入要使用的类型。</p>
+<p>接下来，我们分别对变量表达式、<code>for</code> 表达式、函数表达式的代码生成逻辑进行修改，从而支持已有变量可变。</p>
+<h2 id="VariableExprAST-代码生成"><a href="#VariableExprAST-代码生成" class="headerlink" title="VariableExprAST 代码生成"></a>VariableExprAST 代码生成</h2><p>首先，对于变量，我们需要修改引用方式。基于栈变量的实现中，变量存储于栈中，因此，我们必须通过加载栈槽，从而引用栈变量。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Value *<span class="title">VariableExprAST::codegen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// Look this variable up in the function.</span></span><br><span class="line">  AllocaInst *A = NamedValues[Name];</span><br><span class="line">  <span class="keyword">if</span> (!A)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogErrorV</span>(<span class="string">&quot;Unknown variable name&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Load the value.</span></span><br><span class="line">  <span class="keyword">return</span> Builder-&gt;<span class="built_in">CreateLoad</span>(A-&gt;<span class="built_in">getAllocatedType</span>(), A, Name.<span class="built_in">c_str</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="ForExprAST-代码生成"><a href="#ForExprAST-代码生成" class="headerlink" title="ForExprAST 代码生成"></a>ForExprAST 代码生成</h2><p><code>VariableExprAST</code> 实现了栈变量的读取逻辑，那么如何实现写入逻辑呢？由于 <code>for</code> 表达式包含了归纳变量，因此，我们首先了修改 <code>ForExprAST</code> 的代码生成逻辑。</p>
+<p>如下所示，首先，我们在入口块创建一个栈变量，当设置初始值时，通过 <code>Builder</code> 的 <code>CreateStore()</code> 方法将初始值写入栈变量。当归纳变量迭代时，通过 <code>Builder</code> 的 <code>CreateLoad()</code> 方法读取栈变量，并与步长值相加，然后再写入栈变量。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Value *<span class="title">ForExprAST::codegen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  Function *TheFunction = Builder-&gt;<span class="built_in">GetInsertBlock</span>()-&gt;<span class="built_in">getParent</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Create an alloca for the variable in the entry block.</span></span><br><span class="line">  AllocaInst *Alloca = <span class="built_in">CreateEntryBlockAlloca</span>(TheFunction, VarName);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Emit the start code first, without &#x27;variable&#x27; in scope.</span></span><br><span class="line">  Value *StartVal = Start-&gt;<span class="built_in">codegen</span>();</span><br><span class="line">  <span class="keyword">if</span> (!StartVal)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Store the value into the alloca.</span></span><br><span class="line">  Builder-&gt;<span class="built_in">CreateStore</span>(StartVal, Alloca);</span><br><span class="line">  </span><br><span class="line">  ...</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// Compute the end condition.</span></span><br><span class="line">  Value *EndCond = End-&gt;<span class="built_in">codegen</span>();</span><br><span class="line">  <span class="keyword">if</span> (!EndCond)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Reload, increment, and restore the alloca.  This handles the case where</span></span><br><span class="line">  <span class="comment">// the body of the loop mutates the variable.</span></span><br><span class="line">  Value *CurVar =</span><br><span class="line">      Builder-&gt;<span class="built_in">CreateLoad</span>(Alloca-&gt;<span class="built_in">getAllocatedType</span>(), Alloca, VarName.<span class="built_in">c_str</span>());</span><br><span class="line">  Value *NextVar = Builder-&gt;<span class="built_in">CreateFAdd</span>(CurVar, StepVal, <span class="string">&quot;nextvar&quot;</span>);</span><br><span class="line">  Builder-&gt;<span class="built_in">CreateStore</span>(NextVar, Alloca);</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="FunctionAST-代码生成"><a href="#FunctionAST-代码生成" class="headerlink" title="FunctionAST 代码生成"></a>FunctionAST 代码生成</h2><p>为了让函数的入参支持可变，我们还需要对 <code>FunctionAST</code> 的代码逻辑进行修改。如下所示，我们遍历函数的入参，为每一个参数创建一个栈变量，并存储初始值，同时将入参的变量名写入符号表。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Function *<span class="title">FunctionAST::codegen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  </span><br><span class="line">  Builder-&gt;<span class="built_in">SetInsertPoint</span>(BB);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Record the function arguments in the NamedValues map.</span></span><br><span class="line">  NamedValues.<span class="built_in">clear</span>();</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;Arg : TheFunction-&gt;<span class="built_in">args</span>()) &#123;</span><br><span class="line">    <span class="comment">// Create an alloca for this variable.</span></span><br><span class="line">    AllocaInst *Alloca = <span class="built_in">CreateEntryBlockAlloca</span>(TheFunction, Arg.<span class="built_in">getName</span>());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Store the initial value into the alloca.</span></span><br><span class="line">    Builder-&gt;<span class="built_in">CreateStore</span>(&amp;Arg, Alloca);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Add arguments to variable symbol table.</span></span><br><span class="line">    NamedValues[std::<span class="built_in">string</span>(Arg.<span class="built_in">getName</span>())] = Alloca;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (Value *RetVal = Body-&gt;<span class="built_in">codegen</span>()) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="优化通道"><a href="#优化通道" class="headerlink" title="优化通道"></a>优化通道</h2><p>最后，我们向通道管理器注册一部分优化通道，包括 <code>mem2reg</code>，从而能够生成优化后的 LLVM IR。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Promote allocas to registers.</span></span><br><span class="line">TheFPM-&gt;<span class="built_in">add</span>(<span class="built_in">createPromoteMemoryToRegisterPass</span>());</span><br><span class="line"><span class="comment">// Do simple &quot;peephole&quot; optimizations and bit-twiddling optzns.</span></span><br><span class="line">TheFPM-&gt;<span class="built_in">add</span>(<span class="built_in">createInstructionCombiningPass</span>());</span><br><span class="line"><span class="comment">// Reassociate expressions.</span></span><br><span class="line">TheFPM-&gt;<span class="built_in">add</span>(<span class="built_in">createReassociatePass</span>());</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h2 id="LLVM-IR-对比"><a href="#LLVM-IR-对比" class="headerlink" title="LLVM IR 对比"></a>LLVM IR 对比</h2><p>我们以递归版本的 <code>fib</code> 函数作为测试用例，来对比 <code>mem2reg</code> 优化通道执行前后的 LLVM IR。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">def <span class="title">fib</span><span class="params">(x)</span></span></span><br><span class="line"><span class="function">  <span class="title">if</span> <span class="params">(x &lt; <span class="number">3</span>)</span> then</span></span><br><span class="line"><span class="function">    1</span></span><br><span class="line"><span class="function">  <span class="keyword">else</span></span></span><br><span class="line"><span class="function">    <span class="title">fib</span><span class="params">(x<span class="number">-1</span>)</span>+<span class="title">fib</span><span class="params">(x<span class="number">-2</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>如下所示，为执行 <code>mem2reg</code> 前生成的 LLVM IR。其中，只有一个函数入参变量 <code>x</code>。在入口块中，LLVM 创建了一个 <code>alloca</code> 指令，并将初始输入值存入其中。 对变量的每个引用都会从栈中进行加载。由于我们没有修改 <code>if/then/else</code> 表达式，所以在 <code>ifcont</code> 基本块中仍然插入了一个 <code>phi</code> 节点。对于 <code>if/then/else</code> 表达式，其实我们也可以为它创建 <code>alloca</code> 指令，不过，为它构建一个 <code>phi</code> 节点反而会更容易，所以这里我们仍然手动构建 <code>phi</code>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">define <span class="type">double</span> @<span class="built_in">fib</span>(<span class="type">double</span> %x) &#123;</span><br><span class="line">entry:</span><br><span class="line">  %x1 = alloca <span class="type">double</span></span><br><span class="line">  store <span class="type">double</span> %x, <span class="type">double</span>* %x1</span><br><span class="line">  %x2 = load <span class="type">double</span>, <span class="type">double</span>* %x1</span><br><span class="line">  %cmptmp = fcmp ult <span class="type">double</span> %x2, <span class="number">3.000000e+00</span></span><br><span class="line">  %booltmp = uitofp i1 %cmptmp to <span class="type">double</span></span><br><span class="line">  %ifcond = fcmp one <span class="type">double</span> %booltmp, <span class="number">0.000000e+00</span></span><br><span class="line">  br i1 %ifcond, label %then, label %<span class="keyword">else</span></span><br><span class="line"></span><br><span class="line">then:       ; preds = %entry</span><br><span class="line">  br label %ifcont</span><br><span class="line"></span><br><span class="line"><span class="keyword">else</span>:       ; preds = %entry</span><br><span class="line">  %x3 = load <span class="type">double</span>, <span class="type">double</span>* %x1</span><br><span class="line">  %subtmp = fsub <span class="type">double</span> %x3, <span class="number">1.000000e+00</span></span><br><span class="line">  %calltmp = call <span class="type">double</span> @<span class="built_in">fib</span>(<span class="type">double</span> %subtmp)</span><br><span class="line">  %x4 = load <span class="type">double</span>, <span class="type">double</span>* %x1</span><br><span class="line">  %subtmp5 = fsub <span class="type">double</span> %x4, <span class="number">2.000000e+00</span></span><br><span class="line">  %calltmp6 = call <span class="type">double</span> @<span class="built_in">fib</span>(<span class="type">double</span> %subtmp5)</span><br><span class="line">  %addtmp = fadd <span class="type">double</span> %calltmp, %calltmp6</span><br><span class="line">  br label %ifcont</span><br><span class="line"></span><br><span class="line">ifcont:     ; preds = %<span class="keyword">else</span>, %then</span><br><span class="line">  %iftmp = phi <span class="type">double</span> [ <span class="number">1.000000e+00</span>, %then ], [ %addtmp, %<span class="keyword">else</span> ]</span><br><span class="line">  ret <span class="type">double</span> %iftmp</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如下所示，为执行 <code>mem2reg</code> 后生成的 LLVM IR。很明显，<code>mem2reg</code> 对大量的 <code>alloc</code> 和 <code>store</code> 指令进行了优化，将它们优化成寄存器操作。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">define <span class="type">double</span> @<span class="built_in">fib</span>(<span class="type">double</span> %x) &#123;</span><br><span class="line">entry:</span><br><span class="line">  %cmptmp = fcmp ult <span class="type">double</span> %x, <span class="number">3.000000e+00</span></span><br><span class="line">  %booltmp = uitofp i1 %cmptmp to <span class="type">double</span></span><br><span class="line">  %ifcond = fcmp one <span class="type">double</span> %booltmp, <span class="number">0.000000e+00</span></span><br><span class="line">  br i1 %ifcond, label %then, label %<span class="keyword">else</span></span><br><span class="line"></span><br><span class="line">then:</span><br><span class="line">  br label %ifcont</span><br><span class="line"></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">  %subtmp = fsub <span class="type">double</span> %x, <span class="number">1.000000e+00</span></span><br><span class="line">  %calltmp = call <span class="type">double</span> @<span class="built_in">fib</span>(<span class="type">double</span> %subtmp)</span><br><span class="line">  %subtmp5 = fsub <span class="type">double</span> %x, <span class="number">2.000000e+00</span></span><br><span class="line">  %calltmp6 = call <span class="type">double</span> @<span class="built_in">fib</span>(<span class="type">double</span> %subtmp5)</span><br><span class="line">  %addtmp = fadd <span class="type">double</span> %calltmp, %calltmp6</span><br><span class="line">  br label %ifcont</span><br><span class="line"></span><br><span class="line">ifcont:     ; preds = %<span class="keyword">else</span>, %then</span><br><span class="line">  %iftmp = phi <span class="type">double</span> [ <span class="number">1.000000e+00</span>, %then ], [ %addtmp, %<span class="keyword">else</span> ]</span><br><span class="line">  ret <span class="type">double</span> %iftmp</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如下所示，为所有优化通道执行完毕之后的 LLVM IR。很显然，LLVM IR 得到了进一步的优化。其中，<code>simplifycfg</code> 优化通道将返回指令拷贝至 <code>else</code> 基本块的末尾，从而消除部分分支代码和 <code>phi</code> 节点。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">define <span class="type">double</span> @<span class="built_in">fib</span>(<span class="type">double</span> %x) &#123;</span><br><span class="line">entry:</span><br><span class="line">  %cmptmp = fcmp ult <span class="type">double</span> %x, <span class="number">3.000000e+00</span></span><br><span class="line">  %booltmp = uitofp i1 %cmptmp to <span class="type">double</span></span><br><span class="line">  %ifcond = fcmp ueq <span class="type">double</span> %booltmp, <span class="number">0.000000e+00</span></span><br><span class="line">  br i1 %ifcond, label %<span class="keyword">else</span>, label %ifcont</span><br><span class="line"></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">  %subtmp = fsub <span class="type">double</span> %x, <span class="number">1.000000e+00</span></span><br><span class="line">  %calltmp = call <span class="type">double</span> @<span class="built_in">fib</span>(<span class="type">double</span> %subtmp)</span><br><span class="line">  %subtmp5 = fsub <span class="type">double</span> %x, <span class="number">2.000000e+00</span></span><br><span class="line">  %calltmp6 = call <span class="type">double</span> @<span class="built_in">fib</span>(<span class="type">double</span> %subtmp5)</span><br><span class="line">  %addtmp = fadd <span class="type">double</span> %calltmp, %calltmp6</span><br><span class="line">  ret <span class="type">double</span> %addtmp</span><br><span class="line"></span><br><span class="line">ifcont:</span><br><span class="line">  ret <span class="type">double</span> <span class="number">1.000000e+00</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="赋值运算符"><a href="#赋值运算符" class="headerlink" title="赋值运算符"></a>赋值运算符</h2><p>至此，我们已经将符号表的引用修改为栈变量。接下来，我们来添加赋值运算符 <code>=</code>，从而实现变量可变。</p>
+<p>基于当前的框架，添加一个新的赋值运算符非常简单。首先，我们对赋值运算符设置优先级。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// Install standard binary operators.</span></span><br><span class="line">  <span class="comment">// 1 is lowest precedence.</span></span><br><span class="line">  BinopPrecedence[<span class="string">&#x27;=&#x27;</span>] = <span class="number">2</span>;</span><br><span class="line">  BinopPrecedence[<span class="string">&#x27;&lt;&#x27;</span>] = <span class="number">10</span>;</span><br><span class="line">  BinopPrecedence[<span class="string">&#x27;+&#x27;</span>] = <span class="number">20</span>;</span><br><span class="line">  BinopPrecedence[<span class="string">&#x27;-&#x27;</span>] = <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+
+<p>由于赋值运算符是一个二元运算符，且赋值运算符已经设置了运算符优先级。因此，我们只需要修改 <code>BinaryExprAST</code> 的代码生成逻辑，使其支持赋值运算符。具体如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Value *<span class="title">BinaryExprAST::codegen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// Special case &#x27;=&#x27; because we don&#x27;t want to emit the LHS as an expression.</span></span><br><span class="line">  <span class="keyword">if</span> (Op == <span class="string">&#x27;=&#x27;</span>) &#123;</span><br><span class="line">    <span class="comment">// Assignment requires the LHS to be an identifier.</span></span><br><span class="line">    <span class="comment">// This assume we&#x27;re building without RTTI because LLVM builds that way by</span></span><br><span class="line">    <span class="comment">// default.  If you build LLVM with RTTI this can be changed to a</span></span><br><span class="line">    <span class="comment">// dynamic_cast for automatic error checking.</span></span><br><span class="line">    VariableExprAST *LHSE = <span class="built_in">static_cast</span>&lt;VariableExprAST *&gt;(LHS.<span class="built_in">get</span>());</span><br><span class="line">    <span class="keyword">if</span> (!LHSE)</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">LogErrorV</span>(<span class="string">&quot;destination of &#x27;=&#x27; must be a variable&quot;</span>);</span><br><span class="line">    <span class="comment">// Codegen the RHS.</span></span><br><span class="line">    Value *Val = RHS-&gt;<span class="built_in">codegen</span>();</span><br><span class="line">    <span class="keyword">if</span> (!Val)</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Look up the name.</span></span><br><span class="line">    Value *Variable = NamedValues[LHSE-&gt;<span class="built_in">getName</span>()];</span><br><span class="line">    <span class="keyword">if</span> (!Variable)</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">LogErrorV</span>(<span class="string">&quot;Unknown variable name&quot;</span>);</span><br><span class="line"></span><br><span class="line">    Builder-&gt;<span class="built_in">CreateStore</span>(Val, Variable);</span><br><span class="line">    <span class="keyword">return</span> Val;</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>与其他二元运算符不同，赋值运算符不遵循 “<strong>生成 LHS，生成 RHS，再进行计算</strong>” 的模型。因此，对于赋值运算符，我们要对它进行特殊处理。此外，赋值运算符要求 LHS 必须是一个变量，比如：<code>(x+1) = expr</code> 语句是无效的，<code>x = expr</code> 是有效的。</p>
+<p>因此，<code>BinaryExprAST::codegen</code> 的解析逻辑中，会先检查 LHS 是否有效。如果有效，则将 LHS 注册至符号表并进一步计算 RHS，最终将 RHS 的结果存入变量。</p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>至此，我们为 Kaleidoscope 扩展支持了变量可变的能力。下面，我们来进行一个简单的测试。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># Function to print a <span class="type">double</span>.</span><br><span class="line"><span class="function"><span class="keyword">extern</span> <span class="title">printd</span><span class="params">(x)</span></span>;</span><br><span class="line"></span><br><span class="line"># Define <span class="string">&#x27;:&#x27;</span> <span class="keyword">for</span> sequencing: as a low-precedence <span class="keyword">operator</span> that ignores operands</span><br><span class="line"><span class="meta"># and just returns the RHS.</span></span><br><span class="line">def binary : <span class="number">1</span> (x y) y;</span><br><span class="line"></span><br><span class="line"><span class="function">def <span class="title">test</span><span class="params">(x)</span></span></span><br><span class="line"><span class="function">  <span class="title">printd</span><span class="params">(x)</span> :</span></span><br><span class="line"><span class="function">  x =</span> <span class="number">4</span> :</span><br><span class="line">  <span class="built_in">printd</span>(x);</span><br><span class="line"></span><br><span class="line"><span class="built_in">test</span>(<span class="number">123</span>);</span><br></pre></td></tr></table></figure>
+<p>当输入测试代码后，程序先打印了 <code>123</code>，然后打印了 <code>4</code>，运行结果证明了变量的值发生了变化！</p>
+<h1 id="局部变量定义"><a href="#局部变量定义" class="headerlink" title="局部变量定义"></a>局部变量定义</h1><p>我们的第二个目标功能是：基于 <code>var/in</code> 关键词实现局部变量定义，使其能够编写如下所示的代码。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">def <span class="title">fibi</span><span class="params">(x)</span></span></span><br><span class="line"><span class="function">  var a </span>= <span class="number">1</span>, b = <span class="number">1</span>, c <span class="built_in">in</span></span><br><span class="line">  (<span class="keyword">for</span> i = <span class="number">3</span>, i &lt; x in</span><br><span class="line">     c = a + b :</span><br><span class="line">     a = b :</span><br><span class="line">     b = c) :</span><br><span class="line">  b;</span><br></pre></td></tr></table></figure>
+
+<p>下面，我们分别对编译器的各个部分进行扩展。</p>
+<h2 id="词法分析器扩展"><a href="#词法分析器扩展" class="headerlink" title="词法分析器扩展"></a>词法分析器扩展</h2><p>首先，我们要为 Kaleidoscope 扩展关键词 <code>var</code> 和 <code>in</code>。这里，我们只需要新增 <code>var</code> 关键词即可，<code>in</code> 关键词在 <code>for/in</code> 语句中已经支持了。具体扩展如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">Token</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="comment">// var definition</span></span><br><span class="line">  tok_var = <span class="number">-13</span></span><br><span class="line">...</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="built_in">gettok</span>() &#123;</span><br><span class="line">...</span><br><span class="line">    <span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;in&quot;</span>)</span><br><span class="line">      <span class="keyword">return</span> tok_in;</span><br><span class="line">    <span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;binary&quot;</span>)</span><br><span class="line">      <span class="keyword">return</span> tok_binary;</span><br><span class="line">    <span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;unary&quot;</span>)</span><br><span class="line">      <span class="keyword">return</span> tok_unary;</span><br><span class="line">    <span class="keyword">if</span> (IdentifierStr == <span class="string">&quot;var&quot;</span>)</span><br><span class="line">      <span class="keyword">return</span> tok_var;</span><br><span class="line">    <span class="keyword">return</span> tok_identifier;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h2 id="AST-扩展"><a href="#AST-扩展" class="headerlink" title="AST 扩展"></a>AST 扩展</h2><p>为了表示 <code>var/in</code> 语句，我们定义一个表达式子类的 AST 节点类型 <code>VarExprAST</code>，具体如下所示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// VarExprAST - Expression class for var/in</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">VarExprAST</span> : <span class="keyword">public</span> ExprAST &#123;</span><br><span class="line">  std::vector&lt;std::pair&lt;std::string, std::unique_ptr&lt;ExprAST&gt;&gt;&gt; VarNames;</span><br><span class="line">  std::unique_ptr&lt;ExprAST&gt; Body;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">VarExprAST</span>(std::vector&lt;std::pair&lt;std::string, std::unique_ptr&lt;ExprAST&gt;&gt;&gt; VarNames,</span><br><span class="line">             std::unique_ptr&lt;ExprAST&gt; Body)</span><br><span class="line">    : <span class="built_in">VarNames</span>(std::<span class="built_in">move</span>(VarNames)), <span class="built_in">Body</span>(std::<span class="built_in">move</span>(Body)) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="function">Value *<span class="title">codegen</span><span class="params">()</span> <span class="keyword">override</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/kaleidoscope-30.png?x-oss-process=image/resize,w_800"></p>
+<p>我们扩展的 <code>var/in</code> 允许一次定义一组变量，并且每个变量都可以有一个初始值。因此，我们通过 <code>VarNames</code> 数组来存储多个变量。此外，<code>var/in</code> 支持设置一个表达式体，用于对变量进行初始化。同时，表达式体能够访问 <code>var/in</code> 所定义的变量。</p>
+<h2 id="解析器扩展"><a href="#解析器扩展" class="headerlink" title="解析器扩展"></a>解析器扩展</h2><p>接下来，我们为 <code>var/in</code> 表达式定义解析函数，具体如下所示。在 <code>ParseVarExpr</code> 解析函数中，我们首先对 token 进行遍历，将局部变量存入 <code>VarNames</code> 中。然后解析表达式体，将其存入 <code>Body</code> 中。最后返回表达式的 AST 节点。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;ExprAST&gt; <span class="title">ParseVarExpr</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">getNextToken</span>(); <span class="comment">// eat the var.</span></span><br><span class="line"></span><br><span class="line">  std::vector&lt;std::pair&lt;std::string, std::unique_ptr&lt;ExprAST&gt;&gt;&gt; VarNames;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// At least one variable name is required.</span></span><br><span class="line">  <span class="keyword">if</span> (CurTok != tok_identifier)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;expected identifier after var&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    std::string Name = IdentifierStr;</span><br><span class="line">    <span class="built_in">getNextToken</span>(); <span class="comment">// eat identifier.</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Read the optional initializer.</span></span><br><span class="line">    std::unique_ptr&lt;ExprAST&gt; Init = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="keyword">if</span> (CurTok == <span class="string">&#x27;=&#x27;</span>) &#123;</span><br><span class="line">      <span class="built_in">getNextToken</span>(); <span class="comment">// eat the &#x27;=&#x27;.</span></span><br><span class="line"></span><br><span class="line">      Init = <span class="built_in">ParseExpression</span>();</span><br><span class="line">      <span class="keyword">if</span> (!Init)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    VarNames.<span class="built_in">push_back</span>(std::<span class="built_in">make_pair</span>(Name, std::<span class="built_in">move</span>(Init)));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// End of var list, exit loop.</span></span><br><span class="line">    <span class="keyword">if</span> (CurTok != <span class="string">&#x27;,&#x27;</span>)</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="built_in">getNextToken</span>(); <span class="comment">// eat the &#x27;,&#x27;.</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (CurTok != tok_identifier)</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;expected identifier list after var&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// At this point, we have to have &#x27;in&#x27;.</span></span><br><span class="line">  <span class="keyword">if</span> (CurTok != tok_in)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;expected &#x27;in&#x27; keyword after &#x27;var&#x27;&quot;</span>);</span><br><span class="line">  <span class="built_in">getNextToken</span>(); <span class="comment">// eat &#x27;in&#x27;.</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">auto</span> Body = <span class="built_in">ParseExpression</span>();</span><br><span class="line">  <span class="keyword">if</span> (!Body)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> std::<span class="built_in">make_unique</span>&lt;VarExprAST&gt;(std::<span class="built_in">move</span>(VarNames), std::<span class="built_in">move</span>(Body));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>与其他表达式相同，我们也把 <code>ParseForExpr</code> 解析函数方法插入到主表达式的解析函数 <code>ParsePrimary</code> 中。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// primary</span></span><br><span class="line"><span class="comment">///   ::= identifierexpr</span></span><br><span class="line"><span class="comment">///   ::= numberexpr</span></span><br><span class="line"><span class="comment">///   ::= parenexpr</span></span><br><span class="line"><span class="comment">///   ::= ifexpr</span></span><br><span class="line"><span class="comment">///   ::= forexpr</span></span><br><span class="line"><span class="comment">///   ::= varexpr</span></span><br><span class="line"><span class="function"><span class="type">static</span> std::unique_ptr&lt;ExprAST&gt; <span class="title">ParsePrimary</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">switch</span> (CurTok) &#123;</span><br><span class="line">  <span class="keyword">default</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">LogError</span>(<span class="string">&quot;unknown token when expecting an expression&quot;</span>);</span><br><span class="line">  <span class="keyword">case</span> tok_identifier:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseIdentifierExpr</span>();</span><br><span class="line">  <span class="keyword">case</span> tok_number:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseNumberExpr</span>();</span><br><span class="line">  <span class="keyword">case</span> <span class="string">&#x27;(&#x27;</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseParenExpr</span>();</span><br><span class="line">  <span class="keyword">case</span> tok_if:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseIfExpr</span>();</span><br><span class="line">  <span class="keyword">case</span> tok_for:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseForExpr</span>();</span><br><span class="line">  <span class="keyword">case</span> tok_var:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">ParseVarExpr</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码生成"><a href="#代码生成" class="headerlink" title="代码生成"></a>代码生成</h2><p>下面，我们来为 <code>VarExprAST</code> 实现代码生成的逻辑。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Value *<span class="title">VarExprAST::codegen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  std::vector&lt;AllocaInst *&gt; OldBindings;</span><br><span class="line"></span><br><span class="line">  Function *TheFunction = Builder-&gt;<span class="built_in">GetInsertBlock</span>()-&gt;<span class="built_in">getParent</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Register all variables and emit their initializer.</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="type">unsigned</span> i = <span class="number">0</span>, e = VarNames.<span class="built_in">size</span>(); i != e; ++i) &#123;</span><br><span class="line">    <span class="type">const</span> std::string &amp;VarName = VarNames[i].first;</span><br><span class="line">    ExprAST *Init = VarNames[i].second.<span class="built_in">get</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Emit the initializer before adding the variable to scope, this prevents</span></span><br><span class="line">    <span class="comment">// the initializer from referencing the variable itself, and permits stuff</span></span><br><span class="line">    <span class="comment">// like this:</span></span><br><span class="line">    <span class="comment">//  var a = 1 in</span></span><br><span class="line">    <span class="comment">//    var a = a in ...   # refers to outer &#x27;a&#x27;.</span></span><br><span class="line">    Value *InitVal;</span><br><span class="line">    <span class="keyword">if</span> (Init) &#123;</span><br><span class="line">      InitVal = Init-&gt;<span class="built_in">codegen</span>();</span><br><span class="line">      <span class="keyword">if</span> (!InitVal)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">// If not specified, use 0.0.</span></span><br><span class="line">      InitVal = ConstantFP::<span class="built_in">get</span>(*TheContext, <span class="built_in">APFloat</span>(<span class="number">0.0</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    AllocaInst *Alloca = <span class="built_in">CreateEntryBlockAlloca</span>(TheFunction, VarName);</span><br><span class="line">    Builder-&gt;<span class="built_in">CreateStore</span>(InitVal, Alloca);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Remember the old variable binding so that we can restore the binding when</span></span><br><span class="line">    <span class="comment">// we unrecurse.</span></span><br><span class="line">    OldBindings.<span class="built_in">push_back</span>(NamedValues[VarName]);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Remember this binding.</span></span><br><span class="line">    NamedValues[VarName] = Alloca;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Codegen the body, now that all vars are in scope.</span></span><br><span class="line">  Value *BodyVal = Body-&gt;<span class="built_in">codegen</span>();</span><br><span class="line">  <span class="keyword">if</span> (!BodyVal)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Pop all our variables from scope.</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="type">unsigned</span> i = <span class="number">0</span>, e = VarNames.<span class="built_in">size</span>(); i != e; ++i)</span><br><span class="line">    NamedValues[VarNames[i].first] = OldBindings[i];</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Return the body computation.</span></span><br><span class="line">  <span class="keyword">return</span> BodyVal;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>VarExprAST</code> 代码生成的基本逻辑包括以下几部分：</p>
+<ul>
+<li>遍历所有变量，对于每个变量，将其存入符号表，并使用 <code>OldBindings</code> 保存旧值，因为存在嵌套的同名变量。</li>
+<li>对于每个变量，构造对应的 <code>alloca</code> 指令，并更新符号表，使该变量指向生成的 <code>alloca</code> 指令，即 <code>AllocaInst</code>。</li>
+<li>当所有变量都保存至符号表后，对 <code>var/in</code> 语句中的表达式体进行代码生成。</li>
+<li>在返回之前，通过 <code>OldBindings</code> 恢复旧值。</li>
+</ul>
+<p>通过这部分的扩展，我们实现了在作用域中定义局部变量的功能。类似的，我们也可以对实现的程序进行测试，输入迭代版本的 <code>fib</code> 函数，查看最终的执行结果以及生成的 LLVM IR。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>通过本章，我们进一步扩展了 Kaleidoscope 语言，实现了可变变量的能力。至此，Kaleidoscope 已经具备了工业级编程语言的基本雏形。下一章，我们来进一步增加 Kaleidoscope 的能力。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl07.html">Kaleidoscope: Extending the Language: Mutable Variables</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/LLVM/" rel="tag"># LLVM</a>
+          
+            <a href="/tags/%E5%8F%AF%E5%8F%98%E5%8F%98%E9%87%8F/" rel="tag"># 可变变量</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/08/28/compiler-for-kaleidoscope-06/" rel="next" title="基于 LLVM 自制编译器(6)——语言扩展：自定义运算符">
+                <i class="fa fa-chevron-left"></i> 基于 LLVM 自制编译器(6)——语言扩展：自定义运算符
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/09/11/compiler-for-kaleidoscope-08/" rel="prev" title="基于 LLVM 自制编译器(8)——目标文件编译">
+                基于 LLVM 自制编译器(8)——目标文件编译 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%AF%E5%8F%98%E5%8F%98%E9%87%8F%E7%9A%84%E5%AE%9E%E7%8E%B0%E9%9A%BE%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">可变变量的实现难点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#LLVM-%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">LLVM 内存模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%AF%E5%8F%98%E5%8F%98%E9%87%8F"><span class="nav-number">4.</span> <span class="nav-text">可变变量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B7%B2%E6%9C%89%E5%8F%98%E9%87%8F%E5%8F%AF%E5%8F%98"><span class="nav-number">5.</span> <span class="nav-text">已有变量可变</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#VariableExprAST-%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-number">5.1.</span> <span class="nav-text">VariableExprAST 代码生成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ForExprAST-%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-number">5.2.</span> <span class="nav-text">ForExprAST 代码生成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FunctionAST-%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-number">5.3.</span> <span class="nav-text">FunctionAST 代码生成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E9%80%9A%E9%81%93"><span class="nav-number">5.4.</span> <span class="nav-text">优化通道</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LLVM-IR-%E5%AF%B9%E6%AF%94"><span class="nav-number">5.5.</span> <span class="nav-text">LLVM IR 对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%8B%E5%80%BC%E8%BF%90%E7%AE%97%E7%AC%A6"><span class="nav-number">5.6.</span> <span class="nav-text">赋值运算符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-number">5.7.</span> <span class="nav-text">测试</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89"><span class="nav-number">6.</span> <span class="nav-text">局部变量定义</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E6%89%A9%E5%B1%95"><span class="nav-number">6.1.</span> <span class="nav-text">词法分析器扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AST-%E6%89%A9%E5%B1%95"><span class="nav-number">6.2.</span> <span class="nav-text">AST 扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E6%9E%90%E5%99%A8%E6%89%A9%E5%B1%95"><span class="nav-number">6.3.</span> <span class="nav-text">解析器扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-number">6.4.</span> <span class="nav-text">代码生成</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

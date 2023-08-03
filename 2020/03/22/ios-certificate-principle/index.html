@@ -1,38 +1,1533 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="iOS 开发证书,Provisioning Profile," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="在日常的 iOS 开发中，无论是新手还是老鸟，总是会遇到各种与证书、签名有关的问题。当不了解其中的具体原理时，我们总是会被这些问题整得焦头烂额。对于我也是如此，为了彻底理清其中的原理，我花了一些时间进行了研究并整理出这篇文章以供后续进行参考。 基本概念iOS 开发中各种证书的核心就是 非对称加密技术（即 公钥&#x2F;私钥加密技术）。关于非对称加密的原理，本文不作介绍。 为了深入了解证书幕后的原">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 证书幕后原理">
+<meta property="og:url" content="http://chuquan.me/2020/03/22/ios-certificate-principle/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="在日常的 iOS 开发中，无论是新手还是老鸟，总是会遇到各种与证书、签名有关的问题。当不了解其中的具体原理时，我们总是会被这些问题整得焦头烂额。对于我也是如此，为了彻底理清其中的原理，我花了一些时间进行了研究并整理出这篇文章以供后续进行参考。 基本概念iOS 开发中各种证书的核心就是 非对称加密技术（即 公钥&#x2F;私钥加密技术）。关于非对称加密的原理，本文不作介绍。 为了深入了解证书幕后的原">
+<meta property="og:locale">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/signature-creation.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/signature-validation.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/my-certificate-example.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/certificate.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/certificate-validation.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/keychain-trust-of-chain.jpeg?x-oss-process=image/resize,w_1000">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/certificate-creation.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/certificate-creation02.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/certificate-creation03.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/certificate-creation04.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/certificate-creation05.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/certificate-creation07.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/certificate-creation06.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/certificate-usage.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/sandbox.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/entitlements02.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/entitlements01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/appid01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/provisioning-profile.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/signing01.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/provisioning-profile-signing.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/provisioning-profile-validation.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/app-store-resigning.png?x-oss-process=image/resize,w_800">
+<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/app-store-validation.png?x-oss-process=image/resize,w_800">
+<meta property="article:published_time" content="2020-03-22T09:03:25.000Z">
+<meta property="article:modified_time" content="2022-06-20T15:47:59.279Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="iOS 开发证书">
+<meta property="article:tag" content="Provisioning Profile">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/signature-creation.png?x-oss-process=image/resize,w_800">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chuquan.me/2020/03/22/ios-certificate-principle/"/>
+
+
+
+
+
+  <title>iOS 证书幕后原理 | 楚权的世界</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">楚权的世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Seek the wonder of life.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
+            
+            相册
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2020/03/22/ios-certificate-principle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">iOS 证书幕后原理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="发表于" itemprop="dateCreated datePublished" datetime="2020-03-22T17:03:25+08:00">
+                2020-03-22
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2022-06-20T23:47:59+08:00">
+                2022-06-20
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在日常的 iOS 开发中，无论是新手还是老鸟，总是会遇到各种与证书、签名有关的问题。当不了解其中的具体原理时，我们总是会被这些问题整得焦头烂额。对于我也是如此，为了彻底理清其中的原理，我花了一些时间进行了研究并整理出这篇文章以供后续进行参考。</p>
+<h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><p>iOS 开发中各种证书的核心就是 <strong>非对称加密技术</strong>（即 <strong>公钥&#x2F;私钥加密技术</strong>）。关于非对称加密的原理，本文不作介绍。</p>
+<p>为了深入了解证书幕后的原理，我们需要了解两个关键的概念：</p>
+<ul>
+<li><strong>数字签名</strong></li>
+<li><strong>数字证书</strong></li>
+</ul>
+<h2 id="数字签名"><a href="#数字签名" class="headerlink" title="数字签名"></a>数字签名</h2><p><strong>数字签名（Digital Signature）</strong> 是一种相当于现实世界中的盖章、签字的功能在数字信息领域中的实现。数字签名可以识别篡改和伪装。</p>
+<p>在数字签名技术中，有两种行为：</p>
+<ul>
+<li><strong>签名生成</strong></li>
+<li><strong>签名验证</strong></li>
+</ul>
+<h3 id="签名生成"><a href="#签名生成" class="headerlink" title="签名生成"></a>签名生成</h3><p>签名生成由通信中的发起方进行，其过程如下所示。首先对通信内容进行哈希，然后使用发送方的私钥进行加密，最终得到签名。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/signature-creation.png?x-oss-process=image/resize,w_800"></p>
+<h3 id="签名验证"><a href="#签名验证" class="headerlink" title="签名验证"></a>签名验证</h3><p>签名验证由通信中的接收方进行，其过程如下所示。一般而言，发送方会把 <strong>消息</strong>、<strong>签名</strong> 一起发送给接收方。接收方首先使用发送方的公钥对签名进行解密，计算得出一个摘要。然后使用消息进行哈希，计算得出另一个摘要。最后，判断两个摘要是否相等，如果相等则说明接收到的消息没有被第三方进行篡改。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/signature-validation.png?x-oss-process=image/resize,w_800"></p>
+<p>那么接收方是如何获取到发送方的公钥的呢？接收方又是如何确定该公钥就是属于发送方的呢？这就是数字证书要做到事。</p>
+<h2 id="数字证书"><a href="#数字证书" class="headerlink" title="数字证书"></a>数字证书</h2><p><strong>数字证书（Digital Certificate）</strong> 是一种相当于现实世界中身份证的功能在数字信息领域中的实现。数字证书包含了个人或机构的 <strong>身份信息</strong> 及其 <strong>公钥</strong>，因此也称为 <strong>公钥证书（Public-Key Certificate，PKC）</strong>。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/my-certificate-example.png?x-oss-process=image/resize,w_800"></p>
+<p>类似于身份证是由权威的公安局颁发，公钥证书也是由权威的 <strong>认证机构（Certificate Authority，CA）</strong> 颁发。认证机构向接收方提供发送方的证书，证书中包含了发送方的身份信息和公钥。为了防止证书在颁发过程中被篡改，认证机构会将身份信息和公钥作为消息，用 <strong>CA 私钥</strong> 进行签名，进而将 <strong>身份信息</strong>、<strong>公钥</strong>、<strong>签名</strong> 一起放入证书，如下图所示。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/certificate.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="根证书"><a href="#根证书" class="headerlink" title="根证书"></a>根证书</h2><p>接收方得到发送方证书时，通过 CA 公钥对证书进行签名验证。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/certificate-validation.png?x-oss-process=image/resize,w_800"></p>
+<p>不过，需要注意的是，很多情况下，CA 公钥则又是由一个更加权威的机构颁发。</p>
+<p>类似于地方公安局的证书是由市级公安局颁发，市级公安局的证书又是由省级公安局颁发。证书是具有信任链（Chain of Trust）的，<strong>根证书（Root Certificate）</strong> 是信任源，即信任链的起源。</p>
+<p>根证书的颁发者被称为 <strong>Root Certificate Authority（Root CA）</strong>。某一认证领域内的根证书是 Root CA 自行颁发给自己的证书（Self-signed Certificate），安装证书意味着对这个 CA 认证中心的信任。</p>
+<p>根据证书在信任链中所处的位置，可以将证书分为三种：</p>
+<ul>
+<li><strong>根证书（Root Certificate）</strong></li>
+<li><strong>中间证书（Intermediate Certificate）</strong></li>
+<li><strong>叶子证书（Leaf Certificate）</strong></li>
+</ul>
+<p>这里就有一个根本性的问题：<strong>如何保证根证书是可信的？</strong></p>
+<p>事实上，根证书都是随软件一起安装的，如：操作系统安装时会内置一份可信的根证书列表。</p>
+<h1 id="iOS-证书"><a href="#iOS-证书" class="headerlink" title="iOS 证书"></a>iOS 证书</h1><p>在介绍了数字签名（包括：签名生成、签名验证）和数字证书（根证书）的基本概念之后，我们现在来介绍 iOS 开发中的相关证书。</p>
+<p>首先，我们来看一下 MacOS 系统中关于 iOS 开发证书的信任链示例（通过“钥匙串”查看）：</p>
+<ul>
+<li><strong>Apple Root Certificate Authority</strong>：根证书<ul>
+<li><strong>Apple Worldwide Developer Relations Certification Authority</strong>：中间证书<ul>
+<li>**iPhone Developer: 楚权 包(XXXXXXX)**：叶子证书</li>
+<li><strong>iPhone Distribution: Apple Tech</strong>：叶子证书</li>
+<li><strong>Apple Development: <a href="mailto:&#98;&#97;&#111;&#99;&#x71;&#x40;&#97;&#x70;&#112;&#108;&#x65;&#46;&#x63;&#x6f;&#x6d;">&#98;&#97;&#111;&#99;&#x71;&#x40;&#97;&#x70;&#112;&#108;&#x65;&#46;&#x63;&#x6f;&#x6d;</a></strong>：叶子证书</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/keychain-trust-of-chain.jpeg?x-oss-process=image/resize,w_1000"></p>
+<p>根证书 <code>Apple Root Certificate Authority</code> 是在 MacOS 操作系统安装时内置的，是 Apple Root CA 自行颁发的。</p>
+<p>中间证书 <code>Apple World Developer Relations Certificate Authority</code> （实际文件为 <code>AppleWWDRCA.cer</code>）是在Xcode 安装时内置的，是 Apple Root CA 颁发的。虽然 <code>AppleWWDRCA.cer</code> 是中间证书，但是对于 iOS 开发分类来说，它就是 <strong>开发根证书</strong>。</p>
+<p>我们开发所使用的证书都是叶子证书，是 Apple Worldwide Developer Relations Certification Authority 颁发的。</p>
+<p>那么，我们开发所示用的证书是如何生成的呢？下面我们来介绍一下如何申请开发证书。</p>
+<h2 id="申请原理"><a href="#申请原理" class="headerlink" title="申请原理"></a>申请原理</h2><p>下图所示，是证书申请的基本原理，可分为以下几个步骤：</p>
+<ul>
+<li>开发者在本地生成密钥对，并提供开发者的身份信息。</li>
+<li>将密钥对中的公钥、身份信息发送给 CA。</li>
+<li>CA 使用 CA 私钥对开发者的公钥、身份信息进行签名。</li>
+<li>CA 将开发者的公钥、身份信息、签名组装成证书以供下载。</li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/certificate-creation.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="申请方法"><a href="#申请方法" class="headerlink" title="申请方法"></a>申请方法</h2><p>上述介绍 iOS 开发证书的申请原理。在 iOS 开发中，一般由两种申请方法：</p>
+<ul>
+<li><strong>CertificateSigningRequest</strong></li>
+<li><strong>Xcode 自动申请</strong></li>
+</ul>
+<p>下面我们依次进行介绍。</p>
+<h3 id="CertificateSigningRequest"><a href="#CertificateSigningRequest" class="headerlink" title="CertificateSigningRequest"></a>CertificateSigningRequest</h3><p>首先，通过 “钥匙串” 菜单栏选择 【从证书颁发机构请求证书…】。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/certificate-creation02.png?x-oss-process=image/resize,w_800"></p>
+<p>其次，填写用户的身份信息（电子邮箱），并勾选【存储到磁盘】。点击【继续】后将会保存一个 <code>CSR</code> 文件（<code>CertificateSigningRequest.certSigningRequest</code>）至本地。</p>
+<p>注意，这个过程期间会生成一对非对称密钥对，<code>CertificateSigningRequest.certSigningRequest</code> 本质上包含了 <strong>开发者信息</strong>和 <strong>公钥</strong>。<strong>私钥</strong> 则始终保存在开发者的 Mac 中。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/certificate-creation03.png?x-oss-process=image/resize,w_800"></p>
+<p>然后，在开发者网站（扮演了 AppleWDRCA 的角色）上传 <code>CSR</code> 文件，由 CA 进行签名并生成开发者证书。开发者证书始终保留在开发者网站上，开发者可以删除（Revoke）已注册的证书。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/certificate-creation04.png?x-oss-process=image/resize,w_800"></p>
+<p>最后，从开发者网站上下载开发者证书至 Mac，双击后即可安装。</p>
+<h3 id="Xcode-自动申请"><a href="#Xcode-自动申请" class="headerlink" title="Xcode 自动申请"></a>Xcode 自动申请</h3><p>通过，Xcode 菜单【Preference…】-&gt;【Account】-&gt;【Apple IDs】-&gt;【＋】，登录开发者账号。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/certificate-creation05.png?x-oss-process=image/resize,w_800"></p>
+<p>登录成功后，“钥匙串”会自动导入一份证书（包含一份密钥对）。开发者网站也会注册一份证书。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/certificate-creation07.png?x-oss-process=image/resize,w_800"></p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/certificate-creation06.png?x-oss-process=image/resize,w_800"></p>
+<p>Xcode 自动申请是一种一键式的申请方式，推荐开发者使用。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>iOS 证书包含开发者的信息以及开发者的公钥。Xcode 导入证书后，对 App 打包时 Xcode 会根据证书从 Keychain 中找到与之匹配的私钥，并使用私钥对 App 进行签名。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/certificate-usage.png?x-oss-process=image/resize,w_800"></p>
+<p>当 App 安装到真机时，真机使用开发者公钥（App 中包含开发者公钥）对 App 进行签名验证，从而确保来源可信。App 安装时具体的验证过程我们后文再说。</p>
+<h2 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h2><p>iOS 证书可以分为两种：</p>
+<ul>
+<li><strong>Development</strong>：开发证书，用来开发和调试 App。一般证书名是 <code>iPhone Developer: xxx</code>。如果是多人协作的开发者账号，任意成员都可以申请自己的 Development 证书。</li>
+<li><strong>Distribution</strong>：发布证书，用来发布 App。一般证书名是 <code>iPhone Distribution: xxx</code>。只有管理员以上身份的开发者账号才可以申请，因此可以控制提交权限的范围。</li>
+</ul>
+<p>下文主要针对 iOS App 开发调试过程中的开发证书进行介绍。</p>
+<h1 id="授权文件（Entitlements）"><a href="#授权文件（Entitlements）" class="headerlink" title="授权文件（Entitlements）"></a>授权文件（Entitlements）</h1><p><strong>沙盒（Sandbox）</strong> 技术是 iOS 安全体系中非常重要的一项技术，其目的是 <strong>限制 App 的行为</strong>，如：可读写的路径、允许访问的硬件、允许使用的服务等等。因此，如果代码出现漏洞，也不会影响沙盒外的系统。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/sandbox.png?x-oss-process=image/resize,w_800"></p>
+<p>沙盒使用 <strong>授权文件（Entitlements）</strong> 声明 App 的权限。如果 App 中使用到了某项沙盒限制的功能，但是没有声明对应的权限，运行到相关代码时会直接 Crash。</p>
+<p>新建的工程是没有 Entitlements 文件的，如果在 【Capabilities】中开启所需权限后，Xcode 会自动生成 Entitlements 文件，并将对应的权限声明添加到该文件中。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/entitlements02.png?x-oss-process=image/resize,w_800"></p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/entitlements01.png?x-oss-process=image/resize,w_800"></p>
+<p>Entitlements 文件是一个 <code>xml</code> 格式的 <code>plist</code> 文件，在项目中一般以 <code>.entitlements</code> 为后缀，其内容如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"> <span class="meta">&lt;!DOCTYPE <span class="keyword">plist</span> <span class="keyword">PUBLIC</span> <span class="string">&quot;-//Apple//DTD PLIST 1.0//EN&quot;</span> <span class="string">&quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">&quot;1.0&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>aps-environment<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>production<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>com.apple.developer.associated-domains<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">array</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">string</span>&gt;</span>applinks:xxxx.companyname.com<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">array</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>com.apple.security.application-groups<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">array</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">string</span>&gt;</span>group.com.companyname<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">array</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>事实上，Entitlements 文件的内容并不是全部的授权声明。因为缺省状态下，App 默认会包含与 TeamID 及 App ID 相关的权限声明，如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>keychain-access-groups<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">array</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">string</span>&gt;</span>xxxxxxxxxx.*<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">array</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>get-task-allow<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">true</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>application-identifier<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>xxxxxxxxxx.test.CodeSign<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>com.apple.developer.team-identifier<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>xxxxxxxxxx<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>其中 <code>get-task-allow</code> 代表是否允许被调试，它在开发阶段是必需的一项权限，而在进行Archive打包用于上架时会被去掉。</p>
+<p><strong>注意：代码签名时，会将 Entitlements 文件（如有）与上述缺省内容进行合并，得到最终的授权文件，并嵌入二进制代码中，作为被签名内容的一部分，由代码签名保证其不可篡改性。</strong></p>
+<h1 id="App-ID"><a href="#App-ID" class="headerlink" title="App ID"></a>App ID</h1><p><strong>App ID</strong> 即 Product ID，用于标识一个或一组 App。</p>
+<p>App ID 字符串通常以 <strong>反域名（reverse-domain-name）</strong> 格式的 Company Identifier（Company ID）作为前缀（Prefix&#x2F;Seed），一般不超过 255 个 ASCII 字符。</p>
+<p>App ID 全名会被追加 Application Identifier Prefix（一般为 TeamID）。App ID 可以分为两种：</p>
+<ul>
+<li><strong>Explicit App ID</strong>：唯一的 App ID，用于标识一个应用程序。如：<code>com.apple.garageband</code> 用于标识 Bundle Identifier 为 <code>com.apple.garageband</code> 的 App。</li>
+<li><strong>Wildcard App ID</strong>：含有通配符的 App ID，用于标识一组应用程序。如：<code>com.apple.*</code> 用于标识 Bundle Identifier 以 <code>com.apple.</code> 开头（苹果公司）的所有应用程序。</li>
+</ul>
+<p>开发者可在 Developer Member Center 网站上注册（Register）或删除（Delete）已注册的 App IDs。</p>
+<p>在 Xcode 中，配置项 <code>Xcode Target -&gt; Info -&gt; Bunlde Identifier</code> 必须与 App ID 是一致的（Explicit）或匹配的（Wildcard）。</p>
+<p><strong>注意：注册 App ID 时，允许开发者在【Capabilities】中勾选所需的权限。这与上述的授权文件 Entitlements 相匹配。</strong></p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/appid01.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="设备"><a href="#设备" class="headerlink" title="设备"></a>设备</h1><p><strong>设备（Device）</strong> 即用于开发调试的 iOS 设备。每台 Apple 设备使用 <strong>UDID（Unique Device Identifier）</strong> 来唯一标识，即设备 ID。</p>
+<p>Apple Member Center 网站个人账号下的 <strong>Device</strong> 中包含注册过的所有可用于开发和测试的设备，普通个人开发账号每年累计最多注册 100 个设备。</p>
+<p>开发者可在网站上注册或启用&#x2F;禁用（Enable&#x2F;Disable）已注册的 Device。</p>
+<p>本文的 Device 是指连接到 macOS&#x2F;Xcode 被授权用于开发测试的 iOS 设备（iPhone&#x2F;iPad）。</p>
+<h1 id="供应配置文件（Provisioning-Profile）"><a href="#供应配置文件（Provisioning-Profile）" class="headerlink" title="供应配置文件（Provisioning Profile）"></a>供应配置文件（Provisioning Profile）</h1><h2 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h2><p><strong>供应配置文件（Provisioning Profile，简称 pp）</strong> 包含了上述所有内容：</p>
+<ul>
+<li><strong>App ID</strong>（App ID 在注册时可声明所需沙盒权限，所以包含了 Entitlements）</li>
+<li><strong>证书</strong></li>
+<li><strong>设备 ID</strong></li>
+</ul>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/provisioning-profile.png?x-oss-process=image/resize,w_800"></p>
+<p>一个 Provisioning Profile 对应一个 Explicit ID 或 Wildcard ID。在网站上手动创建一个 Provisioning Profile 时，需依次指定上述三项内容：</p>
+<ul>
+<li>App ID：单选（沙盒权限，可多选）</li>
+<li>证书：Certificates，可多选，对应多个开发者</li>
+<li>设备：Devices，可多选，对应更多个开发设备</li>
+</ul>
+<p>开发者可以下载 Provisioning Profile 文件，即一个 <code>.mobileprovision</code> 文件。开发者也可以删除（Delete）已注册的 Provisioning Profile。</p>
+<p>Provisioning Profile 会配置到 <code>Xcode -&gt; Target -&gt; Signing &amp; Capabilities -&gt; Provisioning Profile</code> 中。</p>
+<p>Provisioning Profile 默认保存在本地的 <code>~/Library/MobileDevice/Provisioning Profiles</code> 目录下。</p>
+<h2 id="构成"><a href="#构成" class="headerlink" title="构成"></a>构成</h2><p><code>.mobileprovision</code> 包含以下这些字段及内容：</p>
+<ul>
+<li><code>Name</code>：即 <code>mobileprovision</code> 文件。</li>
+<li><code>UUID</code>：即 <code>mobileprivision</code> 文件的真实文件名，是一个唯一标识。</li>
+<li><code>TeamName</code>：即 Apple ID 账号名。</li>
+<li><code>TeamIdentifier</code>：即 Team Identity。</li>
+<li><code>AppIDName</code>：即 explicit&#x2F;wildcard Apple ID name（ApplicationIdentifierPrefix）。</li>
+<li><code>ApplicationIdentifierPrefix</code>：即完整 App ID 的前缀。</li>
+<li><code>ProvisionedDevices</code>：该 <code>.mobileprovision</code> 授权的所有开发设备的 UUID。</li>
+<li><code>DeveloperCertificates</code>：该 <code>.mobileprovision</code> 允许对应用程序进行签名的所用证书，不同证书对应不同的开发者。如果使用不在这个列表中的证书进行签名，会出现 <code>code signing failed</code> 相关报错。</li>
+<li><code>Entitlements</code>：包含了一组键值对。<code>&lt;key&gt;</code>、<code>&lt;dict&gt;</code>。<ul>
+<li><code>keychain-access-groups</code>：<code>$(AppIdentifierPrefix)</code></li>
+<li><code>application-identifier</code>：带前缀的全名。如：<code>$(AppIdentifierPrefix)com.apple.garageband</code></li>
+<li><code>com.apple.security.application-groups</code>：App Group ID。</li>
+<li><code>com.apple.developer.team-identifier</code>：同 Team Identifier。</li>
+</ul>
+</li>
+</ul>
+<h2 id="签名-打包"><a href="#签名-打包" class="headerlink" title="签名 &amp; 打包"></a>签名 &amp; 打包</h2><p>首先，Xcode 会检查 Signing（entitlement、certificate）配置是否与 Provisioning Profile 相匹配，否则编译会报错。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/signing01.png?x-oss-process=image/resize,w_800"></p>
+<p>其次，Xcode 会检查 Signing &amp; Capabilities 配置的证书是否在本机 Keychain Access 中存在对应的 Public&#x2F;Private Key Pair，否则编译会报错。</p>
+<p>然后，Xcode 证书在本机 Keychain Access 匹配的 Key Pair 的私钥对应用程序 <strong>内容（Executable Code，resources such as images and nib files are not signed）</strong> 进行签名（CodeSign）。<strong>注意：Entitlements 文件也会被嵌入到内容中进行签名。</strong></p>
+<p>最终，签名、Provisioning Profile、应用程序都会被打包到 <code>.ipa</code> 中</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/provisioning-profile-signing.png?x-oss-process=image/resize,w_800"></p>
+<h3 id="ipa-文件"><a href="#ipa-文件" class="headerlink" title=".ipa 文件"></a><code>.ipa</code> 文件</h3><p>我们可以用 <code>file</code> 命令来查看 <code>.ipa</code> 文件，从输出结果可以看出它是一个压缩文件。对 <code>.ipa</code> 文件解压后会得到一个 <code>Payload</code> 文件，里面包含了 <code>.app</code> 目录。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">file Solar_200319-1858_r372ce72fe.ipa</span></span><br><span class="line">Solar_200319-1858_r372ce72fe.ipa: Zip archive data, at least v1.0 to extract</span><br></pre></td></tr></table></figure>
+
+<h4 id="app-文件"><a href="#app-文件" class="headerlink" title=".app 文件"></a><code>.app</code> 文件</h4><p>以 <code>Solar.app</code> 为例，<code>.app</code> 目录下主要有以下这些类型的文件：</p>
+<ul>
+<li><strong>可执行文件</strong>：以项目名称命名的可执行文件。如：<code>Solar</code>。</li>
+<li>**<code>xxx.bundle</code>**：资源文件，对应不同的 SDK 和 Pod。</li>
+<li>**<code>xxx.lproj</code>**：多语言本地化资源文件。每种语言单独定义其资源，包含：图片、文本、Storyboard、Xib 等。</li>
+<li>**<code>Frameworks</code>**：包含了 app 使用的第三方静态库、Swift 动态库。</li>
+<li>**<code>Info.plist</code>**：app 的相关配置，包括：Bundle Identifier、可执行文件名等。</li>
+<li>**<code>embedded.mobileprovision</code>**：供应配置文件（Provisioning Profile）。</li>
+<li>**<code>_CodeSignature/CodeResources</code>**：一个 <code>plist</code> 文件，保存签名时每个文件的哈希值（摘要），这些哈希值并不需要都进行加密，因为非对称加密的性能是比较差的，全部都加密只会拖慢签名和校验的速度。</li>
+</ul>
+<h2 id="验证-运行"><a href="#验证-运行" class="headerlink" title="验证 &amp; 运行"></a>验证 &amp; 运行</h2><p>在真机上运行测试包和正式包时，系统对两者的验证有所不同。简而言之，测试包在设备上进行了完整的签名验证；正式包则把验证过程交给了 App Store，App Store 验证通过后重新进行一次签名，设备下载正式包后进行的验证过程则简化很多。</p>
+<p>下面我们首先介绍一下测试包的验证过程。</p>
+<h3 id="测试包"><a href="#测试包" class="headerlink" title="测试包"></a>测试包</h3><p>当在设备上安装运行时，会对 App 进行验证。</p>
+<p>首先，设备系统会对 App 中的 bundle ID、entitlements、certificate 与 Provisioning Profile 中的 App ID、entitlements、certificates 进行匹配验证，否则无法启动 App。</p>
+<p>其次，设备系统使用本地内置的 CA 公钥对 Provisioning Profile 中匹配的 certificate 进行签名验证，从而确认匹配到的证书的合法性。</p>
+<p>然后，设备系统使用 Provisioning Profile 中的匹配的，且经过 CA 验证过的 certificate（即打包应用程序的开发者的证书）中取出公钥，对 App 进行签名验证，否则无法启动 App。</p>
+<p>最后，设备系统会将设备的 Device ID 与 Provisioning Profile 中的 Devices 的 Device ID 进行匹配，否则无法启动 App。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/provisioning-profile-validation.png?x-oss-process=image/resize,w_800"></p>
+<h3 id="正式包"><a href="#正式包" class="headerlink" title="正式包"></a>正式包</h3><p>假如你有一台越狱的设备，查看任意一个从 App Store 上下载的 App，你会发现里面没有 <code>embedded.mobileprovision</code> 文件，因为 App Store 已经完成了对 App 的验证（<strong>类似于上述测试包的验证过程</strong>）。当 App 通过验证后，Apple Store 会对 App 进行重新签名，如下图所示。重新签名的内容将不再包含 Provisioning Profile，最终的 ipa 文件也不包含它。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/app-store-resigning.png?x-oss-process=image/resize,w_800"></p>
+<p>当设备从 App Store 下载 App 时，会直接使用设备上的 CA 公钥对 ipa 进行签名验证，如下图所示。与上述测试包的签名验证相比，正式包的签名验证简化了很多，因为有一部分验证工作已经由 App Store 完成了。</p>
+<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/app-store-validation.png?x-oss-process=image/resize,w_800"></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>有上述可知，非对称加密贯穿于 iOS 开发之中。当我们在开发中遇到签名、证书相关的问题时，我们只要结合证书幕后的原理，很容易就能找到解决办法。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li>《图解密码技术》</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/phunxm/article/details/42685597">iOS Provisioning Profile(Certificate)与Code Signing详解</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/178104408615">iOS 掉签的概念和原理</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e33412176310">iOS 浅谈 APP ipa包的结构</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/c33db8e95e6d">ipa 目录结构及构建过程</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/entry/5bb831b4f265da0aa52921ca">Library vs Framework in iOS</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/5b90ea53e51d450ea131ef81">iOS语言国际化&#x2F;本地化-实践总结</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/5d9955bf4c55">iOS 应用重签名</a></li>
+<li><a target="_blank" rel="noopener" href="http://xelz.info/blog/2019/01/11/ios-code-signature-1/">细说iOS代码签名(一)</a></li>
+<li><a target="_blank" rel="noopener" href="http://xelz.info/blog/2019/01/11/ios-code-signature-2/">细说iOS代码签名(二)</a></li>
+<li><a target="_blank" rel="noopener" href="http://xelz.info/blog/2019/01/11/ios-code-signature-3/">细说iOS代码签名(三)</a></li>
+<li><a target="_blank" rel="noopener" href="http://xelz.info/blog/2019/01/11/ios-code-signature-4/">细说iOS代码签名(四)</a></li>
+<li><a target="_blank" rel="noopener" href="https://confluence.zhenguanyu.com/pages/viewpage.action?pageId=30677779">搜题 Configurations 的说明</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/20308474">iOS 开发者中的公司账号与个人账号之间有什么区别？</a></li>
+<li><a target="_blank" rel="noopener" href="https://wenghengcong.com/posts/3c332106/">逆向（七）重签名</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>欣赏此文？求鼓励，求支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS-%E5%BC%80%E5%8F%91%E8%AF%81%E4%B9%A6/" rel="tag"># iOS 开发证书</a>
+          
+            <a href="/tags/Provisioning-Profile/" rel="tag"># Provisioning Profile</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/02/19/swift-performance-protocol-type-generic-type/" rel="next" title="Swift 性能优化(2)——协议与泛型的实现">
+                <i class="fa fa-chevron-left"></i> Swift 性能优化(2)——协议与泛型的实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/01/yuanfudao-zhaopin/" rel="prev" title="猿辅导招聘">
+                猿辅导招聘 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/SlamDunk.png"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">278</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      Facebook
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
+                  
+                    <i class="fa fa-fw fa-instagram"></i>
+                  
+                    
+                      Instagram
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D"><span class="nav-number">1.1.</span> <span class="nav-text">数字签名</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AD%BE%E5%90%8D%E7%94%9F%E6%88%90"><span class="nav-number">1.1.1.</span> <span class="nav-text">签名生成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AD%BE%E5%90%8D%E9%AA%8C%E8%AF%81"><span class="nav-number">1.1.2.</span> <span class="nav-text">签名验证</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6"><span class="nav-number">1.2.</span> <span class="nav-text">数字证书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B9%E8%AF%81%E4%B9%A6"><span class="nav-number">1.3.</span> <span class="nav-text">根证书</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#iOS-%E8%AF%81%E4%B9%A6"><span class="nav-number">2.</span> <span class="nav-text">iOS 证书</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%B3%E8%AF%B7%E5%8E%9F%E7%90%86"><span class="nav-number">2.1.</span> <span class="nav-text">申请原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%B3%E8%AF%B7%E6%96%B9%E6%B3%95"><span class="nav-number">2.2.</span> <span class="nav-text">申请方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CertificateSigningRequest"><span class="nav-number">2.2.1.</span> <span class="nav-text">CertificateSigningRequest</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Xcode-%E8%87%AA%E5%8A%A8%E7%94%B3%E8%AF%B7"><span class="nav-number">2.2.2.</span> <span class="nav-text">Xcode 自动申请</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">2.3.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%B1%BB"><span class="nav-number">2.4.</span> <span class="nav-text">分类</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%88%E6%9D%83%E6%96%87%E4%BB%B6%EF%BC%88Entitlements%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">授权文件（Entitlements）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#App-ID"><span class="nav-number">4.</span> <span class="nav-text">App ID</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87"><span class="nav-number">5.</span> <span class="nav-text">设备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%9B%E5%BA%94%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%EF%BC%88Provisioning-Profile%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">供应配置文件（Provisioning Profile）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA"><span class="nav-number">6.1.</span> <span class="nav-text">创建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%84%E6%88%90"><span class="nav-number">6.2.</span> <span class="nav-text">构成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AD%BE%E5%90%8D-%E6%89%93%E5%8C%85"><span class="nav-number">6.3.</span> <span class="nav-text">签名 &amp; 打包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ipa-%E6%96%87%E4%BB%B6"><span class="nav-number">6.3.1.</span> <span class="nav-text">.ipa 文件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#app-%E6%96%87%E4%BB%B6"><span class="nav-number">6.3.1.1.</span> <span class="nav-text">.app 文件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81-%E8%BF%90%E8%A1%8C"><span class="nav-number">6.4.</span> <span class="nav-text">验证 &amp; 运行</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E5%8C%85"><span class="nav-number">6.4.1.</span> <span class="nav-text">测试包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E5%BC%8F%E5%8C%85"><span class="nav-number">6.4.2.</span> <span class="nav-text">正式包</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2018 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+<div>
+  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>本站总访客
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+  undefined
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>
