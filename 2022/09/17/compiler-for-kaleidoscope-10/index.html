@@ -1,110 +1,33 @@
 <!DOCTYPE html>
-
-
-
-  
-
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-  
-  
-  
-  
-
-  
-    
-    
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    
-    
-    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-  
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
-
-
-  <meta name="keywords" content="LLVM,运行时,内存管理,类型系统," />
-
-
-
-
-
-  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
-
-
-
-
-  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
-
-
-
-
-
-
-<meta name="description" content="展望本章是本系列教程的最后一章。通过本教程，我们实现并扩展 Kaleidoscope 编程语言，使其语言的特性和功能不断增强。 在这个过程中，我们构建了词法分析器、解析器、AST、代码生成器、REPL、JIT，并为可执行文件支持了调试信息。所有的功能仅仅用了 1000 行左右代码就实现了。 我们的语言支持几个有趣的特性，比如：支持自定义的二元运算符和一元运算符，支持 JIT 编译并执行，支持构造控">
+    <meta name="description" content="展望 本章是本系列教程的最后一章。通过本教程，我们实现并扩展 Kaleidoscope 编程语言，使其语言的特性和功能不断增强。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="基于 LLVM 自制编译器(10)——总结">
 <meta property="og:url" content="http://chuquan.me/2022/09/17/compiler-for-kaleidoscope-10/index.html">
 <meta property="og:site_name" content="楚权的世界">
-<meta property="og:description" content="展望本章是本系列教程的最后一章。通过本教程，我们实现并扩展 Kaleidoscope 编程语言，使其语言的特性和功能不断增强。 在这个过程中，我们构建了词法分析器、解析器、AST、代码生成器、REPL、JIT，并为可执行文件支持了调试信息。所有的功能仅仅用了 1000 行左右代码就实现了。 我们的语言支持几个有趣的特性，比如：支持自定义的二元运算符和一元运算符，支持 JIT 编译并执行，支持构造控">
-<meta property="og:locale">
+<meta property="og:description" content="展望 本章是本系列教程的最后一章。通过本教程，我们实现并扩展 Kaleidoscope 编程语言，使其语言的特性和功能不断增强。">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-09-17T14:52:12.000Z">
-<meta property="article:modified_time" content="2023-01-14T03:13:42.532Z">
+<meta property="article:modified_time" content="2023-09-16T09:30:41.935Z">
 <meta property="article:author" content="Bao Chuquan">
 <meta property="article:tag" content="LLVM">
 <meta property="article:tag" content="运行时">
@@ -113,1236 +36,548 @@
 <meta name="twitter:card" content="summary">
 
 
-
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '',
-    scheme: 'Pisces',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: true,
-    duoshuo: {
-      userId: '0',
-      author: '博主'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
+<link rel="canonical" href="http://chuquan.me/2022/09/17/compiler-for-kaleidoscope-10/">
 
 
 
-  <link rel="canonical" href="http://chuquan.me/2022/09/17/compiler-for-kaleidoscope-10/"/>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2022/09/17/compiler-for-kaleidoscope-10/","path":"2022/09/17/compiler-for-kaleidoscope-10/","title":"基于 LLVM 自制编译器(10)——总结"}</script>
 
-
-
-
-
-  <title>基于 LLVM 自制编译器(10)——总结 | 楚权的世界</title>
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>基于 LLVM 自制编译器(10)——总结 | 楚权的世界</title>
   
 
-
-
-
-
-  <script type="text/javascript">
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
 
 
 
 
 
 
-
-
-
-
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
 <!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
-  
-  
-    
-  
-
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
-    <div class="headband"></div>
-	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
-    
-
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">楚权的世界</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
     </div>
-      
-        <p class="site-subtitle">Seek the wonder of life.</p>
-      
   </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
   </div>
 </div>
+
+
 
 <nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-photos">
-          <a href="/photos" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
-            
-            相册
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            归档
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-commonweal">
-          <a href="/404.html" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
-            
-            公益
-          </a>
-        </li>
-      
-
-      
-        <li class="menu-item menu-item-search">
-          
-            <a href="javascript:;" class="popup-trigger">
-          
-            
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
-            
-            搜索
-          </a>
-        </li>
-      
-    </ul>
-  
-
-  
-    <div class="site-search">
-      
-  <div class="popup search-popup local-search-popup">
-  <div class="local-search-header clearfix">
-    <span class="search-icon">
-      <i class="fa fa-search"></i>
-    </span>
-    <span class="popup-btn-close">
-      <i class="fa fa-times-circle"></i>
-    </span>
-    <div class="local-search-input-wrapper">
-      <input autocomplete="off"
-             placeholder="搜索..." spellcheck="false"
-             type="text" id="local-search-input">
-    </div>
-  </div>
-  <div id="local-search-result"></div>
-</div>
-
-
-
-    </div>
-  
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
 </nav>
 
 
 
- </div>
-    </header>
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
 
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
+    </div>
+  </div>
 
-  <div id="posts" class="posts-expand">
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%95%E6%9C%9B"><span class="nav-number">1.</span> <span class="nav-text">展望</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#llvm-ir-%E5%B1%9E%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">LLVM IR 属性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E7%8B%AC%E7%AB%8B"><span class="nav-number">2.1.</span> <span class="nav-text">目标独立</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E4%BF%9D%E8%AF%81"><span class="nav-number">2.2.</span> <span class="nav-text">安全保证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E8%A8%80%E7%89%B9%E5%AE%9A%E4%BC%98%E5%8C%96"><span class="nav-number">2.3.</span> <span class="nav-text">语言特定优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%90%E7%A4%BA%E4%B8%8E%E6%8A%80%E5%B7%A7"><span class="nav-number">3.</span> <span class="nav-text">提示与技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E5%8F%AF%E7%A7%BB%E6%A4%8D%E7%9A%84-offsetofsizeof"><span class="nav-number">3.1.</span> <span class="nav-text">实现可移植的 offsetof&#x2F;sizeof</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%A0%88%E5%B8%A7"><span class="nav-number">3.2.</span> <span class="nav-text">垃圾回收栈帧</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">129</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">288</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
     
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
 
   
 
-  
+
+<div class="post-block">
   
   
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://chuquan.me/2022/09/17/compiler-for-kaleidoscope-10/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
     </span>
 
-    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="基于 LLVM 自制编译器(10)——总结 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
       <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于 LLVM 自制编译器(10)——总结
+        </h1>
 
-        
-        
-          <h1 class="post-title" itemprop="name headline">基于 LLVM 自制编译器(10)——总结</h1>
-        
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
 
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="发表于" itemprop="dateCreated datePublished" datetime="2022-09-17T22:52:12+08:00">
-                2022-09-17
-              </time>
-            
+      <time title="创建时间：2022-09-17 22:52:12" itemprop="dateCreated datePublished" datetime="2022-09-17T22:52:12+08:00">2022-09-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-09-16 17:30:41" itemprop="dateModified" datetime="2023-09-16T17:30:41+08:00">2023-09-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/LLVM/" itemprop="url" rel="index"><span itemprop="name">LLVM</span></a>
+        </span>
+    </span>
 
-            
-              <span class="post-meta-divider">|</span>
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-check-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">更新于</span>
-              
-              <time title="更新于" itemprop="dateModified" datetime="2023-01-14T11:13:42+08:00">
-                2023-01-14
-              </time>
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/LLVM/" itemprop="url" rel="index">
-                    <span itemprop="name">LLVM</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
-          
-
-          
-
-          
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2022/09/17/compiler-for-kaleidoscope-10/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2022/09/17/compiler-for-kaleidoscope-10/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
 
         </div>
       </header>
-    
 
     
     
     
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <h1 id="展望"><a href="#展望" class="headerlink" title="展望"></a>展望</h1><p>本章是本系列教程的最后一章。通过本教程，我们实现并扩展 Kaleidoscope 编程语言，使其语言的特性和功能不断增强。</p>
-<p>在这个过程中，我们构建了词法分析器、解析器、AST、代码生成器、REPL、JIT，并为可执行文件支持了调试信息。所有的功能仅仅用了 1000 行左右代码就实现了。</p>
-<p>我们的语言支持几个有趣的特性，比如：支持自定义的二元运算符和一元运算符，支持 JIT 编译并执行，支持构造控制流等。</p>
+    <div class="post-body" itemprop="articleBody"><h1 id="展望">展望</h1>
+<p>本章是本系列教程的最后一章。通过本教程，我们实现并扩展 Kaleidoscope
+编程语言，使其语言的特性和功能不断增强。</p>
+<span id="more"></span>
+<p>在这个过程中，我们构建了词法分析器、解析器、AST、代码生成器、REPL、JIT，并为可执行文件支持了调试信息。所有的功能仅仅用了
+1000 行左右代码就实现了。</p>
+<p>我们的语言支持几个有趣的特性，比如：支持自定义的二元运算符和一元运算符，支持
+JIT 编译并执行，支持构造控制流等。</p>
 <p>本教程的初衷是为了向开发者展示定义、构建、使用语言是如此简单和有趣，编译器的实现也并不是难如登天！现在，我们已经了解了自制编译器的一些基础知识，这里强烈建议开发者能够使用代码对其进行魔改。比如，可以尝试支持以下这些特性：</p>
 <ul>
-<li><strong>全局变量</strong>：虽然全局变量在软件工程中并不是一个非常有价值的特性，但是将它应用于 Kaleidoscope 中，其实是非常有用的。在目前的实现中，我们可以非常容易地为 Kaleidoscope 支持全局变量：只需要在全局变量符号表中查找未解析的变量即可。如果要创建全局变量，请使用 LLVM <code>GlobalVariable</code> 类。</li>
-<li><strong>类型变量</strong>：目前，Kaleidoscope 只支持一种数据类型 <code>double</code>。由于只支持一种类型，因此无需指定变量类型。如果要支持多种数据类型，最简单的方法是要求用户为每个变量定义指定类型，并在符号表中记录变量的类型及其值。</li>
-<li><strong>数组、结构体、向量</strong>：一旦支持了多种类型，我们可以通过各种方式对类型系统进行扩展。对于数组、结构体、向量等类型，其核心是基于 LLVM <code>getelementptr</code> 进行实现。</li>
-<li><strong>标准运行时</strong>：目前，Kaleidoscope 运行用于访问任意外部函数，比如：<code>printd</code>、<code>putchard</code> 等。当我们扩展语言以支持更高级的特性时，可以考虑实现运行时。比如：对于实现哈希表，哈希表底层封装了一系列实现，如果将这些实现内联至代码中，那么每定义一个哈希表会生成底层的实现代码，如果我们将哈希表的底层实现作为一个子程序定义在运行时，那么将会非常具有优化意义。</li>
-<li><strong>内存管理</strong>：目前，Kaleidoscope 只能访问栈内存。如果为 Kaleidoscope 支持通过调用标准的 libc <code>malloc</code>&#x2F;<code>free</code> 接口或使用垃圾收集器来分配堆内存，那么也能够极大地增强语言的能力。对此，LLVM 是完全支持精准垃圾收集（Accurate Garbage Collection）功能的，包括对象移动、栈扫描与更新等算法。</li>
-<li><strong>异常处理</strong>：LLVM 支持生成零开销异常。此外，我们还可以隐式地使每个函数返回一个错误值并检查，从而生成代码。我们还可以显式地使用 <code>setjmp</code>&#x2F;<code>longjmp</code>。</li>
-<li>**面向对象、泛型、数据库访问、复数、几何编程…**：我们可以为语言扩展任何特性。</li>
-<li><strong>其他领域</strong>：我们可以将 LLVM 应用至很多领域，从而构建特定语言。当然，还有很多其他领域会利用编译相关技术，比如：LLVM 被用于实现 OpenGL图形加速、C++ 代码转换为 ActionScript 等等。甚至，也许你将是第一个使用 LLVM 将正则表达式解释器 JIT 编译成本机代码的人！</li>
+<li><strong>全局变量</strong>：虽然全局变量在软件工程中并不是一个非常有价值的特性，但是将它应用于
+Kaleidoscope 中，其实是非常有用的。在目前的实现中，我们可以非常容易地为
+Kaleidoscope
+支持全局变量：只需要在全局变量符号表中查找未解析的变量即可。如果要创建全局变量，请使用
+LLVM <code>GlobalVariable</code> 类。</li>
+<li><strong>类型变量</strong>：目前，Kaleidoscope 只支持一种数据类型
+<code>double</code>。由于只支持一种类型，因此无需指定变量类型。如果要支持多种数据类型，最简单的方法是要求用户为每个变量定义指定类型，并在符号表中记录变量的类型及其值。</li>
+<li><strong>数组、结构体、向量</strong>：一旦支持了多种类型，我们可以通过各种方式对类型系统进行扩展。对于数组、结构体、向量等类型，其核心是基于
+LLVM <code>getelementptr</code> 进行实现。</li>
+<li><strong>标准运行时</strong>：目前，Kaleidoscope
+运行用于访问任意外部函数，比如：<code>printd</code>、<code>putchard</code>
+等。当我们扩展语言以支持更高级的特性时，可以考虑实现运行时。比如：对于实现哈希表，哈希表底层封装了一系列实现，如果将这些实现内联至代码中，那么每定义一个哈希表会生成底层的实现代码，如果我们将哈希表的底层实现作为一个子程序定义在运行时，那么将会非常具有优化意义。</li>
+<li><strong>内存管理</strong>：目前，Kaleidoscope 只能访问栈内存。如果为
+Kaleidoscope 支持通过调用标准的 libc
+<code>malloc</code>/<code>free</code>
+接口或使用垃圾收集器来分配堆内存，那么也能够极大地增强语言的能力。对此，LLVM
+是完全支持精准垃圾收集（Accurate Garbage
+Collection）功能的，包括对象移动、栈扫描与更新等算法。</li>
+<li><strong>异常处理</strong>：LLVM
+支持生成零开销异常。此外，我们还可以隐式地使每个函数返回一个错误值并检查，从而生成代码。我们还可以显式地使用
+<code>setjmp</code>/<code>longjmp</code>。</li>
+<li><strong>面向对象、泛型、数据库访问、复数、几何编程...</strong>：我们可以为语言扩展任何特性。</li>
+<li><strong>其他领域</strong>：我们可以将 LLVM
+应用至很多领域，从而构建特定语言。当然，还有很多其他领域会利用编译相关技术，比如：LLVM
+被用于实现 OpenGL图形加速、C++ 代码转换为 ActionScript
+等等。甚至，也许你将是第一个使用 LLVM 将正则表达式解释器 JIT
+编译成本机代码的人！</li>
 </ul>
-<h1 id="LLVM-IR-属性"><a href="#LLVM-IR-属性" class="headerlink" title="LLVM IR 属性"></a>LLVM IR 属性</h1><p>对于 LLVM IR，我们经常会有一些疑问。本章，我们梳理了一些常见的问题，并进行解答。</p>
-<h2 id="目标独立"><a href="#目标独立" class="headerlink" title="目标独立"></a>目标独立</h2><p>Kaleidoscope 是<strong>可移植语言</strong> 的一个例子：任何用 Kaleidoscope 编写的程序都可以在它运行的任何目标上以相同的方式工作。绝大多数编程语言都具有此属性，如：lisp、java、haskell、javascript、python 等。但需要注意的是，虽然这些语言是可移植的，但并非所有的库都是如此。</p>
-<p>LLVM 有一个特性是它通常能够在 IR 中保持目标独立：我们可以将 LLVM IR 用于 Kaleidoscope 编译的程序并在 LLVM 支持的任何目标上运行它。简而言之，Kaleidoscope 编译器生成与目标无关的代码，因为它在生成代码时不会查询任何特定于目标的信息。</p>
-<h2 id="安全保证"><a href="#安全保证" class="headerlink" title="安全保证"></a>安全保证</h2><p>上面提到的一些编程语言，很多都是 <strong>安全</strong> 的语言。比如，用 Java 编写的程序不可能破坏其地址空间并使进程崩溃（假设 JVM 没有错误）。 安全性是一个有趣的属性，它需要结合语言设计、运行时支持以及操作系统支持。</p>
-<p>在 LLVM 中实现安全语言是完全可以的，但 LLVM IR 本身并不能保证安全。LLVM IR 允许不安全的指针转换、释放错误后使用、缓冲区溢出和各种其他问题。要实现安全的特性，我们需要在 LLVM 之上构建一个层来实现。</p>
-<h2 id="语言特定优化"><a href="#语言特定优化" class="headerlink" title="语言特定优化"></a>语言特定优化</h2><p>和其他工具一样，LLVM 不能在一个系统中解决所有的问题。对此，很多开发者会抱怨 LLVM 无法执行高级语言的特定优化，因为 LLVM 丢失了太多信息。对此，本章给出了如下的一些看法。</p>
-<p>首先，LLVM 确实会丢失信息。例如，在撰写本教程时，在 LLVM IR 中无法区分 SSA 值是来自 ILP32 机器上的 C <code>int</code> 还是 C <code>long</code>（调试信息除外）。两者都被编译为 <code>i32</code> 值，并且关于它来自什么的信息丢失了。这里更普遍的问题是 LLVM 类型系统使用 “结构等价” 而不是 “命名等价”。另一个让人感到惊讶的地方是，如果我们在高级语言中有两种具有相同结构的类型（例如，两个具有单个 <code>int</code> 字段的不同结构），那么这些类型将被编译成单个 LLVM 类型。</p>
-<p>其次，虽然 LLVM 确实会丢失信息，但 LLVM 并不是一个固定的目标：我们会继续以许多不同的方式增强和改进它。除了添加新功能（LLVM 并不总是支持异常或调试信息）外，我们还扩展了 IR 以捕获重要信息以进行优化（例如，参数是符号扩展还是零扩展、指针别名信息等）。许多增强功能都是用户驱动的：开发者希望 LLVM 包含一些特定功能，为此，开发者们一直在对它进行扩展。</p>
-<p>第三，添加特定于语言的优化是可能且容易的。举一个简单的例子，我们可以很容易地添加特定于语言的优化通道，从而为一种语言编译的代码。对于 C 系列，有一个标准 C 库函数的优化通道。如果我们在 <code>main()</code> 中调用 <code>exit(0)</code>，它会知道将其优化为 <code>return 0;</code> 是安全的。</p>
-<p>此外，还可以将各种其他语言特定的信息嵌入到 LLVM IR 中。即使在最坏的情况下，我们也可以将 LLVM 视为纯粹的代码生成器，并在特定于语言的 AST 上在编译前端实现我们想要的高级优化。</p>
-<h1 id="提示与技巧"><a href="#提示与技巧" class="headerlink" title="提示与技巧"></a>提示与技巧</h1><p>在使用 LLVM 之后，我们会了解到许多有用的提示与技巧，这些技巧和技巧乍一看并不明显。这里，我们只讨论其中的一些问题。</p>
-<h2 id="实现可移植的-offsetof-sizeof"><a href="#实现可移植的-offsetof-sizeof" class="headerlink" title="实现可移植的 offsetof&#x2F;sizeof"></a>实现可移植的 offsetof&#x2F;sizeof</h2><p>如果我们希望让编译器生成的代码保持 <strong>目标独立</strong>，那么会出现一件有趣的事情，那就是我们经常需要知道某些 LLVM 类型的大小或 llvm 结构中某些字段的偏移量。 例如，我们可能需要将类型的大小传递给分配内存的函数。</p>
-<p>不幸的是，这在不同目标之间可能会有很大差异：例如，指针的宽度是特定于目标的。不过，有一种巧妙的方法，即使用 <code>getelementptr</code> 指令，它允许我们以可移植的方式计算它。</p>
-<h2 id="垃圾回收栈帧"><a href="#垃圾回收栈帧" class="headerlink" title="垃圾回收栈帧"></a>垃圾回收栈帧</h2><p>某些语言想要显式地管理栈帧，通常是为了支持垃圾收集栈帧或允许实现闭包。事实上，通常有比显式管理栈帧更好的方法来实现这些功能，但如果我们执意这么做，LLVM 也是支持的。 这需要我们的编译前端将代码转换为连续传递样式并使用尾调用（LLVM 也支持）。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本系列教程通过基于 LLVM 自制一款针对 Kaleidoscope 编程语言的编译器，在这个过程中，展示了自制编程语言或编译器所涉及的一些相关概念和知识，从而产生一个系统的认知。至此，本教程结束了！如果希望有更进一步探索，建议大家着手开始 LLVM，毕竟代码才是真理！</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
-<li><a target="_blank" rel="noopener" href="https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl10.html">Conclusion and other useful LLVM tidbits</a></li>
-<li><a target="_blank" rel="noopener" href="https://llvm.org/docs/LangRef.html#getelementptr-instruction">getelementptr</a></li>
-<li><a target="_blank" rel="noopener" href="https://llvm.org/docs/GetElementPtr.html">The Often Misunderstood GEP Instruction</a></li>
-<li><a target="_blank" rel="noopener" href="https://nondot.org/sabre/LLVMNotes/SizeOf-OffsetOf-VariableSizedStructs.txt">clever way to use the getelementptr instruction</a></li>
+<h1 id="llvm-ir-属性">LLVM IR 属性</h1>
+<p>对于 LLVM
+IR，我们经常会有一些疑问。本章，我们梳理了一些常见的问题，并进行解答。</p>
+<h2 id="目标独立">目标独立</h2>
+<p>Kaleidoscope 是<strong>可移植语言</strong> 的一个例子：任何用
+Kaleidoscope
+编写的程序都可以在它运行的任何目标上以相同的方式工作。绝大多数编程语言都具有此属性，如：lisp、java、haskell、javascript、python
+等。但需要注意的是，虽然这些语言是可移植的，但并非所有的库都是如此。</p>
+<p>LLVM 有一个特性是它通常能够在 IR 中保持目标独立：我们可以将 LLVM IR
+用于 Kaleidoscope 编译的程序并在 LLVM
+支持的任何目标上运行它。简而言之，Kaleidoscope
+编译器生成与目标无关的代码，因为它在生成代码时不会查询任何特定于目标的信息。</p>
+<h2 id="安全保证">安全保证</h2>
+<p>上面提到的一些编程语言，很多都是 <strong>安全</strong>
+的语言。比如，用 Java 编写的程序不可能破坏其地址空间并使进程崩溃（假设
+JVM 没有错误）。
+安全性是一个有趣的属性，它需要结合语言设计、运行时支持以及操作系统支持。</p>
+<p>在 LLVM 中实现安全语言是完全可以的，但 LLVM IR
+本身并不能保证安全。LLVM IR
+允许不安全的指针转换、释放错误后使用、缓冲区溢出和各种其他问题。要实现安全的特性，我们需要在
+LLVM 之上构建一个层来实现。</p>
+<h2 id="语言特定优化">语言特定优化</h2>
+<p>和其他工具一样，LLVM
+不能在一个系统中解决所有的问题。对此，很多开发者会抱怨 LLVM
+无法执行高级语言的特定优化，因为 LLVM
+丢失了太多信息。对此，本章给出了如下的一些看法。</p>
+<p>首先，LLVM 确实会丢失信息。例如，在撰写本教程时，在 LLVM IR
+中无法区分 SSA 值是来自 ILP32 机器上的 C <code>int</code> 还是 C
+<code>long</code>（调试信息除外）。两者都被编译为 <code>i32</code>
+值，并且关于它来自什么的信息丢失了。这里更普遍的问题是 LLVM 类型系统使用
+“结构等价” 而不是
+“命名等价”。另一个让人感到惊讶的地方是，如果我们在高级语言中有两种具有相同结构的类型（例如，两个具有单个
+<code>int</code> 字段的不同结构），那么这些类型将被编译成单个 LLVM
+类型。</p>
+<p>其次，虽然 LLVM 确实会丢失信息，但 LLVM
+并不是一个固定的目标：我们会继续以许多不同的方式增强和改进它。除了添加新功能（LLVM
+并不总是支持异常或调试信息）外，我们还扩展了 IR
+以捕获重要信息以进行优化（例如，参数是符号扩展还是零扩展、指针别名信息等）。许多增强功能都是用户驱动的：开发者希望
+LLVM 包含一些特定功能，为此，开发者们一直在对它进行扩展。</p>
+<p>第三，添加特定于语言的优化是可能且容易的。举一个简单的例子，我们可以很容易地添加特定于语言的优化通道，从而为一种语言编译的代码。对于
+C 系列，有一个标准 C 库函数的优化通道。如果我们在 <code>main()</code>
+中调用 <code>exit(0)</code>，它会知道将其优化为 <code>return 0;</code>
+是安全的。</p>
+<p>此外，还可以将各种其他语言特定的信息嵌入到 LLVM IR
+中。即使在最坏的情况下，我们也可以将 LLVM
+视为纯粹的代码生成器，并在特定于语言的 AST
+上在编译前端实现我们想要的高级优化。</p>
+<h1 id="提示与技巧">提示与技巧</h1>
+<p>在使用 LLVM
+之后，我们会了解到许多有用的提示与技巧，这些技巧和技巧乍一看并不明显。这里，我们只讨论其中的一些问题。</p>
+<h2 id="实现可移植的-offsetofsizeof">实现可移植的 offsetof/sizeof</h2>
+<p>如果我们希望让编译器生成的代码保持
+<strong>目标独立</strong>，那么会出现一件有趣的事情，那就是我们经常需要知道某些
+LLVM 类型的大小或 llvm 结构中某些字段的偏移量。
+例如，我们可能需要将类型的大小传递给分配内存的函数。</p>
+<p>不幸的是，这在不同目标之间可能会有很大差异：例如，指针的宽度是特定于目标的。不过，有一种巧妙的方法，即使用
+<code>getelementptr</code> 指令，它允许我们以可移植的方式计算它。</p>
+<h2 id="垃圾回收栈帧">垃圾回收栈帧</h2>
+<p>某些语言想要显式地管理栈帧，通常是为了支持垃圾收集栈帧或允许实现闭包。事实上，通常有比显式管理栈帧更好的方法来实现这些功能，但如果我们执意这么做，LLVM
+也是支持的。
+这需要我们的编译前端将代码转换为连续传递样式并使用尾调用（LLVM
+也支持）。</p>
+<h1 id="总结">总结</h1>
+<p>本系列教程通过基于 LLVM 自制一款针对 Kaleidoscope
+编程语言的编译器，在这个过程中，展示了自制编程语言或编译器所涉及的一些相关概念和知识，从而产生一个系统的认知。至此，本教程结束了！如果希望有更进一步探索，建议大家着手开始
+LLVM，毕竟代码才是真理！</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li><a
+href="https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl10.html">Conclusion
+and other useful LLVM tidbits</a></li>
+<li><a
+href="https://llvm.org/docs/LangRef.html#getelementptr-instruction">getelementptr</a></li>
+<li><a href="https://llvm.org/docs/GetElementPtr.html">The Often
+Misunderstood GEP Instruction</a></li>
+<li><a
+href="https://nondot.org/sabre/LLVMNotes/SizeOf-OffsetOf-VariableSizedStructs.txt">clever
+way to use the getelementptr instruction</a></li>
 </ol>
 
-      
     </div>
-    
-    
-    
 
     
-
     
-      <div>
-        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
-  <div>欣赏此文？求鼓励，求支持！</div>
-  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
-    <span>赏</span>
-  </button>
-  <div id="QR" style="display: none;">
-
-    
-      <div id="wechat" style="display: inline-block">
-        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
-        <p>WeChat Pay</p>
-      </div>
-    
-
-    
-      <div id="alipay" style="display: inline-block">
-        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
-        <p>Alipay</p>
-      </div>
-    
-
-    
-
-  </div>
-</div>
-
-      </div>
-    
-
     
 
     <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/LLVM/" rel="tag"># LLVM</a>
-          
-            <a href="/tags/%E8%BF%90%E8%A1%8C%E6%97%B6/" rel="tag"># 运行时</a>
-          
-            <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" rel="tag"># 内存管理</a>
-          
-            <a href="/tags/%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F/" rel="tag"># 类型系统</a>
-          
-        </div>
-      
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
 
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2022/09/17/compiler-for-kaleidoscope-09/" rel="next" title="基于 LLVM 自制编译器(9)——调试信息">
-                <i class="fa fa-chevron-left"></i> 基于 LLVM 自制编译器(9)——调试信息
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2022/10/16/promise-core-implement/" rel="prev" title="Promise 核心实现原理">
-                Promise 核心实现原理 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-        <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-  <a class="jiathis_button_tsina"></a>
-  <a class="jiathis_button_tqq"></a>
-  <a class="jiathis_button_weixin"></a>
-  <a class="jiathis_button_cqq"></a>
-  <a class="jiathis_button_douban"></a>
-  <a class="jiathis_button_renren"></a>
-  <a class="jiathis_button_qzone"></a>
-  <a class="jiathis_button_kaixin001"></a>
-  <a class="jiathis_button_copy"></a>
-  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
-  <a class="jiathis_counter_style"></a>
 </div>
-<script type="text/javascript" >
-  var jiathis_config={
-    hideMore:false
-  }
-</script>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
 
-      
-    </div>
-  </div>
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
 
+  <div class="social-list">
 
-          </div>
-          
-
-
-          
-  <div class="comments" id="comments">
-    
-      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
-    
-  </div>
-
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <img class="site-author-image" itemprop="image"
-               src="/images/SlamDunk.png"
-               alt="" />
-          <p class="site-author-name" itemprop="name"></p>
-           
-              <p class="site-description motion-element" itemprop="description"></p>
-          
-        </div>
-        <nav class="site-state motion-element">
-
-          
-            <div class="site-state-item site-state-posts">
-              <a href="/archives">
-                <span class="site-state-item-count">128</span>
-                <span class="site-state-item-name">日志</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-categories">
-              <a href="/categories/index.html">
-                <span class="site-state-item-count">28</span>
-                <span class="site-state-item-name">分类</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-tags">
-              <a href="/tags/index.html">
-                <span class="site-state-item-count">284</span>
-                <span class="site-state-item-name">标签</span>
-              </a>
-            </div>
-          
-
-        </nav>
-
-        
-          <div class="feed-link motion-element">
-            <a href="/atom.xml" rel="alternate">
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
               <i class="fa fa-rss"></i>
-              RSS
-            </a>
-          </div>
-        
+            </span>
 
-        <div class="links-of-author motion-element">
-          
-            
-              <span class="links-of-author-item">
-                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
-                  
-                    <i class="fa fa-fw fa-github"></i>
-                  
-                    
-                      GitHub
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
-                  
-                    <i class="fa fa-fw fa-weibo"></i>
-                  
-                    
-                      微博
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                    
-                      Facebook
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
-                  
-                    <i class="fa fa-fw fa-instagram"></i>
-                  
-                    
-                      Instagram
-                    
-                </a>
-              </span>
-            
-          
-        </div>
-
-        
-        
-
-        
-        
-
-        
-
-
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%95%E6%9C%9B"><span class="nav-number">1.</span> <span class="nav-text">展望</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#LLVM-IR-%E5%B1%9E%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">LLVM IR 属性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E7%8B%AC%E7%AB%8B"><span class="nav-number">2.1.</span> <span class="nav-text">目标独立</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E4%BF%9D%E8%AF%81"><span class="nav-number">2.2.</span> <span class="nav-text">安全保证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E8%A8%80%E7%89%B9%E5%AE%9A%E4%BC%98%E5%8C%96"><span class="nav-number">2.3.</span> <span class="nav-text">语言特定优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%90%E7%A4%BA%E4%B8%8E%E6%8A%80%E5%B7%A7"><span class="nav-number">3.</span> <span class="nav-text">提示与技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E5%8F%AF%E7%A7%BB%E6%A4%8D%E7%9A%84-offsetof-sizeof"><span class="nav-number">3.1.</span> <span class="nav-text">实现可移植的 offsetof&#x2F;sizeof</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%A0%88%E5%B8%A7"><span class="nav-number">3.2.</span> <span class="nav-text">垃圾回收栈帧</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
-        
+            <span class="label">RSS</span>
+          </a>
       </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright" >
-  
-  &copy;  2018 - 
-  <span itemprop="copyrightYear">2023</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Pisces
-  </a>
-</div>
-
-<div>
-  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
-</div>
-
-
+          <div class="post-tags">
+              <a href="/tags/LLVM/" rel="tag"># LLVM</a>
+              <a href="/tags/%E8%BF%90%E8%A1%8C%E6%97%B6/" rel="tag"># 运行时</a>
+              <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" rel="tag"># 内存管理</a>
+              <a href="/tags/%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F/" rel="tag"># 类型系统</a>
+          </div>
 
         
-<div class="busuanzi-count">
-  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-  
-    <span class="site-uv">
-      <i class="fa fa-user"></i>本站总访客
-      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
-      人次
-    </span>
-  
-
-  
-    <span class="site-pv">
-      <i class="fa fa-eye"></i>本站总访问量
-      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
-      次
-    </span>
-  
-</div>
-
-
-        
-      </div>
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/09/17/compiler-for-kaleidoscope-09/" rel="prev" title="基于 LLVM 自制编译器(9)——调试信息">
+                  <i class="fa fa-angle-left"></i> 基于 LLVM 自制编译器(9)——调试信息
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/10/16/promise-core-implement/" rel="next" title="Promise 核心实现原理">
+                  Promise 核心实现原理 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
     </footer>
+  </article>
+</div>
 
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
 
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
   </div>
 
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
   
 
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2022/09/17/compiler-for-kaleidoscope-10/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
   }
+}
 </script>
 
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
-
-
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  
-
-
-
-
-	
-
-
-
-
-
-  
-
-
-
-
-
-  
-    <script type="text/javascript">
-      (function(d, s) {
-        var j, e = d.getElementsByTagName(s)[0];
-        if (typeof LivereTower === 'function') { return; }
-        j = d.createElement(s);
-        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
-        j.async = true;
-        e.parentNode.insertBefore(j, e);
-      })(document, 'script');
-    </script>
-  
-
-
-
-
-
-
-  
-
-  <script type="text/javascript">
-    // Popup Window;
-    var isfetched = false;
-    var isXml = true;
-    // Search DB path;
-    var search_path = "search.xml";
-    if (search_path.length === 0) {
-      search_path = "search.xml";
-    } else if (/json$/i.test(search_path)) {
-      isXml = false;
-    }
-    var path = "/" + search_path;
-    // monitor main search box;
-
-    var onPopupClose = function (e) {
-      $('.popup').hide();
-      $('#local-search-input').val('');
-      $('.search-result-list').remove();
-      $('#no-result').remove();
-      $(".local-search-pop-overlay").remove();
-      $('body').css('overflow', '');
-    }
-
-    function proceedsearch() {
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
-        .css('overflow', 'hidden');
-      $('.search-popup-overlay').click(onPopupClose);
-      $('.popup').toggle();
-      var $localSearchInput = $('#local-search-input');
-      $localSearchInput.attr("autocapitalize", "none");
-      $localSearchInput.attr("autocorrect", "off");
-      $localSearchInput.focus();
-    }
-
-    // search function;
-    var searchFunc = function(path, search_id, content_id) {
-      'use strict';
-
-      // start loading animation
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
-          '<div id="search-loading-icon">' +
-          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
-          '</div>' +
-          '</div>')
-        .css('overflow', 'hidden');
-      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
-
-      $.ajax({
-        url: path,
-        dataType: isXml ? "xml" : "json",
-        async: true,
-        success: function(res) {
-          // get the contents from search data
-          isfetched = true;
-          $('.popup').detach().appendTo('.header-inner');
-          var datas = isXml ? $("entry", res).map(function() {
-            return {
-              title: $("title", this).text(),
-              content: $("content",this).text(),
-              url: $("url" , this).text()
-            };
-          }).get() : res;
-          var input = document.getElementById(search_id);
-          var resultContent = document.getElementById(content_id);
-          var inputEventFunction = function() {
-            var searchText = input.value.trim().toLowerCase();
-            var keywords = searchText.split(/[\s\-]+/);
-            if (keywords.length > 1) {
-              keywords.push(searchText);
-            }
-            var resultItems = [];
-            if (searchText.length > 0) {
-              // perform local searching
-              datas.forEach(function(data) {
-                var isMatch = false;
-                var hitCount = 0;
-                var searchTextCount = 0;
-                var title = data.title.trim();
-                var titleInLowerCase = title.toLowerCase();
-                var content = data.content.trim().replace(/<[^>]+>/g,"");
-                var contentInLowerCase = content.toLowerCase();
-                var articleUrl = decodeURIComponent(data.url);
-                var indexOfTitle = [];
-                var indexOfContent = [];
-                // only match articles with not empty titles
-                if(title != '') {
-                  keywords.forEach(function(keyword) {
-                    function getIndexByWord(word, text, caseSensitive) {
-                      var wordLen = word.length;
-                      if (wordLen === 0) {
-                        return [];
-                      }
-                      var startPosition = 0, position = [], index = [];
-                      if (!caseSensitive) {
-                        text = text.toLowerCase();
-                        word = word.toLowerCase();
-                      }
-                      while ((position = text.indexOf(word, startPosition)) > -1) {
-                        index.push({position: position, word: word});
-                        startPosition = position + wordLen;
-                      }
-                      return index;
-                    }
-
-                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
-                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
-                  });
-                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
-                    isMatch = true;
-                    hitCount = indexOfTitle.length + indexOfContent.length;
-                  }
-                }
-
-                // show search results
-
-                if (isMatch) {
-                  // sort index by position of keyword
-
-                  [indexOfTitle, indexOfContent].forEach(function (index) {
-                    index.sort(function (itemLeft, itemRight) {
-                      if (itemRight.position !== itemLeft.position) {
-                        return itemRight.position - itemLeft.position;
-                      } else {
-                        return itemLeft.word.length - itemRight.word.length;
-                      }
-                    });
-                  });
-
-                  // merge hits into slices
-
-                  function mergeIntoSlice(text, start, end, index) {
-                    var item = index[index.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    var hits = [];
-                    var searchTextCountInSlice = 0;
-                    while (position + word.length <= end && index.length != 0) {
-                      if (word === searchText) {
-                        searchTextCountInSlice++;
-                      }
-                      hits.push({position: position, length: word.length});
-                      var wordEnd = position + word.length;
-
-                      // move to next position of hit
-
-                      index.pop();
-                      while (index.length != 0) {
-                        item = index[index.length - 1];
-                        position = item.position;
-                        word = item.word;
-                        if (wordEnd > position) {
-                          index.pop();
-                        } else {
-                          break;
-                        }
-                      }
-                    }
-                    searchTextCount += searchTextCountInSlice;
-                    return {
-                      hits: hits,
-                      start: start,
-                      end: end,
-                      searchTextCount: searchTextCountInSlice
-                    };
-                  }
-
-                  var slicesOfTitle = [];
-                  if (indexOfTitle.length != 0) {
-                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
-                  }
-
-                  var slicesOfContent = [];
-                  while (indexOfContent.length != 0) {
-                    var item = indexOfContent[indexOfContent.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    // cut out 100 characters
-                    var start = position - 20;
-                    var end = position + 80;
-                    if(start < 0){
-                      start = 0;
-                    }
-                    if (end < position + word.length) {
-                      end = position + word.length;
-                    }
-                    if(end > content.length){
-                      end = content.length;
-                    }
-                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
-                  }
-
-                  // sort slices in content by search text's count and hits' count
-
-                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
-                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
-                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
-                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
-                      return sliceRight.hits.length - sliceLeft.hits.length;
-                    } else {
-                      return sliceLeft.start - sliceRight.start;
-                    }
-                  });
-
-                  // select top N slices in content
-
-                  var upperBound = parseInt('1');
-                  if (upperBound >= 0) {
-                    slicesOfContent = slicesOfContent.slice(0, upperBound);
-                  }
-
-                  // highlight title and content
-
-                  function highlightKeyword(text, slice) {
-                    var result = '';
-                    var prevEnd = slice.start;
-                    slice.hits.forEach(function (hit) {
-                      result += text.substring(prevEnd, hit.position);
-                      var end = hit.position + hit.length;
-                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
-                      prevEnd = end;
-                    });
-                    result += text.substring(prevEnd, slice.end);
-                    return result;
-                  }
-
-                  var resultItem = '';
-
-                  if (slicesOfTitle.length != 0) {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
-                  } else {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
-                  }
-
-                  slicesOfContent.forEach(function (slice) {
-                    resultItem += "<a href='" + articleUrl + "'>" +
-                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
-                      "...</p>" + "</a>";
-                  });
-
-                  resultItem += "</li>";
-                  resultItems.push({
-                    item: resultItem,
-                    searchTextCount: searchTextCount,
-                    hitCount: hitCount,
-                    id: resultItems.length
-                  });
-                }
-              })
-            };
-            if (keywords.length === 1 && keywords[0] === "") {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
-            } else if (resultItems.length === 0) {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
-            } else {
-              resultItems.sort(function (resultLeft, resultRight) {
-                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
-                  return resultRight.searchTextCount - resultLeft.searchTextCount;
-                } else if (resultLeft.hitCount !== resultRight.hitCount) {
-                  return resultRight.hitCount - resultLeft.hitCount;
-                } else {
-                  return resultRight.id - resultLeft.id;
-                }
-              });
-              var searchResultList = '<ul class=\"search-result-list\">';
-              resultItems.forEach(function (result) {
-                searchResultList += result.item;
-              })
-              searchResultList += "</ul>";
-              resultContent.innerHTML = searchResultList;
-            }
-          }
-
-          if ('auto' === 'auto') {
-            input.addEventListener('input', inputEventFunction);
-          } else {
-            $('.search-icon').click(inputEventFunction);
-            input.addEventListener('keypress', function (event) {
-              if (event.keyCode === 13) {
-                inputEventFunction();
-              }
-            });
-          }
-
-          // remove loading animation
-          $(".local-search-pop-overlay").remove();
-          $('body').css('overflow', '');
-
-          proceedsearch();
-        }
-      });
-    }
-
-    // handle and trigger popup window;
-    $('.popup-trigger').click(function(e) {
-      e.stopPropagation();
-      if (isfetched === false) {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-      } else {
-        proceedsearch();
-      };
-    });
-
-    $('.popup-btn-close').click(onPopupClose);
-    $('.popup').click(function(e){
-      e.stopPropagation();
-    });
-    $(document).on('keyup', function (event) {
-      var shouldDismissSearchPopup = event.which === 27 &&
-        $('.search-popup').is(':visible');
-      if (shouldDismissSearchPopup) {
-        onPopupClose();
-      }
-    });
-  </script>
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      });
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      });
-    </script>
-    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
-
-
-  
-
-  
-
-
-  undefined
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
 </html>

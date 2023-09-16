@@ -1,1412 +1,651 @@
 <!DOCTYPE html>
-
-
-
-  
-
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-  
-  
-  
-  
-
-  
-    
-    
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    
-    
-    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-  
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
-
-
-  <meta name="keywords" content="CocoaPods,Master Repo,Trunk Repo," />
-
-
-
-
-
-  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
-
-
-
-
-  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
-
-
-
-
-
-
-<meta name="description" content="CocoaPods-Core 主要包括三部分功能，分别是：Podfile 解析、Podspec 解析、Source 管理，前两个功能我们在之前的文章中已经分别进行了介绍，本文我们再来介绍一下最后一个功能——CocoaPods Source 管理机制。 基本原理Source，即 podspec 源。Source 管理机制，本质上就是对 podspec 进行管理。CocoaPods 采用 集中式 的源">
+    <meta name="description" content="CocoaPods-Core 主要包括三部分功能，分别是：Podfile 解析、Podspec 解析、Source 管理，前两个功能我们在之前的文章中已经分别进行了介绍，本文我们再来介绍一下最后一个功能——CocoaPods Source 管理机制。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CocoaPods Source 管理机制">
 <meta property="og:url" content="http://chuquan.me/2022/01/07/source-analyze-principle/index.html">
 <meta property="og:site_name" content="楚权的世界">
-<meta property="og:description" content="CocoaPods-Core 主要包括三部分功能，分别是：Podfile 解析、Podspec 解析、Source 管理，前两个功能我们在之前的文章中已经分别进行了介绍，本文我们再来介绍一下最后一个功能——CocoaPods Source 管理机制。 基本原理Source，即 podspec 源。Source 管理机制，本质上就是对 podspec 进行管理。CocoaPods 采用 集中式 的源">
-<meta property="og:locale">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-01.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/cdn-principle.gif?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-02.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-04.png">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-03.png?x-oss-process=image/resize,w_800">
+<meta property="og:description" content="CocoaPods-Core 主要包括三部分功能，分别是：Podfile 解析、Podspec 解析、Source 管理，前两个功能我们在之前的文章中已经分别进行了介绍，本文我们再来介绍一下最后一个功能——CocoaPods Source 管理机制。">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-01-07T15:01:39.000Z">
-<meta property="article:modified_time" content="2022-01-07T15:02:57.008Z">
+<meta property="article:modified_time" content="2023-09-16T11:12:31.563Z">
 <meta property="article:author" content="Bao Chuquan">
 <meta property="article:tag" content="CocoaPods">
 <meta property="article:tag" content="Master Repo">
 <meta property="article:tag" content="Trunk Repo">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-01.png?x-oss-process=image/resize,w_800">
+
+
+<link rel="canonical" href="http://chuquan.me/2022/01/07/source-analyze-principle/">
 
 
 
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '',
-    scheme: 'Pisces',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: true,
-    duoshuo: {
-      userId: '0',
-      author: '博主'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2022/01/07/source-analyze-principle/","path":"2022/01/07/source-analyze-principle/","title":"CocoaPods Source 管理机制"}</script>
 
-
-
-  <link rel="canonical" href="http://chuquan.me/2022/01/07/source-analyze-principle/"/>
-
-
-
-
-
-  <title>CocoaPods Source 管理机制 | 楚权的世界</title>
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>CocoaPods Source 管理机制 | 楚权的世界</title>
   
 
-
-
-
-
-  <script type="text/javascript">
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
 
 
 
 
 
 
-
-
-
-
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
 <!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
-  
-  
-    
-  
-
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
-    <div class="headband"></div>
-	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
-    
-
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">楚权的世界</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
     </div>
-      
-        <p class="site-subtitle">Seek the wonder of life.</p>
-      
   </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
   </div>
 </div>
+
+
 
 <nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-photos">
-          <a href="/photos" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
-            
-            相册
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            归档
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-commonweal">
-          <a href="/404.html" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
-            
-            公益
-          </a>
-        </li>
-      
-
-      
-        <li class="menu-item menu-item-search">
-          
-            <a href="javascript:;" class="popup-trigger">
-          
-            
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
-            
-            搜索
-          </a>
-        </li>
-      
-    </ul>
-  
-
-  
-    <div class="site-search">
-      
-  <div class="popup search-popup local-search-popup">
-  <div class="local-search-header clearfix">
-    <span class="search-icon">
-      <i class="fa fa-search"></i>
-    </span>
-    <span class="popup-btn-close">
-      <i class="fa fa-times-circle"></i>
-    </span>
-    <div class="local-search-input-wrapper">
-      <input autocomplete="off"
-             placeholder="搜索..." spellcheck="false"
-             type="text" id="local-search-input">
-    </div>
-  </div>
-  <div id="local-search-result"></div>
-</div>
-
-
-
-    </div>
-  
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
 </nav>
 
 
 
- </div>
-    </header>
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
 
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
+    </div>
+  </div>
 
-  <div id="posts" class="posts-expand">
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">基本原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#master"><span class="nav-number">1.1.</span> <span class="nav-text">Master</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#trunk"><span class="nav-number">1.2.</span> <span class="nav-text">Trunk</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">整体架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#manager"><span class="nav-number">2.1.</span> <span class="nav-text">Manager</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#aggregate"><span class="nav-number">2.2.</span> <span class="nav-text">Aggregate</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#source"><span class="nav-number">2.3.</span> <span class="nav-text">Source</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#cdnsource"><span class="nav-number">2.3.1.</span> <span class="nav-text">CDNSource</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#trunksource"><span class="nav-number">2.3.2.</span> <span class="nav-text">TrunkSource</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#metadata"><span class="nav-number">2.4.</span> <span class="nav-text">Metadata</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#specification"><span class="nav-number">2.5.</span> <span class="nav-text">Specification</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dependency"><span class="nav-number">2.6.</span> <span class="nav-text">Dependency</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">129</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">288</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
     
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
 
   
 
-  
+
+<div class="post-block">
   
   
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://chuquan.me/2022/01/07/source-analyze-principle/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
     </span>
 
-    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="CocoaPods Source 管理机制 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
       <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CocoaPods Source 管理机制
+        </h1>
 
-        
-        
-          <h1 class="post-title" itemprop="name headline">CocoaPods Source 管理机制</h1>
-        
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
 
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="发表于" itemprop="dateCreated datePublished" datetime="2022-01-07T23:01:39+08:00">
-                2022-01-07
-              </time>
-            
+      <time title="创建时间：2022-01-07 23:01:39" itemprop="dateCreated datePublished" datetime="2022-01-07T23:01:39+08:00">2022-01-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-09-16 19:12:31" itemprop="dateModified" datetime="2023-09-16T19:12:31+08:00">2023-09-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/CocoaPods/" itemprop="url" rel="index"><span itemprop="name">CocoaPods</span></a>
+        </span>
+    </span>
 
-            
-              <span class="post-meta-divider">|</span>
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-check-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">更新于</span>
-              
-              <time title="更新于" itemprop="dateModified" datetime="2022-01-07T23:02:57+08:00">
-                2022-01-07
-              </time>
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/CocoaPods/" itemprop="url" rel="index">
-                    <span itemprop="name">CocoaPods</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
-          
-
-          
-
-          
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2022/01/07/source-analyze-principle/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2022/01/07/source-analyze-principle/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
 
         </div>
       </header>
-    
 
     
     
     
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <p>CocoaPods-Core 主要包括三部分功能，分别是：Podfile 解析、Podspec 解析、Source 管理，前两个功能我们在之前的文章中已经分别进行了介绍，本文我们再来介绍一下最后一个功能——CocoaPods Source 管理机制。</p>
-<h1 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h1><p>Source，即 podspec 源。Source 管理机制，本质上就是对 podspec 进行管理。CocoaPods 采用 <strong>集中式</strong> 的源管理方案，其基本原理 <strong>使用一个源仓库管理所有 pod 所发布的不同版本的 podspec 文件，每一个 podspec 记录了 pod 库的资源地址以及其他相关信息</strong>。</p>
-<p>CocoaPods 在集中式管理的基础上，实现了两套具体方案：master 和 trunk。其中，master 是 CocoaPods 1.8.0 之前版本所采用的默认方案；trunk 是 CocoaPods 1.8.0 以之后版本所采用的的默认方案。</p>
-<p>默认，CocoaPods 会把源仓库拷贝或克隆到本地用户根目录下的 <code>~/.cocoapods/repos/</code>。在 <code>~/.cocoapods/repos/</code> 目录下，其实我们可能看到两套方案各自对应一个目录：<code>master</code>、<code>trunk</code>，如下所示。</p>
+    <div class="post-body" itemprop="articleBody"><p>CocoaPods-Core 主要包括三部分功能，分别是：Podfile 解析、Podspec
+解析、Source
+管理，前两个功能我们在之前的文章中已经分别进行了介绍，本文我们再来介绍一下最后一个功能——CocoaPods
+Source 管理机制。</p>
+<span id="more"></span>
+<h1 id="基本原理">基本原理</h1>
+<p>Source，即 podspec 源。Source 管理机制，本质上就是对 podspec
+进行管理。CocoaPods 采用 <strong>集中式</strong>
+的源管理方案，其基本原理 <strong>使用一个源仓库管理所有 pod
+所发布的不同版本的 podspec 文件，每一个 podspec 记录了 pod
+库的资源地址以及其他相关信息</strong>。</p>
+<p>CocoaPods 在集中式管理的基础上，实现了两套具体方案：master 和
+trunk。其中，master 是 CocoaPods 1.8.0 之前版本所采用的默认方案；trunk
+是 CocoaPods 1.8.0 以之后版本所采用的的默认方案。</p>
+<p>默认，CocoaPods 会把源仓库拷贝或克隆到本地用户根目录下的
+<code>~/.cocoapods/repos/</code>。在 <code>~/.cocoapods/repos/</code>
+目录下，其实我们可能看到两套方案各自对应一个目录：<code>master</code>、<code>trunk</code>，如下所示。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">ls</span> ~/.cocoapods/repos</span></span><br><span class="line">Spec_Lock            master               trunk</span><br></pre></td></tr></table></figure>
-
 <p>下面，我们对这两种方案分别进行介绍。</p>
-<h2 id="Master"><a href="#Master" class="headerlink" title="Master"></a>Master</h2><p>对于 master 方案，其源仓库（下文简称 master repo）的组织结构如下图所示。其具体方案是：</p>
+<h2 id="master">Master</h2>
+<p>对于 master 方案，其源仓库（下文简称 master
+repo）的组织结构如下图所示。其具体方案是：</p>
 <ul>
-<li>根据 pod 的名称计算得到 MD5 值。如：md5(“AFNetworking”) &#x3D;&gt; a75d452377f3996bdc4b623a5df25820</li>
+<li>根据 pod 的名称计算得到 MD5 值。如：md5("AFNetworking") =&gt;
+a75d452377f3996bdc4b623a5df25820</li>
 <li>获取 MD5 值的前 N 位，默认是 3 位。如：a75</li>
-<li>对前 N 位值进行拆解，每一位对应一个目录，构成一个多级目录。如：<code>a/7/5</code></li>
+<li>对前 N
+位值进行拆解，每一位对应一个目录，构成一个多级目录。如：<code>a/7/5</code></li>
 <li>将 pod 及其各个版本的 podspec 文件存放在对应的目录下。</li>
 </ul>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-01.png?x-oss-process=image/resize,w_800"></p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-01.png?x-oss-process=image/resize,w_800" /></p>
 <p>那么问题来了，为什么要使用一个多级目录结构存储 podspec 呢？</p>
-<p>其实，在 2016 年 master repo 仓库下的所有文件都在同级目录，对目录进行分级是为了解决 <a target="_blank" rel="noopener" href="https://github.com/CocoaPods/CocoaPods/issues/4989#issuecomment-193772935">Github 下载慢</a> 的问题。</p>
+<p>其实，在 2016 年 master repo
+仓库下的所有文件都在同级目录，对目录进行分级是为了解决 <a
+href="https://github.com/CocoaPods/CocoaPods/issues/4989#issuecomment-193772935">Github
+下载慢</a> 的问题。</p>
 <p>那么问题又来了，为什么对目录进行分级能加速 github 下载呢？</p>
-<p>本质上，这与 git 的底层原理有关。在 git 对象模型中，对于目录的每次更改都会生成一个新的树对象，许多 git 操作需要遍历这棵树，内部必须通过多步增量重新创建，每一步都必须找到并解压缩。当一个目录下存在非常多的子目录的情况下，一个变更操作会生成非常大的树对象。因此，采用多级目录结构可以降低 git 对象模型的大小，从而降低 git 仓库大小，提升下载速度。</p>
-<h2 id="Trunk"><a href="#Trunk" class="headerlink" title="Trunk"></a>Trunk</h2><p>尽管 master repo 采用多级目录的方式优化了仓库的大小，但是架不住 pod 库以及版本迭代实在太多了。于是，CocoaPods 1.7.0 支持了 CDN。</p>
-<p>CDN 的基本思路是：在网络各处放置节点服务器，构成一个虚拟网络，CDN 系统能够实时地根据网络流量和各节点的连接、负载状况、响应时间等综合信息，将用户请求转发到里用户最近的服务节点，从而在网络链路上进行加速。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/cdn-principle.gif?x-oss-process=image/resize,w_800"></p>
-<p>然而，CDN 并没有解决本质问题，master repo 这种全量下载的方式其实是有很大的优化空间的。于是，CocoaPods 1.8.0 支持了按需下载的方式，即 trunk 方案。</p>
-<p>对于 trunk 方案，其源仓库（下文简称 trunk repo）的组织结构如下图所示。其具体方案是：</p>
+<p>本质上，这与 git 的底层原理有关。在 git
+对象模型中，对于目录的每次更改都会生成一个新的树对象，许多 git
+操作需要遍历这棵树，内部必须通过多步增量重新创建，每一步都必须找到并解压缩。当一个目录下存在非常多的子目录的情况下，一个变更操作会生成非常大的树对象。因此，采用多级目录结构可以降低
+git 对象模型的大小，从而降低 git 仓库大小，提升下载速度。</p>
+<h2 id="trunk">Trunk</h2>
+<p>尽管 master repo 采用多级目录的方式优化了仓库的大小，但是架不住 pod
+库以及版本迭代实在太多了。于是，CocoaPods 1.7.0 支持了 CDN。</p>
+<p>CDN 的基本思路是：在网络各处放置节点服务器，构成一个虚拟网络，CDN
+系统能够实时地根据网络流量和各节点的连接、负载状况、响应时间等综合信息，将用户请求转发到里用户最近的服务节点，从而在网络链路上进行加速。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/cdn-principle.gif?x-oss-process=image/resize,w_800" /></p>
+<p>然而，CDN 并没有解决本质问题，master repo
+这种全量下载的方式其实是有很大的优化空间的。于是，CocoaPods 1.8.0
+支持了按需下载的方式，即 trunk 方案。</p>
+<p>对于 trunk 方案，其源仓库（下文简称 trunk
+repo）的组织结构如下图所示。其具体方案是：</p>
 <ul>
 <li>使用 <code>.txt</code> 文件记录一系列 pod 名称及其所有版本号。</li>
-<li>同一 <code>.txt</code> 文件所记录的所有 pod 的名称的 MD5 值前 N 位相同，同时 <code>.txt</code> 文件以此 N 位 MD5 值作为文件名称的标识元素。如：<code>all_pods_version_a_7_5.txt</code>。</li>
-<li>当请求某个 pod 的 podspec 文件时，根据 pod 名称计算得到 <code>.txt</code> 文件名称。如：AFNetworking -&gt; <code>all_pods_version_a_7_5.txt</code>。</li>
-<li>使用对应的 <code>.etag</code> 文件（如果没有则不使用）请求对应的 <code>.txt</code> 文件。<code>.etag</code> 文件用于表示文件是否更新。如果远端文件未更新，则使用本地已下载的 <code>.txt</code> 文件，如果远端文件已更新，则下载最新的 <code>.txt</code> 文件。</li>
+<li>同一 <code>.txt</code> 文件所记录的所有 pod 的名称的 MD5 值前 N
+位相同，同时 <code>.txt</code> 文件以此 N 位 MD5
+值作为文件名称的标识元素。如：<code>all_pods_version_a_7_5.txt</code>。</li>
+<li>当请求某个 pod 的 podspec 文件时，根据 pod 名称计算得到
+<code>.txt</code> 文件名称。如：AFNetworking -&gt;
+<code>all_pods_version_a_7_5.txt</code>。</li>
+<li>使用对应的 <code>.etag</code> 文件（如果没有则不使用）请求对应的
+<code>.txt</code> 文件。<code>.etag</code>
+文件用于表示文件是否更新。如果远端文件未更新，则使用本地已下载的
+<code>.txt</code> 文件，如果远端文件已更新，则下载最新的
+<code>.txt</code> 文件。</li>
 </ul>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-02.png?x-oss-process=image/resize,w_800"></p>
-<h1 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h1><p>下图所示为 source 管理机制的整体架构类图，主要有以下几个核心部分组成：</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-02.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="整体架构">整体架构</h1>
+<p>下图所示为 source
+管理机制的整体架构类图，主要有以下几个核心部分组成：</p>
 <ul>
-<li><code>Manager</code>：source 的管理类，作为 source 管理机制的代理，外部操作由 Manager 类提供接口并进行转发。</li>
-<li><code>Aggregate</code>：source 的聚合类，管理所有 source，承接 Manager 类接口转发，并转发至各个 source，对外隐藏了内部查找逻辑。</li>
-<li><code>Source</code>：描述一个 podspec 源，master repo、trunk repo 各自对应一个 Source 实例。</li>
+<li><code>Manager</code>：source 的管理类，作为 source
+管理机制的代理，外部操作由 Manager 类提供接口并进行转发。</li>
+<li><code>Aggregate</code>：source 的聚合类，管理所有 source，承接
+Manager 类接口转发，并转发至各个 source，对外隐藏了内部查找逻辑。</li>
+<li><code>Source</code>：描述一个 podspec 源，master repo、trunk repo
+各自对应一个 Source 实例。</li>
 <li><code>Metadata</code>：描述一个源的元信息。</li>
 <li><code>Specification</code>：描述一个 podspec 文件。</li>
-<li><code>Dependency</code>：描述一个 pod 的一个依赖，如：podsepc 文件中定义的 <code>dependency</code>。</li>
-<li><code>Set</code>：描述一个 pod 所对应的源信息，主要用于描述查询结果。</li>
+<li><code>Dependency</code>：描述一个 pod 的一个依赖，如：podsepc
+文件中定义的 <code>dependency</code>。</li>
+<li><code>Set</code>：描述一个 pod
+所对应的源信息，主要用于描述查询结果。</li>
 </ul>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-04.png"></p>
-<h2 id="Manager"><a href="#Manager" class="headerlink" title="Manager"></a>Manager</h2><p>如下所示，为 <code>Source::Manager</code> 类核心部分的定义，<code>Manager</code> 使用 repos 目录作为初始化参数，默认是 <code>~/.cocoapods/repos</code>。</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># source/manager.rb</span></span><br><span class="line"><span class="keyword">module</span> <span class="title class_">Pod</span></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">Source</span></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Manager</span></span><br><span class="line">      <span class="comment"># 包含多个 repo 的目录</span></span><br><span class="line">      <span class="built_in">attr_reader</span> <span class="symbol">:repos_dir</span></span><br><span class="line">      </span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">initialize</span>(<span class="params">repos_dir</span>)</span><br><span class="line">        <span class="variable">@repos_dir</span> = <span class="title class_">Pathname</span>(repos_dir).expand_path</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># source repos 的聚合</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">aggregate</span></span><br><span class="line">        aggregate_with_repos(source_repos)</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># source repos 的聚合</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">aggregate_with_repos</span>(<span class="params">repos</span>)</span><br><span class="line">        sources = repos.map &#123; |<span class="params">path</span>| source_from_path(path) &#125;</span><br><span class="line">        <span class="variable">@aggregates_by_repos</span> |<span class="params"></span>|= &#123;&#125;</span><br><span class="line">        <span class="variable">@aggregates_by_repos</span>[repos] |<span class="params"></span>|= <span class="title class_">Source::Aggregate</span>.new(sources)</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># 给定名称，返回对应的源</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">source_with_name</span>(<span class="params">name</span>)</span><br><span class="line">        source = sources([name]).first</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span> <span class="keyword">unless</span> source.repo.exist?</span><br><span class="line">        source</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># 给定路径，返回对应的源</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">source_from_path</span>(<span class="params">path</span>)</span><br><span class="line">        <span class="variable">@sources_by_path</span> |<span class="params"></span>|= <span class="title class_">Hash</span>.new <span class="keyword">do</span> |<span class="params">hash, key</span>|</span><br><span class="line">          hash[key] = <span class="keyword">case</span></span><br><span class="line">                      <span class="keyword">when</span> key.basename.to_s == <span class="title class_">Pod</span><span class="symbol">:</span><span class="symbol">:TrunkSource</span><span class="symbol">:</span><span class="symbol">:TRUNK_REPO_NAME</span></span><br><span class="line">                        <span class="title class_">TrunkSource</span>.new(key)</span><br><span class="line">                      <span class="keyword">when</span> (key + <span class="string">&#x27;.url&#x27;</span>).exist?</span><br><span class="line">                        <span class="title class_">CDNSource</span>.new(key)</span><br><span class="line">                      <span class="keyword">else</span></span><br><span class="line">                        <span class="title class_">Source</span>.new(key)</span><br><span class="line">                      <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="variable">@sources_by_path</span>[path]</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># 返回所有源的路径</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">source_repos</span></span><br><span class="line">        <span class="keyword">return</span> [] <span class="keyword">unless</span> repos_dir.exist?</span><br><span class="line">        repos_dir.children.select(&amp;<span class="symbol">:directory?</span>).sort_by &#123; |<span class="params">d</span>| d.basename.to_s.downcase &#125;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># 给定一组名称，返回对应的一组源</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">sources</span>(<span class="params">names</span>)</span><br><span class="line">        dirs = names.map &#123; |<span class="params">name</span>| source_dir(name) &#125;</span><br><span class="line">        dirs.map &#123; |<span class="params">repo</span>| source_from_path(repo) &#125;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># 返回所有的源</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">all</span></span><br><span class="line">        aggregate.sources</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># ...</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p><code>Manager </code> 负责初始化 <code>~/.cocoapods/repos</code> 目录下所有的 source，并将它们聚合至 <code>Aggregate</code> 中，具体步骤包括以下几个关键步骤：</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-04.png" /></p>
+<h2 id="manager">Manager</h2>
+<p>如下所示，为 <code>Source::Manager</code>
+类核心部分的定义，<code>Manager</code> 使用 repos
+目录作为初始化参数，默认是 <code>~/.cocoapods/repos</code>。
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># source/manager.rb</span></span><br><span class="line"><span class="keyword">module</span> <span class="title class_">Pod</span></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">Source</span></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Manager</span></span><br><span class="line">      <span class="comment"># 包含多个 repo 的目录</span></span><br><span class="line">      <span class="built_in">attr_reader</span> <span class="symbol">:repos_dir</span></span><br><span class="line">      </span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">initialize</span>(<span class="params">repos_dir</span>)</span><br><span class="line">        <span class="variable">@repos_dir</span> = <span class="title class_">Pathname</span>(repos_dir).expand_path</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># source repos 的聚合</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">aggregate</span></span><br><span class="line">        aggregate_with_repos(source_repos)</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># source repos 的聚合</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">aggregate_with_repos</span>(<span class="params">repos</span>)</span><br><span class="line">        sources = repos.map &#123; |<span class="params">path</span>| source_from_path(path) &#125;</span><br><span class="line">        <span class="variable">@aggregates_by_repos</span> |<span class="params"></span>|= &#123;&#125;</span><br><span class="line">        <span class="variable">@aggregates_by_repos</span>[repos] |<span class="params"></span>|= <span class="title class_">Source::Aggregate</span>.new(sources)</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># 给定名称，返回对应的源</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">source_with_name</span>(<span class="params">name</span>)</span><br><span class="line">        source = sources([name]).first</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span> <span class="keyword">unless</span> source.repo.exist?</span><br><span class="line">        source</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># 给定路径，返回对应的源</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">source_from_path</span>(<span class="params">path</span>)</span><br><span class="line">        <span class="variable">@sources_by_path</span> |<span class="params"></span>|= <span class="title class_">Hash</span>.new <span class="keyword">do</span> |<span class="params">hash, key</span>|</span><br><span class="line">          hash[key] = <span class="keyword">case</span></span><br><span class="line">                      <span class="keyword">when</span> key.basename.to_s == <span class="title class_">Pod</span><span class="symbol">:</span><span class="symbol">:TrunkSource</span><span class="symbol">:</span><span class="symbol">:TRUNK_REPO_NAME</span></span><br><span class="line">                        <span class="title class_">TrunkSource</span>.new(key)</span><br><span class="line">                      <span class="keyword">when</span> (key + <span class="string">&#x27;.url&#x27;</span>).exist?</span><br><span class="line">                        <span class="title class_">CDNSource</span>.new(key)</span><br><span class="line">                      <span class="keyword">else</span></span><br><span class="line">                        <span class="title class_">Source</span>.new(key)</span><br><span class="line">                      <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="variable">@sources_by_path</span>[path]</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># 返回所有源的路径</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">source_repos</span></span><br><span class="line">        <span class="keyword">return</span> [] <span class="keyword">unless</span> repos_dir.exist?</span><br><span class="line">        repos_dir.children.select(&amp;<span class="symbol">:directory?</span>).sort_by &#123; |<span class="params">d</span>| d.basename.to_s.downcase &#125;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># 给定一组名称，返回对应的一组源</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">sources</span>(<span class="params">names</span>)</span><br><span class="line">        dirs = names.map &#123; |<span class="params">name</span>| source_dir(name) &#125;</span><br><span class="line">        dirs.map &#123; |<span class="params">repo</span>| source_from_path(repo) &#125;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># 返回所有的源</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">all</span></span><br><span class="line">        aggregate.sources</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># ...</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p><code>Manager</code> 负责初始化 <code>~/.cocoapods/repos</code>
+目录下所有的 source，并将它们聚合至 <code>Aggregate</code>
+中，具体步骤包括以下几个关键步骤：</p>
 <ul>
 <li>执行 <code>source_repos</code> 方法，获取所有 source 路径</li>
-<li>执行 <code>source_from_path</code> 方法，根据 source 路径初始化 <code>Source</code> 对象。<ul>
-<li>如果路径节点目录的名称为 <code>trunk</code>，则实例化 <code>TrunkSource</code> 对象。</li>
-<li>如果名为 <code>.url</code> 文件，则实例化 <code>CDNSource</code> 对象。</li>
+<li>执行 <code>source_from_path</code> 方法，根据 source 路径初始化
+<code>Source</code> 对象。
+<ul>
+<li>如果路径节点目录的名称为 <code>trunk</code>，则实例化
+<code>TrunkSource</code> 对象。</li>
+<li>如果名为 <code>.url</code> 文件，则实例化 <code>CDNSource</code>
+对象。</li>
 <li>其他情况则实例化 <code>Source</code> 对象。</li>
-</ul>
-</li>
+</ul></li>
 <li>聚合所有 source 对象，实例化 <code>Aggregate</code> 对象。</li>
 </ul>
-<h2 id="Aggregate"><a href="#Aggregate" class="headerlink" title="Aggregate"></a>Aggregate</h2><p><code>Manager</code> 实现了初始化 <code>Aggregate</code> 相关方法，除此之外，<code>Manager</code> 提供了一系列查询方法，这些方法最终会转发至 <code>Aggregate</code>。</p>
-<p>如下所示，为 <code>Aggregate</code> 类核心部分的定义，其提供了一系列查询方法，实现 <code>Manager</code> 转发过来的查询方法，如：<code>search(dependency)</code> 方法。</p>
+<h2 id="aggregate">Aggregate</h2>
+<p><code>Manager</code> 实现了初始化 <code>Aggregate</code>
+相关方法，除此之外，<code>Manager</code>
+提供了一系列查询方法，这些方法最终会转发至 <code>Aggregate</code>。</p>
+<p>如下所示，为 <code>Aggregate</code>
+类核心部分的定义，其提供了一系列查询方法，实现 <code>Manager</code>
+转发过来的查询方法，如：<code>search(dependency)</code> 方法。</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> <span class="title class_">Pod</span></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">Source</span></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Aggregate</span></span><br><span class="line">      <span class="comment"># Aggregate 聚合的所有 source</span></span><br><span class="line">      <span class="built_in">attr_reader</span> <span class="symbol">:sources</span></span><br><span class="line">      </span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">initialize</span>(<span class="params">sources</span>)</span><br><span class="line">        <span class="keyword">raise</span> <span class="string">&quot;Cannot initialize an aggregate with a nil source: (<span class="subst">#&#123;sources&#125;</span>)&quot;</span> <span class="keyword">if</span> sources.<span class="keyword">include</span>?(<span class="literal">nil</span>)</span><br><span class="line">        <span class="variable">@sources</span> = sources</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># 查找依赖</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">search</span>(<span class="params">dependency</span>)</span><br><span class="line">        found_sources = sources.select &#123; |<span class="params">s</span>| s.search(dependency) &#125;</span><br><span class="line">        <span class="keyword">unless</span> found_sources.empty?</span><br><span class="line">          <span class="title class_">Specification::Set</span>.new(dependency.root_name, found_sources)</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">     </span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Source"><a href="#Source" class="headerlink" title="Source"></a>Source</h2><p><code>Source</code> 用于描述一个 podspec 源，其负责管理其包含的所有 podspec 文件。其核心定义如下所示：</p>
+<h2 id="source">Source</h2>
+<p><code>Source</code> 用于描述一个 podspec 源，其负责管理其包含的所有
+podspec 文件。其核心定义如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> <span class="title class_">Pod</span></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">Source</span></span><br><span class="line">    <span class="comment"># source 所对应的元信息</span></span><br><span class="line">    <span class="built_in">attr_reader</span> <span class="symbol">:metadata</span></span><br><span class="line">    <span class="comment"># source 所对应的 repo 路径</span></span><br><span class="line">    <span class="built_in">attr_reader</span> <span class="symbol">:repo</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p><code>Source</code> 类还提供了一系列方法以供查询 podspec，这些方法是 <code>Manager</code> 所提供的查询方法的最终实现，具体的方法实现不在详细介绍，有兴趣可以去阅读源码。</p>
-<h3 id="CDNSource"><a href="#CDNSource" class="headerlink" title="CDNSource"></a>CDNSource</h3><p><code>CDNSource</code> 是 <code>Source</code> 的子类，其提供了一种按需加载的策略，该策略的核心逻辑由 <code>download_and_save_with_retries_async</code> 方法实现，如下所示：</p>
+<p><code>Source</code> 类还提供了一系列方法以供查询 podspec，这些方法是
+<code>Manager</code>
+所提供的查询方法的最终实现，具体的方法实现不在详细介绍，有兴趣可以去阅读源码。</p>
+<h3 id="cdnsource">CDNSource</h3>
+<p><code>CDNSource</code> 是 <code>Source</code>
+的子类，其提供了一种按需加载的策略，该策略的核心逻辑由
+<code>download_and_save_with_retries_async</code>
+方法实现，如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> <span class="title class_">Pod</span></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">CDNSource</span> &lt; <span class="title class_ inherited__">Source</span></span><br><span class="line">    <span class="comment"># ...</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">download_and_save_with_retries_async</span>(<span class="params">partial_url, file_remote_url, etag, retries = <span class="variable constant_">MAX_NUMBER_OF_RETRIES</span></span>)</span><br><span class="line">      <span class="comment"># 获取 txt 文件</span></span><br><span class="line">      path = repo + partial_url</span><br><span class="line">      <span class="comment"># 获取 etag 文件路径</span></span><br><span class="line">      etag_path = path.sub_ext(path.extname + <span class="string">&#x27;.etag&#x27;</span>)</span><br><span class="line"></span><br><span class="line">      download_task = download_typhoeus_impl_async(file_remote_url, etag).<span class="keyword">then</span> <span class="keyword">do</span> |<span class="params">response</span>|</span><br><span class="line">        <span class="keyword">case</span> response.response_code</span><br><span class="line">        <span class="keyword">when</span> <span class="number">301</span>, <span class="number">302</span></span><br><span class="line">          <span class="comment"># 使用 CDN 分发的重定向位置，重新请求</span></span><br><span class="line">          redirect_location = response.headers[<span class="string">&#x27;location&#x27;</span>]</span><br><span class="line">          debug <span class="string">&quot;CDN: <span class="subst">#&#123;name&#125;</span> Redirecting from <span class="subst">#&#123;file_remote_url&#125;</span> to <span class="subst">#&#123;redirect_location&#125;</span>&quot;</span></span><br><span class="line">          download_and_save_with_retries_async(partial_url, redirect_location, etag)</span><br><span class="line">        <span class="keyword">when</span> <span class="number">304</span></span><br><span class="line">          <span class="comment"># 根据 etag 判断远端 txt 文件未修改，则使用本地文件</span></span><br><span class="line">          debug <span class="string">&quot;CDN: <span class="subst">#&#123;name&#125;</span> Relative path not modified: <span class="subst">#&#123;partial_url&#125;</span>&quot;</span></span><br><span class="line">          <span class="comment"># We need to update the file modification date, as it is later used for freshness</span></span><br><span class="line">          <span class="comment"># optimization. See #initialize for more information.</span></span><br><span class="line">          <span class="title class_">FileUtils</span>.touch path</span><br><span class="line">          partial_url</span><br><span class="line">        <span class="keyword">when</span> <span class="number">200</span></span><br><span class="line">          <span class="comment"># 获取远端最新 txt 文件，并更新 etag 文件内容</span></span><br><span class="line">          <span class="title class_">File</span>.open(path, <span class="string">&#x27;w&#x27;</span>) &#123; |<span class="params">f</span>| f.write(response.response_body.force_encoding(<span class="string">&#x27;UTF-8&#x27;</span>)) &#125;</span><br><span class="line"></span><br><span class="line">          etag_new = response.headers[<span class="string">&#x27;etag&#x27;</span>] <span class="keyword">unless</span> response.headers.<span class="literal">nil</span>?</span><br><span class="line">          debug <span class="string">&quot;CDN: <span class="subst">#&#123;name&#125;</span> Relative path downloaded: <span class="subst">#&#123;partial_url&#125;</span>, save ETag: <span class="subst">#&#123;etag_new&#125;</span>&quot;</span></span><br><span class="line">          <span class="title class_">File</span>.open(etag_path, <span class="string">&#x27;w&#x27;</span>) &#123; |<span class="params">f</span>| f.write(etag_new) &#125; <span class="keyword">unless</span> etag_new.<span class="literal">nil</span>?</span><br><span class="line">          partial_url</span><br><span class="line">        <span class="keyword">when</span> <span class="number">404</span></span><br><span class="line">          debug <span class="string">&quot;CDN: <span class="subst">#&#123;name&#125;</span> Relative path couldn&#x27;t be downloaded: <span class="subst">#&#123;partial_url&#125;</span> Response: <span class="subst">#&#123;response.response_code&#125;</span>&quot;</span></span><br><span class="line">          <span class="literal">nil</span></span><br><span class="line">        <span class="keyword">when</span> <span class="number">502</span>, <span class="number">503</span>, <span class="number">504</span></span><br><span class="line">          <span class="comment">#服务器出错，重试</span></span><br><span class="line">          <span class="keyword">if</span> retries &lt;= <span class="number">1</span></span><br><span class="line">            <span class="keyword">raise</span> <span class="title class_">Informative</span>, <span class="string">&quot;CDN: <span class="subst">#&#123;name&#125;</span> URL couldn&#x27;t be downloaded: <span class="subst">#&#123;file_remote_url&#125;</span> Response: <span class="subst">#&#123;response.response_code&#125;</span> <span class="subst">#&#123;response.response_body&#125;</span>&quot;</span></span><br><span class="line">          <span class="keyword">else</span></span><br><span class="line">            debug <span class="string">&quot;CDN: <span class="subst">#&#123;name&#125;</span> URL couldn&#x27;t be downloaded: <span class="subst">#&#123;file_remote_url&#125;</span> Response: <span class="subst">#&#123;response.response_code&#125;</span> <span class="subst">#&#123;response.response_body&#125;</span>, retries: <span class="subst">#&#123;retries - <span class="number">1</span>&#125;</span>&quot;</span></span><br><span class="line">            exponential_backoff_async(retries).<span class="keyword">then</span> <span class="keyword">do</span></span><br><span class="line">              download_and_save_with_retries_async(partial_url, file_remote_url, etag, retries - <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">          <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">when</span> <span class="number">0</span></span><br><span class="line">          <span class="comment"># 网络层错误，重试</span></span><br><span class="line">          <span class="keyword">if</span> retries &lt;= <span class="number">1</span></span><br><span class="line">            <span class="keyword">raise</span> <span class="title class_">Informative</span>, <span class="string">&quot;CDN: <span class="subst">#&#123;name&#125;</span> URL couldn&#x27;t be downloaded: <span class="subst">#&#123;file_remote_url&#125;</span> Response: <span class="subst">#&#123;response.return_message&#125;</span>&quot;</span></span><br><span class="line">          <span class="keyword">else</span></span><br><span class="line">            debug <span class="string">&quot;CDN: <span class="subst">#&#123;name&#125;</span> URL couldn&#x27;t be downloaded: <span class="subst">#&#123;file_remote_url&#125;</span> Response: <span class="subst">#&#123;response.return_message&#125;</span>, retries: <span class="subst">#&#123;retries - <span class="number">1</span>&#125;</span>&quot;</span></span><br><span class="line">            exponential_backoff_async(retries).<span class="keyword">then</span> <span class="keyword">do</span></span><br><span class="line">              download_and_save_with_retries_async(partial_url, file_remote_url, etag, retries - <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">          <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">          <span class="keyword">raise</span> <span class="title class_">Informative</span>, <span class="string">&quot;CDN: <span class="subst">#&#123;name&#125;</span> URL couldn&#x27;t be downloaded: <span class="subst">#&#123;file_remote_url&#125;</span> Response: <span class="subst">#&#123;response.response_code&#125;</span> <span class="subst">#&#123;response.response_body&#125;</span>&quot;</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="TrunkSource"><a href="#TrunkSource" class="headerlink" title="TrunkSource"></a>TrunkSource</h3><p><code>TrunkSource</code> 是 <code>CDNSource</code> 的子类，其实现非常简单，仅仅是重写了 trunk repo 的远端地址，具体如下所示：</p>
+<h3 id="trunksource">TrunkSource</h3>
+<p><code>TrunkSource</code> 是 <code>CDNSource</code>
+的子类，其实现非常简单，仅仅是重写了 trunk repo
+的远端地址，具体如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> <span class="title class_">Pod</span></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">TrunkSource</span> &lt; <span class="title class_ inherited__">CDNSource</span></span><br><span class="line">    <span class="comment"># On-disk master repo name</span></span><br><span class="line">    <span class="variable constant_">TRUNK_REPO_NAME</span> = <span class="string">&#x27;trunk&#x27;</span>.freeze</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Remote CDN repo URL</span></span><br><span class="line">    <span class="variable constant_">TRUNK_REPO_URL</span> = <span class="string">&#x27;https://cdn.cocoapods.org/&#x27;</span>.freeze</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">url</span></span><br><span class="line">      <span class="variable">@url</span> |<span class="params"></span>|= <span class="variable constant_">TRUNK_REPO_URL</span></span><br><span class="line">      <span class="variable language_">super</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="Metadata"><a href="#Metadata" class="headerlink" title="Metadata"></a>Metadata</h2><p><code>Metadata</code> 使用一个 <code>CocoaPods-version.yml</code> 文件记录 source 的元信息，并保存在source repo 的根目录下。CocoaPods 通过该文件实例化一个 <code>Metadata</code> 对象，如下所示为 <code>Metadata</code> 类的核心部分定义。</p>
+<h2 id="metadata">Metadata</h2>
+<p><code>Metadata</code> 使用一个 <code>CocoaPods-version.yml</code>
+文件记录 source 的元信息，并保存在source repo 的根目录下。CocoaPods
+通过该文件实例化一个 <code>Metadata</code> 对象，如下所示为
+<code>Metadata</code> 类的核心部分定义。</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> <span class="title class_">Pod</span></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">Source</span></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Metadata</span></span><br><span class="line">      <span class="comment"># 最低可支持的 CocoaPods 版本，对应 `min` 字段</span></span><br><span class="line">      <span class="built_in">attr_reader</span> <span class="symbol">:minimum_cocoapods_version</span></span><br><span class="line">      <span class="comment"># 最高可支持的 CocoaPods 版本，对应 `max` 字段</span></span><br><span class="line">      <span class="built_in">attr_reader</span> <span class="symbol">:maximum_cocoapods_version</span></span><br><span class="line">      <span class="comment"># 最新 CocoaPods 版本，对应 `last` 字段</span></span><br><span class="line">      <span class="built_in">attr_reader</span> <span class="symbol">:latest_cocoapods_version</span></span><br><span class="line">      <span class="comment"># 定义 pod name hash 前缀的长度和数量</span></span><br><span class="line">      <span class="built_in">attr_reader</span> <span class="symbol">:prefix_lengths</span></span><br><span class="line">      <span class="comment"># 可兼容的 CocoaPods 最新版本</span></span><br><span class="line">      <span class="built_in">attr_reader</span> <span class="symbol">:last_compatible_versions</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">initialize</span>(<span class="params">hash = &#123;&#125;</span>)</span><br><span class="line">        hash = hash.with_indifferent_access</span><br><span class="line">        <span class="variable">@minimum_cocoapods_version</span> = hash[<span class="string">&#x27;min&#x27;</span>]</span><br><span class="line">        <span class="variable">@minimum_cocoapods_version</span> &amp;&amp;= <span class="title class_">Pod::Version</span>.new(<span class="variable">@minimum_cocoapods_version</span>)</span><br><span class="line">        <span class="variable">@maximum_cocoapods_version</span> = hash[<span class="string">&#x27;max&#x27;</span>]</span><br><span class="line">        <span class="variable">@maximum_cocoapods_version</span> &amp;&amp;= <span class="title class_">Pod::Version</span>.new(<span class="variable">@maximum_cocoapods_version</span>)</span><br><span class="line">        <span class="variable">@latest_cocoapods_version</span> = hash[<span class="string">&#x27;last&#x27;</span>]</span><br><span class="line">        <span class="variable">@latest_cocoapods_version</span> &amp;&amp;= <span class="title class_">Pod::Version</span>.new(<span class="variable">@latest_cocoapods_version</span>)</span><br><span class="line">        <span class="variable">@prefix_lengths</span> = <span class="title class_">Array</span>(hash[<span class="string">&#x27;prefix_lengths&#x27;</span>]).map!(&amp;<span class="symbol">:to_i</span>)</span><br><span class="line">        <span class="variable">@last_compatible_versions</span> = <span class="title class_">Array</span>(hash[<span class="string">&#x27;last_compatible_versions&#x27;</span>]).map(&amp;<span class="title class_">Pod</span><span class="symbol">:</span><span class="symbol">:Version</span>.method(<span class="symbol">:new</span>)).sort</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># 加载 YAML 文件进行实例化</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">self</span>.from_file(file)</span><br><span class="line">        hash = file.file? ? <span class="title class_">YAMLHelper</span>.load_file(file) : &#123;&#125;</span><br><span class="line">        new(hash)</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># pod 存储路径的各级目录名称截取</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">path_fragment</span>(<span class="params">pod_name, version = <span class="literal">nil</span></span>)</span><br><span class="line">        prefixes = <span class="keyword">if</span> prefix_lengths.empty?</span><br><span class="line">                     []</span><br><span class="line">                   <span class="keyword">else</span></span><br><span class="line">                     hashed = <span class="title class_">Digest</span><span class="symbol">:</span><span class="symbol">:MD5</span>.hexdigest(pod_name)</span><br><span class="line">                     prefix_lengths.map <span class="keyword">do</span> |<span class="params">length</span>|</span><br><span class="line">                       hashed.slice!(<span class="number">0</span>, length)</span><br><span class="line">                     <span class="keyword">end</span></span><br><span class="line">                   <span class="keyword">end</span></span><br><span class="line">        prefixes.concat([pod_name, version]).compact</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p><code>Metadata</code> 中定义的 <code>path_fragment</code> 方法会根据 pod name 和 version 来生成 pod 对应的索引目录：</p>
+<p><code>Metadata</code> 中定义的 <code>path_fragment</code> 方法会根据
+pod name 和 version 来生成 pod 对应的索引目录：</p>
 <ul>
 <li>根据 pod name 计算 MD5 值</li>
-<li>遍历 <code>prefix_lengths</code> 对生成的 MD5 值迭代截取指定长度，并作为分级目录的名称</li>
+<li>遍历 <code>prefix_lengths</code> 对生成的 MD5
+值迭代截取指定长度，并作为分级目录的名称</li>
 </ul>
-<p>以 <code>AFNetworking</code> 为例，其 MD5 值如下所示：</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">irb&gt; <span class="title class_">Digest</span><span class="symbol">:</span><span class="symbol">:MD5</span>.hexdigest(<span class="string">&quot;AFNetworking&quot;</span>)</span><br><span class="line"> =&gt; <span class="string">&quot;a75d452377f3996bdc4b623a5df25820&quot;</span></span><br></pre></td></tr></table></figure>
-<p>由于 <code>prefix_lengths</code> 的值为 <code>[1, 1, 1]</code>，那么其生成的目录名称分别是：<code>a</code>、<code>7</code>、<code>5</code>。</p>
-<h2 id="Specification"><a href="#Specification" class="headerlink" title="Specification"></a>Specification</h2><p><code>Specification</code> 用于表示 podspec 文件，其相关的内容我们在 <a href="http://chuquan.me/2022/01/03/podspec-analyze-principle/">《CocoaPods podspec 解析原理》</a> 中进行了介绍，这里不再进行赘述。</p>
-<h2 id="Dependency"><a href="#Dependency" class="headerlink" title="Dependency"></a>Dependency</h2><p><code>Dependency</code> 用于描述一个 pod 的依赖，我们在 Podfile 中为一个 pod 声明的 dependency，或者，在 podspec 指定的 dependency，最终都由 <code>Dependency</code> 进行描述。其核心定义如下所示：</p>
+<p>以 <code>AFNetworking</code> 为例，其 MD5 值如下所示： <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">irb&gt; <span class="title class_">Digest</span><span class="symbol">:</span><span class="symbol">:MD5</span>.hexdigest(<span class="string">&quot;AFNetworking&quot;</span>)</span><br><span class="line"> =&gt; <span class="string">&quot;a75d452377f3996bdc4b623a5df25820&quot;</span></span><br></pre></td></tr></table></figure>
+由于 <code>prefix_lengths</code> 的值为
+<code>[1, 1, 1]</code>，那么其生成的目录名称分别是：<code>a</code>、<code>7</code>、<code>5</code>。</p>
+<h2 id="specification">Specification</h2>
+<p><code>Specification</code> 用于表示 podspec 文件，其相关的内容我们在
+<a
+href="http://chuquan.me/2022/01/03/podspec-analyze-principle/">《CocoaPods
+podspec 解析原理》</a> 中进行了介绍，这里不再进行赘述。</p>
+<h2 id="dependency">Dependency</h2>
+<p><code>Dependency</code> 用于描述一个 pod 的依赖，我们在 Podfile
+中为一个 pod 声明的 dependency，或者，在 podspec 指定的
+dependency，最终都由 <code>Dependency</code>
+进行描述。其核心定义如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> <span class="title class_">Pod</span></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">Dependency</span></span><br><span class="line">    <span class="comment"># dependency 所关联的 pod name</span></span><br><span class="line">    <span class="built_in">attr_accessor</span> <span class="symbol">:name</span></span><br><span class="line">    <span class="comment"># 通过外部 source 提供 podspec 文件</span></span><br><span class="line">    <span class="built_in">attr_accessor</span> <span class="symbol">:external_source</span></span><br><span class="line">    <span class="comment"># 解析 denpendency 所使用的 podspec repo</span></span><br><span class="line">    <span class="built_in">attr_accessor</span> <span class="symbol">:podspec_repo</span></span><br><span class="line">    <span class="comment"># 指定的 dependency 版本</span></span><br><span class="line">    <span class="built_in">attr_accessor</span> <span class="symbol">:specific_version</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文，通过阅读 CocoaPods-Core 源码，梳理了一下 source 管理机制及其设计结构，简化的结构示意图如下所示。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-03.png?x-oss-process=image/resize,w_800"></p>
-<p>此外，我们还了解了 CocoaPods 中的两种 source 管理机制：master、trunk。这两种机制基本原理相同，在实现细节上有所区别，一种是全量下载，一种是按需下载，因此在下载速度方面有着明显的区别。</p>
-<p>后面有时间的话，我们再根据一些具体的 pod 命令来分析它们的执行逻辑，了解 CocoaPods 中更多的实现细节。</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
-<li><a target="_blank" rel="noopener" href="https://github.com/CocoaPods/Core">CocoaPods-Core</a></li>
-<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844904002686042125#heading-10">CocoaPods CDN 机制中文解析</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/CocoaPods/CocoaPods/issues/4989#issuecomment-193772935">GitHub taking a very long time to download changes to the Specs Repo</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.cocoapods.org/Master-Spec-Repo-Rate-Limiting-Post-Mortem/#too-many-directory-entries">Master spec-repo rate limiting post‑mortem</a></li>
-<li><a target="_blank" rel="noopener" href="https://hcldirgit.github.io/2017/10/13/Apache/40.%20%E4%BB%80%E4%B9%88%E6%98%AFetag%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E5%8F%8A%E9%85%8D%E7%BD%AE/">什么是etag工作原理及配置</a></li>
+<h1 id="总结">总结</h1>
+<p>本文，通过阅读 CocoaPods-Core 源码，梳理了一下 source
+管理机制及其设计结构，简化的结构示意图如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-03.png?x-oss-process=image/resize,w_800" /></p>
+<p>此外，我们还了解了 CocoaPods 中的两种 source
+管理机制：master、trunk。这两种机制基本原理相同，在实现细节上有所区别，一种是全量下载，一种是按需下载，因此在下载速度方面有着明显的区别。</p>
+<p>后面有时间的话，我们再根据一些具体的 pod
+命令来分析它们的执行逻辑，了解 CocoaPods 中更多的实现细节。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li><a href="https://github.com/CocoaPods/Core">CocoaPods-Core</a></li>
+<li><a
+href="https://juejin.cn/post/6844904002686042125#heading-10">CocoaPods
+CDN 机制中文解析</a></li>
+<li><a
+href="https://github.com/CocoaPods/CocoaPods/issues/4989#issuecomment-193772935">GitHub
+taking a very long time to download changes to the Specs Repo</a></li>
+<li><a
+href="https://blog.cocoapods.org/Master-Spec-Repo-Rate-Limiting-Post-Mortem/#too-many-directory-entries">Master
+spec-repo rate limiting post‑mortem</a></li>
+<li><a
+href="https://hcldirgit.github.io/2017/10/13/Apache/40.%20%E4%BB%80%E4%B9%88%E6%98%AFetag%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E5%8F%8A%E9%85%8D%E7%BD%AE/">什么是etag工作原理及配置</a></li>
 </ol>
 
-      
     </div>
-    
-    
-    
 
     
-
     
-      <div>
-        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
-  <div>欣赏此文？求鼓励，求支持！</div>
-  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
-    <span>赏</span>
-  </button>
-  <div id="QR" style="display: none;">
-
-    
-      <div id="wechat" style="display: inline-block">
-        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
-        <p>WeChat Pay</p>
-      </div>
-    
-
-    
-      <div id="alipay" style="display: inline-block">
-        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
-        <p>Alipay</p>
-      </div>
-    
-
-    
-
-  </div>
-</div>
-
-      </div>
-    
-
     
 
     <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/CocoaPods/" rel="tag"># CocoaPods</a>
-          
-            <a href="/tags/Master-Repo/" rel="tag"># Master Repo</a>
-          
-            <a href="/tags/Trunk-Repo/" rel="tag"># Trunk Repo</a>
-          
-        </div>
-      
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
 
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2022/01/03/podspec-analyze-principle/" rel="next" title="CocoaPods Podspec 解析原理">
-                <i class="fa fa-chevron-left"></i> CocoaPods Podspec 解析原理
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2022/04/04/getopt/" rel="prev" title="源码解读——getopt">
-                源码解读——getopt <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-        <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-  <a class="jiathis_button_tsina"></a>
-  <a class="jiathis_button_tqq"></a>
-  <a class="jiathis_button_weixin"></a>
-  <a class="jiathis_button_cqq"></a>
-  <a class="jiathis_button_douban"></a>
-  <a class="jiathis_button_renren"></a>
-  <a class="jiathis_button_qzone"></a>
-  <a class="jiathis_button_kaixin001"></a>
-  <a class="jiathis_button_copy"></a>
-  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
-  <a class="jiathis_counter_style"></a>
 </div>
-<script type="text/javascript" >
-  var jiathis_config={
-    hideMore:false
-  }
-</script>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
 
-      
-    </div>
-  </div>
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
 
+  <div class="social-list">
 
-          </div>
-          
-
-
-          
-  <div class="comments" id="comments">
-    
-      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
-    
-  </div>
-
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <img class="site-author-image" itemprop="image"
-               src="/images/SlamDunk.png"
-               alt="" />
-          <p class="site-author-name" itemprop="name"></p>
-           
-              <p class="site-description motion-element" itemprop="description"></p>
-          
-        </div>
-        <nav class="site-state motion-element">
-
-          
-            <div class="site-state-item site-state-posts">
-              <a href="/archives">
-                <span class="site-state-item-count">128</span>
-                <span class="site-state-item-name">日志</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-categories">
-              <a href="/categories/index.html">
-                <span class="site-state-item-count">28</span>
-                <span class="site-state-item-name">分类</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-tags">
-              <a href="/tags/index.html">
-                <span class="site-state-item-count">284</span>
-                <span class="site-state-item-name">标签</span>
-              </a>
-            </div>
-          
-
-        </nav>
-
-        
-          <div class="feed-link motion-element">
-            <a href="/atom.xml" rel="alternate">
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
               <i class="fa fa-rss"></i>
-              RSS
-            </a>
-          </div>
-        
+            </span>
 
-        <div class="links-of-author motion-element">
-          
-            
-              <span class="links-of-author-item">
-                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
-                  
-                    <i class="fa fa-fw fa-github"></i>
-                  
-                    
-                      GitHub
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
-                  
-                    <i class="fa fa-fw fa-weibo"></i>
-                  
-                    
-                      微博
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                    
-                      Facebook
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
-                  
-                    <i class="fa fa-fw fa-instagram"></i>
-                  
-                    
-                      Instagram
-                    
-                </a>
-              </span>
-            
-          
-        </div>
-
-        
-        
-
-        
-        
-
-        
-
-
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">基本原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Master"><span class="nav-number">1.1.</span> <span class="nav-text">Master</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Trunk"><span class="nav-number">1.2.</span> <span class="nav-text">Trunk</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">整体架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Manager"><span class="nav-number">2.1.</span> <span class="nav-text">Manager</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Aggregate"><span class="nav-number">2.2.</span> <span class="nav-text">Aggregate</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Source"><span class="nav-number">2.3.</span> <span class="nav-text">Source</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CDNSource"><span class="nav-number">2.3.1.</span> <span class="nav-text">CDNSource</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TrunkSource"><span class="nav-number">2.3.2.</span> <span class="nav-text">TrunkSource</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Metadata"><span class="nav-number">2.4.</span> <span class="nav-text">Metadata</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Specification"><span class="nav-number">2.5.</span> <span class="nav-text">Specification</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dependency"><span class="nav-number">2.6.</span> <span class="nav-text">Dependency</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
-        
+            <span class="label">RSS</span>
+          </a>
       </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright" >
-  
-  &copy;  2018 - 
-  <span itemprop="copyrightYear">2023</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Pisces
-  </a>
-</div>
-
-<div>
-  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
-</div>
-
-
+          <div class="post-tags">
+              <a href="/tags/CocoaPods/" rel="tag"># CocoaPods</a>
+              <a href="/tags/Master-Repo/" rel="tag"># Master Repo</a>
+              <a href="/tags/Trunk-Repo/" rel="tag"># Trunk Repo</a>
+          </div>
 
         
-<div class="busuanzi-count">
-  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-  
-    <span class="site-uv">
-      <i class="fa fa-user"></i>本站总访客
-      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
-      人次
-    </span>
-  
-
-  
-    <span class="site-pv">
-      <i class="fa fa-eye"></i>本站总访问量
-      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
-      次
-    </span>
-  
-</div>
-
-
-        
-      </div>
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/01/03/podspec-analyze-principle/" rel="prev" title="CocoaPods Podspec 解析原理">
+                  <i class="fa fa-angle-left"></i> CocoaPods Podspec 解析原理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/04/04/getopt/" rel="next" title="源码解读——getopt">
+                  源码解读——getopt <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
     </footer>
+  </article>
+</div>
 
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
 
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
   </div>
 
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
   
 
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2022/01/07/source-analyze-principle/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
   }
+}
 </script>
 
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
-
-
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  
-
-
-
-
-	
-
-
-
-
-
-  
-
-
-
-
-
-  
-    <script type="text/javascript">
-      (function(d, s) {
-        var j, e = d.getElementsByTagName(s)[0];
-        if (typeof LivereTower === 'function') { return; }
-        j = d.createElement(s);
-        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
-        j.async = true;
-        e.parentNode.insertBefore(j, e);
-      })(document, 'script');
-    </script>
-  
-
-
-
-
-
-
-  
-
-  <script type="text/javascript">
-    // Popup Window;
-    var isfetched = false;
-    var isXml = true;
-    // Search DB path;
-    var search_path = "search.xml";
-    if (search_path.length === 0) {
-      search_path = "search.xml";
-    } else if (/json$/i.test(search_path)) {
-      isXml = false;
-    }
-    var path = "/" + search_path;
-    // monitor main search box;
-
-    var onPopupClose = function (e) {
-      $('.popup').hide();
-      $('#local-search-input').val('');
-      $('.search-result-list').remove();
-      $('#no-result').remove();
-      $(".local-search-pop-overlay").remove();
-      $('body').css('overflow', '');
-    }
-
-    function proceedsearch() {
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
-        .css('overflow', 'hidden');
-      $('.search-popup-overlay').click(onPopupClose);
-      $('.popup').toggle();
-      var $localSearchInput = $('#local-search-input');
-      $localSearchInput.attr("autocapitalize", "none");
-      $localSearchInput.attr("autocorrect", "off");
-      $localSearchInput.focus();
-    }
-
-    // search function;
-    var searchFunc = function(path, search_id, content_id) {
-      'use strict';
-
-      // start loading animation
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
-          '<div id="search-loading-icon">' +
-          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
-          '</div>' +
-          '</div>')
-        .css('overflow', 'hidden');
-      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
-
-      $.ajax({
-        url: path,
-        dataType: isXml ? "xml" : "json",
-        async: true,
-        success: function(res) {
-          // get the contents from search data
-          isfetched = true;
-          $('.popup').detach().appendTo('.header-inner');
-          var datas = isXml ? $("entry", res).map(function() {
-            return {
-              title: $("title", this).text(),
-              content: $("content",this).text(),
-              url: $("url" , this).text()
-            };
-          }).get() : res;
-          var input = document.getElementById(search_id);
-          var resultContent = document.getElementById(content_id);
-          var inputEventFunction = function() {
-            var searchText = input.value.trim().toLowerCase();
-            var keywords = searchText.split(/[\s\-]+/);
-            if (keywords.length > 1) {
-              keywords.push(searchText);
-            }
-            var resultItems = [];
-            if (searchText.length > 0) {
-              // perform local searching
-              datas.forEach(function(data) {
-                var isMatch = false;
-                var hitCount = 0;
-                var searchTextCount = 0;
-                var title = data.title.trim();
-                var titleInLowerCase = title.toLowerCase();
-                var content = data.content.trim().replace(/<[^>]+>/g,"");
-                var contentInLowerCase = content.toLowerCase();
-                var articleUrl = decodeURIComponent(data.url);
-                var indexOfTitle = [];
-                var indexOfContent = [];
-                // only match articles with not empty titles
-                if(title != '') {
-                  keywords.forEach(function(keyword) {
-                    function getIndexByWord(word, text, caseSensitive) {
-                      var wordLen = word.length;
-                      if (wordLen === 0) {
-                        return [];
-                      }
-                      var startPosition = 0, position = [], index = [];
-                      if (!caseSensitive) {
-                        text = text.toLowerCase();
-                        word = word.toLowerCase();
-                      }
-                      while ((position = text.indexOf(word, startPosition)) > -1) {
-                        index.push({position: position, word: word});
-                        startPosition = position + wordLen;
-                      }
-                      return index;
-                    }
-
-                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
-                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
-                  });
-                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
-                    isMatch = true;
-                    hitCount = indexOfTitle.length + indexOfContent.length;
-                  }
-                }
-
-                // show search results
-
-                if (isMatch) {
-                  // sort index by position of keyword
-
-                  [indexOfTitle, indexOfContent].forEach(function (index) {
-                    index.sort(function (itemLeft, itemRight) {
-                      if (itemRight.position !== itemLeft.position) {
-                        return itemRight.position - itemLeft.position;
-                      } else {
-                        return itemLeft.word.length - itemRight.word.length;
-                      }
-                    });
-                  });
-
-                  // merge hits into slices
-
-                  function mergeIntoSlice(text, start, end, index) {
-                    var item = index[index.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    var hits = [];
-                    var searchTextCountInSlice = 0;
-                    while (position + word.length <= end && index.length != 0) {
-                      if (word === searchText) {
-                        searchTextCountInSlice++;
-                      }
-                      hits.push({position: position, length: word.length});
-                      var wordEnd = position + word.length;
-
-                      // move to next position of hit
-
-                      index.pop();
-                      while (index.length != 0) {
-                        item = index[index.length - 1];
-                        position = item.position;
-                        word = item.word;
-                        if (wordEnd > position) {
-                          index.pop();
-                        } else {
-                          break;
-                        }
-                      }
-                    }
-                    searchTextCount += searchTextCountInSlice;
-                    return {
-                      hits: hits,
-                      start: start,
-                      end: end,
-                      searchTextCount: searchTextCountInSlice
-                    };
-                  }
-
-                  var slicesOfTitle = [];
-                  if (indexOfTitle.length != 0) {
-                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
-                  }
-
-                  var slicesOfContent = [];
-                  while (indexOfContent.length != 0) {
-                    var item = indexOfContent[indexOfContent.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    // cut out 100 characters
-                    var start = position - 20;
-                    var end = position + 80;
-                    if(start < 0){
-                      start = 0;
-                    }
-                    if (end < position + word.length) {
-                      end = position + word.length;
-                    }
-                    if(end > content.length){
-                      end = content.length;
-                    }
-                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
-                  }
-
-                  // sort slices in content by search text's count and hits' count
-
-                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
-                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
-                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
-                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
-                      return sliceRight.hits.length - sliceLeft.hits.length;
-                    } else {
-                      return sliceLeft.start - sliceRight.start;
-                    }
-                  });
-
-                  // select top N slices in content
-
-                  var upperBound = parseInt('1');
-                  if (upperBound >= 0) {
-                    slicesOfContent = slicesOfContent.slice(0, upperBound);
-                  }
-
-                  // highlight title and content
-
-                  function highlightKeyword(text, slice) {
-                    var result = '';
-                    var prevEnd = slice.start;
-                    slice.hits.forEach(function (hit) {
-                      result += text.substring(prevEnd, hit.position);
-                      var end = hit.position + hit.length;
-                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
-                      prevEnd = end;
-                    });
-                    result += text.substring(prevEnd, slice.end);
-                    return result;
-                  }
-
-                  var resultItem = '';
-
-                  if (slicesOfTitle.length != 0) {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
-                  } else {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
-                  }
-
-                  slicesOfContent.forEach(function (slice) {
-                    resultItem += "<a href='" + articleUrl + "'>" +
-                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
-                      "...</p>" + "</a>";
-                  });
-
-                  resultItem += "</li>";
-                  resultItems.push({
-                    item: resultItem,
-                    searchTextCount: searchTextCount,
-                    hitCount: hitCount,
-                    id: resultItems.length
-                  });
-                }
-              })
-            };
-            if (keywords.length === 1 && keywords[0] === "") {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
-            } else if (resultItems.length === 0) {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
-            } else {
-              resultItems.sort(function (resultLeft, resultRight) {
-                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
-                  return resultRight.searchTextCount - resultLeft.searchTextCount;
-                } else if (resultLeft.hitCount !== resultRight.hitCount) {
-                  return resultRight.hitCount - resultLeft.hitCount;
-                } else {
-                  return resultRight.id - resultLeft.id;
-                }
-              });
-              var searchResultList = '<ul class=\"search-result-list\">';
-              resultItems.forEach(function (result) {
-                searchResultList += result.item;
-              })
-              searchResultList += "</ul>";
-              resultContent.innerHTML = searchResultList;
-            }
-          }
-
-          if ('auto' === 'auto') {
-            input.addEventListener('input', inputEventFunction);
-          } else {
-            $('.search-icon').click(inputEventFunction);
-            input.addEventListener('keypress', function (event) {
-              if (event.keyCode === 13) {
-                inputEventFunction();
-              }
-            });
-          }
-
-          // remove loading animation
-          $(".local-search-pop-overlay").remove();
-          $('body').css('overflow', '');
-
-          proceedsearch();
-        }
-      });
-    }
-
-    // handle and trigger popup window;
-    $('.popup-trigger').click(function(e) {
-      e.stopPropagation();
-      if (isfetched === false) {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-      } else {
-        proceedsearch();
-      };
-    });
-
-    $('.popup-btn-close').click(onPopupClose);
-    $('.popup').click(function(e){
-      e.stopPropagation();
-    });
-    $(document).on('keyup', function (event) {
-      var shouldDismissSearchPopup = event.which === 27 &&
-        $('.search-popup').is(':visible');
-      if (shouldDismissSearchPopup) {
-        onPopupClose();
-      }
-    });
-  </script>
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      });
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      });
-    </script>
-    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
-
-
-  
-
-  
-
-
-  undefined
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
 </html>

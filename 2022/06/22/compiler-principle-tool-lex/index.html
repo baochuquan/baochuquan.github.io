@@ -1,534 +1,398 @@
 <!DOCTYPE html>
-
-
-
-  
-
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-  
-  
-  
-  
-
-  
-    
-    
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    
-    
-    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-  
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
-
-
-  <meta name="keywords" content="lex," />
-
-
-
-
-
-  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
-
-
-
-
-  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
-
-
-
-
-
-
-<meta name="description" content="在编译过程中，词法分析器的主要作用是将代码文件的文本内容 token 化（又称扫描），token 化后再通过语法分析器进行语法分析，构造语法树，从而完成后续的一系列操作。 宏观层面，词法分析器基于一系列正则表达式识别并构造不同的 token。原理层面，正则表达式是通过确定性有穷自动机（Deterministic Finite Automator, DFA）实现内容匹配的。微观层面，token 化是">
+    <meta name="description" content="在编译过程中，词法分析器的主要作用是将代码文件的文本内容 token 化（又称扫描），token 化后再通过语法分析器进行语法分析，构造语法树，从而完成后续的一系列操作。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="编译原理工具系列(1)——lex">
 <meta property="og:url" content="http://chuquan.me/2022/06/22/compiler-principle-tool-lex/index.html">
 <meta property="og:site_name" content="楚权的世界">
-<meta property="og:description" content="在编译过程中，词法分析器的主要作用是将代码文件的文本内容 token 化（又称扫描），token 化后再通过语法分析器进行语法分析，构造语法树，从而完成后续的一系列操作。 宏观层面，词法分析器基于一系列正则表达式识别并构造不同的 token。原理层面，正则表达式是通过确定性有穷自动机（Deterministic Finite Automator, DFA）实现内容匹配的。微观层面，token 化是">
-<meta property="og:locale">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/lex-01.png?x-oss-process=image/resize,w_800">
+<meta property="og:description" content="在编译过程中，词法分析器的主要作用是将代码文件的文本内容 token 化（又称扫描），token 化后再通过语法分析器进行语法分析，构造语法树，从而完成后续的一系列操作。">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-06-22T14:11:48.000Z">
-<meta property="article:modified_time" content="2022-07-22T14:13:44.736Z">
+<meta property="article:modified_time" content="2023-09-16T11:04:41.780Z">
 <meta property="article:author" content="Bao Chuquan">
 <meta property="article:tag" content="lex">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/lex-01.png?x-oss-process=image/resize,w_800">
+
+
+<link rel="canonical" href="http://chuquan.me/2022/06/22/compiler-principle-tool-lex/">
 
 
 
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '',
-    scheme: 'Pisces',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: true,
-    duoshuo: {
-      userId: '0',
-      author: '博主'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2022/06/22/compiler-principle-tool-lex/","path":"2022/06/22/compiler-principle-tool-lex/","title":"编译原理工具系列(1)——lex"}</script>
 
-
-
-  <link rel="canonical" href="http://chuquan.me/2022/06/22/compiler-principle-tool-lex/"/>
-
-
-
-
-
-  <title>编译原理工具系列(1)——lex | 楚权的世界</title>
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>编译原理工具系列(1)——lex | 楚权的世界</title>
   
 
-
-
-
-
-  <script type="text/javascript">
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
 
 
 
 
 
 
-
-
-
-
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
 <!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
-  
-  
-    
-  
-
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
-    <div class="headband"></div>
-	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
-    
-
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">楚权的世界</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
     </div>
-      
-        <p class="site-subtitle">Seek the wonder of life.</p>
-      
   </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
   </div>
 </div>
+
+
 
 <nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-photos">
-          <a href="/photos" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
-            
-            相册
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            归档
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-commonweal">
-          <a href="/404.html" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
-            
-            公益
-          </a>
-        </li>
-      
-
-      
-        <li class="menu-item menu-item-search">
-          
-            <a href="javascript:;" class="popup-trigger">
-          
-            
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
-            
-            搜索
-          </a>
-        </li>
-      
-    </ul>
-  
-
-  
-    <div class="site-search">
-      
-  <div class="popup search-popup local-search-popup">
-  <div class="local-search-header clearfix">
-    <span class="search-icon">
-      <i class="fa fa-search"></i>
-    </span>
-    <span class="popup-btn-close">
-      <i class="fa fa-times-circle"></i>
-    </span>
-    <div class="local-search-input-wrapper">
-      <input autocomplete="off"
-             placeholder="搜索..." spellcheck="false"
-             type="text" id="local-search-input">
-    </div>
-  </div>
-  <div id="local-search-result"></div>
-</div>
-
-
-
-    </div>
-  
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
 </nav>
 
 
 
- </div>
-    </header>
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
 
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
+    </div>
+  </div>
 
-  <div id="posts" class="posts-expand">
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">工作原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%8F%E8%BF%B0%E6%96%87%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">描述文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.</span> <span class="nav-text">定义</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#c-%E4%BB%A3%E7%A0%81%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.1.</span> <span class="nav-text">C 代码定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E5%90%8D%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.2.</span> <span class="nav-text">命名正则表达式定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E4%BB%A4%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.3.</span> <span class="nav-text">指令定义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%84%E5%88%99"><span class="nav-number">2.2.</span> <span class="nav-text">规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8A%B6%E6%80%81"><span class="nav-number">2.3.</span> <span class="nav-text">状态</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A6%E7%8A%B6%E6%80%81"><span class="nav-number">2.3.1.</span> <span class="nav-text">左状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%B3%E7%8A%B6%E6%80%81"><span class="nav-number">2.3.2.</span> <span class="nav-text">右状态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81"><span class="nav-number">2.4.</span> <span class="nav-text">代码</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B"><span class="nav-number">3.</span> <span class="nav-text">案例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%B3%E7%8A%B6%E6%80%81%E6%96%B9%E6%A1%88"><span class="nav-number">3.1.</span> <span class="nav-text">右状态方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A6%E7%8A%B6%E6%80%81%E6%96%B9%E6%A1%88"><span class="nav-number">3.2.</span> <span class="nav-text">左状态方案</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">129</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">288</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
     
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
 
   
 
-  
+
+<div class="post-block">
   
   
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://chuquan.me/2022/06/22/compiler-principle-tool-lex/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
     </span>
 
-    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="编译原理工具系列(1)——lex | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
       <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          编译原理工具系列(1)——lex
+        </h1>
 
-        
-        
-          <h1 class="post-title" itemprop="name headline">编译原理工具系列(1)——lex</h1>
-        
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
 
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="发表于" itemprop="dateCreated datePublished" datetime="2022-06-22T22:11:48+08:00">
-                2022-06-22
-              </time>
-            
+      <time title="创建时间：2022-06-22 22:11:48" itemprop="dateCreated datePublished" datetime="2022-06-22T22:11:48+08:00">2022-06-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-09-16 19:04:41" itemprop="dateModified" datetime="2023-09-16T19:04:41+08:00">2023-09-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Compiler/" itemprop="url" rel="index"><span itemprop="name">Compiler</span></a>
+        </span>
+    </span>
 
-            
-              <span class="post-meta-divider">|</span>
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-check-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">更新于</span>
-              
-              <time title="更新于" itemprop="dateModified" datetime="2022-07-22T22:13:44+08:00">
-                2022-07-22
-              </time>
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Compiler/" itemprop="url" rel="index">
-                    <span itemprop="name">Compiler</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
-          
-
-          
-
-          
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2022/06/22/compiler-principle-tool-lex/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2022/06/22/compiler-principle-tool-lex/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
 
         </div>
       </header>
-    
 
     
     
     
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <p>在编译过程中，词法分析器的主要作用是将代码文件的文本内容 token 化（又称扫描），token 化后再通过语法分析器进行语法分析，构造语法树，从而完成后续的一系列操作。</p>
-<p>宏观层面，词法分析器基于一系列正则表达式识别并构造不同的 token。原理层面，正则表达式是通过确定性有穷自动机（Deterministic Finite Automator, DFA）实现内容匹配的。微观层面，token 化是基于一系列重复繁琐的操作实现的。</p>
-<p>lex 是一款词法分析器生成器，通过输入自定义的描述文件（包括正则表达式），我们可以生成特定的词法分析器，从而可以避免手写底层重复繁琐的实现代码。</p>
+    <div class="post-body" itemprop="articleBody"><p>在编译过程中，词法分析器的主要作用是将代码文件的文本内容 token
+化（又称扫描），token
+化后再通过语法分析器进行语法分析，构造语法树，从而完成后续的一系列操作。</p>
+<span id="more"></span>
+<p>宏观层面，词法分析器基于一系列正则表达式识别并构造不同的
+token。原理层面，正则表达式是通过确定性有穷自动机（Deterministic Finite
+Automator, DFA）实现内容匹配的。微观层面，token
+化是基于一系列重复繁琐的操作实现的。</p>
+<p>lex
+是一款词法分析器生成器，通过输入自定义的描述文件（包括正则表达式），我们可以生成特定的词法分析器，从而可以避免手写底层重复繁琐的实现代码。</p>
 <p>本文，我们简单介绍一下 lex 的工作原理和基本用法。</p>
-<h1 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h1><p>正如上文所说，lex 是一款词法分析器生成器。其输入为描述文件，输出为词法分析器。其中，词法分析器的所有逻辑由 <code>yylex()</code> 函数实现。</p>
+<h1 id="工作原理">工作原理</h1>
+<p>正如上文所说，lex
+是一款词法分析器生成器。其输入为描述文件，输出为词法分析器。其中，词法分析器的所有逻辑由
+<code>yylex()</code> 函数实现。</p>
 <p>lex 的工作原理示意图如下所示：</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/lex-01.png?x-oss-process=image/resize,w_800"></p>
-<h1 id="描述文件"><a href="#描述文件" class="headerlink" title="描述文件"></a>描述文件</h1><p>描述文件是 lex 生成词法分析器的核心依据，因此，我们来重点介绍一下描述文件的组成结构。描述文件的基本结构如下所示：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;定义&gt;</span><br><span class="line"></span><br><span class="line">%%</span><br><span class="line"></span><br><span class="line">&lt;规则&gt;</span><br><span class="line"></span><br><span class="line">%%</span><br><span class="line"></span><br><span class="line">&lt;代码&gt;</span><br></pre></td></tr></table></figure>
-
-<p>如下所示为一个 lex 描述文件的示例，文件名为 <code>count.l</code>。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">%&#123;</span><br><span class="line">    <span class="type">int</span> charcount=<span class="number">0</span>,linecount=<span class="number">0</span>;</span><br><span class="line">%&#125;</span><br><span class="line"></span><br><span class="line">%%</span><br><span class="line"></span><br><span class="line">. charcount++;</span><br><span class="line">\n &#123;linecount++; charcount++;&#125;</span><br><span class="line"></span><br><span class="line">%%</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    yylex();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;There were %d characters in %d lines\n&quot;</span>, charcount,linecount);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>使用如下命令即可生成词法分析器。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">lex -t count.l &gt; count.c</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">cc -c -o count.o count.c</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">cc -o count count.o -ll</span></span><br></pre></td></tr></table></figure>
-<p>我们可以执行 <code>./count</code>，通过控制台输入文本，最后输入结束符 Ctrl+D，查看统计结果。</p>
-<p>描述文件使用 <code>%%</code> 对不同的部分进行分隔，其主要包含三部分内容，分别是：</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/lex-01.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="描述文件">描述文件</h1>
+<p>描述文件是 lex
+生成词法分析器的核心依据，因此，我们来重点介绍一下描述文件的组成结构。描述文件的基本结构如下所示：
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;定义&gt;</span><br><span class="line"></span><br><span class="line">%%</span><br><span class="line"></span><br><span class="line">&lt;规则&gt;</span><br><span class="line"></span><br><span class="line">%%</span><br><span class="line"></span><br><span class="line">&lt;代码&gt;</span><br></pre></td></tr></table></figure></p>
+<p>如下所示为一个 lex 描述文件的示例，文件名为 <code>count.l</code>。
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">%&#123;</span><br><span class="line">    <span class="type">int</span> charcount=<span class="number">0</span>,linecount=<span class="number">0</span>;</span><br><span class="line">%&#125;</span><br><span class="line"></span><br><span class="line">%%</span><br><span class="line"></span><br><span class="line">. charcount++;</span><br><span class="line">\n &#123;linecount++; charcount++;&#125;</span><br><span class="line"></span><br><span class="line">%%</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    yylex();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;There were %d characters in %d lines\n&quot;</span>, charcount,linecount);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> 使用如下命令即可生成词法分析器。 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">lex -t count.l &gt; count.c</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">cc -c -o count.o count.c</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">cc -o count count.o -ll</span></span><br></pre></td></tr></table></figure>
+我们可以执行 <code>./count</code>，通过控制台输入文本，最后输入结束符
+Ctrl+D，查看统计结果。</p>
+<p>描述文件使用 <code>%%</code>
+对不同的部分进行分隔，其主要包含三部分内容，分别是：</p>
 <ul>
 <li><strong>定义</strong>（Definitions）：可选</li>
 <li><strong>规则</strong>（Rules）：必选</li>
 <li><strong>代码</strong>（Codes）：可选</li>
 </ul>
-<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>定义部分主要包含三部分内容，分别是：</p>
+<h2 id="定义">定义</h2>
+<p>定义部分主要包含三部分内容，分别是：</p>
 <ul>
 <li><strong>C 代码定义</strong></li>
 <li><strong>命名正则表达式定义</strong></li>
 <li><strong>指令定义</strong></li>
 </ul>
-<h3 id="C-代码定义"><a href="#C-代码定义" class="headerlink" title="C 代码定义"></a>C 代码定义</h3><p>C 代码定义基本格式如下所示：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">%&#123;</span><br><span class="line">codes</span><br><span class="line">%&#125;</span><br></pre></td></tr></table></figure>
-<p>在 <code>%&#123;</code> 和 <code>%&#125;</code> 之间定义 C 代码，lex 会将这些代码直接拷贝至输出文件中。一般会在这里定义变量，include 语句等。</p>
-<h3 id="命名正则表达式定义"><a href="#命名正则表达式定义" class="headerlink" title="命名正则表达式定义"></a>命名正则表达式定义</h3><p>命名正则表达式定义为一系列命名的正则表达式，用于描述不同的标识符，如：<code>function</code>、<code>let</code>、<code>import</code>，其基本格式如下所示：</p>
+<h3 id="c-代码定义">C 代码定义</h3>
+<p>C 代码定义基本格式如下所示： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">%&#123;</span><br><span class="line">codes</span><br><span class="line">%&#125;</span><br></pre></td></tr></table></figure> 在 <code>%&#123;</code> 和
+<code>%&#125;</code> 之间定义 C 代码，lex
+会将这些代码直接拷贝至输出文件中。一般会在这里定义变量，include
+语句等。</p>
+<h3 id="命名正则表达式定义">命名正则表达式定义</h3>
+<p>命名正则表达式定义为一系列命名的正则表达式，用于描述不同的标识符，如：<code>function</code>、<code>let</code>、<code>import</code>，其基本格式如下所示：
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">name expression</span><br></pre></td></tr></table></figure>
-<p>命名与正则表达式之间使用空格进行分隔。由于为正则表达式提供了命名，我们可以在其他地方直接引用该命名，引用方式为 <code>&#123;name&#125;</code>。如下所示为一个简单的示例：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">letter   [a-zA-Z]</span><br><span class="line">digit    [<span class="number">0</span><span class="number">-9</span>]</span><br><span class="line">punct    [,.:;!?]</span><br><span class="line">nonblank [^ \t]</span><br><span class="line">name     &#123;letter&#125;(&#123;letter&#125;│&#123;digit&#125;)</span><br></pre></td></tr></table></figure>
-
-<h3 id="指令定义"><a href="#指令定义" class="headerlink" title="指令定义"></a>指令定义</h3><p>指令定义则是通过 lex 提供的一系列以 <code>%</code> 开头的指令来修改内置变量的默认值。比如：</p>
+命名与正则表达式之间使用空格进行分隔。由于为正则表达式提供了命名，我们可以在其他地方直接引用该命名，引用方式为
+<code>&#123;name&#125;</code>。如下所示为一个简单的示例： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">letter   [a-zA-Z]</span><br><span class="line">digit    [<span class="number">0</span><span class="number">-9</span>]</span><br><span class="line">punct    [,.:;!?]</span><br><span class="line">nonblank [^ \t]</span><br><span class="line">name     &#123;letter&#125;(&#123;letter&#125;│&#123;digit&#125;)</span><br></pre></td></tr></table></figure></p>
+<h3 id="指令定义">指令定义</h3>
+<p>指令定义则是通过 lex 提供的一系列以 <code>%</code>
+开头的指令来修改内置变量的默认值。比如：</p>
 <ul>
-<li><code>%array</code>：将内置的 <code>yytext</code> 变量的类型设置为 <code>char</code> 数组类型。</li>
-<li><code>%pointer</code>：将内置的 <code>yytext</code> 标量的类型设置为 <code>char</code> 数组指针类型。</li>
-<li><code>%s STATE</code>：定义一个 <code>STATE</code> 状态，<code>STATE</code> 可以是任意字符串。lex 默认以 <code>INITIAL</code> 作为初始状态。</li>
-<li><code>%e size</code>：定义内置的 NFA 表项的数量。默认值是 1000。</li>
+<li><code>%array</code>：将内置的 <code>yytext</code> 变量的类型设置为
+<code>char</code> 数组类型。</li>
+<li><code>%pointer</code>：将内置的 <code>yytext</code> 标量的类型设置为
+<code>char</code> 数组指针类型。</li>
+<li><code>%s STATE</code>：定义一个 <code>STATE</code>
+状态，<code>STATE</code> 可以是任意字符串。lex 默认以
+<code>INITIAL</code> 作为初始状态。</li>
+<li><code>%e size</code>：定义内置的 NFA 表项的数量。默认值是
+1000。</li>
 <li><code>%n size</code>：定义内置的 DFA 表项的数量。默认值是 500。</li>
-<li><code>%p size</code>：定义内置的 move 表项的数量。默认值是 2500。</li>
+<li><code>%p size</code>：定义内置的 move 表项的数量。默认值是
+2500。</li>
 </ul>
-<h2 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h2><p>规则部分定义了一系列的 <strong>词法翻译规则</strong>（Lexical Translation Rules），每一条词法翻译规则可以分为两部分：<strong>模式</strong> 和 <strong>动作</strong>。</p>
+<h2 id="规则">规则</h2>
+<p>规则部分定义了一系列的 <strong>词法翻译规则</strong>（Lexical
+Translation
+Rules），每一条词法翻译规则可以分为两部分：<strong>模式</strong> 和
+<strong>动作</strong>。</p>
 <ul>
 <li>模式：用于描述词法规则的正则表达式</li>
 <li>动作：模式匹配时要执行的 C 代码</li>
 </ul>
-<p>词法翻译规则的基本格式如下所示：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pattern action</span><br><span class="line"><span class="comment">// or</span></span><br><span class="line">pattern &#123;</span><br><span class="line">    action</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="匹配"><a href="#匹配" class="headerlink" title="匹配"></a>匹配</h3><p><strong>当词法翻译规则的模式匹配成功时，lex 默认会将匹配的 token 值存储在 <code>yytext</code> 变量，将匹配的 token 长度存储在 <code>yyleng</code> 变量</strong>。如下所示，我们使用翻译规则来统计代码的字符数、单词数、行数。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">%&#123;</span><br><span class="line">    <span class="type">int</span> charcount=<span class="number">0</span>, linecount=<span class="number">0</span>, wordcount=<span class="number">0</span>;</span><br><span class="line">%&#125;</span><br><span class="line">letter [^ \t\n]</span><br><span class="line"></span><br><span class="line">%%</span><br><span class="line"></span><br><span class="line">&#123;letter&#125;+     &#123;wordcount++; charcount+=yyleng;&#125;</span><br><span class="line">.             charcount++;</span><br><span class="line">\n            &#123;linecount++; charcount++;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在很多场景下，词法分析器必须将识别结果返回给调用者。比如，在编译器中，当识别一个标识符时，必须同时返回 <strong>符号表表项的索引</strong> 和 <strong>token 号</strong>。由于 C 语言的 return 语句只能返回一个值，我们可以通过内置的 <code>yylval</code> 变量存储 token 值（即符号表项的索引）和 token 号。如下所示：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;name&#125; &#123; yyval = lookup(yytext); <span class="keyword">return</span>(NAME); &#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="状态"><a href="#状态" class="headerlink" title="状态"></a>状态</h2><p>如果词法翻译规则的模式的匹配依赖上下文，那么我们可以有不同的方式来处理。我们可以根据其所依赖上下文的相对位置，分为：<strong>左状态</strong>（Left State） 和 <strong>右状态</strong>（Right State）两种。</p>
-<h3 id="左状态"><a href="#左状态" class="headerlink" title="左状态"></a>左状态</h3><p>左状态的基本格式如下所示：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;STATE&gt;(pattern) &#123; action; BEGIN OTHERSTATE; &#125;</span><br></pre></td></tr></table></figure>
-<p>其中 <code>STATE</code> 为定义部分的状态定义所定义的状态，使用 <code>%s STATE</code> 进行定义。</p>
-<h3 id="右状态"><a href="#右状态" class="headerlink" title="右状态"></a>右状态</h3><p>右状态的基本格式如下所示：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pattern/context &#123;action&#125;</span><br></pre></td></tr></table></figure>
-<p>当匹配到 <code>pattern</code> 时，且紧随其后是 <code>context</code>，那么才算匹配成功。在这种情况下，<code>/</code> 后面的内容仍然位于输入流中，它们可以作为下一个匹配的输入。</p>
-<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><p>代码部分用于定义自定义代码，如果希望单独使用 lex，那么我们可以在代码部分里包含 <code>main</code> 入口函数。如果代码部分为空，那么 lex 会自动添加默认的 <code>main</code> 入口函数，如下所示：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    yylex();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>注意，<code>yylex</code> 包含了我们上述所定义的所有逻辑</strong>。</p>
-<h1 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h1><p>假如我们希望对一段文本内容的空格进行规范化，文本如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">This    text (all of it   )has occasional lapses , in punctuation(sometimes pretty bad) ,( sometimes not so).</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">(Ha!) Is this: fun? Or what!</span><br></pre></td></tr></table></figure>
-<p>空格规范化的要求包括：</p>
+<p>词法翻译规则的基本格式如下所示： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pattern action</span><br><span class="line"><span class="comment">// or</span></span><br><span class="line">pattern &#123;</span><br><span class="line">    action</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> ### 匹配
+<strong>当词法翻译规则的模式匹配成功时，lex 默认会将匹配的 token
+值存储在 <code>yytext</code> 变量，将匹配的 token 长度存储在
+<code>yyleng</code>
+变量</strong>。如下所示，我们使用翻译规则来统计代码的字符数、单词数、行数。
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">%&#123;</span><br><span class="line">    <span class="type">int</span> charcount=<span class="number">0</span>, linecount=<span class="number">0</span>, wordcount=<span class="number">0</span>;</span><br><span class="line">%&#125;</span><br><span class="line">letter [^ \t\n]</span><br><span class="line"></span><br><span class="line">%%</span><br><span class="line"></span><br><span class="line">&#123;letter&#125;+     &#123;wordcount++; charcount+=yyleng;&#125;</span><br><span class="line">.             charcount++;</span><br><span class="line">\n            &#123;linecount++; charcount++;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在很多场景下，词法分析器必须将识别结果返回给调用者。比如，在编译器中，当识别一个标识符时，必须同时返回
+<strong>符号表表项的索引</strong> 和 <strong>token 号</strong>。由于 C
+语言的 return 语句只能返回一个值，我们可以通过内置的 <code>yylval</code>
+变量存储 token 值（即符号表项的索引）和 token 号。如下所示：
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;name&#125; &#123; yyval = lookup(yytext); <span class="keyword">return</span>(NAME); &#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="状态">状态</h2>
+<p>如果词法翻译规则的模式的匹配依赖上下文，那么我们可以有不同的方式来处理。我们可以根据其所依赖上下文的相对位置，分为：<strong>左状态</strong>（Left
+State） 和 <strong>右状态</strong>（Right State）两种。</p>
+<h3 id="左状态">左状态</h3>
+<p>左状态的基本格式如下所示： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;STATE&gt;(pattern) &#123; action; BEGIN OTHERSTATE; &#125;</span><br></pre></td></tr></table></figure> 其中 <code>STATE</code>
+为定义部分的状态定义所定义的状态，使用 <code>%s STATE</code>
+进行定义。</p>
+<h3 id="右状态">右状态</h3>
+<p>右状态的基本格式如下所示： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pattern/context &#123;action&#125;</span><br></pre></td></tr></table></figure> 当匹配到
+<code>pattern</code> 时，且紧随其后是
+<code>context</code>，那么才算匹配成功。在这种情况下，<code>/</code>
+后面的内容仍然位于输入流中，它们可以作为下一个匹配的输入。</p>
+<h2 id="代码">代码</h2>
+<p>代码部分用于定义自定义代码，如果希望单独使用
+lex，那么我们可以在代码部分里包含 <code>main</code>
+入口函数。如果代码部分为空，那么 lex 会自动添加默认的 <code>main</code>
+入口函数，如下所示： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    yylex();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> <strong>注意，<code>yylex</code>
+包含了我们上述所定义的所有逻辑</strong>。</p>
+<h1 id="案例">案例</h1>
+<p>假如我们希望对一段文本内容的空格进行规范化，文本如下： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">This    text (all of it   )has occasional lapses , in punctuation(sometimes pretty bad) ,( sometimes not so).</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">(Ha!) Is this: fun? Or what!</span><br></pre></td></tr></table></figure>
+空格规范化的要求包括：</p>
 <ul>
 <li>对于多个连续的空行，只能保留一个</li>
 <li>对于多个连续的空格，只能保留一个</li>
@@ -538,863 +402,203 @@
 <li>左括号前，右括号后，添加空格</li>
 <li>后括号可以紧跟标点符号</li>
 </ul>
-<h2 id="右状态方案"><a href="#右状态方案" class="headerlink" title="右状态方案"></a>右状态方案</h2><p>如下所示，为左状态方案。我们通过匹配多余的空格，并通过操作 <code>yytext</code> 来删除空格。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">punct [,.;:!?]</span><br><span class="line">text [a-zA-Z]</span><br><span class="line"></span><br><span class="line">%%</span><br><span class="line"></span><br><span class="line"><span class="string">&quot;)&quot;</span><span class="string">&quot; &quot;</span>+/&#123;punct&#125;         &#123;<span class="built_in">printf</span>(<span class="string">&quot;)&quot;</span>);&#125;</span><br><span class="line"><span class="string">&quot;)&quot;</span>/&#123;text&#125;              &#123;<span class="built_in">printf</span>(<span class="string">&quot;) &quot;</span>);&#125;</span><br><span class="line">&#123;text&#125;+<span class="string">&quot; &quot;</span>+/<span class="string">&quot;)&quot;</span>         &#123;<span class="keyword">while</span> (yytext[yyleng<span class="number">-1</span>]==’ ’) yyleng--; ECHO;&#125;</span><br><span class="line"></span><br><span class="line">(&#123;punct&#125;|&#123;text&#125;+)/<span class="string">&quot;(&quot;</span>   &#123;ECHO; <span class="built_in">printf</span>(<span class="string">&quot; &quot;</span>);&#125;</span><br><span class="line"><span class="string">&quot;(&quot;</span><span class="string">&quot; &quot;</span>+/&#123;text&#125;          &#123;<span class="keyword">while</span> (yytext[yyleng<span class="number">-1</span>]==’ ’) yyleng--; ECHO;&#125;</span><br><span class="line"></span><br><span class="line">&#123;text&#125;+<span class="string">&quot; &quot;</span>+/&#123;punct&#125;     &#123;<span class="keyword">while</span> (yytext[yyleng<span class="number">-1</span>]==’ ’) yyleng--; ECHO;&#125;</span><br><span class="line"></span><br><span class="line">^<span class="string">&quot; &quot;</span>+                   ;</span><br><span class="line"><span class="string">&quot; &quot;</span>+                    &#123;<span class="built_in">printf</span>(<span class="string">&quot; &quot;</span>);&#125;</span><br><span class="line">.                       &#123;ECHO;&#125;</span><br><span class="line">\n/\n\n                 ;</span><br><span class="line">\n                      &#123;ECHO;&#125;</span><br><span class="line"></span><br><span class="line">%% </span><br></pre></td></tr></table></figure>
-
-<h2 id="左状态方案"><a href="#左状态方案" class="headerlink" title="左状态方案"></a>左状态方案</h2><p>如下所示，为左状态方案。在右状态方案中，我们需要覆盖每一种情况，很容易遗漏。翻译规则的数量可能会随着我们在空格前后识别的类别数量乘积式增长。通过使用左状态方案可以避免翻译规则乘积式增长。</p>
-<p>使用左状态，我们在 lex 内部实现了一个有限自动机，并且指定在不同的状态转移过程中如何处理空格。某些情况下，删除空格；某些情况下，掺入空格。</p>
-<p>在左状态方案中，我们定义了 4 种状态，分别对应左括号、右括号、文本、标点符号。不同状态下，匹配相同的内容，其状态转移操作不同。</p>
+<h2 id="右状态方案">右状态方案</h2>
+<p>如下所示，为左状态方案。我们通过匹配多余的空格，并通过操作
+<code>yytext</code> 来删除空格。 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">punct [,.;:!?]</span><br><span class="line">text [a-zA-Z]</span><br><span class="line"></span><br><span class="line">%%</span><br><span class="line"></span><br><span class="line"><span class="string">&quot;)&quot;</span><span class="string">&quot; &quot;</span>+/&#123;punct&#125;         &#123;<span class="built_in">printf</span>(<span class="string">&quot;)&quot;</span>);&#125;</span><br><span class="line"><span class="string">&quot;)&quot;</span>/&#123;text&#125;              &#123;<span class="built_in">printf</span>(<span class="string">&quot;) &quot;</span>);&#125;</span><br><span class="line">&#123;text&#125;+<span class="string">&quot; &quot;</span>+/<span class="string">&quot;)&quot;</span>         &#123;<span class="keyword">while</span> (yytext[yyleng<span class="number">-1</span>]==’ ’) yyleng--; ECHO;&#125;</span><br><span class="line"></span><br><span class="line">(&#123;punct&#125;|&#123;text&#125;+)/<span class="string">&quot;(&quot;</span>   &#123;ECHO; <span class="built_in">printf</span>(<span class="string">&quot; &quot;</span>);&#125;</span><br><span class="line"><span class="string">&quot;(&quot;</span><span class="string">&quot; &quot;</span>+/&#123;text&#125;          &#123;<span class="keyword">while</span> (yytext[yyleng<span class="number">-1</span>]==’ ’) yyleng--; ECHO;&#125;</span><br><span class="line"></span><br><span class="line">&#123;text&#125;+<span class="string">&quot; &quot;</span>+/&#123;punct&#125;     &#123;<span class="keyword">while</span> (yytext[yyleng<span class="number">-1</span>]==’ ’) yyleng--; ECHO;&#125;</span><br><span class="line"></span><br><span class="line">^<span class="string">&quot; &quot;</span>+                   ;</span><br><span class="line"><span class="string">&quot; &quot;</span>+                    &#123;<span class="built_in">printf</span>(<span class="string">&quot; &quot;</span>);&#125;</span><br><span class="line">.                       &#123;ECHO;&#125;</span><br><span class="line">\n/\n\n                 ;</span><br><span class="line">\n                      &#123;ECHO;&#125;</span><br><span class="line"></span><br><span class="line">%% </span><br></pre></td></tr></table></figure></p>
+<h2 id="左状态方案">左状态方案</h2>
+<p>如下所示，为左状态方案。在右状态方案中，我们需要覆盖每一种情况，很容易遗漏。翻译规则的数量可能会随着我们在空格前后识别的类别数量乘积式增长。通过使用左状态方案可以避免翻译规则乘积式增长。</p>
+<p>使用左状态，我们在 lex
+内部实现了一个有限自动机，并且指定在不同的状态转移过程中如何处理空格。某些情况下，删除空格；某些情况下，掺入空格。</p>
+<p>在左状态方案中，我们定义了 4
+种状态，分别对应左括号、右括号、文本、标点符号。不同状态下，匹配相同的内容，其状态转移操作不同。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">punct [,.;:!?]</span><br><span class="line">text [a-zA-Z]</span><br><span class="line"></span><br><span class="line">%s OPEN</span><br><span class="line">%s CLOSE</span><br><span class="line">%s TEXT</span><br><span class="line">%s PUNCT</span><br><span class="line"></span><br><span class="line">%%</span><br><span class="line"></span><br><span class="line"><span class="string">&quot; &quot;</span>+ ;</span><br><span class="line"></span><br><span class="line">&lt;INITIAL&gt;<span class="string">&quot;(&quot;</span>            &#123;ECHO; BEGIN OPEN;&#125;</span><br><span class="line">&lt;TEXT&gt;<span class="string">&quot;(&quot;</span>               &#123;<span class="built_in">printf</span>(<span class="string">&quot; &quot;</span>); ECHO; BEGIN OPEN;&#125;</span><br><span class="line">&lt;PUNCT&gt;<span class="string">&quot;(&quot;</span>              &#123;<span class="built_in">printf</span>(<span class="string">&quot; &quot;</span>); ECHO; BEGIN OPEN;&#125;</span><br><span class="line"></span><br><span class="line"><span class="string">&quot;)&quot;</span>                     &#123;ECHO ; BEGIN CLOSE;&#125;</span><br><span class="line"></span><br><span class="line">&lt;INITIAL&gt;&#123;text&#125;+        &#123;ECHO; BEGIN TEXT;&#125;</span><br><span class="line">&lt;OPEN&gt;&#123;text&#125;+           &#123;ECHO; BEGIN TEXT;&#125;</span><br><span class="line">&lt;CLOSE&gt;&#123;text&#125;+          &#123;<span class="built_in">printf</span>(<span class="string">&quot; &quot;</span>); ECHO; BEGIN TEXT;&#125;</span><br><span class="line">&lt;TEXT&gt;&#123;text&#125;+           &#123;<span class="built_in">printf</span>(<span class="string">&quot; &quot;</span>); ECHO; BEGIN TEXT;&#125;</span><br><span class="line">&lt;PUNCT&gt;&#123;text&#125;+          &#123;<span class="built_in">printf</span>(<span class="string">&quot; &quot;</span>); ECHO; BEGIN TEXT;&#125;</span><br><span class="line"></span><br><span class="line">&#123;punct&#125;+                &#123;ECHO; BEGIN PUNCT;&#125;</span><br><span class="line"></span><br><span class="line">\n                      &#123;ECHO; BEGIN INITIAL;&#125;</span><br><span class="line"></span><br><span class="line">%%</span><br></pre></td></tr></table></figure>
-
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文简单介绍了词法分析器生成器 lex 的基本原理，重点介绍了其描述文件的基本结构，以便后续在接触此类文件时了解其相关的结构和概念，从而能够快速上手。</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
-<li><a target="_blank" rel="noopener" href="https://www.ibm.com/docs/en/zos/2.5.0?topic=services-zos-unix-system-programming-tools">z&#x2F;OS UNIX System Services Programming Tools</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.csie.cgu.edu.tw/~jhchen/course/PLP/Lex/lextut.pdf">A Lex Tutorial</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.csie.cgu.edu.tw/~jhchen/course/PLP/Yacc.pdf">Yacc</a></li>
-<li><a target="_blank" rel="noopener" href="https://www2.cs.arizona.edu/~debray/Teaching/CSc453/DOCS/tutorial-large.pdf">Lex and Yacc: A Brisk Tutorial</a></li>
+<h1 id="总结">总结</h1>
+<p>本文简单介绍了词法分析器生成器 lex
+的基本原理，重点介绍了其描述文件的基本结构，以便后续在接触此类文件时了解其相关的结构和概念，从而能够快速上手。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li><a
+href="https://www.ibm.com/docs/en/zos/2.5.0?topic=services-zos-unix-system-programming-tools">z/OS
+UNIX System Services Programming Tools</a></li>
+<li><a
+href="https://www.csie.cgu.edu.tw/~jhchen/course/PLP/Lex/lextut.pdf">A
+Lex Tutorial</a></li>
+<li><a
+href="https://www.csie.cgu.edu.tw/~jhchen/course/PLP/Yacc.pdf">Yacc</a></li>
+<li><a
+href="https://www2.cs.arizona.edu/~debray/Teaching/CSc453/DOCS/tutorial-large.pdf">Lex
+and Yacc: A Brisk Tutorial</a></li>
 </ol>
 
-      
     </div>
-    
-    
-    
 
     
-
     
-      <div>
-        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
-  <div>欣赏此文？求鼓励，求支持！</div>
-  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
-    <span>赏</span>
-  </button>
-  <div id="QR" style="display: none;">
-
-    
-      <div id="wechat" style="display: inline-block">
-        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
-        <p>WeChat Pay</p>
-      </div>
-    
-
-    
-      <div id="alipay" style="display: inline-block">
-        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
-        <p>Alipay</p>
-      </div>
-    
-
-    
-
-  </div>
-</div>
-
-      </div>
-    
-
     
 
     <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/lex/" rel="tag"># lex</a>
-          
-        </div>
-      
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
 
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2022/05/21/understand-principle-of-git/" rel="next" title="深入理解 Git 底层实现原理">
-                <i class="fa fa-chevron-left"></i> 深入理解 Git 底层实现原理
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2022/07/10/compiler-principle-tool-yacc/" rel="prev" title="编译原理工具系列(2)——yacc">
-                编译原理工具系列(2)——yacc <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-        <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-  <a class="jiathis_button_tsina"></a>
-  <a class="jiathis_button_tqq"></a>
-  <a class="jiathis_button_weixin"></a>
-  <a class="jiathis_button_cqq"></a>
-  <a class="jiathis_button_douban"></a>
-  <a class="jiathis_button_renren"></a>
-  <a class="jiathis_button_qzone"></a>
-  <a class="jiathis_button_kaixin001"></a>
-  <a class="jiathis_button_copy"></a>
-  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
-  <a class="jiathis_counter_style"></a>
 </div>
-<script type="text/javascript" >
-  var jiathis_config={
-    hideMore:false
-  }
-</script>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
 
-      
-    </div>
-  </div>
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
 
+  <div class="social-list">
 
-          </div>
-          
-
-
-          
-  <div class="comments" id="comments">
-    
-      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
-    
-  </div>
-
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <img class="site-author-image" itemprop="image"
-               src="/images/SlamDunk.png"
-               alt="" />
-          <p class="site-author-name" itemprop="name"></p>
-           
-              <p class="site-description motion-element" itemprop="description"></p>
-          
-        </div>
-        <nav class="site-state motion-element">
-
-          
-            <div class="site-state-item site-state-posts">
-              <a href="/archives">
-                <span class="site-state-item-count">128</span>
-                <span class="site-state-item-name">日志</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-categories">
-              <a href="/categories/index.html">
-                <span class="site-state-item-count">28</span>
-                <span class="site-state-item-name">分类</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-tags">
-              <a href="/tags/index.html">
-                <span class="site-state-item-count">284</span>
-                <span class="site-state-item-name">标签</span>
-              </a>
-            </div>
-          
-
-        </nav>
-
-        
-          <div class="feed-link motion-element">
-            <a href="/atom.xml" rel="alternate">
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
               <i class="fa fa-rss"></i>
-              RSS
-            </a>
-          </div>
-        
+            </span>
 
-        <div class="links-of-author motion-element">
-          
-            
-              <span class="links-of-author-item">
-                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
-                  
-                    <i class="fa fa-fw fa-github"></i>
-                  
-                    
-                      GitHub
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
-                  
-                    <i class="fa fa-fw fa-weibo"></i>
-                  
-                    
-                      微博
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                    
-                      Facebook
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
-                  
-                    <i class="fa fa-fw fa-instagram"></i>
-                  
-                    
-                      Instagram
-                    
-                </a>
-              </span>
-            
-          
-        </div>
-
-        
-        
-
-        
-        
-
-        
-
-
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">工作原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%8F%E8%BF%B0%E6%96%87%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">描述文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.</span> <span class="nav-text">定义</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#C-%E4%BB%A3%E7%A0%81%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.1.</span> <span class="nav-text">C 代码定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E5%90%8D%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.2.</span> <span class="nav-text">命名正则表达式定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E4%BB%A4%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.3.</span> <span class="nav-text">指令定义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%84%E5%88%99"><span class="nav-number">2.2.</span> <span class="nav-text">规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8C%B9%E9%85%8D"><span class="nav-number">2.2.1.</span> <span class="nav-text">匹配</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8A%B6%E6%80%81"><span class="nav-number">2.3.</span> <span class="nav-text">状态</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A6%E7%8A%B6%E6%80%81"><span class="nav-number">2.3.1.</span> <span class="nav-text">左状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%B3%E7%8A%B6%E6%80%81"><span class="nav-number">2.3.2.</span> <span class="nav-text">右状态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81"><span class="nav-number">2.4.</span> <span class="nav-text">代码</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B"><span class="nav-number">3.</span> <span class="nav-text">案例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%B3%E7%8A%B6%E6%80%81%E6%96%B9%E6%A1%88"><span class="nav-number">3.1.</span> <span class="nav-text">右状态方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A6%E7%8A%B6%E6%80%81%E6%96%B9%E6%A1%88"><span class="nav-number">3.2.</span> <span class="nav-text">左状态方案</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
-        
+            <span class="label">RSS</span>
+          </a>
       </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright" >
-  
-  &copy;  2018 - 
-  <span itemprop="copyrightYear">2023</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Pisces
-  </a>
-</div>
-
-<div>
-  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
-</div>
-
-
+          <div class="post-tags">
+              <a href="/tags/lex/" rel="tag"># lex</a>
+          </div>
 
         
-<div class="busuanzi-count">
-  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-  
-    <span class="site-uv">
-      <i class="fa fa-user"></i>本站总访客
-      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
-      人次
-    </span>
-  
-
-  
-    <span class="site-pv">
-      <i class="fa fa-eye"></i>本站总访问量
-      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
-      次
-    </span>
-  
-</div>
-
-
-        
-      </div>
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/05/21/understand-principle-of-git/" rel="prev" title="深入理解 Git 底层实现原理">
+                  <i class="fa fa-angle-left"></i> 深入理解 Git 底层实现原理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/07/10/compiler-principle-tool-yacc/" rel="next" title="编译原理工具系列(2)——yacc">
+                  编译原理工具系列(2)——yacc <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
     </footer>
+  </article>
+</div>
 
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
 
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
   </div>
 
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
   
 
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2022/06/22/compiler-principle-tool-lex/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
   }
+}
 </script>
 
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
-
-
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  
-
-
-
-
-	
-
-
-
-
-
-  
-
-
-
-
-
-  
-    <script type="text/javascript">
-      (function(d, s) {
-        var j, e = d.getElementsByTagName(s)[0];
-        if (typeof LivereTower === 'function') { return; }
-        j = d.createElement(s);
-        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
-        j.async = true;
-        e.parentNode.insertBefore(j, e);
-      })(document, 'script');
-    </script>
-  
-
-
-
-
-
-
-  
-
-  <script type="text/javascript">
-    // Popup Window;
-    var isfetched = false;
-    var isXml = true;
-    // Search DB path;
-    var search_path = "search.xml";
-    if (search_path.length === 0) {
-      search_path = "search.xml";
-    } else if (/json$/i.test(search_path)) {
-      isXml = false;
-    }
-    var path = "/" + search_path;
-    // monitor main search box;
-
-    var onPopupClose = function (e) {
-      $('.popup').hide();
-      $('#local-search-input').val('');
-      $('.search-result-list').remove();
-      $('#no-result').remove();
-      $(".local-search-pop-overlay").remove();
-      $('body').css('overflow', '');
-    }
-
-    function proceedsearch() {
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
-        .css('overflow', 'hidden');
-      $('.search-popup-overlay').click(onPopupClose);
-      $('.popup').toggle();
-      var $localSearchInput = $('#local-search-input');
-      $localSearchInput.attr("autocapitalize", "none");
-      $localSearchInput.attr("autocorrect", "off");
-      $localSearchInput.focus();
-    }
-
-    // search function;
-    var searchFunc = function(path, search_id, content_id) {
-      'use strict';
-
-      // start loading animation
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
-          '<div id="search-loading-icon">' +
-          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
-          '</div>' +
-          '</div>')
-        .css('overflow', 'hidden');
-      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
-
-      $.ajax({
-        url: path,
-        dataType: isXml ? "xml" : "json",
-        async: true,
-        success: function(res) {
-          // get the contents from search data
-          isfetched = true;
-          $('.popup').detach().appendTo('.header-inner');
-          var datas = isXml ? $("entry", res).map(function() {
-            return {
-              title: $("title", this).text(),
-              content: $("content",this).text(),
-              url: $("url" , this).text()
-            };
-          }).get() : res;
-          var input = document.getElementById(search_id);
-          var resultContent = document.getElementById(content_id);
-          var inputEventFunction = function() {
-            var searchText = input.value.trim().toLowerCase();
-            var keywords = searchText.split(/[\s\-]+/);
-            if (keywords.length > 1) {
-              keywords.push(searchText);
-            }
-            var resultItems = [];
-            if (searchText.length > 0) {
-              // perform local searching
-              datas.forEach(function(data) {
-                var isMatch = false;
-                var hitCount = 0;
-                var searchTextCount = 0;
-                var title = data.title.trim();
-                var titleInLowerCase = title.toLowerCase();
-                var content = data.content.trim().replace(/<[^>]+>/g,"");
-                var contentInLowerCase = content.toLowerCase();
-                var articleUrl = decodeURIComponent(data.url);
-                var indexOfTitle = [];
-                var indexOfContent = [];
-                // only match articles with not empty titles
-                if(title != '') {
-                  keywords.forEach(function(keyword) {
-                    function getIndexByWord(word, text, caseSensitive) {
-                      var wordLen = word.length;
-                      if (wordLen === 0) {
-                        return [];
-                      }
-                      var startPosition = 0, position = [], index = [];
-                      if (!caseSensitive) {
-                        text = text.toLowerCase();
-                        word = word.toLowerCase();
-                      }
-                      while ((position = text.indexOf(word, startPosition)) > -1) {
-                        index.push({position: position, word: word});
-                        startPosition = position + wordLen;
-                      }
-                      return index;
-                    }
-
-                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
-                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
-                  });
-                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
-                    isMatch = true;
-                    hitCount = indexOfTitle.length + indexOfContent.length;
-                  }
-                }
-
-                // show search results
-
-                if (isMatch) {
-                  // sort index by position of keyword
-
-                  [indexOfTitle, indexOfContent].forEach(function (index) {
-                    index.sort(function (itemLeft, itemRight) {
-                      if (itemRight.position !== itemLeft.position) {
-                        return itemRight.position - itemLeft.position;
-                      } else {
-                        return itemLeft.word.length - itemRight.word.length;
-                      }
-                    });
-                  });
-
-                  // merge hits into slices
-
-                  function mergeIntoSlice(text, start, end, index) {
-                    var item = index[index.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    var hits = [];
-                    var searchTextCountInSlice = 0;
-                    while (position + word.length <= end && index.length != 0) {
-                      if (word === searchText) {
-                        searchTextCountInSlice++;
-                      }
-                      hits.push({position: position, length: word.length});
-                      var wordEnd = position + word.length;
-
-                      // move to next position of hit
-
-                      index.pop();
-                      while (index.length != 0) {
-                        item = index[index.length - 1];
-                        position = item.position;
-                        word = item.word;
-                        if (wordEnd > position) {
-                          index.pop();
-                        } else {
-                          break;
-                        }
-                      }
-                    }
-                    searchTextCount += searchTextCountInSlice;
-                    return {
-                      hits: hits,
-                      start: start,
-                      end: end,
-                      searchTextCount: searchTextCountInSlice
-                    };
-                  }
-
-                  var slicesOfTitle = [];
-                  if (indexOfTitle.length != 0) {
-                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
-                  }
-
-                  var slicesOfContent = [];
-                  while (indexOfContent.length != 0) {
-                    var item = indexOfContent[indexOfContent.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    // cut out 100 characters
-                    var start = position - 20;
-                    var end = position + 80;
-                    if(start < 0){
-                      start = 0;
-                    }
-                    if (end < position + word.length) {
-                      end = position + word.length;
-                    }
-                    if(end > content.length){
-                      end = content.length;
-                    }
-                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
-                  }
-
-                  // sort slices in content by search text's count and hits' count
-
-                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
-                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
-                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
-                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
-                      return sliceRight.hits.length - sliceLeft.hits.length;
-                    } else {
-                      return sliceLeft.start - sliceRight.start;
-                    }
-                  });
-
-                  // select top N slices in content
-
-                  var upperBound = parseInt('1');
-                  if (upperBound >= 0) {
-                    slicesOfContent = slicesOfContent.slice(0, upperBound);
-                  }
-
-                  // highlight title and content
-
-                  function highlightKeyword(text, slice) {
-                    var result = '';
-                    var prevEnd = slice.start;
-                    slice.hits.forEach(function (hit) {
-                      result += text.substring(prevEnd, hit.position);
-                      var end = hit.position + hit.length;
-                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
-                      prevEnd = end;
-                    });
-                    result += text.substring(prevEnd, slice.end);
-                    return result;
-                  }
-
-                  var resultItem = '';
-
-                  if (slicesOfTitle.length != 0) {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
-                  } else {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
-                  }
-
-                  slicesOfContent.forEach(function (slice) {
-                    resultItem += "<a href='" + articleUrl + "'>" +
-                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
-                      "...</p>" + "</a>";
-                  });
-
-                  resultItem += "</li>";
-                  resultItems.push({
-                    item: resultItem,
-                    searchTextCount: searchTextCount,
-                    hitCount: hitCount,
-                    id: resultItems.length
-                  });
-                }
-              })
-            };
-            if (keywords.length === 1 && keywords[0] === "") {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
-            } else if (resultItems.length === 0) {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
-            } else {
-              resultItems.sort(function (resultLeft, resultRight) {
-                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
-                  return resultRight.searchTextCount - resultLeft.searchTextCount;
-                } else if (resultLeft.hitCount !== resultRight.hitCount) {
-                  return resultRight.hitCount - resultLeft.hitCount;
-                } else {
-                  return resultRight.id - resultLeft.id;
-                }
-              });
-              var searchResultList = '<ul class=\"search-result-list\">';
-              resultItems.forEach(function (result) {
-                searchResultList += result.item;
-              })
-              searchResultList += "</ul>";
-              resultContent.innerHTML = searchResultList;
-            }
-          }
-
-          if ('auto' === 'auto') {
-            input.addEventListener('input', inputEventFunction);
-          } else {
-            $('.search-icon').click(inputEventFunction);
-            input.addEventListener('keypress', function (event) {
-              if (event.keyCode === 13) {
-                inputEventFunction();
-              }
-            });
-          }
-
-          // remove loading animation
-          $(".local-search-pop-overlay").remove();
-          $('body').css('overflow', '');
-
-          proceedsearch();
-        }
-      });
-    }
-
-    // handle and trigger popup window;
-    $('.popup-trigger').click(function(e) {
-      e.stopPropagation();
-      if (isfetched === false) {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-      } else {
-        proceedsearch();
-      };
-    });
-
-    $('.popup-btn-close').click(onPopupClose);
-    $('.popup').click(function(e){
-      e.stopPropagation();
-    });
-    $(document).on('keyup', function (event) {
-      var shouldDismissSearchPopup = event.which === 27 &&
-        $('.search-popup').is(':visible');
-      if (shouldDismissSearchPopup) {
-        onPopupClose();
-      }
-    });
-  </script>
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      });
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      });
-    </script>
-    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
-
-
-  
-
-  
-
-
-  undefined
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
 </html>

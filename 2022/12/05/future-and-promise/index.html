@@ -1,110 +1,33 @@
 <!DOCTYPE html>
-
-
-
-  
-
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-  
-  
-  
-  
-
-  
-    
-    
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    
-    
-    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-  
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
-
-
-  <meta name="keywords" content="Future,Promise,await,async,Task,Thunk," />
-
-
-
-
-
-  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
-
-
-
-
-  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
-
-
-
-
-
-
-<meta name="description" content="从异步与并发编程兴起以来，学术界与工业界提出了非常多的解决方案，本文将要介绍的 Future 和 Promise 正是其中的两种解决方案。Future 和 Promise 的实现理念非常相似，两者在发展过程中相互借鉴，相互融合。目前，很多流行的语言和框架都引入了 Future 和 Promise 的概念，如：JavaScript、Node.js、Scala、Java、C++ 等。 本文，我们来简单">
+    <meta name="description" content="从异步与并发编程兴起以来，学术界与工业界提出了非常多的解决方案，本文将要介绍的 Future 和 Promise 正是其中的两种解决方案。Future 和 Promise 的实现理念非常相似，两者在发展过程中相互借鉴，相互融合。目前，很多流行的语言和框架都引入了 Future 和 Promise 的概念，如：JavaScript、Node.js、Scala、Java、C++ 等。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Future 和 Promise">
 <meta property="og:url" content="http://chuquan.me/2022/12/05/future-and-promise/index.html">
 <meta property="og:site_name" content="楚权的世界">
-<meta property="og:description" content="从异步与并发编程兴起以来，学术界与工业界提出了非常多的解决方案，本文将要介绍的 Future 和 Promise 正是其中的两种解决方案。Future 和 Promise 的实现理念非常相似，两者在发展过程中相互借鉴，相互融合。目前，很多流行的语言和框架都引入了 Future 和 Promise 的概念，如：JavaScript、Node.js、Scala、Java、C++ 等。 本文，我们来简单">
-<meta property="og:locale">
+<meta property="og:description" content="从异步与并发编程兴起以来，学术界与工业界提出了非常多的解决方案，本文将要介绍的 Future 和 Promise 正是其中的两种解决方案。Future 和 Promise 的实现理念非常相似，两者在发展过程中相互借鉴，相互融合。目前，很多流行的语言和框架都引入了 Future 和 Promise 的概念，如：JavaScript、Node.js、Scala、Java、C++ 等。">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-12-05T10:46:53.000Z">
-<meta property="article:modified_time" content="2022-12-25T12:56:45.027Z">
+<meta property="article:modified_time" content="2023-09-16T09:20:19.208Z">
 <meta property="article:author" content="Bao Chuquan">
 <meta property="article:tag" content="Future">
 <meta property="article:tag" content="Promise">
@@ -115,405 +38,373 @@
 <meta name="twitter:card" content="summary">
 
 
-
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '',
-    scheme: 'Pisces',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: true,
-    duoshuo: {
-      userId: '0',
-      author: '博主'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
+<link rel="canonical" href="http://chuquan.me/2022/12/05/future-and-promise/">
 
 
 
-  <link rel="canonical" href="http://chuquan.me/2022/12/05/future-and-promise/"/>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2022/12/05/future-and-promise/","path":"2022/12/05/future-and-promise/","title":"Future 和 Promise"}</script>
 
-
-
-
-
-  <title>Future 和 Promise | 楚权的世界</title>
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Future 和 Promise | 楚权的世界</title>
   
 
-
-
-
-
-  <script type="text/javascript">
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
 
 
 
 
 
 
-
-
-
-
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
 <!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
-  
-  
-    
-  
-
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
-    <div class="headband"></div>
-	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
-    
-
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">楚权的世界</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
     </div>
-      
-        <p class="site-subtitle">Seek the wonder of life.</p>
-      
   </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
   </div>
 </div>
+
+
 
 <nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-photos">
-          <a href="/photos" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
-            
-            相册
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            归档
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-commonweal">
-          <a href="/404.html" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
-            
-            公益
-          </a>
-        </li>
-      
-
-      
-        <li class="menu-item menu-item-search">
-          
-            <a href="javascript:;" class="popup-trigger">
-          
-            
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
-            
-            搜索
-          </a>
-        </li>
-      
-    </ul>
-  
-
-  
-    <div class="site-search">
-      
-  <div class="popup search-popup local-search-popup">
-  <div class="local-search-header clearfix">
-    <span class="search-icon">
-      <i class="fa fa-search"></i>
-    </span>
-    <span class="popup-btn-close">
-      <i class="fa fa-times-circle"></i>
-    </span>
-    <div class="local-search-input-wrapper">
-      <input autocomplete="off"
-             placeholder="搜索..." spellcheck="false"
-             type="text" id="local-search-input">
-    </div>
-  </div>
-  <div id="local-search-result"></div>
-</div>
-
-
-
-    </div>
-  
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
 </nav>
 
 
 
- </div>
-    </header>
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
 
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
+    </div>
+  </div>
 
-  <div id="posts" class="posts-expand">
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8E%86%E5%8F%B2%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">历史简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#thunk"><span class="nav-number">1.1.</span> <span class="nav-text">1962. Thunk</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#future"><span class="nav-number">1.2.</span> <span class="nav-text">1977. Future</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#multilisp"><span class="nav-number">1.3.</span> <span class="nav-text">1985. Multilisp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#promise"><span class="nav-number">1.4.</span> <span class="nav-text">1988. Promise</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E7%90%86%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">设计理念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.1.</span> <span class="nav-text">整体实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#c-future-promise"><span class="nav-number">2.1.1.</span> <span class="nav-text">C++ Future &amp; Promise</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#scala-future-promise"><span class="nav-number">2.1.2.</span> <span class="nav-text">Scala Future &amp; Promise</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8B%AC%E7%AB%8B%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.2.</span> <span class="nav-text">独立实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E8%A1%A8%E7%A4%BA"><span class="nav-number">2.2.1.</span> <span class="nav-text">状态表示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E6%9B%B4%E6%96%B0"><span class="nav-number">2.2.2.</span> <span class="nav-text">状态更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%94%E5%9B%9E%E6%9C%BA%E5%88%B6"><span class="nav-number">2.2.3.</span> <span class="nav-text">返回机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.2.4.</span> <span class="nav-text">语言实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#dart"><span class="nav-number">2.2.4.1.</span> <span class="nav-text">Dart</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#c"><span class="nav-number">2.2.4.2.</span> <span class="nav-text">C</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#swift"><span class="nav-number">2.2.4.3.</span> <span class="nav-text">Swift</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#java"><span class="nav-number">2.2.4.4.</span> <span class="nav-text">Java</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#javascript"><span class="nav-number">2.2.4.5.</span> <span class="nav-text">JavaScript</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">129</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">288</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
     
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
 
   
 
-  
+
+<div class="post-block">
   
   
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://chuquan.me/2022/12/05/future-and-promise/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
     </span>
 
-    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Future 和 Promise | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
       <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Future 和 Promise
+        </h1>
 
-        
-        
-          <h1 class="post-title" itemprop="name headline">Future 和 Promise</h1>
-        
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
 
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="发表于" itemprop="dateCreated datePublished" datetime="2022-12-05T18:46:53+08:00">
-                2022-12-05
-              </time>
-            
+      <time title="创建时间：2022-12-05 18:46:53" itemprop="dateCreated datePublished" datetime="2022-12-05T18:46:53+08:00">2022-12-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-09-16 17:20:19" itemprop="dateModified" datetime="2023-09-16T17:20:19+08:00">2023-09-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%BC%82%E6%AD%A5%E4%B8%8E%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">异步与并发</span></a>
+        </span>
+    </span>
 
-            
-              <span class="post-meta-divider">|</span>
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-check-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">更新于</span>
-              
-              <time title="更新于" itemprop="dateModified" datetime="2022-12-25T20:56:45+08:00">
-                2022-12-25
-              </time>
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%BC%82%E6%AD%A5%E4%B8%8E%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index">
-                    <span itemprop="name">异步与并发</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
-          
-
-          
-
-          
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2022/12/05/future-and-promise/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2022/12/05/future-and-promise/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
 
         </div>
       </header>
-    
 
     
     
     
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <p>从异步与并发编程兴起以来，学术界与工业界提出了非常多的解决方案，本文将要介绍的 Future 和 Promise 正是其中的两种解决方案。Future 和 Promise 的实现理念非常相似，两者在发展过程中相互借鉴，相互融合。目前，很多流行的语言和框架都引入了 Future 和 Promise 的概念，如：JavaScript、Node.js、Scala、Java、C++ 等。</p>
-<p>本文，我们来简单聊一聊 Future 和 Promise 历史和设计，以及两者之间的关系与区别。</p>
-<h1 id="历史简介"><a href="#历史简介" class="headerlink" title="历史简介"></a>历史简介</h1><h2 id="1962-Thunk"><a href="#1962-Thunk" class="headerlink" title="1962. Thunk"></a>1962. Thunk</h2><p>关于 Future 和 Promise 的起源，最早可以追溯到 1961 年的 Thunk。根据创造者 P.Z. Ingerman 的描述，<strong>Thunk 是提供地址的一段代码</strong>。</p>
-<p>Thunk 被设计为一种将实际参数绑定到 Algol-60 过程调用中的正式定义的方法。如果用表达式代替形式参数调用过程，编译器会生成一个 thunk，它将执行表达式并将结果的地址留在某个标准位置。</p>
-<p>目前，thunk 的用法仍然非常广泛，我在 <a href="http://chuquan.me/2021/09/25/swift-generic-protocol/">《Swift 泛型协议》</a> 一文中也提到过 thunk 的释义。</p>
-<h2 id="1977-Future"><a href="#1977-Future" class="headerlink" title="1977. Future"></a>1977. Future</h2><p>1977 年，Henry C. Baker 和 Hewitt 在论文《The Incremental Garbage Collection of Process》中首次提到 Future。</p>
-<p>他们提出了一个新的术语 <code>call-by-future</code>，用于描述一种基于 Future 的调用形式。当将表达式提供给执行器时，将返回该表达式的 <code>.future</code>。如果表达式返回类型为值类型，那么当未来表达式计算得到值时，会将值返回。这里会为每一个 <code>future</code> 都会创建一个进程，并立即执行表达式。如果表达式已完成，则值立即可用；如果表达式未完成，则请求进程等待表达式执行完成。</p>
+    <div class="post-body" itemprop="articleBody"><p>从异步与并发编程兴起以来，学术界与工业界提出了非常多的解决方案，本文将要介绍的
+Future 和 Promise 正是其中的两种解决方案。Future 和 Promise
+的实现理念非常相似，两者在发展过程中相互借鉴，相互融合。目前，很多流行的语言和框架都引入了
+Future 和 Promise 的概念，如：JavaScript、Node.js、Scala、Java、C++
+等。</p>
+<span id="more"></span>
+<p>本文，我们来简单聊一聊 Future 和 Promise
+历史和设计，以及两者之间的关系与区别。</p>
+<h1 id="历史简介">历史简介</h1>
+<h2 id="thunk">1962. Thunk</h2>
+<p>关于 Future 和 Promise 的起源，最早可以追溯到 1961 年的
+Thunk。根据创造者 P.Z. Ingerman 的描述，<strong>Thunk
+是提供地址的一段代码</strong>。</p>
+<p>Thunk 被设计为一种将实际参数绑定到 Algol-60
+过程调用中的正式定义的方法。如果用表达式代替形式参数调用过程，编译器会生成一个
+thunk，它将执行表达式并将结果的地址留在某个标准位置。</p>
+<p>目前，thunk 的用法仍然非常广泛，我在 <a
+href="http://chuquan.me/2021/09/25/swift-generic-protocol/">《Swift
+泛型协议》</a> 一文中也提到过 thunk 的释义。</p>
+<h2 id="future">1977. Future</h2>
+<p>1977 年，Henry C. Baker 和 Hewitt 在论文《The Incremental Garbage
+Collection of Process》中首次提到 Future。</p>
+<p>他们提出了一个新的术语 <code>call-by-future</code>，用于描述一种基于
+Future 的调用形式。当将表达式提供给执行器时，将返回该表达式的
+<code>.future</code>。如果表达式返回类型为值类型，那么当未来表达式计算得到值时，会将值返回。这里会为每一个
+<code>future</code>
+都会创建一个进程，并立即执行表达式。如果表达式已完成，则值立即可用；如果表达式未完成，则请求进程等待表达式执行完成。</p>
 <p>在论文中，Future 主要由三部分组成：</p>
 <ul>
 <li><strong>进程（Process）</strong>：用于执行表达式的进程。</li>
 <li><strong>单元（Cell）</strong>：可写入值的内存地址，用于存储表达式的未来值。</li>
 <li><strong>队列（Queue）</strong>：等待未来值的进程列表。</li>
 </ul>
-<p>从 Future 的概念我们可以看出，论文所提到的 Future 几乎已经和现代的 Future 概念非常接近了。</p>
-<h2 id="1985-Multilisp"><a href="#1985-Multilisp" class="headerlink" title="1985. Multilisp"></a>1985. Multilisp</h2><p>1985 年，Robert H. Halstead 在论文《Multilisp: A Language for Concurrent Symbolic Computation》中提出的 Multilisp 语言支持了基于 <code>future</code> 注解的 <code>call-by-future</code> 能力。</p>
-<p>在 Multilisp 中，如果变量绑定到 Future 的表达式，则会自动创建一个新的进程。表达式会在新的进程中执行，一旦执行完成，则将计算结果保存至变量引用中。通过这种方式，Multilisp 支持在新进程中同时计算任意表达式的能力。因此，也支持无需等待 Future 完成，继续执行其他计算的能力。这样的话，如果 Future 的值从未使用过，那么整个进程就不会被阻塞，从而消除了潜在的死锁源。</p>
-<p>相比于 1977 年提出的 Future，Mutilisp 实现的 Future 支持在特定情况下不阻塞进程，从而一定程度上优化了程序的执行效率。</p>
-<h2 id="1988-Promise"><a href="#1988-Promise" class="headerlink" title="1988. Promise"></a>1988. Promise</h2><p>1988 年，Liskov 和 Shrira 在论文《Distributed Programming in Argus》中提出的 Argus 语言设计了一种称为 Promises 的结构。</p>
-<p>与 Multilisp 中的 Future 类似，Argus 中的 Promise 也提供一个用于存储未来值的占位符。Promise 的特别之处在于，当调用 Promise 时，会立即创建并返回一个 Promise，并在新进程中进行类型安全的异步 PRC 调用。当异步 PRC 调用执行完毕，由调用者设置返回值。</p>
-<h1 id="设计理念"><a href="#设计理念" class="headerlink" title="设计理念"></a>设计理念</h1><p>经过数十年的发展，Future 和 Promise 的设计理念整体上非常相似，但是在不同的语言和框架实现中又存在一定的区别，对此，这里我们基于最广泛的定义进行介绍。</p>
-<h2 id="整体实现"><a href="#整体实现" class="headerlink" title="整体实现"></a>整体实现</h2><p>在 Scala、C++ 等编程语言中，同时包含两种结构分别对应 Future 和 Promise。作为整体实现，Future 和 Promise 可被视为同一异步编程技术中的两个部分：</p>
+<p>从 Future 的概念我们可以看出，论文所提到的 Future 几乎已经和现代的
+Future 概念非常接近了。</p>
+<h2 id="multilisp">1985. Multilisp</h2>
+<p>1985 年，Robert H. Halstead 在论文《Multilisp: A Language for
+Concurrent Symbolic Computation》中提出的 Multilisp 语言支持了基于
+<code>future</code> 注解的 <code>call-by-future</code> 能力。</p>
+<p>在 Multilisp 中，如果变量绑定到 Future
+的表达式，则会自动创建一个新的进程。表达式会在新的进程中执行，一旦执行完成，则将计算结果保存至变量引用中。通过这种方式，Multilisp
+支持在新进程中同时计算任意表达式的能力。因此，也支持无需等待 Future
+完成，继续执行其他计算的能力。这样的话，如果 Future
+的值从未使用过，那么整个进程就不会被阻塞，从而消除了潜在的死锁源。</p>
+<p>相比于 1977 年提出的 Future，Mutilisp 实现的 Future
+支持在特定情况下不阻塞进程，从而一定程度上优化了程序的执行效率。</p>
+<h2 id="promise">1988. Promise</h2>
+<p>1988 年，Liskov 和 Shrira 在论文《Distributed Programming in
+Argus》中提出的 Argus 语言设计了一种称为 Promises 的结构。</p>
+<p>与 Multilisp 中的 Future 类似，Argus 中的 Promise
+也提供一个用于存储未来值的占位符。Promise 的特别之处在于，当调用 Promise
+时，会立即创建并返回一个 Promise，并在新进程中进行类型安全的异步 PRC
+调用。当异步 PRC 调用执行完毕，由调用者设置返回值。</p>
+<h1 id="设计理念">设计理念</h1>
+<p>经过数十年的发展，Future 和 Promise
+的设计理念整体上非常相似，但是在不同的语言和框架实现中又存在一定的区别，对此，这里我们基于最广泛的定义进行介绍。</p>
+<h2 id="整体实现">整体实现</h2>
+<p>在 Scala、C++ 等编程语言中，同时包含两种结构分别对应 Future 和
+Promise。作为整体实现，Future 和 Promise
+可被视为同一异步编程技术中的两个部分：</p>
 <ul>
-<li><strong>Future</strong>：表示异步任务的 <strong>返回值</strong>，表示一个未来值的占位符，即 <strong>值的消费者</strong>。</li>
-<li><strong>Promise</strong>：表示异步任务的 <strong>执行过程</strong>，表示一个值的生产过程，即 <strong>值的生产者</strong>。</li>
+<li><strong>Future</strong>：表示异步任务的
+<strong>返回值</strong>，表示一个未来值的占位符，即
+<strong>值的消费者</strong>。</li>
+<li><strong>Promise</strong>：表示异步任务的
+<strong>执行过程</strong>，表示一个值的生产过程，即
+<strong>值的生产者</strong>。</li>
 </ul>
-<p>在同时包含 Future 和 Promise 的实现中，一般 Promise 对象会有一个关联的 Future 对象。当 Promise 创建时，Future 对象会自动实例化。当异步任务执行完毕，Promise 在内部设置结果，从而将值绑定至 Future 的占位符中。Future 则提供读取方法。</p>
-<p>将异步操作分成 Future 和 Promise 两个部分的主要原因是 <strong>为了实现读写分离，对外部调用者只读，对内部实现者只写</strong>。</p>
+<p>在同时包含 Future 和 Promise 的实现中，一般 Promise
+对象会有一个关联的 Future 对象。当 Promise 创建时，Future
+对象会自动实例化。当异步任务执行完毕，Promise
+在内部设置结果，从而将值绑定至 Future 的占位符中。Future
+则提供读取方法</p>
+<p>将异步操作分成 Future 和 Promise 两个部分的主要原因是
+<strong>为了实现读写分离，对外部调用者只读，对内部实现者只写</strong>。</p>
 <p>下面，我们以几种语言中的实现来分别进行介绍。</p>
-<h3 id="C-Future-Promise"><a href="#C-Future-Promise" class="headerlink" title="C++ Future &amp; Promise"></a>C++ Future &amp; Promise</h3><p>在 C++ 中，Future 和 Promise 是一个异步操作的两个部分。</p>
+<h3 id="c-future-promise">C++ Future &amp; Promise</h3>
+<p>在 C++ 中，Future 和 Promise 是一个异步操作的两个部分。</p>
 <ul>
 <li><code>std::future</code>：作为异步操作的消费者。</li>
 <li><code>std::promise</code>：作为异步操作的生产者。</li>
 </ul>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> promise = std::<span class="built_in">promise</span>&lt;std::string&gt;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> producer = std::<span class="built_in">thread</span>([&amp;]</span><br><span class="line">&#123;</span><br><span class="line">    promise.<span class="built_in">set_value</span>(<span class="string">&quot;Hello World&quot;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> future = promise.<span class="built_in">get_future</span>();</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> consumer = std::<span class="built_in">thread</span>([&amp;]</span><br><span class="line">&#123;</span><br><span class="line">    std::cout &lt;&lt; future.<span class="built_in">get</span>();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">producer.<span class="built_in">join</span>();</span><br><span class="line">consumer.<span class="built_in">join</span>();</span><br></pre></td></tr></table></figure>
-
-<p>从上述代码中可以看出，C++ Promise 包含了 Future，可以通过 <code>get_future</code> 方法获取 Future 对象。两者有明确的分工，Promise 提供了 <code>set_value</code> 方法支持写操作，Future 提供了 <code>get</code> 方法支持读操作。</p>
-<h3 id="Scala-Future-Promise"><a href="#Scala-Future-Promise" class="headerlink" title="Scala Future &amp; Promise"></a>Scala Future &amp; Promise</h3><p>在 Scala 中，同样如此，Future 和 Promise 可作为同一个异步操作的两个部分。</p>
+<p>从上述代码中可以看出，C++ Promise 包含了 Future，可以通过
+<code>get_future</code> 方法获取 Future 对象。两者有明确的分工，Promise
+提供了 <code>set_value</code> 方法支持写操作，Future 提供了
+<code>get</code> 方法支持读操作。</p>
+<h3 id="scala-future-promise">Scala Future &amp; Promise</h3>
+<p>在 Scala 中，同样如此，Future 和 Promise
+可作为同一个异步操作的两个部分。</p>
 <ul>
-<li><code>Future</code> 作为一个可提供只读占位符，用于存储未来值的对象。</li>
-<li><code>Promise</code> 作为一个实现一个 Future，并支持可写操作的单一赋值容器。</li>
+<li><code>Future</code>
+作为一个可提供只读占位符，用于存储未来值的对象。</li>
+<li><code>Promise</code> 作为一个实现一个
+Future，并支持可写操作的单一赋值容器。</li>
 </ul>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> scala.concurrent.&#123; <span class="type">Future</span>, <span class="type">Promise</span> &#125;</span><br><span class="line"><span class="keyword">import</span> scala.concurrent.<span class="type">ExecutionContext</span>.<span class="type">Implicits</span>.global</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> p = <span class="type">Promise</span>[<span class="type">T</span>]()</span><br><span class="line"><span class="keyword">val</span> f = p.future</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> producer = <span class="type">Future</span> &#123;</span><br><span class="line">  <span class="keyword">val</span> r = produceSomething()</span><br><span class="line">  p success r</span><br><span class="line">  continueDoingSomethingUnrelated()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> consumer = <span class="type">Future</span> &#123;</span><br><span class="line">  startDoingSomething()</span><br><span class="line">  f onSuccess &#123;</span><br><span class="line">    <span class="keyword">case</span> r =&gt; doSomethingWithResult()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>从上述代码中可以看出，Scala Promise 同样包含了 Future，可以通过 <code>future</code> 属性获取 Future 对象。Promise 提供了 <code>success</code>、<code>failure</code> 等方法来更新状态。Future 提供了 <code>onSuccess</code>、<code>onFailure</code> 等方法来监听未来值。</p>
-<h2 id="独立实现"><a href="#独立实现" class="headerlink" title="独立实现"></a>独立实现</h2><p>其他很多编程语言中，并不同时包含 Future 和 Promise 两种结构，比如：Dart 只包含 Future，JavaScript 只包含 Promise，甚至有些编程语言混淆了 Future 和 Promise 的原始区别。</p>
-<p>在独立实现中，Future 和 Promise 各自都有着相对比较统一的表示形式，在实现方面的差异也相对比较一致，主要包括以下几个方面区别：</p>
+<p>从上述代码中可以看出，Scala Promise 同样包含了 Future，可以通过
+<code>future</code> 属性获取 Future 对象。Promise 提供了
+<code>success</code>、<code>failure</code> 等方法来更新状态。Future
+提供了 <code>onSuccess</code>、<code>onFailure</code>
+等方法来监听未来值。</p>
+<h2 id="独立实现">独立实现</h2>
+<p>其他很多编程语言中，并不同时包含 Future 和 Promise
+两种结构，比如：Dart 只包含 Future，JavaScript 只包含
+Promise，甚至有些编程语言混淆了 Future 和 Promise 的原始区别。</p>
+<p>在独立实现中，Future 和 Promise
+各自都有着相对比较统一的表示形式，在实现方面的差异也相对比较一致，主要包括以下几个方面区别：</p>
 <ul>
 <li><strong>状态表示</strong></li>
 <li><strong>状态更新</strong></li>
 <li><strong>返回机制</strong></li>
 </ul>
-<h3 id="状态表示"><a href="#状态表示" class="headerlink" title="状态表示"></a>状态表示</h3><p>在状态表示方面，Future 只有两种状态：</p>
+<h3 id="状态表示">状态表示</h3>
+<p>在状态表示方面，Future 只有两种状态：</p>
 <ul>
 <li><code>uncomplete</code>：表示未完成状态，即未来值还未计算出来。</li>
 <li><code>completed</code>：表示已完成状态，即未来值已经计算出来。当然计算结果可以分为值或错误两种情况。</li>
@@ -525,908 +416,304 @@
 <li><code>rejected</code>：拒绝状态，表示任务执行失败。</li>
 </ul>
 <p>无论是 Future 还是 Promise，状态转移的过程都是不可逆的。</p>
-<h3 id="状态更新"><a href="#状态更新" class="headerlink" title="状态更新"></a>状态更新</h3><p>在状态更新方面，Future 的状态由 <strong>内部进行自动管理</strong>。当异步任务执行完成或抛出错误时，其状态将隐式地自动从 <code>uncomplete</code> 状态更新为 <code>completed</code> 状态。</p>
-<p>对于 Promise，其状态由 <strong>外部进行手动管理</strong>。通常由开发者根据控制流逻辑，执行特定的状态更新方法显式地从 <code>pending</code> 状态更新为 <code>fulfilled</code> 或 <code>rejected</code> 状态。</p>
-<h3 id="返回机制"><a href="#返回机制" class="headerlink" title="返回机制"></a>返回机制</h3><p>在返回机制方面，Future 以传统的 <code>return</code> 方式返回结果。如下所示为 Dart 中 Future 的返回机制示例，其返回正如普通的方法一样，通过 <code>return</code> 完成。</p>
+<h3 id="状态更新">状态更新</h3>
+<p>在状态更新方面，Future 的状态由
+<strong>内部进行自动管理</strong>。当异步任务执行完成或抛出错误时，其状态将隐式地自动从
+<code>uncomplete</code> 状态更新为 <code>completed</code> 状态。</p>
+<p>对于 Promise，其状态由
+<strong>外部进行手动管理</strong>。通常由开发者根据控制流逻辑，执行特定的状态更新方法显式地从
+<code>pending</code> 状态更新为 <code>fulfilled</code> 或
+<code>rejected</code> 状态。</p>
+<h3 id="返回机制">返回机制</h3>
+<p>在返回机制方面，Future 以传统的 <code>return</code>
+方式返回结果。如下所示为 Dart 中 Future
+的返回机制示例，其返回正如普通的方法一样，通过 <code>return</code>
+完成。</p>
 <figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Future&lt;<span class="built_in">String</span>&gt; _readFileAsync() <span class="keyword">async</span> &#123;</span><br><span class="line">  <span class="keyword">final</span> file = File(filename);</span><br><span class="line">  <span class="keyword">final</span> contents = <span class="keyword">await</span> file.readAsString();</span><br><span class="line">  <span class="keyword">return</span> contents.trim();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>而 Promise 通常将结果作为闭包参数进行传递，并执行闭包从而实现返回。如下所示为 JavaScript 中 Promise 的返回机制示例，<code>resolve</code> 是一个只接受成功值的闭包，其参数为 <code>Image</code> 类型；<code>reject</code> 是一个只接受错误值的闭包，其参数为 <code>Error</code> 类型。</p>
+<p>而 Promise
+通常将结果作为闭包参数进行传递，并执行闭包从而实现返回。如下所示为
+JavaScript 中 Promise 的返回机制示例，<code>resolve</code>
+是一个只接受成功值的闭包，其参数为 <code>Image</code>
+类型；<code>reject</code> 是一个只接受错误值的闭包，其参数为
+<code>Error</code> 类型。</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">loadImageAsync</span>(<span class="params">url</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="keyword">function</span>(<span class="params">resolve, reject</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> image = <span class="keyword">new</span> <span class="title class_">Image</span>();</span><br><span class="line"></span><br><span class="line">    image.<span class="property">onload</span> = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">      <span class="title function_">resolve</span>(image);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    image.<span class="property">onerror</span> = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">      <span class="title function_">reject</span>(<span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;Could not load image at &#x27;</span> + url));</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    image.<span class="property">src</span> = url;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="语言实现"><a href="#语言实现" class="headerlink" title="语言实现"></a>语言实现</h3><p>下面，我们来看一下各种编程语言是如何独立实现 Future 或 Promise 的。</p>
-<h4 id="Dart"><a href="#Dart" class="headerlink" title="Dart"></a>Dart</h4><p>Dart 内置提供了标准 <code>Future</code> 实现，其同时提供了 <code>async</code> 和 <code>await</code> 关键字分别用于描述异步函数和等待异步函数。如下所示，为 Dart 中的 Future 应用示例。</p>
+<h3 id="语言实现">语言实现</h3>
+<p>下面，我们来看一下各种编程语言是如何独立实现 Future 或 Promise
+的。</p>
+<h4 id="dart">Dart</h4>
+<p>Dart 内置提供了标准 <code>Future</code> 实现，其同时提供了
+<code>async</code> 和 <code>await</code>
+关键字分别用于描述异步函数和等待异步函数。如下所示，为 Dart 中的 Future
+应用示例。</p>
 <figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Future&lt;<span class="built_in">String</span>&gt; createOrderMessage() <span class="keyword">async</span> &#123;</span><br><span class="line">  <span class="keyword">var</span> order = <span class="keyword">await</span> fetchUserOrder();</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&#x27;Your order is: <span class="subst">$order</span>&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Future&lt;<span class="built_in">String</span>&gt; fetchUserOrder() &#123;</span><br><span class="line">    <span class="keyword">return</span> Future.delayed(</span><br><span class="line">      <span class="keyword">const</span> <span class="built_in">Duration</span>(seconds: <span class="number">2</span>),</span><br><span class="line">      () =&gt; <span class="string">&#x27;Large Latte&#x27;</span>,</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="C"><a href="#C" class="headerlink" title="C#"></a>C#</h4><p>C# 提供了 <code>Task</code>，其本质上类似于一种 Future 实现。此外，C# 还提供了异步函数关键字 <code>async</code> 和 <code>await</code>，分别用于描述异步函数和等待异步函数。如下所示，为 C# 中的使用示例。</p>
+<h4 id="c">C</h4>
+<p>C# 提供了 <code>Task</code>，其本质上类似于一种 Future 实现。此外，C#
+还提供了异步函数关键字 <code>async</code> 和
+<code>await</code>，分别用于描述异步函数和等待异步函数。如下所示，为 C#
+中的使用示例。</p>
 <figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">async</span> Task&lt;<span class="built_in">int</span>&gt; <span class="title">AccessTheWebAsync</span>()</span> &#123;   </span><br><span class="line">    HttpClient client = <span class="keyword">new</span> HttpClient();  </span><br><span class="line">    Task&lt;<span class="built_in">string</span>&gt; getStringTask = client.GetStringAsync(<span class="string">&quot;http://msdn.microsoft.com&quot;</span>);  </span><br><span class="line">    DoIndependentWork();  </span><br><span class="line">    <span class="built_in">string</span> urlContents = <span class="keyword">await</span> getStringTask;  </span><br><span class="line">    <span class="keyword">return</span> urlContents.Length;  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">string</span> urlContents = <span class="keyword">await</span> client.GetStringAsync();</span><br></pre></td></tr></table></figure>
-
-<h4 id="Swift"><a href="#Swift" class="headerlink" title="Swift"></a>Swift</h4><p>Swift 提供了 <code>Task</code>，其本质是一种加强版的 Future 实现。Swift 通过提供额外的 <code>TaskGroup</code> 的概念，使其同时支持结构化并发和非结构化并发。此外，Swift 也提供的 <code>async</code> <code>await</code> 关键字支持异步函数，基于此，Swift 也能够实现和其他语言一样的 Future 实现。如下所示，为 Swift 中类似于 Future 的使用示例。</p>
+<h4 id="swift">Swift</h4>
+<p>Swift 提供了 <code>Task</code>，其本质是一种加强版的 Future
+实现。Swift 通过提供额外的 <code>TaskGroup</code>
+的概念，使其同时支持结构化并发和非结构化并发。此外，Swift 也提供的
+<code>async</code> <code>await</code> 关键字支持异步函数，基于此，Swift
+也能够实现和其他语言一样的 Future 实现。如下所示，为 Swift 中类似于
+Future 的使用示例。</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> newPhoto <span class="operator">=</span> <span class="comment">// ... some photo data ...</span></span><br><span class="line"><span class="keyword">let</span> handle <span class="operator">=</span> <span class="type">Task</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> add(newPhoto, toGalleryNamed: <span class="string">&quot;Spring Adventures&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> result <span class="operator">=</span> <span class="keyword">await</span> handle.value</span><br></pre></td></tr></table></figure>
-
-<h4 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h4><p>Java 1.5 提供了 <code>Future</code> 和 <code>FutureTask</code>，其中 <code>Future</code> 是一个接口，<code>FutureTask</code> 是一种实现，它们提供了一种相对标准的 Future 实现。其通过 <code>Runnable</code> 和 <code>Callable</code> 进行实例化，有一个无参构造器，<code>Future</code> 和 <code>FutureTask</code> 支持外部只读，<code>FutureTask</code> 的 set 方法是 <code>protected</code>，未来值只能由内部进行设置。如下所示，为基于 <code>FutureTask</code> 的一个应用示例。</p>
+<h4 id="java">Java</h4>
+<p>Java 1.5 提供了 <code>Future</code> 和 <code>FutureTask</code>，其中
+<code>Future</code> 是一个接口，<code>FutureTask</code>
+是一种实现，它们提供了一种相对标准的 Future 实现。其通过
+<code>Runnable</code> 和 <code>Callable</code>
+进行实例化，有一个无参构造器，<code>Future</code> 和
+<code>FutureTask</code> 支持外部只读，<code>FutureTask</code> 的 set
+方法是
+<code>protected</code>，未来值只能由内部进行设置。如下所示，为基于
+<code>FutureTask</code> 的一个应用示例。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ExecutorService</span> <span class="variable">executor</span> <span class="operator">=</span> Executors.newCachedThreadPool();</span><br><span class="line">        <span class="type">Task</span> <span class="variable">task</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Task</span>();</span><br><span class="line">        FutureTask&lt;Integer&gt; futureTask = <span class="keyword">new</span> <span class="title class_">FutureTask</span>&lt;Integer&gt;(task);</span><br><span class="line">        executor.submit(futureTask);</span><br><span class="line">        executor.shutdown();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;task result: &quot;</span>+ futureTask.get());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ExecutionException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Java 8 提供了 <code>CompletableFuture</code>，其本质上是一种 Promise 的实现。按照我们之前的定义，Future 是只读的，Promise 是可写的，而 <code>CompletableFuture</code> 提供了可由外部调用的状态更新方法，因此可以将其归类为 Promise。另一方面，<code>CompletableFuture</code> 又实现了 Future 的读取方法 <code>get</code>。整体上，<code>CompletableFuture</code> 混合了 Future 和 Promise 的能力。如下所示，为 <code>CompletableFuture</code> 的一个应用示例。</p>
+<p>Java 8 提供了 <code>CompletableFuture</code>，其本质上是一种 Promise
+的实现。按照我们之前的定义，Future 是只读的，Promise 是可写的，而
+<code>CompletableFuture</code>
+提供了可由外部调用的状态更新方法，因此可以将其归类为
+Promise。另一方面，<code>CompletableFuture</code> 又实现了 Future
+的读取方法 <code>get</code>。整体上，<code>CompletableFuture</code>
+混合了 Future 和 Promise 的能力。如下所示，为
+<code>CompletableFuture</code> 的一个应用示例。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Supplier&lt;Integer&gt; momsPurse = ()-&gt; &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Thread.sleep(<span class="number">1000</span>);<span class="comment">//mom is busy</span></span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">        ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">100</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">ex</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">CompletableFuture&lt;Integer&gt; promise =  </span><br><span class="line">CompletableFuture.supplyAsync(momsPurse, ex);</span><br><span class="line">promise.thenAccept(u-&gt;System.out.println(<span class="string">&quot;Thank you mom for $&quot;</span> + u ));</span><br><span class="line">promise.complete(<span class="number">10</span>); </span><br></pre></td></tr></table></figure>
-
-<h4 id="JavaScript"><a href="#JavaScript" class="headerlink" title="JavaScript"></a>JavaScript</h4><p>从 ES6 开始，JavaScript 支持了 Promise 的经典实现，同时支持了 <code>async</code> 和 <code>await</code> 关键字用于描述异步任务。使用 <code>async</code> 关键字修饰函数的返回值是一个 <code>Promise</code> 对象。<code>await</code> 关键字修饰一个 <code>Promise</code> 对象，表示等待异步任务的值，有点类似等待 Future。如下所示，为 JavaScript 中 <code>Promise</code> 的使用示例。</p>
+<h4 id="javascript">JavaScript</h4>
+<p>从 ES6 开始，JavaScript 支持了 Promise 的经典实现，同时支持了
+<code>async</code> 和 <code>await</code> 关键字用于描述异步任务。使用
+<code>async</code> 关键字修饰函数的返回值是一个 <code>Promise</code>
+对象。<code>await</code> 关键字修饰一个 <code>Promise</code>
+对象，表示等待异步任务的值，有点类似等待 Future。如下所示，为 JavaScript
+中 <code>Promise</code> 的使用示例。</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Sleep</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">timeout</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">timeout</span> = timeout;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="title function_">then</span>(<span class="params">resolve, reject</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> startTime = <span class="title class_">Date</span>.<span class="title function_">now</span>();</span><br><span class="line">    <span class="built_in">setTimeout</span>(</span><br><span class="line">      <span class="function">() =&gt;</span> <span class="title function_">resolve</span>(<span class="title class_">Date</span>.<span class="title function_">now</span>() - startTime),</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">timeout</span></span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">(<span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> sleepTime = <span class="keyword">await</span> <span class="keyword">new</span> <span class="title class_">Sleep</span>(<span class="number">1000</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(sleepTime);</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
-
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文简单介绍了一下 Future 和 Promise 的发展历史。然后，分别介绍了两者在实现中的关系和区别。同时，介绍了 Future 和 Promise 在各种编程语言中的实现。</p>
-<p>后续有时间，我们在来深入研究一下编程语言层面是如何支持 Future 和 Promise 。</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<h1 id="总结">总结</h1>
+<p>本文简单介绍了一下 Future 和 Promise
+的发展历史。然后，分别介绍了两者在实现中的关系和区别。同时，介绍了
+Future 和 Promise 在各种编程语言中的实现。</p>
+<p>后续有时间，我们在来深入研究一下编程语言层面是如何支持 Future 和
+Promise 。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
 <li>Multilisp: A Language for Concurrent Symbolic Computation</li>
 <li>The Incremental Garbage Collection of Process</li>
-<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Futures_and_promises">Futures and Promises</a></li>
-<li><a target="_blank" rel="noopener" href="http://dist-prog-book.com/chapter/2/futures.html">Futures and Promises</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.yorkfish.me/2020/Future%E5%92%8CPromise%E7%9A%84%E5%8C%BA%E5%88%AB/readme/">Future和Promise的区别</a></li>
-<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/14541975/whats-the-difference-between-a-future-and-a-promise">What’s the difference between a Future and a Promise?</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=CITVS-gwySo">Futures and Promises</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.swiftbysundell.com/articles/under-the-hood-of-futures-and-promises-in-swift/">Under the hood of Futures and Promises in Swift</a></li>
-<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/12620186/futures-vs-promises">Futures vs. Promises</a></li>
-<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/11004273/what-is-stdpromise/12335206">What is std::promise?</a></li>
-<li><a target="_blank" rel="noopener" href="https://cplusplus.com/reference/future/promise/">std::promise</a></li>
-<li><a target="_blank" rel="noopener" href="https://putridparrot.com/blog/threads-promises-futures-async-c/">threads, promises, futures, async, C++</a></li>
-<li><a target="_blank" rel="noopener" href="https://docs.scala-lang.org/zh-cn/overviews/core/futures.html">FUTURE和PROMISE</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dolphin0520/p/3949310.html">Java并发编程：callable、Future和FutureTask</a></li>
-<li><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/FutureTask.html">Class FutureTask<V></a></li>
-<li><a target="_blank" rel="noopener" href="https://es6.ruanyifeng.com/#docs/async">ECMAScript 6 入门</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/netty/netty/blob/4.1/common/src/main/java/io/netty/util/concurrent/Promise.java">Netty Promise</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/rickiyang/p/12742091.html">Netty 中的异步编程 Future 和 Promise </a></li>
-<li><a target="_blank" rel="noopener" href="https://thunk.org/">So what’s a thunk?</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Futures_and_promises">Futures
+and Promises</a></li>
+<li><a href="http://dist-prog-book.com/chapter/2/futures.html">Futures
+and Promises</a></li>
+<li><a
+href="https://blog.yorkfish.me/2020/Future%E5%92%8CPromise%E7%9A%84%E5%8C%BA%E5%88%AB/readme/">Future和Promise的区别</a></li>
+<li><a
+href="https://stackoverflow.com/questions/14541975/whats-the-difference-between-a-future-and-a-promise">What's
+the difference between a Future and a Promise?</a></li>
+<li><a href="https://www.youtube.com/watch?v=CITVS-gwySo">Futures and
+Promises</a></li>
+<li><a
+href="https://www.swiftbysundell.com/articles/under-the-hood-of-futures-and-promises-in-swift/">Under
+the hood of Futures and Promises in Swift</a></li>
+<li><a
+href="https://stackoverflow.com/questions/12620186/futures-vs-promises">Futures
+vs. Promises</a></li>
+<li><a
+href="https://stackoverflow.com/questions/11004273/what-is-stdpromise/12335206">What
+is std::promise?</a></li>
+<li><a
+href="https://cplusplus.com/reference/future/promise/">std::promise</a></li>
+<li><a
+href="https://putridparrot.com/blog/threads-promises-futures-async-c/">threads,
+promises, futures, async, C++</a></li>
+<li><a
+href="https://docs.scala-lang.org/zh-cn/overviews/core/futures.html">FUTURE和PROMISE</a></li>
+<li><a
+href="https://www.cnblogs.com/dolphin0520/p/3949310.html">Java并发编程：callable、Future和FutureTask</a></li>
+<li><a
+href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/FutureTask.html">Class
+FutureTask<V></a></li>
+<li><a href="https://es6.ruanyifeng.com/#docs/async">ECMAScript 6
+入门</a></li>
+<li><a
+href="https://github.com/netty/netty/blob/4.1/common/src/main/java/io/netty/util/concurrent/Promise.java">Netty
+Promise</a></li>
+<li><a href="https://www.cnblogs.com/rickiyang/p/12742091.html">Netty
+中的异步编程 Future 和 Promise</a></li>
+<li><a href="https://thunk.org/">So what's a thunk?</a></li>
 </ol>
 
-      
     </div>
-    
-    
-    
 
     
-
     
-      <div>
-        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
-  <div>欣赏此文？求鼓励，求支持！</div>
-  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
-    <span>赏</span>
-  </button>
-  <div id="QR" style="display: none;">
-
-    
-      <div id="wechat" style="display: inline-block">
-        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
-        <p>WeChat Pay</p>
-      </div>
-    
-
-    
-      <div id="alipay" style="display: inline-block">
-        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
-        <p>Alipay</p>
-      </div>
-    
-
-    
-
-  </div>
-</div>
-
-      </div>
-    
-
     
 
     <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/Future/" rel="tag"># Future</a>
-          
-            <a href="/tags/Promise/" rel="tag"># Promise</a>
-          
-            <a href="/tags/await/" rel="tag"># await</a>
-          
-            <a href="/tags/async/" rel="tag"># async</a>
-          
-            <a href="/tags/Task/" rel="tag"># Task</a>
-          
-            <a href="/tags/Thunk/" rel="tag"># Thunk</a>
-          
-        </div>
-      
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
 
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2022/11/13/understand-principle-of-aspects/" rel="next" title="深入理解 Aspects 设计原理">
-                <i class="fa fa-chevron-left"></i> 深入理解 Aspects 设计原理
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2022/12/31/2022-summary/" rel="prev" title="2022 年度总结">
-                2022 年度总结 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-        <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-  <a class="jiathis_button_tsina"></a>
-  <a class="jiathis_button_tqq"></a>
-  <a class="jiathis_button_weixin"></a>
-  <a class="jiathis_button_cqq"></a>
-  <a class="jiathis_button_douban"></a>
-  <a class="jiathis_button_renren"></a>
-  <a class="jiathis_button_qzone"></a>
-  <a class="jiathis_button_kaixin001"></a>
-  <a class="jiathis_button_copy"></a>
-  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
-  <a class="jiathis_counter_style"></a>
 </div>
-<script type="text/javascript" >
-  var jiathis_config={
-    hideMore:false
-  }
-</script>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
 
-      
-    </div>
-  </div>
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
 
+  <div class="social-list">
 
-          </div>
-          
-
-
-          
-  <div class="comments" id="comments">
-    
-      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
-    
-  </div>
-
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <img class="site-author-image" itemprop="image"
-               src="/images/SlamDunk.png"
-               alt="" />
-          <p class="site-author-name" itemprop="name"></p>
-           
-              <p class="site-description motion-element" itemprop="description"></p>
-          
-        </div>
-        <nav class="site-state motion-element">
-
-          
-            <div class="site-state-item site-state-posts">
-              <a href="/archives">
-                <span class="site-state-item-count">128</span>
-                <span class="site-state-item-name">日志</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-categories">
-              <a href="/categories/index.html">
-                <span class="site-state-item-count">28</span>
-                <span class="site-state-item-name">分类</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-tags">
-              <a href="/tags/index.html">
-                <span class="site-state-item-count">284</span>
-                <span class="site-state-item-name">标签</span>
-              </a>
-            </div>
-          
-
-        </nav>
-
-        
-          <div class="feed-link motion-element">
-            <a href="/atom.xml" rel="alternate">
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
               <i class="fa fa-rss"></i>
-              RSS
-            </a>
-          </div>
-        
+            </span>
 
-        <div class="links-of-author motion-element">
-          
-            
-              <span class="links-of-author-item">
-                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
-                  
-                    <i class="fa fa-fw fa-github"></i>
-                  
-                    
-                      GitHub
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
-                  
-                    <i class="fa fa-fw fa-weibo"></i>
-                  
-                    
-                      微博
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                    
-                      Facebook
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
-                  
-                    <i class="fa fa-fw fa-instagram"></i>
-                  
-                    
-                      Instagram
-                    
-                </a>
-              </span>
-            
-          
-        </div>
-
-        
-        
-
-        
-        
-
-        
-
-
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8E%86%E5%8F%B2%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">历史简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1962-Thunk"><span class="nav-number">1.1.</span> <span class="nav-text">1962. Thunk</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1977-Future"><span class="nav-number">1.2.</span> <span class="nav-text">1977. Future</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1985-Multilisp"><span class="nav-number">1.3.</span> <span class="nav-text">1985. Multilisp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1988-Promise"><span class="nav-number">1.4.</span> <span class="nav-text">1988. Promise</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E7%90%86%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">设计理念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.1.</span> <span class="nav-text">整体实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#C-Future-Promise"><span class="nav-number">2.1.1.</span> <span class="nav-text">C++ Future &amp; Promise</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Scala-Future-Promise"><span class="nav-number">2.1.2.</span> <span class="nav-text">Scala Future &amp; Promise</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8B%AC%E7%AB%8B%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.2.</span> <span class="nav-text">独立实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E8%A1%A8%E7%A4%BA"><span class="nav-number">2.2.1.</span> <span class="nav-text">状态表示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E6%9B%B4%E6%96%B0"><span class="nav-number">2.2.2.</span> <span class="nav-text">状态更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%94%E5%9B%9E%E6%9C%BA%E5%88%B6"><span class="nav-number">2.2.3.</span> <span class="nav-text">返回机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.2.4.</span> <span class="nav-text">语言实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Dart"><span class="nav-number">2.2.4.1.</span> <span class="nav-text">Dart</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#C"><span class="nav-number">2.2.4.2.</span> <span class="nav-text">C#</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Swift"><span class="nav-number">2.2.4.3.</span> <span class="nav-text">Swift</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Java"><span class="nav-number">2.2.4.4.</span> <span class="nav-text">Java</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JavaScript"><span class="nav-number">2.2.4.5.</span> <span class="nav-text">JavaScript</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
-        
+            <span class="label">RSS</span>
+          </a>
       </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright" >
-  
-  &copy;  2018 - 
-  <span itemprop="copyrightYear">2023</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Pisces
-  </a>
-</div>
-
-<div>
-  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
-</div>
-
-
+          <div class="post-tags">
+              <a href="/tags/Future/" rel="tag"># Future</a>
+              <a href="/tags/Promise/" rel="tag"># Promise</a>
+              <a href="/tags/await/" rel="tag"># await</a>
+              <a href="/tags/async/" rel="tag"># async</a>
+              <a href="/tags/Task/" rel="tag"># Task</a>
+              <a href="/tags/Thunk/" rel="tag"># Thunk</a>
+          </div>
 
         
-<div class="busuanzi-count">
-  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-  
-    <span class="site-uv">
-      <i class="fa fa-user"></i>本站总访客
-      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
-      人次
-    </span>
-  
-
-  
-    <span class="site-pv">
-      <i class="fa fa-eye"></i>本站总访问量
-      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
-      次
-    </span>
-  
-</div>
-
-
-        
-      </div>
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/11/13/understand-principle-of-aspects/" rel="prev" title="深入理解 Aspects 设计原理">
+                  <i class="fa fa-angle-left"></i> 深入理解 Aspects 设计原理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/12/31/2022-summary/" rel="next" title="2022 年度总结">
+                  2022 年度总结 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
     </footer>
+  </article>
+</div>
 
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
 
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
   </div>
 
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
   
 
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2022/12/05/future-and-promise/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
   }
+}
 </script>
 
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
-
-
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  
-
-
-
-
-	
-
-
-
-
-
-  
-
-
-
-
-
-  
-    <script type="text/javascript">
-      (function(d, s) {
-        var j, e = d.getElementsByTagName(s)[0];
-        if (typeof LivereTower === 'function') { return; }
-        j = d.createElement(s);
-        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
-        j.async = true;
-        e.parentNode.insertBefore(j, e);
-      })(document, 'script');
-    </script>
-  
-
-
-
-
-
-
-  
-
-  <script type="text/javascript">
-    // Popup Window;
-    var isfetched = false;
-    var isXml = true;
-    // Search DB path;
-    var search_path = "search.xml";
-    if (search_path.length === 0) {
-      search_path = "search.xml";
-    } else if (/json$/i.test(search_path)) {
-      isXml = false;
-    }
-    var path = "/" + search_path;
-    // monitor main search box;
-
-    var onPopupClose = function (e) {
-      $('.popup').hide();
-      $('#local-search-input').val('');
-      $('.search-result-list').remove();
-      $('#no-result').remove();
-      $(".local-search-pop-overlay").remove();
-      $('body').css('overflow', '');
-    }
-
-    function proceedsearch() {
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
-        .css('overflow', 'hidden');
-      $('.search-popup-overlay').click(onPopupClose);
-      $('.popup').toggle();
-      var $localSearchInput = $('#local-search-input');
-      $localSearchInput.attr("autocapitalize", "none");
-      $localSearchInput.attr("autocorrect", "off");
-      $localSearchInput.focus();
-    }
-
-    // search function;
-    var searchFunc = function(path, search_id, content_id) {
-      'use strict';
-
-      // start loading animation
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
-          '<div id="search-loading-icon">' +
-          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
-          '</div>' +
-          '</div>')
-        .css('overflow', 'hidden');
-      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
-
-      $.ajax({
-        url: path,
-        dataType: isXml ? "xml" : "json",
-        async: true,
-        success: function(res) {
-          // get the contents from search data
-          isfetched = true;
-          $('.popup').detach().appendTo('.header-inner');
-          var datas = isXml ? $("entry", res).map(function() {
-            return {
-              title: $("title", this).text(),
-              content: $("content",this).text(),
-              url: $("url" , this).text()
-            };
-          }).get() : res;
-          var input = document.getElementById(search_id);
-          var resultContent = document.getElementById(content_id);
-          var inputEventFunction = function() {
-            var searchText = input.value.trim().toLowerCase();
-            var keywords = searchText.split(/[\s\-]+/);
-            if (keywords.length > 1) {
-              keywords.push(searchText);
-            }
-            var resultItems = [];
-            if (searchText.length > 0) {
-              // perform local searching
-              datas.forEach(function(data) {
-                var isMatch = false;
-                var hitCount = 0;
-                var searchTextCount = 0;
-                var title = data.title.trim();
-                var titleInLowerCase = title.toLowerCase();
-                var content = data.content.trim().replace(/<[^>]+>/g,"");
-                var contentInLowerCase = content.toLowerCase();
-                var articleUrl = decodeURIComponent(data.url);
-                var indexOfTitle = [];
-                var indexOfContent = [];
-                // only match articles with not empty titles
-                if(title != '') {
-                  keywords.forEach(function(keyword) {
-                    function getIndexByWord(word, text, caseSensitive) {
-                      var wordLen = word.length;
-                      if (wordLen === 0) {
-                        return [];
-                      }
-                      var startPosition = 0, position = [], index = [];
-                      if (!caseSensitive) {
-                        text = text.toLowerCase();
-                        word = word.toLowerCase();
-                      }
-                      while ((position = text.indexOf(word, startPosition)) > -1) {
-                        index.push({position: position, word: word});
-                        startPosition = position + wordLen;
-                      }
-                      return index;
-                    }
-
-                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
-                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
-                  });
-                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
-                    isMatch = true;
-                    hitCount = indexOfTitle.length + indexOfContent.length;
-                  }
-                }
-
-                // show search results
-
-                if (isMatch) {
-                  // sort index by position of keyword
-
-                  [indexOfTitle, indexOfContent].forEach(function (index) {
-                    index.sort(function (itemLeft, itemRight) {
-                      if (itemRight.position !== itemLeft.position) {
-                        return itemRight.position - itemLeft.position;
-                      } else {
-                        return itemLeft.word.length - itemRight.word.length;
-                      }
-                    });
-                  });
-
-                  // merge hits into slices
-
-                  function mergeIntoSlice(text, start, end, index) {
-                    var item = index[index.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    var hits = [];
-                    var searchTextCountInSlice = 0;
-                    while (position + word.length <= end && index.length != 0) {
-                      if (word === searchText) {
-                        searchTextCountInSlice++;
-                      }
-                      hits.push({position: position, length: word.length});
-                      var wordEnd = position + word.length;
-
-                      // move to next position of hit
-
-                      index.pop();
-                      while (index.length != 0) {
-                        item = index[index.length - 1];
-                        position = item.position;
-                        word = item.word;
-                        if (wordEnd > position) {
-                          index.pop();
-                        } else {
-                          break;
-                        }
-                      }
-                    }
-                    searchTextCount += searchTextCountInSlice;
-                    return {
-                      hits: hits,
-                      start: start,
-                      end: end,
-                      searchTextCount: searchTextCountInSlice
-                    };
-                  }
-
-                  var slicesOfTitle = [];
-                  if (indexOfTitle.length != 0) {
-                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
-                  }
-
-                  var slicesOfContent = [];
-                  while (indexOfContent.length != 0) {
-                    var item = indexOfContent[indexOfContent.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    // cut out 100 characters
-                    var start = position - 20;
-                    var end = position + 80;
-                    if(start < 0){
-                      start = 0;
-                    }
-                    if (end < position + word.length) {
-                      end = position + word.length;
-                    }
-                    if(end > content.length){
-                      end = content.length;
-                    }
-                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
-                  }
-
-                  // sort slices in content by search text's count and hits' count
-
-                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
-                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
-                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
-                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
-                      return sliceRight.hits.length - sliceLeft.hits.length;
-                    } else {
-                      return sliceLeft.start - sliceRight.start;
-                    }
-                  });
-
-                  // select top N slices in content
-
-                  var upperBound = parseInt('1');
-                  if (upperBound >= 0) {
-                    slicesOfContent = slicesOfContent.slice(0, upperBound);
-                  }
-
-                  // highlight title and content
-
-                  function highlightKeyword(text, slice) {
-                    var result = '';
-                    var prevEnd = slice.start;
-                    slice.hits.forEach(function (hit) {
-                      result += text.substring(prevEnd, hit.position);
-                      var end = hit.position + hit.length;
-                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
-                      prevEnd = end;
-                    });
-                    result += text.substring(prevEnd, slice.end);
-                    return result;
-                  }
-
-                  var resultItem = '';
-
-                  if (slicesOfTitle.length != 0) {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
-                  } else {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
-                  }
-
-                  slicesOfContent.forEach(function (slice) {
-                    resultItem += "<a href='" + articleUrl + "'>" +
-                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
-                      "...</p>" + "</a>";
-                  });
-
-                  resultItem += "</li>";
-                  resultItems.push({
-                    item: resultItem,
-                    searchTextCount: searchTextCount,
-                    hitCount: hitCount,
-                    id: resultItems.length
-                  });
-                }
-              })
-            };
-            if (keywords.length === 1 && keywords[0] === "") {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
-            } else if (resultItems.length === 0) {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
-            } else {
-              resultItems.sort(function (resultLeft, resultRight) {
-                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
-                  return resultRight.searchTextCount - resultLeft.searchTextCount;
-                } else if (resultLeft.hitCount !== resultRight.hitCount) {
-                  return resultRight.hitCount - resultLeft.hitCount;
-                } else {
-                  return resultRight.id - resultLeft.id;
-                }
-              });
-              var searchResultList = '<ul class=\"search-result-list\">';
-              resultItems.forEach(function (result) {
-                searchResultList += result.item;
-              })
-              searchResultList += "</ul>";
-              resultContent.innerHTML = searchResultList;
-            }
-          }
-
-          if ('auto' === 'auto') {
-            input.addEventListener('input', inputEventFunction);
-          } else {
-            $('.search-icon').click(inputEventFunction);
-            input.addEventListener('keypress', function (event) {
-              if (event.keyCode === 13) {
-                inputEventFunction();
-              }
-            });
-          }
-
-          // remove loading animation
-          $(".local-search-pop-overlay").remove();
-          $('body').css('overflow', '');
-
-          proceedsearch();
-        }
-      });
-    }
-
-    // handle and trigger popup window;
-    $('.popup-trigger').click(function(e) {
-      e.stopPropagation();
-      if (isfetched === false) {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-      } else {
-        proceedsearch();
-      };
-    });
-
-    $('.popup-btn-close').click(onPopupClose);
-    $('.popup').click(function(e){
-      e.stopPropagation();
-    });
-    $(document).on('keyup', function (event) {
-      var shouldDismissSearchPopup = event.which === 27 &&
-        $('.search-popup').is(':visible');
-      if (shouldDismissSearchPopup) {
-        onPopupClose();
-      }
-    });
-  </script>
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      });
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      });
-    </script>
-    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
-
-
-  
-
-  
-
-
-  undefined
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
 </html>

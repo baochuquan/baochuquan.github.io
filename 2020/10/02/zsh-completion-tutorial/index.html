@@ -1,1678 +1,1060 @@
 <!DOCTYPE html>
-
-
-
-  
-
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-  
-  
-  
-  
-
-  
-    
-    
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    
-    
-    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-  
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
-
-
-  <meta name="keywords" content="zsh,自动补全," />
-
-
-
-
-
-  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
-
-
-
-
-  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
-
-
-
-
-
-
-<meta property="og:type" content="article">
+    <meta property="og:type" content="article">
 <meta property="og:title" content="Zsh 自动补全脚本入门">
 <meta property="og:url" content="http://chuquan.me/2020/10/02/zsh-completion-tutorial/index.html">
 <meta property="og:site_name" content="楚权的世界">
-<meta property="og:locale">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/zsh-completion.jpeg?x-oss-process=image/resize,w_800">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-10-02T12:33:45.000Z">
-<meta property="article:modified_time" content="2020-10-02T12:40:03.443Z">
+<meta property="article:modified_time" content="2023-09-16T11:42:36.728Z">
 <meta property="article:author" content="Bao Chuquan">
 <meta property="article:tag" content="zsh">
 <meta property="article:tag" content="自动补全">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/zsh-completion.jpeg?x-oss-process=image/resize,w_800">
+
+
+<link rel="canonical" href="http://chuquan.me/2020/10/02/zsh-completion-tutorial/">
 
 
 
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '',
-    scheme: 'Pisces',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: true,
-    duoshuo: {
-      userId: '0',
-      author: '博主'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2020/10/02/zsh-completion-tutorial/","path":"2020/10/02/zsh-completion-tutorial/","title":"Zsh 自动补全脚本入门"}</script>
 
-
-
-  <link rel="canonical" href="http://chuquan.me/2020/10/02/zsh-completion-tutorial/"/>
-
-
-
-
-
-  <title>Zsh 自动补全脚本入门 | 楚权的世界</title>
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Zsh 自动补全脚本入门 | 楚权的世界</title>
   
 
-
-
-
-
-  <script type="text/javascript">
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
 
 
 
 
 
 
-
-
-
-
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
 <!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
-  
-  
-    
-  
-
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
-    <div class="headband"></div>
-	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
-    
-
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">楚权的世界</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
     </div>
-      
-        <p class="site-subtitle">Seek the wonder of life.</p>
-      
   </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
   </div>
 </div>
+
+
 
 <nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-photos">
-          <a href="/photos" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
-            
-            相册
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            归档
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-commonweal">
-          <a href="/404.html" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
-            
-            公益
-          </a>
-        </li>
-      
-
-      
-        <li class="menu-item menu-item-search">
-          
-            <a href="javascript:;" class="popup-trigger">
-          
-            
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
-            
-            搜索
-          </a>
-        </li>
-      
-    </ul>
-  
-
-  
-    <div class="site-search">
-      
-  <div class="popup search-popup local-search-popup">
-  <div class="local-search-header clearfix">
-    <span class="search-icon">
-      <i class="fa fa-search"></i>
-    </span>
-    <span class="popup-btn-close">
-      <i class="fa fa-times-circle"></i>
-    </span>
-    <div class="local-search-input-wrapper">
-      <input autocomplete="off"
-             placeholder="搜索..." spellcheck="false"
-             type="text" id="local-search-input">
-    </div>
-  </div>
-  <div id="local-search-result"></div>
-</div>
-
-
-
-    </div>
-  
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
 </nav>
 
 
 
- </div>
-    </header>
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
 
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
+    </div>
+  </div>
 
-  <div id="posts" class="posts-expand">
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%A5%E9%97%A8%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">入门基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#zsh-%E5%A6%82%E4%BD%95%E8%A1%A5%E5%85%A8%E4%B8%80%E4%B8%AA%E5%91%BD%E4%BB%A4"><span class="nav-number">1.1.</span> <span class="nav-text">zsh 如何补全一个命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E7%94%A8-gnu-%E5%91%BD%E4%BB%A4%E8%A1%A5%E5%85%A8"><span class="nav-number">1.2.</span> <span class="nav-text">通用 GNU 命令补全</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%8D%E5%88%B6%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD"><span class="nav-number">1.3.</span> <span class="nav-text">复制补全功能</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%BC%96%E5%86%99%E8%A1%A5%E5%85%A8%E6%96%B9%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">如何编写补全方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">工具方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E4%BA%8E%E6%95%B4%E4%BD%93%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD%E7%9A%84%E5%B7%A5%E5%85%B7%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.1.</span> <span class="nav-text">用于整体补全功能的工具方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E5%8D%95%E4%B8%AA%E5%8D%95%E8%AF%8D%E8%BF%9B%E8%A1%8C%E5%A4%8D%E6%9D%82%E8%A1%A5%E5%85%A8%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.2.</span> <span class="nav-text">为单个单词进行复杂补全的方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E6%8C%87%E5%AE%9A%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%AF%B9%E8%B1%A1%E8%BF%9B%E8%A1%8C%E8%A1%A5%E5%85%A8%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.3.</span> <span class="nav-text">为指定类型的对象进行补全的方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E5%B7%B2%E7%BC%93%E5%AD%98%E8%A1%A5%E5%85%A8%E9%80%BB%E8%BE%91%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.4.</span> <span class="nav-text">处理已缓存补全逻辑的方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.5.</span> <span class="nav-text">其他方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#action"><span class="nav-number">2.1.6.</span> <span class="nav-text">Action</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-_describe-%E7%9A%84%E7%AE%80%E5%8D%95%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD"><span class="nav-number">2.2.</span> <span class="nav-text">基于 _describe
+的简单补全功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-_alternative-%E7%9A%84%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD"><span class="nav-number">2.3.</span> <span class="nav-text">基于 _alternative
+的补全功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-_arguments-%E7%9A%84%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD"><span class="nav-number">2.4.</span> <span class="nav-text">基于 _arguments
+的补全功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-_regex_arguments-%E5%92%8C-_regex_words-%E7%9A%84%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD"><span class="nav-number">2.5.</span> <span class="nav-text">基于
+_regex_arguments 和 _regex_words
+的补全功能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.5.1.</span> <span class="nav-text">模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#regex_words"><span class="nav-number">2.5.2.</span> <span class="nav-text">_regex_words</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-_values_sep_parts_multi_parts-%E7%9A%84%E5%A4%8D%E6%9D%82%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD"><span class="nav-number">2.6.</span> <span class="nav-text">基于
+_values、_sep_parts、_multi_parts
+的复杂补全功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-compadd-%E7%9B%B4%E6%8E%A5%E6%B7%BB%E5%8A%A0%E8%A1%A5%E5%85%A8%E5%8D%95%E8%AF%8D"><span class="nav-number">2.7.</span> <span class="nav-text">使用 compadd
+直接添加补全单词</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E4%B8%8E%E8%B0%83%E8%AF%95"><span class="nav-number">3.</span> <span class="nav-text">测试与调试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">4.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%90%E7%A4%BA"><span class="nav-number">5.</span> <span class="nav-text">提示</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">其他资料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">129</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">288</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
     
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
 
   
 
-  
+
+<div class="post-block">
   
   
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://chuquan.me/2020/10/02/zsh-completion-tutorial/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
     </span>
 
-    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Zsh 自动补全脚本入门 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
       <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Zsh 自动补全脚本入门
+        </h1>
 
-        
-        
-          <h1 class="post-title" itemprop="name headline">Zsh 自动补全脚本入门</h1>
-        
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
 
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="发表于" itemprop="dateCreated datePublished" datetime="2020-10-02T20:33:45+08:00">
-                2020-10-02
-              </time>
-            
+      <time title="创建时间：2020-10-02 20:33:45" itemprop="dateCreated datePublished" datetime="2020-10-02T20:33:45+08:00">2020-10-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-09-16 19:42:36" itemprop="dateModified" datetime="2023-09-16T19:42:36+08:00">2023-09-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Shell/" itemprop="url" rel="index"><span itemprop="name">Shell</span></a>
+        </span>
+    </span>
 
-            
-              <span class="post-meta-divider">|</span>
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-check-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">更新于</span>
-              
-              <time title="更新于" itemprop="dateModified" datetime="2020-10-02T20:40:03+08:00">
-                2020-10-02
-              </time>
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Shell/" itemprop="url" rel="index">
-                    <span itemprop="name">Shell</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
-          
-
-          
-
-          
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2020/10/02/zsh-completion-tutorial/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2020/10/02/zsh-completion-tutorial/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
 
         </div>
       </header>
-    
 
     
     
     
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/zsh-completion.jpeg?x-oss-process=image/resize,w_800"></p>
+    <div class="post-body" itemprop="articleBody"><p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/zsh-completion.jpeg?x-oss-process=image/resize,w_800" /></p>
 <span id="more"></span>
-
-<h1 id="入门基础"><a href="#入门基础" class="headerlink" title="入门基础"></a>入门基础</h1><h2 id="zsh-如何补全一个命令"><a href="#zsh-如何补全一个命令" class="headerlink" title="zsh 如何补全一个命令"></a>zsh 如何补全一个命令</h2><p>命令的补全方法保存在以下划线 <code>_</code> 开头的补全文件中，这些文件通常保存在 <code>$fpath</code> 变量所指定的路径下。当然，我们也通过可以在 <code>~/.zshrc</code> 文件中增加如下一行代码，从而给 <code>$fpath</code> 新增一个搜索路径。</p>
+<h1 id="入门基础">入门基础</h1>
+<h2 id="zsh-如何补全一个命令">zsh 如何补全一个命令</h2>
+<p>命令的补全方法保存在以下划线 <code>_</code>
+开头的补全文件中，这些文件通常保存在 <code>$fpath</code>
+变量所指定的路径下。当然，我们也通过可以在 <code>~/.zshrc</code>
+文件中增加如下一行代码，从而给 <code>$fpath</code>
+新增一个搜索路径。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fpath=(~/newdir <span class="variable">$fpath</span>)</span><br></pre></td></tr></table></figure>
-
-<p>补全文件的第一行定义如下所示：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#compdef foobar</span></span><br></pre></td></tr></table></figure>
-
-<p>上述这行代码表示本文件定义了为 <code>foobar</code> 命令进行自动补全的代码。</p>
-<p>我们还可以直接使用 <code>compdef</code> （比如：在 <code>~/.zshrc</code> 中）命令指定将哪个方法作为自动补全的补全方法，如下所示：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; compdef _function foobar</span><br></pre></td></tr></table></figure>
-
-<p>除此之外，我们还可以同时为多个命令指定同一个补全方法。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; compdef _function foobar goocar hoobar</span><br></pre></td></tr></table></figure>
-
-<p>甚至，还可以传递参数至补全方法中。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; compdef <span class="string">&#x27;_function arg1 arg2&#x27;</span> foobar</span><br></pre></td></tr></table></figure>
-
-<p>更多细节参见 <a target="_blank" rel="noopener" href="http://zsh.sourceforge.net/Doc/Release/Completion-System.html#Functions-4">传送门</a>。</p>
-<h2 id="通用-GNU-命令补全"><a href="#通用-GNU-命令补全" class="headerlink" title="通用 GNU 命令补全"></a>通用 GNU 命令补全</h2><p>很多 GNU 命令都有着一套标准的方式来对选项的描述进行罗列显示（当使用 <code>--help</code> 选项时）。对于这些命令，我们可以使用 <code>_gnu_generic</code> 方法自动创建补全方法，如下所示：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; compdef _gnu_generic foobar</span><br></pre></td></tr></table></figure>
-
-<p>当然，也可以同时为多个命令指定 <code>_gnu_generic</code> 补全方法。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; compdef _gnu_generic foobar goocar hoodar</span><br></pre></td></tr></table></figure>
-
+<p>补全文件的第一行定义如下所示： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#compdef foobar</span></span><br></pre></td></tr></table></figure></p>
+<p>上述这行代码表示本文件定义了为 <code>foobar</code>
+命令进行自动补全的代码。</p>
+<p>我们还可以直接使用 <code>compdef</code> （比如：在
+<code>~/.zshrc</code>
+中）命令指定将哪个方法作为自动补全的补全方法，如下所示：
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; compdef _function foobar</span><br></pre></td></tr></table></figure></p>
+<p>除此之外，我们还可以同时为多个命令指定同一个补全方法。
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; compdef _function foobar goocar hoobar</span><br></pre></td></tr></table></figure></p>
+<p>甚至，还可以传递参数至补全方法中。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; compdef <span class="string">&#x27;_function arg1 arg2&#x27;</span> foobar</span><br></pre></td></tr></table></figure></p>
+<p>更多细节参见 <a
+href="http://zsh.sourceforge.net/Doc/Release/Completion-System.html#Functions-4">传送门</a>。</p>
+<h2 id="通用-gnu-命令补全">通用 GNU 命令补全</h2>
+<p>很多 GNU 命令都有着一套标准的方式来对选项的描述进行罗列显示（当使用
+<code>--help</code> 选项时）。对于这些命令，我们可以使用
+<code>_gnu_generic</code> 方法自动创建补全方法，如下所示：
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; compdef _gnu_generic foobar</span><br></pre></td></tr></table></figure></p>
+<p>当然，也可以同时为多个命令指定 <code>_gnu_generic</code> 补全方法。
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; compdef _gnu_generic foobar goocar hoodar</span><br></pre></td></tr></table></figure></p>
 <p>这行代码可以直接添加到 <code>~/.zshrc</code> 中。</p>
-<h2 id="复制补全功能"><a href="#复制补全功能" class="headerlink" title="复制补全功能"></a>复制补全功能</h2><p>假设我们希望一个命令 <code>cmd1</code> 具有与 <code>cmd2</code> 一样的补全功能，并且 <code>cmd2</code> 的自动补全功能已经定义好了，那么我们可以使用如下方式进行复制。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; compdef cmd1=cmd2</span><br></pre></td></tr></table></figure>
-
-<p>当我们为一个命令创建了一个 <code>alias</code> 时，使用这种方式可以完整复制原始命令的补全功能！</p>
-<h1 id="如何编写补全方法"><a href="#如何编写补全方法" class="headerlink" title="如何编写补全方法"></a>如何编写补全方法</h1><p>那么，如何编写属于我们自己的补全方法呢？照葫芦画瓢是一种非常好的上手方式。我们可以阅读一些别人写的补全方法。在本机的文件系统下，我们可以通过 <code>$fpath</code> 环境变量去搜索已有的补全功能文件，比如：<code>/usr/local/share/zsh/site-functions</code>。</p>
-<p>我们可以看到有一个 <code>_arguments</code> 方法在这些补全功能文件中被大量使用。<code>_arguments</code> 是一个可以快速实现简单补全功能的工具方法。本质上，<code>_arguments</code> 方法是对内置方法 <code>compadd</code> 进行了封装。内置方法 <code>compadd</code> 是将补全单词添加至命令行，并控制补全行为的关键方法。不过，在大多数情况下，我们都不需要使用 <code>compadd</code> 方法，因为 zsh 提供了大量类似 <code>_arguments</code>、<code>_describe</code> 这样的工具方法，简单易用。</p>
+<h2 id="复制补全功能">复制补全功能</h2>
+<p>假设我们希望一个命令 <code>cmd1</code> 具有与 <code>cmd2</code>
+一样的补全功能，并且 <code>cmd2</code>
+的自动补全功能已经定义好了，那么我们可以使用如下方式进行复制。
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; compdef cmd1=cmd2</span><br></pre></td></tr></table></figure></p>
+<p>当我们为一个命令创建了一个 <code>alias</code>
+时，使用这种方式可以完整复制原始命令的补全功能！</p>
+<h1 id="如何编写补全方法">如何编写补全方法</h1>
+<p>那么，如何编写属于我们自己的补全方法呢？照葫芦画瓢是一种非常好的上手方式。我们可以阅读一些别人写的补全方法。在本机的文件系统下，我们可以通过
+<code>$fpath</code>
+环境变量去搜索已有的补全功能文件，比如：<code>/usr/local/share/zsh/site-functions</code>。</p>
+<p>我们可以看到有一个 <code>_arguments</code>
+方法在这些补全功能文件中被大量使用。<code>_arguments</code>
+是一个可以快速实现简单补全功能的工具方法。本质上，<code>_arguments</code>
+方法是对内置方法 <code>compadd</code> 进行了封装。内置方法
+<code>compadd</code>
+是将补全单词添加至命令行，并控制补全行为的关键方法。不过，在大多数情况下，我们都不需要使用
+<code>compadd</code> 方法，因为 zsh 提供了大量类似
+<code>_arguments</code>、<code>_describe</code>
+这样的工具方法，简单易用。</p>
 <p>对于非常简单的补全功能，<code>_describe</code> 方法甚至都够用了。</p>
-<h2 id="工具方法"><a href="#工具方法" class="headerlink" title="工具方法"></a>工具方法</h2><p>本文仅罗列一部分常用的工具方法。完整的工具方法及其使用说明，参见 <a target="_blank" rel="noopener" href="http://zsh.sourceforge.net/Doc/Release/Completion-System.html#Completion-Functions">传送门</a>。</p>
+<h2 id="工具方法">工具方法</h2>
+<p>本文仅罗列一部分常用的工具方法。完整的工具方法及其使用说明，参见 <a
+href="http://zsh.sourceforge.net/Doc/Release/Completion-System.html#Completion-Functions">传送门</a>。</p>
 <p>本节我们将简单介绍一部分常用的工具方法，下一节我们将介绍如何使用这些工具方法。</p>
-<h3 id="用于整体补全功能的工具方法"><a href="#用于整体补全功能的工具方法" class="headerlink" title="用于整体补全功能的工具方法"></a>用于整体补全功能的工具方法</h3><table>
+<h3 id="用于整体补全功能的工具方法">用于整体补全功能的工具方法</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
 <thead>
-<tr>
-<th align="left">方法名称</th>
-<th align="left">功能描述</th>
+<tr class="header">
+<th style="text-align: left;">方法名称</th>
+<th style="text-align: left;">功能描述</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left"><code>_alternative</code></td>
-<td align="left">用于生成补全候选列表</td>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>_alternative</code></td>
+<td style="text-align: left;">用于生成补全候选列表</td>
 </tr>
-<tr>
-<td align="left"><code>_arguments</code></td>
-<td align="left">用于指定如何对一个命令进行选项补全和参数补全，采用 UNIX 风格选项</td>
+<tr class="even">
+<td style="text-align: left;"><code>_arguments</code></td>
+<td
+style="text-align: left;">用于指定如何对一个命令进行选项补全和参数补全，采用
+UNIX 风格选项</td>
 </tr>
-<tr>
-<td align="left"><code>_describe</code></td>
-<td align="left">用来创建仅由单词、描述信息组成的简单补全（不包含 Action）。比 <code>_arguments</code> 方法更简单</td>
+<tr class="odd">
+<td style="text-align: left;"><code>_describe</code></td>
+<td
+style="text-align: left;">用来创建仅由单词、描述信息组成的简单补全（不包含
+Action）。比 <code>_arguments</code> 方法更简单</td>
 </tr>
-<tr>
-<td align="left"><code>_gnu_generic</code></td>
-<td align="left">用来为能够响应 <code>--help</code> 选项的命令进行补全</td>
+<tr class="even">
+<td style="text-align: left;"><code>_gnu_generic</code></td>
+<td style="text-align: left;">用来为能够响应 <code>--help</code>
+选项的命令进行补全</td>
 </tr>
-<tr>
-<td align="left"><code>_regex_arguments</code></td>
-<td align="left">创建一个方法，能够使用正则表达式匹配命令行参数，从而执行 Action 或补全方法</td>
+<tr class="odd">
+<td style="text-align: left;"><code>_regex_arguments</code></td>
+<td
+style="text-align: left;">创建一个方法，能够使用正则表达式匹配命令行参数，从而执行
+Action 或补全方法</td>
 </tr>
-</tbody></table>
-<h3 id="为单个单词进行复杂补全的方法"><a href="#为单个单词进行复杂补全的方法" class="headerlink" title="为单个单词进行复杂补全的方法"></a>为单个单词进行复杂补全的方法</h3><table>
+</tbody>
+</table>
+<h3 id="为单个单词进行复杂补全的方法">为单个单词进行复杂补全的方法</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
 <thead>
-<tr>
-<th align="left">方法名称</th>
-<th align="left">功能描述</th>
+<tr class="header">
+<th style="text-align: left;">方法名称</th>
+<th style="text-align: left;">功能描述</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left"><code>_values</code></td>
-<td align="left">用于为任意关键词（值）及其参数进行补全，或者此类组合的逗号分隔列表</td>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>_values</code></td>
+<td
+style="text-align: left;">用于为任意关键词（值）及其参数进行补全，或者此类组合的逗号分隔列表</td>
 </tr>
-<tr>
-<td align="left"><code>_combination</code></td>
-<td align="left">用于补全值的组合，比如：<code>hostname</code> 和 <code>username</code> 的组合</td>
+<tr class="even">
+<td style="text-align: left;"><code>_combination</code></td>
+<td
+style="text-align: left;">用于补全值的组合，比如：<code>hostname</code>
+和 <code>username</code> 的组合</td>
 </tr>
-<tr>
-<td align="left"><code>_multi_parts</code></td>
-<td align="left">用于对单词的多个部分进行补全，其中每个部分使用某个字符分隔，例如对部分文件路径进行补全：<code>/u/i/sy</code> 补全为 <code>/usr/include/sys</code></td>
+<tr class="odd">
+<td style="text-align: left;"><code>_multi_parts</code></td>
+<td
+style="text-align: left;">用于对单词的多个部分进行补全，其中每个部分使用某个字符分隔，例如对部分文件路径进行补全：<code>/u/i/sy</code>
+补全为 <code>/usr/include/sys</code></td>
 </tr>
-<tr>
-<td align="left"><code>_sep_parts</code></td>
-<td align="left">类似 <code>_multi_parts</code>，不过它允许不同的补全部分使用不同的分隔符</td>
+<tr class="even">
+<td style="text-align: left;"><code>_sep_parts</code></td>
+<td style="text-align: left;">类似
+<code>_multi_parts</code>，不过它允许不同的补全部分使用不同的分隔符</td>
 </tr>
-<tr>
-<td align="left"><code>_sequence</code></td>
-<td align="left">用于封装另一个补全方法，从而对另一个补全方法生成的匹配项进行补全</td>
+<tr class="odd">
+<td style="text-align: left;"><code>_sequence</code></td>
+<td
+style="text-align: left;">用于封装另一个补全方法，从而对另一个补全方法生成的匹配项进行补全</td>
 </tr>
-</tbody></table>
-<h3 id="为指定类型的对象进行补全的方法"><a href="#为指定类型的对象进行补全的方法" class="headerlink" title="为指定类型的对象进行补全的方法"></a>为指定类型的对象进行补全的方法</h3><table>
+</tbody>
+</table>
+<h3
+id="为指定类型的对象进行补全的方法">为指定类型的对象进行补全的方法</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
 <thead>
-<tr>
-<th align="left">方法名称</th>
-<th align="left">功能描述</th>
+<tr class="header">
+<th style="text-align: left;">方法名称</th>
+<th style="text-align: left;">功能描述</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left"><code>_path_files</code></td>
-<td align="left">用于补全文件路径。有多个选项可以控制其行为</td>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>_path_files</code></td>
+<td
+style="text-align: left;">用于补全文件路径。有多个选项可以控制其行为</td>
 </tr>
-<tr>
-<td align="left"><code>_files</code></td>
-<td align="left">使用除了 <code>-g</code> 和 <code>-/</code> 以外的所有选项调用 <code>_path_files</code> 方法。这些选项取决于文件模式样式设置</td>
+<tr class="even">
+<td style="text-align: left;"><code>_files</code></td>
+<td style="text-align: left;">使用除了 <code>-g</code> 和
+<code>-/</code> 以外的所有选项调用 <code>_path_files</code>
+方法。这些选项取决于文件模式样式设置</td>
 </tr>
-<tr>
-<td align="left"><code>_net_interfaces</code></td>
-<td align="left">用于补全网络接口名称</td>
+<tr class="odd">
+<td style="text-align: left;"><code>_net_interfaces</code></td>
+<td style="text-align: left;">用于补全网络接口名称</td>
 </tr>
-<tr>
-<td align="left"><code>_users</code></td>
-<td align="left">用于补全用户名</td>
+<tr class="even">
+<td style="text-align: left;"><code>_users</code></td>
+<td style="text-align: left;">用于补全用户名</td>
 </tr>
-<tr>
-<td align="left"><code>_groups</code></td>
-<td align="left">用于补全用户组名称</td>
+<tr class="odd">
+<td style="text-align: left;"><code>_groups</code></td>
+<td style="text-align: left;">用于补全用户组名称</td>
 </tr>
-<tr>
-<td align="left"><code>_options</code></td>
-<td align="left">用于补全 shell 选项的名称</td>
+<tr class="even">
+<td style="text-align: left;"><code>_options</code></td>
+<td style="text-align: left;">用于补全 shell 选项的名称</td>
 </tr>
-<tr>
-<td align="left"><code>_parameters</code></td>
-<td align="left">用于补全 shell 参数、变量的名称（可以限定为与模式匹配的名称）</td>
+<tr class="odd">
+<td style="text-align: left;"><code>_parameters</code></td>
+<td style="text-align: left;">用于补全 shell
+参数、变量的名称（可以限定为与模式匹配的名称）</td>
 </tr>
-</tbody></table>
-<h3 id="处理已缓存补全逻辑的方法"><a href="#处理已缓存补全逻辑的方法" class="headerlink" title="处理已缓存补全逻辑的方法"></a>处理已缓存补全逻辑的方法</h3><p>如果我们有大量的补全，可以将它们保存在缓存文件中，以便快速加载。</p>
+</tbody>
+</table>
+<h3 id="处理已缓存补全逻辑的方法">处理已缓存补全逻辑的方法</h3>
+<p>如果我们有大量的补全，可以将它们保存在缓存文件中，以便快速加载。</p>
 <table>
 <thead>
-<tr>
-<th align="left">方法名称</th>
-<th align="left">功能描述</th>
+<tr class="header">
+<th style="text-align: left;">方法名称</th>
+<th style="text-align: left;">功能描述</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left"><code>_cache_invalid</code></td>
-<td align="left">设置指定的缓存标识符对应的补全逻辑是否需要重建</td>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>_cache_invalid</code></td>
+<td
+style="text-align: left;">设置指定的缓存标识符对应的补全逻辑是否需要重建</td>
 </tr>
-<tr>
-<td align="left"><code>_retrieve_cache</code></td>
-<td align="left">从缓存文件中检索补全逻辑信息</td>
+<tr class="even">
+<td style="text-align: left;"><code>_retrieve_cache</code></td>
+<td style="text-align: left;">从缓存文件中检索补全逻辑信息</td>
 </tr>
-<tr>
-<td align="left"><code>_store_cache</code></td>
-<td align="left">将指定的缓存标识符对应的补全逻辑信息存储在缓存文件中</td>
+<tr class="odd">
+<td style="text-align: left;"><code>_store_cache</code></td>
+<td
+style="text-align: left;">将指定的缓存标识符对应的补全逻辑信息存储在缓存文件中</td>
 </tr>
-</tbody></table>
-<h3 id="其他方法"><a href="#其他方法" class="headerlink" title="其他方法"></a>其他方法</h3><table>
-<thead>
-<tr>
-<th align="left">方法名称</th>
-<th align="left">功能描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><code>_message</code></td>
-<td align="left">用于在无法补全时显示帮助信息</td>
-</tr>
-<tr>
-<td align="left"><code>_regex_words</code></td>
-<td align="left">用于为 <code>_regex_arguments</code> 命令生成调用参数。比手动编写参数更简单</td>
-</tr>
-<tr>
-<td align="left"><code>_guard</code></td>
-<td align="left">可以在 <code>_arguments</code> 的调用参数的 <code>ACTION</code> 部分中使用，也可以在类似的方法用来检查单词是否已补全</td>
-</tr>
-</tbody></table>
-<h3 id="Action"><a href="#Action" class="headerlink" title="Action"></a>Action</h3><p>类似 <code>_arguments</code>、<code>_regex_arguments</code>、<code>_alternative</code>、<code>_value</code> 这样的工具方法，它都都可以有一系列的调用参数。不过这些参数都遵循了一些预定义格式（或规范）的字符串，我们称之为 <strong>参数格式</strong>，每个参数格式的最后一个参数&#x2F;选项是 Action 部分。<strong>Action 表示如何补全相应的参数</strong>。Action 可以有多种类型：</p>
+</tbody>
+</table>
+<h3 id="其他方法">其他方法</h3>
 <table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
 <thead>
-<tr>
-<th align="left">方法名称</th>
-<th align="left">功能描述</th>
+<tr class="header">
+<th style="text-align: left;">方法名称</th>
+<th style="text-align: left;">功能描述</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left"><code>()</code></td>
-<td align="left">参数是必须的，但是没有匹配项。相当于空白占位符</td>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>_message</code></td>
+<td style="text-align: left;">用于在无法补全时显示帮助信息</td>
 </tr>
-<tr>
-<td align="left"><code>(ITEM1 ITEM2)</code></td>
-<td align="left">可能的匹配列表</td>
+<tr class="even">
+<td style="text-align: left;"><code>_regex_words</code></td>
+<td style="text-align: left;">用于为 <code>_regex_arguments</code>
+命令生成调用参数。比手动编写参数更简单</td>
 </tr>
-<tr>
-<td align="left"><code>((ITEM1\:&#39;DESC1&#39; ITEM2\:&#39;DESC2&#39;))</code></td>
-<td align="left">可能的匹配列表，附带描述信息。注意：Action 中的引号不能和其所在的参数格式字符串的引号相同</td>
+<tr class="odd">
+<td style="text-align: left;"><code>_guard</code></td>
+<td style="text-align: left;">可以在 <code>_arguments</code>
+的调用参数的 <code>ACTION</code>
+部分中使用，也可以在类似的方法用来检查单词是否已补全</td>
 </tr>
-<tr>
-<td align="left"><code>-&gt;STRING</code></td>
-<td align="left">将 <code>$state</code> 设置为 STRING 并继续后续逻辑（当工具方法被调用后，可以使用 <code>case</code> 语句检查 <code>$state</code>）</td>
+</tbody>
+</table>
+<h3 id="action">Action</h3>
+<p>类似
+<code>_arguments</code>、<code>_regex_arguments</code>、<code>_alternative</code>、<code>_value</code>
+这样的工具方法，它都都可以有一系列的调用参数。不过这些参数都遵循了一些预定义格式（或规范）的字符串，我们称之为
+<strong>参数格式</strong>，每个参数格式的最后一个参数/选项是 Action
+部分。<strong>Action 表示如何补全相应的参数</strong>。Action
+可以有多种类型：</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">方法名称</th>
+<th style="text-align: left;">功能描述</th>
 </tr>
-<tr>
-<td align="left"><code>FUNCTION</code></td>
-<td align="left">将要调用的方法名称，该方法能够生成匹配项或调用其他 Action，如：<code>_file</code>、<code>_message</code></td>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>()</code></td>
+<td
+style="text-align: left;">参数是必须的，但是没有匹配项。相当于空白占位符</td>
 </tr>
-<tr>
-<td align="left"><code>&#123;EVAL-STRING&#125;</code></td>
-<td align="left">将字符串作为 Shell 代码执行，可以生成匹配项。也可以调用工具方法并传入参数，如：<code>_values</code>、<code>_describe</code></td>
+<tr class="even">
+<td style="text-align: left;"><code>(ITEM1 ITEM2)</code></td>
+<td style="text-align: left;">可能的匹配列表</td>
 </tr>
-<tr>
-<td align="left"><code>=ACTION</code></td>
-<td align="left">在不改变补全位置节点的情况下，向补全命令行中插入一个伪单词</td>
+<tr class="odd">
+<td
+style="text-align: left;"><code>((ITEM1\:'DESC1' ITEM2\:'DESC2'))</code></td>
+<td style="text-align: left;">可能的匹配列表，附带描述信息。注意：Action
+中的引号不能和其所在的参数格式字符串的引号相同</td>
 </tr>
-</tbody></table>
-<p>注意：并不是所有的工具方法都可以使用所有类型的 Action。比如：<code>_regex_arguments</code>、<code>_alternative</code> 方法不能使用 <code>-&gt;STRING</code> 类型。</p>
-<h2 id="基于-describe-的简单补全功能"><a href="#基于-describe-的简单补全功能" class="headerlink" title="基于 _describe 的简单补全功能"></a>基于 <code>_describe</code> 的简单补全功能</h2><p><code>_describe</code> 方法可用于 <strong>选项&#x2F;参数的顺序和位置并不重要</strong> 的简单补全功能。我们只需要创建一个数组参数来持有选项及其描述信息，然后将这个数组参数作为一个参数传递给 <code>_describe</code>。下面的例子中，创建了两个补全候选项 <code>c</code> 和 <code>d</code>，并提供了描述信息（注意：代码应该定义在名为 <code>_cmd</code> 文件中，并位于 <code>$fpath</code> 的路劲下）：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#compdef cmd</span></span><br><span class="line"><span class="built_in">local</span> a -subcmds</span><br><span class="line">subcmds=(<span class="string">&#x27;c:description for c command&#x27;</span> <span class="string">&#x27;d:description for d command&#x27;</span>)</span><br><span class="line">_describe <span class="string">&#x27;command&#x27;</span> subcmds</span><br></pre></td></tr></table></figure>
-
-<p>除此之外，我们还可以向 <code>_describe</code> 方法传入多个不同的列表，并使用 <code>--</code> 进行分隔。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">local</span> -a subcmds topics</span><br><span class="line">subcmds=(<span class="string">&#x27;c:description for c command&#x27;</span> <span class="string">&#x27;d:description for d command&#x27;</span>)</span><br><span class="line">topics=(<span class="string">&#x27;e:description for e help topic&#x27;</span> <span class="string">&#x27;f:description for f help topic&#x27;</span>)</span><br><span class="line">_describe <span class="string">&#x27;command&#x27;</span> subcmds -- topics</span><br></pre></td></tr></table></figure>
-
-<p>如果两个候选项的描述信息相同，<code>_describe</code> 会将两者合并到同一行，并确保所有候选项的描述信息列对齐。<code>_describe</code> 方法可以用在 <code>_alternative</code>、<code>_arguments</code>、<code>_regex_arguments</code> 的参数格式中的 <code>ACTION</code> 部分。在这种情况下，我们必须将其与参数放在一起，如：<code>&#39;TAG:DESCRIPTION:&#123;_describe &#39;value&#39; options&#39;&#125;</code></p>
-<h2 id="基于-alternative-的补全功能"><a href="#基于-alternative-的补全功能" class="headerlink" title="基于 _alternative 的补全功能"></a>基于 <code>_alternative</code> 的补全功能</h2><p>与 <code>_describe</code> 方法类似，<code>_alternative</code> 方法可用于 <strong>选项&#x2F;参数的顺序和位置并不重要</strong> 的简单补全功能。与 <code>_describe</code> 方法不同，<code>_alternative</code> 方法并不使用固定的匹配项，而是调用其他方法来生成候选项。此外，<code>_alternative</code> 允许混合使用不同类型的补全候选项。</p>
-<p><code>_alternative</code> 方法的参数格式是 <code>&#39;TAG:DESCRIPTION:ACTION&#39;</code>。其中，<code>TAG</code> 指定补全匹配项的类型；<code>DESCRIPTION</code> 表示补全候选项列表的描述信息；<code>ACTION</code> 则是前文所描述的一种 Action 类型（<code>_alternative</code> 不支持 <code>-&gt;STRING</code> 和 <code>=ACTION</code> 类型）。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_alternative <span class="string">&#x27;arguments:custom arg:(a b c)&#x27;</span> <span class="string">&#x27;files:filename:_files&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p><code>_alternative</code> 方法的第一个参数中加入了三个候选项 <code>a</code>、<code>b</code>、<code>c</code>；第二个参数调用了 <code>_files</code> 方法来对文件路径进行补全。</p>
-<p>我们可以将 <code>_alternative</code> 方法参数分成多行，使用 <code>\</code> 进行换行。如下所示，为每个自定义参数添加了描述信息：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">_alternative \</span><br><span class="line">  <span class="string">&#x27;args:custom arg:((a\:&quot;description a&quot; b\:&quot;description b&quot; c\:&quot;description c&quot;))&#x27;</span> \</span><br><span class="line">  <span class="string">&#x27;files:filename:_files&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>如果我们想把参数传递给 <code>_files</code> 方法，可以像下面一下直接包含进来：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">_alternative \</span><br><span class="line">  <span class="string">&#x27;args:custom arg:((a\:&quot;description a&quot; b\:&quot;description b&quot; c\:&quot;description c&quot;))&#x27;</span>\</span><br><span class="line">  <span class="string">&#x27;files:filename:_files -/&#x27;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>如果想使用参数扩展来创建补全列表，我们需要使用双引号来引用 <code>_alternative</code> 方法的调用参数。如下所示为一个简单示例：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">_alternative \</span><br><span class="line">  <span class="string">&quot;dirs:user directory:(<span class="variable">$userdirs</span>)&quot;</span> \</span><br><span class="line">  <span class="string">&quot;pids:process ID:(<span class="subst">$(ps -A | awk &#x27;&#123;print $1&#125;&#x27;)</span>)&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>在这种情况下，第一个调用参数添加了存储在 <code>$userdirs</code> 变量中的单词，第二个调用参数则执行 <code>ps -A | awk &#39;&#123;print $1&#125;&#39;</code> 来获取一系列的 PID 以作为补全候选项。在实际开发中，我们可以直接使用已有的 <code>_pids</code> 方法。</p>
-<p>我们还可以在 <code>ACTION</code> 中使用其他的工具方法（如：<code>_values</code>）来生成实现更加复杂的补全功能，如下所示为一个简单示例：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">_alternative \</span><br><span class="line">  <span class="string">&quot;directories:user directory:(<span class="variable">$userdirs</span>)&quot;</span> \</span><br><span class="line">  <span class="string">&#x27;options:comma-separated opt: _values -s , letter a b c&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>上述例子会对 <code>$userdirs</code> 中的项进行补全，同时也会对包含 <code>a</code>、<code>b</code>、<code>c</code> 的逗号分隔列表进行补全。注意：在 <code>_values</code> 方法前需要有一个初始的空格。</p>
-<p>和 <code>_describe</code> 方法一样，<code>_alternative</code> 方法自身也可以作为 <code>_arguments</code>、<code>_regex_arguments</code> 等方法的调用参数中的 <code>ACTION</code> 部分。</p>
-<h2 id="基于-arguments-的补全功能"><a href="#基于-arguments-的补全功能" class="headerlink" title="基于 _arguments 的补全功能"></a>基于 <code>_arguments</code> 的补全功能</h2><p>通过调用 <code>_arguments</code> 方法，我们就能够实现复杂的补全功能。<code>_arguments</code> 方法能够处理带有各种选项及常规参数的命令。与 <code>_alternative</code>，<code>_arguments</code> 方法相似，它以格式化的字符串作为其调用参数。这些格式化参数能够指定选项及其对应的选项参数（如：<code>-f filename</code>）、命令参数。</p>
-<p><code>_arguments</code> 方法的调用参数的基本参数格式为 <code>-OPT[DESCRIPTION]</code>，如下所示为一个简单示例：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_arguments <span class="string">&#x27;-s[sort output]&#x27;</span> <span class="string">&#x27;--l[long output]&#x27;</span> <span class="string">&#x27;-l[long output]&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>稍微复杂一点的 <code>_arguments</code> 方法的参数格式可以是 <code>-OPT[DESCRIPTION]:MESSAGE:ACTION</code>。其中，<code>MESSAGE</code> 和 <code>ACTION</code> 的含义与上述 <code>_alternative</code> 中描述的一样。如下所示为一个简单示例：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_arguments <span class="string">&#x27;-f[input file]:filename:_files&#x27;</span> </span><br></pre></td></tr></table></figure>
-
-<p><code>_arguments</code> 方法的参数格式还可以是 <code>N:MESSAGE:ACTION</code>。其中，<code>N</code> 表示第 N 个命令参数，<code>MESSAGE</code> 和 <code>ACTION</code> 还是和之前一样。如果省略 <code>N</code>，则仅表示下一个命令参数（在已指定的参数之后）。如果在 <code>N</code> 的前面或后面加上冒号 <code>:</code>，则表示参数是可选的。如下为一个简单的示例：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_arguments <span class="string">&#x27;-s[sort output]&#x27;</span> <span class="string">&#x27;1:first arg:_net_interfaces&#x27;</span> <span class="string">&#x27;::optional arg:_files&#x27;</span> <span class="string">&#x27;:next arg:(a b c)&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>上面这个例子中，第一个参数是网络接口名，下一个可选参数是一个文件名，最后一个参数是 <code>a</code>、<code>b</code>、<code>c</code> 其中之一，<code>s</code> 选项可以在任意位置进行补全。</p>
-<p><code>_arguments</code> 方法支持上述所有类型的 <code>ACTION</code>。这样的话，我们可以使用 <code>case</code> 分支来调用不同的 Action。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">_arguments <span class="string">&#x27;-m[music file]:filename:-&gt;files&#x27;</span> <span class="string">&#x27;-f[flags]:flag:-&gt;flags&#x27;</span></span><br><span class="line"><span class="keyword">case</span> <span class="string">&quot;<span class="variable">$state</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">    files)</span><br><span class="line">        <span class="built_in">local</span> -a music_files</span><br><span class="line">        music_files=( Music/**/*.&#123;mp3,wav,flac,ogg&#125; )</span><br><span class="line">        _multi_parts / music_files</span><br><span class="line">        ;;</span><br><span class="line">    flags)</span><br><span class="line">        _values -s , <span class="string">&#x27;flags&#x27;</span> a b c d e</span><br><span class="line">        ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
-
-<p>在这个例子中，music file 的路径调用 <code>_multi_parts</code> 方法来进行目录补全；flags 则可以调用 <code>_value</code> 方法，以逗号 <code>,</code> 分隔列表的形式进行补全。</p>
-<p>本节，我们简单地介绍了 <code>_arguments</code> 方法的基本使用方法，当然，我们还可以指定互斥选项、重复选项&#x2F;参数、以 <code>+</code> 开头而非 <code>-</code> 开头的选项等等。更多的使用方法，可以参见<a target="_blank" rel="noopener" href="http://zsh.sourceforge.net/Doc/Release/Completion-System.html#Completion-System">官方教程</a>。此外，还可以参考本文末尾提到的教程。</p>
-<h2 id="基于-regex-arguments-和-regex-words-的补全功能"><a href="#基于-regex-arguments-和-regex-words-的补全功能" class="headerlink" title="基于 _regex_arguments 和 _regex_words 的补全功能"></a>基于 <code>_regex_arguments</code> 和 <code>_regex_words</code> 的补全功能</h2><p>如果我们有一个复杂的命令行格式，它有多种可能的参数序列，那么 <code>_regex_arguments</code> 方法可能就是一个比较适合的补全方法。</p>
-<p><code>_regex_arguments</code> 方法会创建一个补全方法，补全方法的名字由第一个调用参数指定。因此，我们需要先调用 <code>_regex_arguments</code> 方法来创建补全方法，然后再调用该补全方法。如下所示：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_regex_arguments _cmd OTHER_ARGS..</span><br><span class="line">_cmd <span class="string">&quot;<span class="variable">$@</span>&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>上述例子中， <code>OTHER_ARGS</code> 用于匹配并补全命令行中的单词，其可以是多个调用参数列表。这些调用参数列表可以用 <code>&#39;|&#39;</code> 进行二选一。我们还可以使用括号来指定选择的层级，不过，括号必须使用斜杠 <code>\</code> 或引号 <code>&#39;&#39;</code> 进行转义， 如：<code>\(</code>、<code>\)</code> 或 <code>&#39;(&#39;</code>、<code>&#39;)&#39;</code>。</p>
-<p>如下所示为一个简单示例：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_regex_arguments _cmd SEQ1 <span class="string">&#x27;|&#x27;</span> SEQ2 \( SEQ2a <span class="string">&#x27;|&#x27;</span> SEQ2b \)</span><br><span class="line">_cmd <span class="string">&quot;<span class="variable">$@</span>&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>上述例子中，指定了一个与 <code>SEQ1</code> 或 <code>SEQ2</code>（后跟 <code>SEQ2a</code> 或 <code>SEQ2b</code>）相匹配的命令行。这本质上就是使用正则表达式描述命令行的参数。</p>
-<p>每个调用参数列表之前必须包含一个 <code>/PATTERN/</code> 部分，后跟一个可选的 <code>:TAG:DESCRIPTION:ACTION</code> 部分。</p>
-<p>每个 <code>PATTERN</code> 是一个正则表达式，用于匹配命令行上的一个单词。这些模式（pattern）会被顺序处理，直到遇到一个不匹配的模式，此时将执行对应的 Action 以得到该单词的补全项。</p>
-<p>注意，必须要有一个模式来匹配命令自身。后面，我们将进一步介绍 <code>PATTERN</code>。</p>
-<p><code>_regex_arguments</code> 方法参数中 <code>:TAG:DESCRIPTION:ACTION</code> 部分的含义与 <code>_alternative</code> 方法参数类似，不同的地方在于 <code>_regex_arguments</code> 中开头多了一个 <code>:</code>，此外，它还允许调用所有的 Action 类型。</p>
-<p>如下所示为一个简单示例：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">_regex_arguments _cmd /$<span class="string">&#x27;[^\0]##\0&#x27;</span>/ \( /$<span class="string">&#x27;word1(a|b|c)\0&#x27;</span>/ <span class="string">&#x27;:word:first word:(word1a word1b word1c)&#x27;</span> <span class="string">&#x27;|&#x27;</span>\</span><br><span class="line">   /$<span class="string">&#x27;word11(a|b|c)\0&#x27;</span>/ <span class="string">&#x27;:word:first word:(word11a word11b word11c)&#x27;</span> \( /$<span class="string">&#x27;word2(a|b|c)\0&#x27;</span>/ <span class="string">&#x27;:word:second word:(word2a word2b word2c)&#x27;</span>\</span><br><span class="line">   <span class="string">&#x27;|&#x27;</span> /$<span class="string">&#x27;word22(a|b|c)\0&#x27;</span>/ <span class="string">&#x27;:word:second word:(word22a word22b word22c)&#x27;</span> \) \)</span><br><span class="line">_cmd <span class="string">&quot;<span class="variable">$@</span>&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>在这个例子中，第一个单词可以是 <code>word1</code>（后跟 <code>a</code>、<code>b</code>、<code>c</code> 中的任意一个）或 <code>word11</code>（后跟 <code>a</code>、<code>b</code>、<code>c</code> 中的任意一个）；如果第一个单词包含 <code>11</code>，那么第二个单词可以是 <code>word2</code>（后跟 <code>a</code>、<code>b</code>、<code>c</code> 中的任意一个）或文件名。</p>
-<p>这个例子看起来太复杂了，有一种简单的方式是使用 <code>_regex_words</code> 方法为 <code>_regex_arguments</code> 创建方法调用参数。</p>
-<h3 id="模式"><a href="#模式" class="headerlink" title="模式"></a>模式</h3><p>我们可能注意到上面这个示例中， <code>/PATTERN/</code> 看上去并不像正常的正则表达式。这里的字符串参数采用 <code>$&#39;foo\0&#39;</code> 的形式，通过这种形式将字符串中的 <code>\0</code> 解释为 <code>null</code> 字符，从而对参数内容进行单词分隔。如果我们没有在模式的末尾添加 <code>\0</code>，则可能无法匹配下一个单词。如果要在模式中使用变量的内容，我们可以给它添加双引号，以便对其进行扩展，然后再在后面添加一个含有 <code>null</code> 字符的字符串，如：<code>&quot;$somevar&quot;$&#39;\0&#39;</code>。</p>
+<tr class="even">
+<td style="text-align: left;"><code>-&gt;STRING</code></td>
+<td style="text-align: left;">将 <code>$state</code> 设置为 STRING
+并继续后续逻辑（当工具方法被调用后，可以使用 <code>case</code> 语句检查
+<code>$state</code>）</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>FUNCTION</code></td>
+<td
+style="text-align: left;">将要调用的方法名称，该方法能够生成匹配项或调用其他
+Action，如：<code>_file</code>、<code>_message</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&#123;EVAL-STRING&#125;</code></td>
+<td style="text-align: left;">将字符串作为 Shell
+代码执行，可以生成匹配项。也可以调用工具方法并传入参数，如：<code>_values</code>、<code>_describe</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>=ACTION</code></td>
+<td
+style="text-align: left;">在不改变补全位置节点的情况下，向补全命令行中插入一个伪单词</td>
+</tr>
+</tbody>
+</table>
+<p>注意：并不是所有的工具方法都可以使用所有类型的
+Action。比如：<code>_regex_arguments</code>、<code>_alternative</code>
+方法不能使用 <code>-&gt;STRING</code> 类型。</p>
+<h2 id="基于-_describe-的简单补全功能">基于 <code>_describe</code>
+的简单补全功能</h2>
+<p><code>_describe</code> 方法可用于
+<strong>选项/参数的顺序和位置并不重要</strong>
+的简单补全功能。我们只需要创建一个数组参数来持有选项及其描述信息，然后将这个数组参数作为一个参数传递给
+<code>_describe</code>。下面的例子中，创建了两个补全候选项
+<code>c</code> 和
+<code>d</code>，并提供了描述信息（注意：代码应该定义在名为
+<code>_cmd</code> 文件中，并位于 <code>$fpath</code> 的路劲下）：
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#compdef cmd</span></span><br><span class="line"><span class="built_in">local</span> a -subcmds</span><br><span class="line">subcmds=(<span class="string">&#x27;c:description for c command&#x27;</span> <span class="string">&#x27;d:description for d command&#x27;</span>)</span><br><span class="line">_describe <span class="string">&#x27;command&#x27;</span> subcmds</span><br></pre></td></tr></table></figure></p>
+<p>除此之外，我们还可以向 <code>_describe</code>
+方法传入多个不同的列表，并使用 <code>--</code> 进行分隔。
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">local</span> -a subcmds topics</span><br><span class="line">subcmds=(<span class="string">&#x27;c:description for c command&#x27;</span> <span class="string">&#x27;d:description for d command&#x27;</span>)</span><br><span class="line">topics=(<span class="string">&#x27;e:description for e help topic&#x27;</span> <span class="string">&#x27;f:description for f help topic&#x27;</span>)</span><br><span class="line">_describe <span class="string">&#x27;command&#x27;</span> subcmds -- topics</span><br></pre></td></tr></table></figure></p>
+<p>如果两个候选项的描述信息相同，<code>_describe</code>
+会将两者合并到同一行，并确保所有候选项的描述信息列对齐。<code>_describe</code>
+方法可以用在
+<code>_alternative</code>、<code>_arguments</code>、<code>_regex_arguments</code>
+的参数格式中的 <code>ACTION</code>
+部分。在这种情况下，我们必须将其与参数放在一起，如：<code>'TAG:DESCRIPTION:&#123;_describe 'value' options'&#125;</code></p>
+<h2 id="基于-_alternative-的补全功能">基于 <code>_alternative</code>
+的补全功能</h2>
+<p>与 <code>_describe</code> 方法类似，<code>_alternative</code>
+方法可用于 <strong>选项/参数的顺序和位置并不重要</strong>
+的简单补全功能。与 <code>_describe</code>
+方法不同，<code>_alternative</code>
+方法并不使用固定的匹配项，而是调用其他方法来生成候选项。此外，<code>_alternative</code>
+允许混合使用不同类型的补全候选项。</p>
+<p><code>_alternative</code> 方法的参数格式是
+<code>'TAG:DESCRIPTION:ACTION'</code>。其中，<code>TAG</code>
+指定补全匹配项的类型；<code>DESCRIPTION</code>
+表示补全候选项列表的描述信息；<code>ACTION</code> 则是前文所描述的一种
+Action 类型（<code>_alternative</code> 不支持 <code>-&gt;STRING</code>
+和 <code>=ACTION</code> 类型）。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_alternative <span class="string">&#x27;arguments:custom arg:(a b c)&#x27;</span> <span class="string">&#x27;files:filename:_files&#x27;</span></span><br></pre></td></tr></table></figure></p>
+<p><code>_alternative</code> 方法的第一个参数中加入了三个候选项
+<code>a</code>、<code>b</code>、<code>c</code>；第二个参数调用了
+<code>_files</code> 方法来对文件路径进行补全。</p>
+<p>我们可以将 <code>_alternative</code> 方法参数分成多行，使用
+<code>\</code> 进行换行。如下所示，为每个自定义参数添加了描述信息：
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">_alternative \</span><br><span class="line">  <span class="string">&#x27;args:custom arg:((a\:&quot;description a&quot; b\:&quot;description b&quot; c\:&quot;description c&quot;))&#x27;</span> \</span><br><span class="line">  <span class="string">&#x27;files:filename:_files&#x27;</span></span><br></pre></td></tr></table></figure></p>
+<p>如果我们想把参数传递给 <code>_files</code>
+方法，可以像下面一下直接包含进来： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">_alternative \</span><br><span class="line">  <span class="string">&#x27;args:custom arg:((a\:&quot;description a&quot; b\:&quot;description b&quot; c\:&quot;description c&quot;))&#x27;</span>\</span><br><span class="line">  <span class="string">&#x27;files:filename:_files -/&#x27;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<p>如果想使用参数扩展来创建补全列表，我们需要使用双引号来引用
+<code>_alternative</code> 方法的调用参数。如下所示为一个简单示例：
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">_alternative \</span><br><span class="line">  <span class="string">&quot;dirs:user directory:(<span class="variable">$userdirs</span>)&quot;</span> \</span><br><span class="line">  <span class="string">&quot;pids:process ID:(<span class="subst">$(ps -A | awk &#x27;&#123;print $1&#125;&#x27;)</span>)&quot;</span></span><br></pre></td></tr></table></figure></p>
+<p>在这种情况下，第一个调用参数添加了存储在 <code>$userdirs</code>
+变量中的单词，第二个调用参数则执行 <code>ps -A | awk '&#123;print $1&#125;'</code>
+来获取一系列的 PID
+以作为补全候选项。在实际开发中，我们可以直接使用已有的
+<code>_pids</code> 方法。</p>
+<p>我们还可以在 <code>ACTION</code>
+中使用其他的工具方法（如：<code>_values</code>）来生成实现更加复杂的补全功能，如下所示为一个简单示例：
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">_alternative \</span><br><span class="line">  <span class="string">&quot;directories:user directory:(<span class="variable">$userdirs</span>)&quot;</span> \</span><br><span class="line">  <span class="string">&#x27;options:comma-separated opt: _values -s , letter a b c&#x27;</span></span><br></pre></td></tr></table></figure></p>
+<p>上述例子会对 <code>$userdirs</code> 中的项进行补全，同时也会对包含
+<code>a</code>、<code>b</code>、<code>c</code>
+的逗号分隔列表进行补全。注意：在 <code>_values</code>
+方法前需要有一个初始的空格。</p>
+<p>和 <code>_describe</code> 方法一样，<code>_alternative</code>
+方法自身也可以作为
+<code>_arguments</code>、<code>_regex_arguments</code>
+等方法的调用参数中的 <code>ACTION</code> 部分。</p>
+<h2 id="基于-_arguments-的补全功能">基于 <code>_arguments</code>
+的补全功能</h2>
+<p>通过调用 <code>_arguments</code>
+方法，我们就能够实现复杂的补全功能。<code>_arguments</code>
+方法能够处理带有各种选项及常规参数的命令。与
+<code>_alternative</code>，<code>_arguments</code>
+方法相似，它以格式化的字符串作为其调用参数。这些格式化参数能够指定选项及其对应的选项参数（如：<code>-f filename</code>）、命令参数。</p>
+<p><code>_arguments</code> 方法的调用参数的基本参数格式为
+<code>-OPT[DESCRIPTION]</code>，如下所示为一个简单示例：
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_arguments <span class="string">&#x27;-s[sort output]&#x27;</span> <span class="string">&#x27;--l[long output]&#x27;</span> <span class="string">&#x27;-l[long output]&#x27;</span></span><br></pre></td></tr></table></figure></p>
+<p>稍微复杂一点的 <code>_arguments</code> 方法的参数格式可以是
+<code>-OPT[DESCRIPTION]:MESSAGE:ACTION</code>。其中，<code>MESSAGE</code>
+和 <code>ACTION</code> 的含义与上述 <code>_alternative</code>
+中描述的一样。如下所示为一个简单示例： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_arguments <span class="string">&#x27;-f[input file]:filename:_files&#x27;</span> </span><br></pre></td></tr></table></figure></p>
+<p><code>_arguments</code> 方法的参数格式还可以是
+<code>N:MESSAGE:ACTION</code>。其中，<code>N</code> 表示第 N
+个命令参数，<code>MESSAGE</code> 和 <code>ACTION</code>
+还是和之前一样。如果省略
+<code>N</code>，则仅表示下一个命令参数（在已指定的参数之后）。如果在
+<code>N</code> 的前面或后面加上冒号
+<code>:</code>，则表示参数是可选的。如下为一个简单的示例：
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_arguments <span class="string">&#x27;-s[sort output]&#x27;</span> <span class="string">&#x27;1:first arg:_net_interfaces&#x27;</span> <span class="string">&#x27;::optional arg:_files&#x27;</span> <span class="string">&#x27;:next arg:(a b c)&#x27;</span></span><br></pre></td></tr></table></figure></p>
+<p>上面这个例子中，第一个参数是网络接口名，下一个可选参数是一个文件名，最后一个参数是
+<code>a</code>、<code>b</code>、<code>c</code> 其中之一，<code>s</code>
+选项可以在任意位置进行补全。</p>
+<p><code>_arguments</code> 方法支持上述所有类型的
+<code>ACTION</code>。这样的话，我们可以使用 <code>case</code>
+分支来调用不同的 Action。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">_arguments <span class="string">&#x27;-m[music file]:filename:-&gt;files&#x27;</span> <span class="string">&#x27;-f[flags]:flag:-&gt;flags&#x27;</span></span><br><span class="line"><span class="keyword">case</span> <span class="string">&quot;<span class="variable">$state</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">    files)</span><br><span class="line">        <span class="built_in">local</span> -a music_files</span><br><span class="line">        music_files=( Music/**/*.&#123;mp3,wav,flac,ogg&#125; )</span><br><span class="line">        _multi_parts / music_files</span><br><span class="line">        ;;</span><br><span class="line">    flags)</span><br><span class="line">        _values -s , <span class="string">&#x27;flags&#x27;</span> a b c d e</span><br><span class="line">        ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure></p>
+<p>在这个例子中，music file 的路径调用 <code>_multi_parts</code>
+方法来进行目录补全；flags 则可以调用 <code>_value</code> 方法，以逗号
+<code>,</code> 分隔列表的形式进行补全。</p>
+<p>本节，我们简单地介绍了 <code>_arguments</code>
+方法的基本使用方法，当然，我们还可以指定互斥选项、重复选项/参数、以
+<code>+</code> 开头而非 <code>-</code>
+开头的选项等等。更多的使用方法，可以参见<a
+href="http://zsh.sourceforge.net/Doc/Release/Completion-System.html#Completion-System">官方教程</a>。此外，还可以参考本文末尾提到的教程。</p>
+<h2 id="基于-_regex_arguments-和-_regex_words-的补全功能">基于
+<code>_regex_arguments</code> 和 <code>_regex_words</code>
+的补全功能</h2>
+<p>如果我们有一个复杂的命令行格式，它有多种可能的参数序列，那么
+<code>_regex_arguments</code> 方法可能就是一个比较适合的补全方法。</p>
+<p><code>_regex_arguments</code>
+方法会创建一个补全方法，补全方法的名字由第一个调用参数指定。因此，我们需要先调用
+<code>_regex_arguments</code>
+方法来创建补全方法，然后再调用该补全方法。如下所示： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_regex_arguments _cmd OTHER_ARGS..</span><br><span class="line">_cmd <span class="string">&quot;<span class="variable">$@</span>&quot;</span></span><br></pre></td></tr></table></figure></p>
+<p>上述例子中， <code>OTHER_ARGS</code>
+用于匹配并补全命令行中的单词，其可以是多个调用参数列表。这些调用参数列表可以用
+<code>'|'</code>
+进行二选一。我们还可以使用括号来指定选择的层级，不过，括号必须使用斜杠
+<code>\</code> 或引号 <code>''</code> 进行转义，
+如：<code>\(</code>、<code>\)</code> 或
+<code>'('</code>、<code>')'</code>。</p>
+<p>如下所示为一个简单示例： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_regex_arguments _cmd SEQ1 <span class="string">&#x27;|&#x27;</span> SEQ2 \( SEQ2a <span class="string">&#x27;|&#x27;</span> SEQ2b \)</span><br><span class="line">_cmd <span class="string">&quot;<span class="variable">$@</span>&quot;</span></span><br></pre></td></tr></table></figure></p>
+<p>上述例子中，指定了一个与 <code>SEQ1</code> 或 <code>SEQ2</code>（后跟
+<code>SEQ2a</code> 或
+<code>SEQ2b</code>）相匹配的命令行。这本质上就是使用正则表达式描述命令行的参数。</p>
+<p>每个调用参数列表之前必须包含一个 <code>/PATTERN/</code>
+部分，后跟一个可选的 <code>:TAG:DESCRIPTION:ACTION</code> 部分。</p>
+<p>每个 <code>PATTERN</code>
+是一个正则表达式，用于匹配命令行上的一个单词。这些模式（pattern）会被顺序处理，直到遇到一个不匹配的模式，此时将执行对应的
+Action 以得到该单词的补全项。</p>
+<p>注意，必须要有一个模式来匹配命令自身。后面，我们将进一步介绍
+<code>PATTERN</code>。</p>
+<p><code>_regex_arguments</code> 方法参数中
+<code>:TAG:DESCRIPTION:ACTION</code> 部分的含义与
+<code>_alternative</code> 方法参数类似，不同的地方在于
+<code>_regex_arguments</code> 中开头多了一个
+<code>:</code>，此外，它还允许调用所有的 Action 类型。</p>
+<p>如下所示为一个简单示例： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">_regex_arguments _cmd /$<span class="string">&#x27;[^\0]##\0&#x27;</span>/ \( /$<span class="string">&#x27;word1(a|b|c)\0&#x27;</span>/ <span class="string">&#x27;:word:first word:(word1a word1b word1c)&#x27;</span> <span class="string">&#x27;|&#x27;</span>\</span><br><span class="line">   /$<span class="string">&#x27;word11(a|b|c)\0&#x27;</span>/ <span class="string">&#x27;:word:first word:(word11a word11b word11c)&#x27;</span> \( /$<span class="string">&#x27;word2(a|b|c)\0&#x27;</span>/ <span class="string">&#x27;:word:second word:(word2a word2b word2c)&#x27;</span>\</span><br><span class="line">   <span class="string">&#x27;|&#x27;</span> /$<span class="string">&#x27;word22(a|b|c)\0&#x27;</span>/ <span class="string">&#x27;:word:second word:(word22a word22b word22c)&#x27;</span> \) \)</span><br><span class="line">_cmd <span class="string">&quot;<span class="variable">$@</span>&quot;</span></span><br></pre></td></tr></table></figure></p>
+<p>在这个例子中，第一个单词可以是 <code>word1</code>（后跟
+<code>a</code>、<code>b</code>、<code>c</code> 中的任意一个）或
+<code>word11</code>（后跟 <code>a</code>、<code>b</code>、<code>c</code>
+中的任意一个）；如果第一个单词包含 <code>11</code>，那么第二个单词可以是
+<code>word2</code>（后跟 <code>a</code>、<code>b</code>、<code>c</code>
+中的任意一个）或文件名。</p>
+<p>这个例子看起来太复杂了，有一种简单的方式是使用
+<code>_regex_words</code> 方法为 <code>_regex_arguments</code>
+创建方法调用参数。</p>
+<h3 id="模式">模式</h3>
+<p>我们可能注意到上面这个示例中， <code>/PATTERN/</code>
+看上去并不像正常的正则表达式。这里的字符串参数采用 <code>$'foo\0'</code>
+的形式，通过这种形式将字符串中的 <code>\0</code> 解释为
+<code>null</code>
+字符，从而对参数内容进行单词分隔。如果我们没有在模式的末尾添加
+<code>\0</code>，则可能无法匹配下一个单词。如果要在模式中使用变量的内容，我们可以给它添加双引号，以便对其进行扩展，然后再在后面添加一个含有
+<code>null</code> 字符的字符串，如：<code>"$somevar"$'\0'</code>。</p>
 <p>模式的正则表达式语法似乎与普通的正则表达式有些不同。虽然没有找到相应的说明文档，但是能够总结出以下特殊字符的用法：</p>
 <table>
 <thead>
-<tr>
-<th align="left">字符</th>
-<th align="left">使用描述</th>
+<tr class="header">
+<th style="text-align: left;">字符</th>
+<th style="text-align: left;">使用描述</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left"><code>*</code></td>
-<td align="left">通配符-任意数量的字符</td>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>*</code></td>
+<td style="text-align: left;">通配符-任意数量的字符</td>
 </tr>
-<tr>
-<td align="left"><code>?</code></td>
-<td align="left">通配符-单个字符</td>
+<tr class="even">
+<td style="text-align: left;"><code>?</code></td>
+<td style="text-align: left;">通配符-单个字符</td>
 </tr>
-<tr>
-<td align="left"><code>#</code></td>
-<td align="left">零个或多个前一个字符（类似于正则表达式中的 <code>*</code>）</td>
+<tr class="odd">
+<td style="text-align: left;"><code>#</code></td>
+<td style="text-align: left;">零个或多个前一个字符（类似于正则表达式中的
+<code>*</code>）</td>
 </tr>
-<tr>
-<td align="left"><code>##</code></td>
-<td align="left">一个或多个前一个字符（类似于正则表达式中的 <code>+</code>）</td>
+<tr class="even">
+<td style="text-align: left;"><code>##</code></td>
+<td style="text-align: left;">一个或多个前一个字符（类似于正则表达式中的
+<code>+</code>）</td>
 </tr>
-</tbody></table>
-<h3 id="regex-words"><a href="#regex-words" class="headerlink" title="_regex_words"></a><code>_regex_words</code></h3><p><code>_regex_words</code> 方法使得我们可以更容易地为 <code>_regex_arguments</code> 方法创建调用参数。<code>_regex_words</code> 方法的结果可以存储在一个变量中，从而能够作为 <code>_regex_arguments</code> 方法的调用参数。</p>
-<p>使用 <code>_regex_words</code> 创建 <code>_regex_arguments</code> 的调用参数时，需要向其提供一个标签，其次是描述信息，接着是描述各个单词的参数格式。参数格式为 <code>WORD:DESCRIPTION:SPEC</code>，其中 <code>WORD</code> 表示要补全的单词，<code>DESCRIPTION</code> 表示描述信息，<code>SPEC</code> 可以是 <code>_regex_words</code> 创建的另一个变量，用于指定当前单词之后的单词，如果当前单词之后没有其他单词，则为空白。如下所示为一个简单的例子：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_regex_words firstword <span class="string">&#x27;The first word&#x27;</span> <span class="string">&#x27;word1a:a word:&#x27;</span> <span class="string">&#x27;word1b:b word:&#x27;</span> <span class="string">&#x27;word1c:c word&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p><code>_regex_words</code> 方法执行的结果会被存储在 <code>$reply</code> 数组中，因此我们需要在 <code>$reply</code> 的值改变之前将其保存到其他数组中，如下所示：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">local</span> -a firstword</span><br><span class="line">_regex_words word <span class="string">&#x27;The first word&#x27;</span> <span class="string">&#x27;word1a:a word:&#x27;</span> <span class="string">&#x27;word1b:b word:&#x27;</span> <span class="string">&#x27;word1c:c word&#x27;</span></span><br><span class="line">firstword=<span class="string">&quot;<span class="variable">$reply</span>[@]&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>基于此，我们可以这样调用 <code>_regex_arguments</code> 方法：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_regex_arguments _cmd /$<span class="string">&#x27;[^\0]##\0&#x27;</span>/ <span class="string">&quot;<span class="variable">$&#123;firstword[@]&#125;</span>&quot;</span></span><br><span class="line">_cmd <span class="string">&quot;<span class="variable">$@</span>&quot;</span></span><br></pre></td></tr></table></figure>
-
+</tbody>
+</table>
+<h3 id="regex_words"><code>_regex_words</code></h3>
+<p><code>_regex_words</code> 方法使得我们可以更容易地为
+<code>_regex_arguments</code>
+方法创建调用参数。<code>_regex_words</code>
+方法的结果可以存储在一个变量中，从而能够作为
+<code>_regex_arguments</code> 方法的调用参数。</p>
+<p>使用 <code>_regex_words</code> 创建 <code>_regex_arguments</code>
+的调用参数时，需要向其提供一个标签，其次是描述信息，接着是描述各个单词的参数格式。参数格式为
+<code>WORD:DESCRIPTION:SPEC</code>，其中 <code>WORD</code>
+表示要补全的单词，<code>DESCRIPTION</code>
+表示描述信息，<code>SPEC</code> 可以是 <code>_regex_words</code>
+创建的另一个变量，用于指定当前单词之后的单词，如果当前单词之后没有其他单词，则为空白。如下所示为一个简单的例子：
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_regex_words firstword <span class="string">&#x27;The first word&#x27;</span> <span class="string">&#x27;word1a:a word:&#x27;</span> <span class="string">&#x27;word1b:b word:&#x27;</span> <span class="string">&#x27;word1c:c word&#x27;</span></span><br></pre></td></tr></table></figure></p>
+<p><code>_regex_words</code> 方法执行的结果会被存储在
+<code>$reply</code> 数组中，因此我们需要在 <code>$reply</code>
+的值改变之前将其保存到其他数组中，如下所示： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">local</span> -a firstword</span><br><span class="line">_regex_words word <span class="string">&#x27;The first word&#x27;</span> <span class="string">&#x27;word1a:a word:&#x27;</span> <span class="string">&#x27;word1b:b word:&#x27;</span> <span class="string">&#x27;word1c:c word&#x27;</span></span><br><span class="line">firstword=<span class="string">&quot;<span class="variable">$reply</span>[@]&quot;</span></span><br></pre></td></tr></table></figure></p>
+<p>基于此，我们可以这样调用 <code>_regex_arguments</code> 方法：
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_regex_arguments _cmd /$<span class="string">&#x27;[^\0]##\0&#x27;</span>/ <span class="string">&quot;<span class="variable">$&#123;firstword[@]&#125;</span>&quot;</span></span><br><span class="line">_cmd <span class="string">&quot;<span class="variable">$@</span>&quot;</span></span><br></pre></td></tr></table></figure></p>
 <p>这里我们来为初始命令添加了一个其他的模式。</p>
-<p>下面是一个更加复杂的例子，我们为命令行中不同的单词调用 <code>_regex_words</code> 方法。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">local</span> -a firstword firstword2 secondword secondword2</span><br><span class="line">_regex_words word1 <span class="string">&#x27;The second word&#x27;</span> <span class="string">&#x27;woo:tang clan&#x27;</span> <span class="string">&#x27;hoo:not me&#x27;</span></span><br><span class="line">secondword=(<span class="string">&quot;<span class="variable">$reply</span>[@]&quot;</span>)</span><br><span class="line">_regex_words word2 <span class="string">&#x27;Another second word&#x27;</span> <span class="string">&#x27;yee:thou&#x27;</span> <span class="string">&#x27;haa:very funny!&#x27;</span></span><br><span class="line">secondword2=(<span class="string">&quot;<span class="variable">$reply</span>[@]&quot;</span>)</span><br><span class="line">_regex_words commands <span class="string">&#x27;The first word&#x27;</span> <span class="string">&#x27;foo:do foo&#x27;</span> <span class="string">&#x27;man:yeah man&#x27;</span> <span class="string">&#x27;chu:at chu&#x27;</span></span><br><span class="line">firstword=(<span class="string">&quot;<span class="variable">$reply</span>[@]&quot;</span>)</span><br><span class="line">_regex_words word4 <span class="string">&#x27;Another first word&#x27;</span> <span class="string">&#x27;boo:scare somebody:$secondword&#x27;</span> <span class="string">&#x27;ga:baby noise:$secondword&#x27;</span>\</span><br><span class="line"> <span class="string">&#x27;loo:go to the toilet:$secondword2&#x27;</span></span><br><span class="line">firstword2=(<span class="string">&quot;<span class="variable">$reply</span>[@]&quot;</span>)</span><br><span class="line"></span><br><span class="line">_regex_arguments _hello /$<span class="string">&#x27;[^\0]##\0&#x27;</span>/ \( <span class="string">&quot;<span class="variable">$&#123;firstword[@]&#125;</span>&quot;</span> <span class="string">&#x27;|&#x27;</span>  <span class="string">&quot;<span class="variable">$&#123;firstword2[@]&#125;</span>&quot;</span> \)<span class="string">&quot;</span></span><br><span class="line"><span class="string">_hello &quot;</span><span class="variable">$@</span><span class="string">&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>在上面这个例子中，第一个单词可以是 <code>foo</code>、<code>man</code>、<code>chu</code>、<code>boo</code>、<code>ga</code>、<code>loo</code> 其中之一。如果第一个单词是 <code>boo</code> 或 <code>ga</code>，那么第二个单词可以是 <code>woo</code> 或 <code>hoo</code>。如果第一个单词是 <code>loo</code> 那么第二个单词可以是 <code>yee</code> 或 <code>haa</code>，其他情况下没有第二个单词。</p>
-<p>我们可以看一下 <code>_ip</code> 方法的具体实现，其内部很好地运用了 <code>_regex_words</code> 方法。</p>
-<h2 id="基于-values、-sep-parts、-multi-parts-的复杂补全功能"><a href="#基于-values、-sep-parts、-multi-parts-的复杂补全功能" class="headerlink" title="基于 _values、_sep_parts、_multi_parts 的复杂补全功能"></a>基于 <code>_values</code>、<code>_sep_parts</code>、<code>_multi_parts</code> 的复杂补全功能</h2><p><code>_values</code>、<code>_sep_parts</code>、<code>_multi_parts</code> 方法可以单独使用，也可以在 <code>_alternative</code>、<code>_arguments</code>、<code>_regex_arguments</code> 方法的调用参数的 <code>ACTION</code> 中使用。</p>
-<p>如下所示是使用空格分隔 mp3 文件列表的例子：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_values <span class="string">&#x27;mp3 files&#x27;</span> ~/*.mp3</span><br></pre></td></tr></table></figure>
-
-<p>如下所示是使用逗号分隔 session id 列表的例子：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_values -s , <span class="string">&#x27;session id&#x27;</span> <span class="string">&quot;<span class="variable">$&#123;(uonzf)$(awk &#x27;&#123;print $1&#125;</span>&#x27;)&#125;&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>如下所示是补全 <code>foo@news:woo</code>、<code>foo@news:laa</code> 或 <code>bar@news:woo</code> 等的例子：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_sep_parts <span class="string">&#x27;(foo bar)&#x27;</span> @ <span class="string">&#x27;(news ftp)&#x27;</span> : <span class="string">&#x27;(woo laa)&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>如下所示是一次补全 MAC 地址的例子：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_multi_parts : <span class="string">&#x27;(00:11:22:33:44:55 00:23:34:45:56:67 00:23:45:56:67:78)&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="使用-compadd-直接添加补全单词"><a href="#使用-compadd-直接添加补全单词" class="headerlink" title="使用 compadd 直接添加补全单词"></a>使用 compadd 直接添加补全单词</h2><p>为了更准确地进行控制，我们可以使用内置的 <code>compadd</code> 方法直接添加补全单词。这个方法有很多不同的参数，用于控制如何显示补全以及单词补全后如何更改命令行上的文本。更多信息可以查看官方文档 <a target="_blank" rel="noopener" href="http://zsh.sourceforge.net/Doc/Release/Completion-System.html#Completion-System">传送门</a>。这里只给出一些简单的示例。</p>
-<p>在可能的补全列表中添加单词：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compadd foo bar blah</span><br></pre></td></tr></table></figure>
-
-<p>和上面例子一样，区别在于会额外显示解释信息：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compadd -X <span class="string">&#x27;Some completions&#x27;</span> foo bar blah</span><br></pre></td></tr></table></figure>
-
-<p>和第一个例子一样，区别在于会在自动补全的单词之前插入前缀 <code>what_</code>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compadd -P what_ foo bar blah</span><br></pre></td></tr></table></figure>
-
-<p>和第一个例子一样，区别在于会在自动补全的单词之后插入后缀 <code>_todo</code>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compadd -S _todo foo bar blah</span><br></pre></td></tr></table></figure>
-
-<p>和第一个例子一样，区别在于当在后缀之后输入空白字符时，会自动删除 <code>_todo</code> 后缀：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compadd -P _todo -q foo bar blah</span><br></pre></td></tr></table></figure>
-
-<p>将 <code>$wordsarray</code> 数组中的单词添加至可能的补全列表中：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compadd -a wordsarray</span><br></pre></td></tr></table></figure>
-
-<h1 id="测试与调试"><a href="#测试与调试" class="headerlink" title="测试与调试"></a>测试与调试</h1><p>重载补全方法：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="built_in">unfunction</span> _func</span><br><span class="line">&gt; <span class="built_in">autoload</span> -U _func</span><br></pre></td></tr></table></figure>
-
+<p>下面是一个更加复杂的例子，我们为命令行中不同的单词调用
+<code>_regex_words</code> 方法。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">local</span> -a firstword firstword2 secondword secondword2</span><br><span class="line">_regex_words word1 <span class="string">&#x27;The second word&#x27;</span> <span class="string">&#x27;woo:tang clan&#x27;</span> <span class="string">&#x27;hoo:not me&#x27;</span></span><br><span class="line">secondword=(<span class="string">&quot;<span class="variable">$reply</span>[@]&quot;</span>)</span><br><span class="line">_regex_words word2 <span class="string">&#x27;Another second word&#x27;</span> <span class="string">&#x27;yee:thou&#x27;</span> <span class="string">&#x27;haa:very funny!&#x27;</span></span><br><span class="line">secondword2=(<span class="string">&quot;<span class="variable">$reply</span>[@]&quot;</span>)</span><br><span class="line">_regex_words commands <span class="string">&#x27;The first word&#x27;</span> <span class="string">&#x27;foo:do foo&#x27;</span> <span class="string">&#x27;man:yeah man&#x27;</span> <span class="string">&#x27;chu:at chu&#x27;</span></span><br><span class="line">firstword=(<span class="string">&quot;<span class="variable">$reply</span>[@]&quot;</span>)</span><br><span class="line">_regex_words word4 <span class="string">&#x27;Another first word&#x27;</span> <span class="string">&#x27;boo:scare somebody:$secondword&#x27;</span> <span class="string">&#x27;ga:baby noise:$secondword&#x27;</span>\</span><br><span class="line"> <span class="string">&#x27;loo:go to the toilet:$secondword2&#x27;</span></span><br><span class="line">firstword2=(<span class="string">&quot;<span class="variable">$reply</span>[@]&quot;</span>)</span><br><span class="line"></span><br><span class="line">_regex_arguments _hello /$<span class="string">&#x27;[^\0]##\0&#x27;</span>/ \( <span class="string">&quot;<span class="variable">$&#123;firstword[@]&#125;</span>&quot;</span> <span class="string">&#x27;|&#x27;</span>  <span class="string">&quot;<span class="variable">$&#123;firstword2[@]&#125;</span>&quot;</span> \)<span class="string">&quot;</span></span><br><span class="line"><span class="string">_hello &quot;</span><span class="variable">$@</span><span class="string">&quot;</span></span><br></pre></td></tr></table></figure></p>
+<p>在上面这个例子中，第一个单词可以是
+<code>foo</code>、<code>man</code>、<code>chu</code>、<code>boo</code>、<code>ga</code>、<code>loo</code>
+其中之一。如果第一个单词是 <code>boo</code> 或
+<code>ga</code>，那么第二个单词可以是 <code>woo</code> 或
+<code>hoo</code>。如果第一个单词是 <code>loo</code> 那么第二个单词可以是
+<code>yee</code> 或 <code>haa</code>，其他情况下没有第二个单词。</p>
+<p>我们可以看一下 <code>_ip</code> 方法的具体实现，其内部很好地运用了
+<code>_regex_words</code> 方法。</p>
+<h2 id="基于-_values_sep_parts_multi_parts-的复杂补全功能">基于
+<code>_values</code>、<code>_sep_parts</code>、<code>_multi_parts</code>
+的复杂补全功能</h2>
+<p><code>_values</code>、<code>_sep_parts</code>、<code>_multi_parts</code>
+方法可以单独使用，也可以在
+<code>_alternative</code>、<code>_arguments</code>、<code>_regex_arguments</code>
+方法的调用参数的 <code>ACTION</code> 中使用。</p>
+<p>如下所示是使用空格分隔 mp3 文件列表的例子： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_values <span class="string">&#x27;mp3 files&#x27;</span> ~/*.mp3</span><br></pre></td></tr></table></figure></p>
+<p>如下所示是使用逗号分隔 session id 列表的例子： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_values -s , <span class="string">&#x27;session id&#x27;</span> <span class="string">&quot;<span class="variable">$&#123;(uonzf)$(awk &#x27;&#123;print $1&#125;</span>&#x27;)&#125;&quot;</span></span><br></pre></td></tr></table></figure></p>
+<p>如下所示是补全 <code>foo@news:woo</code>、<code>foo@news:laa</code>
+或 <code>bar@news:woo</code> 等的例子： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_sep_parts <span class="string">&#x27;(foo bar)&#x27;</span> @ <span class="string">&#x27;(news ftp)&#x27;</span> : <span class="string">&#x27;(woo laa)&#x27;</span></span><br></pre></td></tr></table></figure></p>
+<p>如下所示是一次补全 MAC 地址的例子： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_multi_parts : <span class="string">&#x27;(00:11:22:33:44:55 00:23:34:45:56:67 00:23:45:56:67:78)&#x27;</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="使用-compadd-直接添加补全单词">使用 compadd
+直接添加补全单词</h2>
+<p>为了更准确地进行控制，我们可以使用内置的 <code>compadd</code>
+方法直接添加补全单词。这个方法有很多不同的参数，用于控制如何显示补全以及单词补全后如何更改命令行上的文本。更多信息可以查看官方文档
+<a
+href="http://zsh.sourceforge.net/Doc/Release/Completion-System.html#Completion-System">传送门</a>。这里只给出一些简单的示例。</p>
+<p>在可能的补全列表中添加单词： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compadd foo bar blah</span><br></pre></td></tr></table></figure></p>
+<p>和上面例子一样，区别在于会额外显示解释信息： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compadd -X <span class="string">&#x27;Some completions&#x27;</span> foo bar blah</span><br></pre></td></tr></table></figure></p>
+<p>和第一个例子一样，区别在于会在自动补全的单词之前插入前缀
+<code>what_</code>： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compadd -P what_ foo bar blah</span><br></pre></td></tr></table></figure></p>
+<p>和第一个例子一样，区别在于会在自动补全的单词之后插入后缀
+<code>_todo</code>： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compadd -S _todo foo bar blah</span><br></pre></td></tr></table></figure></p>
+<p>和第一个例子一样，区别在于当在后缀之后输入空白字符时，会自动删除
+<code>_todo</code> 后缀： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compadd -P _todo -q foo bar blah</span><br></pre></td></tr></table></figure></p>
+<p>将 <code>$wordsarray</code> 数组中的单词添加至可能的补全列表中：
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compadd -a wordsarray</span><br></pre></td></tr></table></figure></p>
+<h1 id="测试与调试">测试与调试</h1>
+<p>重载补全方法： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="built_in">unfunction</span> _func</span><br><span class="line">&gt; <span class="built_in">autoload</span> -U _func</span><br></pre></td></tr></table></figure></p>
 <p>下面这些方法能够提供一些有用的信息。</p>
 <table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
 <thead>
-<tr>
-<th align="left">方法</th>
-<th align="left">描述</th>
+<tr class="header">
+<th style="text-align: left;">方法</th>
+<th style="text-align: left;">描述</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left"><code>_complete_help</code></td>
-<td align="left">当对当前光标位置进行补全时，显示相关的上下文名称、标签以及补全方法</td>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>_complete_help</code></td>
+<td
+style="text-align: left;">当对当前光标位置进行补全时，显示相关的上下文名称、标签以及补全方法</td>
 </tr>
-<tr>
-<td align="left"><code>_complete_debug</code></td>
-<td align="left">执行普通的补全，会在一个临时文件重保存补全系统所执行的 shell 命令 trace 信息</td>
+<tr class="even">
+<td style="text-align: left;"><code>_complete_debug</code></td>
+<td
+style="text-align: left;">执行普通的补全，会在一个临时文件重保存补全系统所执行的
+shell 命令 trace 信息</td>
 </tr>
-</tbody></table>
-<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><p>请记住，在包含补全方法的文件的开头应该包含 <code>#compdef</code> 这一行。</p>
-<p>请注意对 <code>_arguments</code>、<code>_regex_arguments</code> 方法的参数格式使用正确的引号类型：如果在参数格式中需要扩展参数，请使用双引号，否则请使用单引号。</p>
-<p>检查 <code>_arguments</code>、<code>_alternative</code>、<code>_regex_arguments</code> 的参数格式中的冒号 <code>:</code> 数量和位置是否正确。</p>
-<p>在使用 <code>_regex_arguments</code> 方法是，请记住要包含一个初始模式以匹配命令自身。</p>
-<p>请记住在 <code>_regex_arguments</code> 的任何 <code>PATTERN</code> 参数的末尾加上一个空字符 <code>$&#39;\0&#39;</code>。</p>
-<h1 id="提示"><a href="#提示" class="headerlink" title="提示"></a>提示</h1><p>有时候我们会遇到这样的情况：子命令后面只能有一个选项，而在子命令后输入 tab 键时，zsh 会自动补全此选项。如果我们希望它在补全之前列出其描述信息，则可以向 <code>ACTION</code> 中添加另一个空选项（如：<code>\:</code>），例如：<code>TAR:DESCRIPTION:((opt1\:&quot;description for opt1&quot; \:))</code>。注意，这仅适用于其支持 <code>ACTION</code> 的工具方法（如：<code>_arguments</code>、<code>_regex_arguments</code>）。</p>
-<h1 id="其他资料"><a href="#其他资料" class="headerlink" title="其他资料"></a>其他资料</h1><p>一个关于 <code>_arguments</code> 方法的基本教程，<a target="_blank" rel="noopener" href="https://wikimatze.de/writing-zsh-completion-for-padrino/">传送门</a>。</p>
-<p>一个关于 <code>_arguments</code> 方法的高级教程，<a target="_blank" rel="noopener" href="https://web.archive.org/web/20190411104837/http://www.linux-mag.com/id/1106/">传送门</a>。</p>
-<p><code>zshcompsys</code> 手册，<a target="_blank" rel="noopener" href="http://zsh.sourceforge.net/Doc/Release/Completion-System.html#Completion-System">传送门</a>。</p>
+</tbody>
+</table>
+<h1 id="注意事项">注意事项</h1>
+<p>请记住，在包含补全方法的文件的开头应该包含 <code>#compdef</code>
+这一行。</p>
+<p>请注意对 <code>_arguments</code>、<code>_regex_arguments</code>
+方法的参数格式使用正确的引号类型：如果在参数格式中需要扩展参数，请使用双引号，否则请使用单引号。</p>
+<p>检查
+<code>_arguments</code>、<code>_alternative</code>、<code>_regex_arguments</code>
+的参数格式中的冒号 <code>:</code> 数量和位置是否正确。</p>
+<p>在使用 <code>_regex_arguments</code>
+方法是，请记住要包含一个初始模式以匹配命令自身。</p>
+<p>请记住在 <code>_regex_arguments</code> 的任何 <code>PATTERN</code>
+参数的末尾加上一个空字符 <code>$'\0'</code>。</p>
+<h1 id="提示">提示</h1>
+<p>有时候我们会遇到这样的情况：子命令后面只能有一个选项，而在子命令后输入
+tab 键时，zsh
+会自动补全此选项。如果我们希望它在补全之前列出其描述信息，则可以向
+<code>ACTION</code>
+中添加另一个空选项（如：<code>\:</code>），例如：<code>TAR:DESCRIPTION:((opt1\:"description for opt1" \:))</code>。注意，这仅适用于其支持
+<code>ACTION</code>
+的工具方法（如：<code>_arguments</code>、<code>_regex_arguments</code>）。</p>
+<h1 id="其他资料">其他资料</h1>
+<p>一个关于 <code>_arguments</code> 方法的基本教程，<a
+href="https://wikimatze.de/writing-zsh-completion-for-padrino/">传送门</a>。</p>
+<p>一个关于 <code>_arguments</code> 方法的高级教程，<a
+href="https://web.archive.org/web/20190411104837/http://www.linux-mag.com/id/1106/">传送门</a>。</p>
+<p><code>zshcompsys</code> 手册，<a
+href="http://zsh.sourceforge.net/Doc/Release/Completion-System.html#Completion-System">传送门</a>。</p>
 
-      
     </div>
-    
-    
-    
 
     
-
     
-      <div>
-        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
-  <div>欣赏此文？求鼓励，求支持！</div>
-  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
-    <span>赏</span>
-  </button>
-  <div id="QR" style="display: none;">
-
-    
-      <div id="wechat" style="display: inline-block">
-        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
-        <p>WeChat Pay</p>
-      </div>
-    
-
-    
-      <div id="alipay" style="display: inline-block">
-        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
-        <p>Alipay</p>
-      </div>
-    
-
-    
-
-  </div>
-</div>
-
-      </div>
-    
-
     
 
     <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/zsh/" rel="tag"># zsh</a>
-          
-            <a href="/tags/%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8/" rel="tag"># 自动补全</a>
-          
-        </div>
-      
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
 
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2020/09/14/mach-o-format/" rel="next" title="Mach-O 格式">
-                <i class="fa fa-chevron-left"></i> Mach-O 格式
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2020/11/01/oh-my-zsh/" rel="prev" title="源码解读——ohmyzsh">
-                源码解读——ohmyzsh <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-        <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-  <a class="jiathis_button_tsina"></a>
-  <a class="jiathis_button_tqq"></a>
-  <a class="jiathis_button_weixin"></a>
-  <a class="jiathis_button_cqq"></a>
-  <a class="jiathis_button_douban"></a>
-  <a class="jiathis_button_renren"></a>
-  <a class="jiathis_button_qzone"></a>
-  <a class="jiathis_button_kaixin001"></a>
-  <a class="jiathis_button_copy"></a>
-  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
-  <a class="jiathis_counter_style"></a>
 </div>
-<script type="text/javascript" >
-  var jiathis_config={
-    hideMore:false
-  }
-</script>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
 
-      
-    </div>
-  </div>
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
 
+  <div class="social-list">
 
-          </div>
-          
-
-
-          
-  <div class="comments" id="comments">
-    
-      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
-    
-  </div>
-
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <img class="site-author-image" itemprop="image"
-               src="/images/SlamDunk.png"
-               alt="" />
-          <p class="site-author-name" itemprop="name"></p>
-           
-              <p class="site-description motion-element" itemprop="description"></p>
-          
-        </div>
-        <nav class="site-state motion-element">
-
-          
-            <div class="site-state-item site-state-posts">
-              <a href="/archives">
-                <span class="site-state-item-count">128</span>
-                <span class="site-state-item-name">日志</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-categories">
-              <a href="/categories/index.html">
-                <span class="site-state-item-count">28</span>
-                <span class="site-state-item-name">分类</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-tags">
-              <a href="/tags/index.html">
-                <span class="site-state-item-count">284</span>
-                <span class="site-state-item-name">标签</span>
-              </a>
-            </div>
-          
-
-        </nav>
-
-        
-          <div class="feed-link motion-element">
-            <a href="/atom.xml" rel="alternate">
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
               <i class="fa fa-rss"></i>
-              RSS
-            </a>
-          </div>
-        
+            </span>
 
-        <div class="links-of-author motion-element">
-          
-            
-              <span class="links-of-author-item">
-                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
-                  
-                    <i class="fa fa-fw fa-github"></i>
-                  
-                    
-                      GitHub
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
-                  
-                    <i class="fa fa-fw fa-weibo"></i>
-                  
-                    
-                      微博
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                    
-                      Facebook
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
-                  
-                    <i class="fa fa-fw fa-instagram"></i>
-                  
-                    
-                      Instagram
-                    
-                </a>
-              </span>
-            
-          
-        </div>
-
-        
-        
-
-        
-        
-
-        
-
-
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%A5%E9%97%A8%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">入门基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#zsh-%E5%A6%82%E4%BD%95%E8%A1%A5%E5%85%A8%E4%B8%80%E4%B8%AA%E5%91%BD%E4%BB%A4"><span class="nav-number">1.1.</span> <span class="nav-text">zsh 如何补全一个命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E7%94%A8-GNU-%E5%91%BD%E4%BB%A4%E8%A1%A5%E5%85%A8"><span class="nav-number">1.2.</span> <span class="nav-text">通用 GNU 命令补全</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%8D%E5%88%B6%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD"><span class="nav-number">1.3.</span> <span class="nav-text">复制补全功能</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%BC%96%E5%86%99%E8%A1%A5%E5%85%A8%E6%96%B9%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">如何编写补全方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">工具方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E4%BA%8E%E6%95%B4%E4%BD%93%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD%E7%9A%84%E5%B7%A5%E5%85%B7%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.1.</span> <span class="nav-text">用于整体补全功能的工具方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E5%8D%95%E4%B8%AA%E5%8D%95%E8%AF%8D%E8%BF%9B%E8%A1%8C%E5%A4%8D%E6%9D%82%E8%A1%A5%E5%85%A8%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.2.</span> <span class="nav-text">为单个单词进行复杂补全的方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E6%8C%87%E5%AE%9A%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%AF%B9%E8%B1%A1%E8%BF%9B%E8%A1%8C%E8%A1%A5%E5%85%A8%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.3.</span> <span class="nav-text">为指定类型的对象进行补全的方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E5%B7%B2%E7%BC%93%E5%AD%98%E8%A1%A5%E5%85%A8%E9%80%BB%E8%BE%91%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.4.</span> <span class="nav-text">处理已缓存补全逻辑的方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.5.</span> <span class="nav-text">其他方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Action"><span class="nav-number">2.1.6.</span> <span class="nav-text">Action</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-describe-%E7%9A%84%E7%AE%80%E5%8D%95%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD"><span class="nav-number">2.2.</span> <span class="nav-text">基于 _describe 的简单补全功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-alternative-%E7%9A%84%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD"><span class="nav-number">2.3.</span> <span class="nav-text">基于 _alternative 的补全功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-arguments-%E7%9A%84%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD"><span class="nav-number">2.4.</span> <span class="nav-text">基于 _arguments 的补全功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-regex-arguments-%E5%92%8C-regex-words-%E7%9A%84%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD"><span class="nav-number">2.5.</span> <span class="nav-text">基于 _regex_arguments 和 _regex_words 的补全功能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.5.1.</span> <span class="nav-text">模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#regex-words"><span class="nav-number">2.5.2.</span> <span class="nav-text">_regex_words</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-values%E3%80%81-sep-parts%E3%80%81-multi-parts-%E7%9A%84%E5%A4%8D%E6%9D%82%E8%A1%A5%E5%85%A8%E5%8A%9F%E8%83%BD"><span class="nav-number">2.6.</span> <span class="nav-text">基于 _values、_sep_parts、_multi_parts 的复杂补全功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-compadd-%E7%9B%B4%E6%8E%A5%E6%B7%BB%E5%8A%A0%E8%A1%A5%E5%85%A8%E5%8D%95%E8%AF%8D"><span class="nav-number">2.7.</span> <span class="nav-text">使用 compadd 直接添加补全单词</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E4%B8%8E%E8%B0%83%E8%AF%95"><span class="nav-number">3.</span> <span class="nav-text">测试与调试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">4.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%90%E7%A4%BA"><span class="nav-number">5.</span> <span class="nav-text">提示</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">其他资料</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
-        
+            <span class="label">RSS</span>
+          </a>
       </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright" >
-  
-  &copy;  2018 - 
-  <span itemprop="copyrightYear">2023</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Pisces
-  </a>
-</div>
-
-<div>
-  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
-</div>
-
-
+          <div class="post-tags">
+              <a href="/tags/zsh/" rel="tag"># zsh</a>
+              <a href="/tags/%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8/" rel="tag"># 自动补全</a>
+          </div>
 
         
-<div class="busuanzi-count">
-  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-  
-    <span class="site-uv">
-      <i class="fa fa-user"></i>本站总访客
-      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
-      人次
-    </span>
-  
-
-  
-    <span class="site-pv">
-      <i class="fa fa-eye"></i>本站总访问量
-      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
-      次
-    </span>
-  
-</div>
-
-
-        
-      </div>
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/09/14/mach-o-format/" rel="prev" title="Mach-O 格式">
+                  <i class="fa fa-angle-left"></i> Mach-O 格式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/11/01/oh-my-zsh/" rel="next" title="源码解读——ohmyzsh">
+                  源码解读——ohmyzsh <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
     </footer>
+  </article>
+</div>
 
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
 
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
   </div>
 
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
   
 
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2020/10/02/zsh-completion-tutorial/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
   }
+}
 </script>
 
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
-
-
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  
-
-
-
-
-	
-
-
-
-
-
-  
-
-
-
-
-
-  
-    <script type="text/javascript">
-      (function(d, s) {
-        var j, e = d.getElementsByTagName(s)[0];
-        if (typeof LivereTower === 'function') { return; }
-        j = d.createElement(s);
-        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
-        j.async = true;
-        e.parentNode.insertBefore(j, e);
-      })(document, 'script');
-    </script>
-  
-
-
-
-
-
-
-  
-
-  <script type="text/javascript">
-    // Popup Window;
-    var isfetched = false;
-    var isXml = true;
-    // Search DB path;
-    var search_path = "search.xml";
-    if (search_path.length === 0) {
-      search_path = "search.xml";
-    } else if (/json$/i.test(search_path)) {
-      isXml = false;
-    }
-    var path = "/" + search_path;
-    // monitor main search box;
-
-    var onPopupClose = function (e) {
-      $('.popup').hide();
-      $('#local-search-input').val('');
-      $('.search-result-list').remove();
-      $('#no-result').remove();
-      $(".local-search-pop-overlay").remove();
-      $('body').css('overflow', '');
-    }
-
-    function proceedsearch() {
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
-        .css('overflow', 'hidden');
-      $('.search-popup-overlay').click(onPopupClose);
-      $('.popup').toggle();
-      var $localSearchInput = $('#local-search-input');
-      $localSearchInput.attr("autocapitalize", "none");
-      $localSearchInput.attr("autocorrect", "off");
-      $localSearchInput.focus();
-    }
-
-    // search function;
-    var searchFunc = function(path, search_id, content_id) {
-      'use strict';
-
-      // start loading animation
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
-          '<div id="search-loading-icon">' +
-          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
-          '</div>' +
-          '</div>')
-        .css('overflow', 'hidden');
-      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
-
-      $.ajax({
-        url: path,
-        dataType: isXml ? "xml" : "json",
-        async: true,
-        success: function(res) {
-          // get the contents from search data
-          isfetched = true;
-          $('.popup').detach().appendTo('.header-inner');
-          var datas = isXml ? $("entry", res).map(function() {
-            return {
-              title: $("title", this).text(),
-              content: $("content",this).text(),
-              url: $("url" , this).text()
-            };
-          }).get() : res;
-          var input = document.getElementById(search_id);
-          var resultContent = document.getElementById(content_id);
-          var inputEventFunction = function() {
-            var searchText = input.value.trim().toLowerCase();
-            var keywords = searchText.split(/[\s\-]+/);
-            if (keywords.length > 1) {
-              keywords.push(searchText);
-            }
-            var resultItems = [];
-            if (searchText.length > 0) {
-              // perform local searching
-              datas.forEach(function(data) {
-                var isMatch = false;
-                var hitCount = 0;
-                var searchTextCount = 0;
-                var title = data.title.trim();
-                var titleInLowerCase = title.toLowerCase();
-                var content = data.content.trim().replace(/<[^>]+>/g,"");
-                var contentInLowerCase = content.toLowerCase();
-                var articleUrl = decodeURIComponent(data.url);
-                var indexOfTitle = [];
-                var indexOfContent = [];
-                // only match articles with not empty titles
-                if(title != '') {
-                  keywords.forEach(function(keyword) {
-                    function getIndexByWord(word, text, caseSensitive) {
-                      var wordLen = word.length;
-                      if (wordLen === 0) {
-                        return [];
-                      }
-                      var startPosition = 0, position = [], index = [];
-                      if (!caseSensitive) {
-                        text = text.toLowerCase();
-                        word = word.toLowerCase();
-                      }
-                      while ((position = text.indexOf(word, startPosition)) > -1) {
-                        index.push({position: position, word: word});
-                        startPosition = position + wordLen;
-                      }
-                      return index;
-                    }
-
-                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
-                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
-                  });
-                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
-                    isMatch = true;
-                    hitCount = indexOfTitle.length + indexOfContent.length;
-                  }
-                }
-
-                // show search results
-
-                if (isMatch) {
-                  // sort index by position of keyword
-
-                  [indexOfTitle, indexOfContent].forEach(function (index) {
-                    index.sort(function (itemLeft, itemRight) {
-                      if (itemRight.position !== itemLeft.position) {
-                        return itemRight.position - itemLeft.position;
-                      } else {
-                        return itemLeft.word.length - itemRight.word.length;
-                      }
-                    });
-                  });
-
-                  // merge hits into slices
-
-                  function mergeIntoSlice(text, start, end, index) {
-                    var item = index[index.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    var hits = [];
-                    var searchTextCountInSlice = 0;
-                    while (position + word.length <= end && index.length != 0) {
-                      if (word === searchText) {
-                        searchTextCountInSlice++;
-                      }
-                      hits.push({position: position, length: word.length});
-                      var wordEnd = position + word.length;
-
-                      // move to next position of hit
-
-                      index.pop();
-                      while (index.length != 0) {
-                        item = index[index.length - 1];
-                        position = item.position;
-                        word = item.word;
-                        if (wordEnd > position) {
-                          index.pop();
-                        } else {
-                          break;
-                        }
-                      }
-                    }
-                    searchTextCount += searchTextCountInSlice;
-                    return {
-                      hits: hits,
-                      start: start,
-                      end: end,
-                      searchTextCount: searchTextCountInSlice
-                    };
-                  }
-
-                  var slicesOfTitle = [];
-                  if (indexOfTitle.length != 0) {
-                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
-                  }
-
-                  var slicesOfContent = [];
-                  while (indexOfContent.length != 0) {
-                    var item = indexOfContent[indexOfContent.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    // cut out 100 characters
-                    var start = position - 20;
-                    var end = position + 80;
-                    if(start < 0){
-                      start = 0;
-                    }
-                    if (end < position + word.length) {
-                      end = position + word.length;
-                    }
-                    if(end > content.length){
-                      end = content.length;
-                    }
-                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
-                  }
-
-                  // sort slices in content by search text's count and hits' count
-
-                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
-                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
-                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
-                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
-                      return sliceRight.hits.length - sliceLeft.hits.length;
-                    } else {
-                      return sliceLeft.start - sliceRight.start;
-                    }
-                  });
-
-                  // select top N slices in content
-
-                  var upperBound = parseInt('1');
-                  if (upperBound >= 0) {
-                    slicesOfContent = slicesOfContent.slice(0, upperBound);
-                  }
-
-                  // highlight title and content
-
-                  function highlightKeyword(text, slice) {
-                    var result = '';
-                    var prevEnd = slice.start;
-                    slice.hits.forEach(function (hit) {
-                      result += text.substring(prevEnd, hit.position);
-                      var end = hit.position + hit.length;
-                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
-                      prevEnd = end;
-                    });
-                    result += text.substring(prevEnd, slice.end);
-                    return result;
-                  }
-
-                  var resultItem = '';
-
-                  if (slicesOfTitle.length != 0) {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
-                  } else {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
-                  }
-
-                  slicesOfContent.forEach(function (slice) {
-                    resultItem += "<a href='" + articleUrl + "'>" +
-                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
-                      "...</p>" + "</a>";
-                  });
-
-                  resultItem += "</li>";
-                  resultItems.push({
-                    item: resultItem,
-                    searchTextCount: searchTextCount,
-                    hitCount: hitCount,
-                    id: resultItems.length
-                  });
-                }
-              })
-            };
-            if (keywords.length === 1 && keywords[0] === "") {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
-            } else if (resultItems.length === 0) {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
-            } else {
-              resultItems.sort(function (resultLeft, resultRight) {
-                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
-                  return resultRight.searchTextCount - resultLeft.searchTextCount;
-                } else if (resultLeft.hitCount !== resultRight.hitCount) {
-                  return resultRight.hitCount - resultLeft.hitCount;
-                } else {
-                  return resultRight.id - resultLeft.id;
-                }
-              });
-              var searchResultList = '<ul class=\"search-result-list\">';
-              resultItems.forEach(function (result) {
-                searchResultList += result.item;
-              })
-              searchResultList += "</ul>";
-              resultContent.innerHTML = searchResultList;
-            }
-          }
-
-          if ('auto' === 'auto') {
-            input.addEventListener('input', inputEventFunction);
-          } else {
-            $('.search-icon').click(inputEventFunction);
-            input.addEventListener('keypress', function (event) {
-              if (event.keyCode === 13) {
-                inputEventFunction();
-              }
-            });
-          }
-
-          // remove loading animation
-          $(".local-search-pop-overlay").remove();
-          $('body').css('overflow', '');
-
-          proceedsearch();
-        }
-      });
-    }
-
-    // handle and trigger popup window;
-    $('.popup-trigger').click(function(e) {
-      e.stopPropagation();
-      if (isfetched === false) {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-      } else {
-        proceedsearch();
-      };
-    });
-
-    $('.popup-btn-close').click(onPopupClose);
-    $('.popup').click(function(e){
-      e.stopPropagation();
-    });
-    $(document).on('keyup', function (event) {
-      var shouldDismissSearchPopup = event.which === 27 &&
-        $('.search-popup').is(':visible');
-      if (shouldDismissSearchPopup) {
-        onPopupClose();
-      }
-    });
-  </script>
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      });
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      });
-    </script>
-    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
-
-
-  
-
-  
-
-
-  undefined
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
 </html>

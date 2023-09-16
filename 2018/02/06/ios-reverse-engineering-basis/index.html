@@ -1,1436 +1,614 @@
 <!DOCTYPE html>
-
-
-
-  
-
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-  
-  
-  
-  
-
-  
-    
-    
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    
-    
-    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-  
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
-
-
-  <meta name="keywords" content="逆向工程,沙盒原理,文件系统," />
-
-
-
-
-
-  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
-
-
-
-
-  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
-
-
-
-
-
-
-<meta name="description" content="iOS文件系统iOS由OSX演化而来，而OSX又是基于UNIX的，它们都是类UNIX操作系统。类UNIX操作系统有一套标准的文件系统——Filesystem Hierarchy Standard（FHS），其常用目录结构如下所示：  &#x2F;：根目录 &#x2F;bin：binary，存放用户级基础功能的二进制文件，如ls、ps等 &#x2F;boot：存放能使系统成功启动的所有文件。iOS中此目录为空 &#x2F;dev：devi">
+    <meta name="description" content="iOS文件系统 iOS由OSX演化而来，而OSX又是基于UNIX的，它们都是类UNIX操作系统。类UNIX操作系统有一套标准的文件系统——Filesystem Hierarchy Standard（FHS），其常用目录结构如下所示：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="iOS逆向工程——基础篇">
 <meta property="og:url" content="http://chuquan.me/2018/02/06/ios-reverse-engineering-basis/index.html">
 <meta property="og:site_name" content="楚权的世界">
-<meta property="og:description" content="iOS文件系统iOS由OSX演化而来，而OSX又是基于UNIX的，它们都是类UNIX操作系统。类UNIX操作系统有一套标准的文件系统——Filesystem Hierarchy Standard（FHS），其常用目录结构如下所示：  &#x2F;：根目录 &#x2F;bin：binary，存放用户级基础功能的二进制文件，如ls、ps等 &#x2F;boot：存放能使系统成功启动的所有文件。iOS中此目录为空 &#x2F;dev：devi">
-<meta property="og:locale">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-reverse-fhs001.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-reverse-fhs002.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-reverse-fhs004.png?x-oss-process=image/resize,w_800">
+<meta property="og:description" content="iOS文件系统 iOS由OSX演化而来，而OSX又是基于UNIX的，它们都是类UNIX操作系统。类UNIX操作系统有一套标准的文件系统——Filesystem Hierarchy Standard（FHS），其常用目录结构如下所示：">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2018-02-06T14:03:03.000Z">
-<meta property="article:modified_time" content="2020-11-17T14:57:37.018Z">
+<meta property="article:modified_time" content="2023-09-16T13:44:30.474Z">
 <meta property="article:author" content="Bao Chuquan">
 <meta property="article:tag" content="逆向工程">
 <meta property="article:tag" content="沙盒原理">
 <meta property="article:tag" content="文件系统">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-reverse-fhs001.png?x-oss-process=image/resize,w_800">
+
+
+<link rel="canonical" href="http://chuquan.me/2018/02/06/ios-reverse-engineering-basis/">
 
 
 
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '',
-    scheme: 'Pisces',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: true,
-    duoshuo: {
-      userId: '0',
-      author: '博主'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2018/02/06/ios-reverse-engineering-basis/","path":"2018/02/06/ios-reverse-engineering-basis/","title":"iOS逆向工程——基础篇"}</script>
 
-
-
-  <link rel="canonical" href="http://chuquan.me/2018/02/06/ios-reverse-engineering-basis/"/>
-
-
-
-
-
-  <title>iOS逆向工程——基础篇 | 楚权的世界</title>
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>iOS逆向工程——基础篇 | 楚权的世界</title>
   
 
-
-
-
-
-  <script type="text/javascript">
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
 
 
 
 
 
 
-
-
-
-
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
 <!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
-  
-  
-    
-  
-
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
-    <div class="headband"></div>
-	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
-    
-
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">楚权的世界</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
     </div>
-      
-        <p class="site-subtitle">Seek the wonder of life.</p>
-      
   </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
   </div>
 </div>
+
+
 
 <nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-photos">
-          <a href="/photos" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
-            
-            相册
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            归档
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-commonweal">
-          <a href="/404.html" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
-            
-            公益
-          </a>
-        </li>
-      
-
-      
-        <li class="menu-item menu-item-search">
-          
-            <a href="javascript:;" class="popup-trigger">
-          
-            
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
-            
-            搜索
-          </a>
-        </li>
-      
-    </ul>
-  
-
-  
-    <div class="site-search">
-      
-  <div class="popup search-popup local-search-popup">
-  <div class="local-search-header clearfix">
-    <span class="search-icon">
-      <i class="fa fa-search"></i>
-    </span>
-    <span class="popup-btn-close">
-      <i class="fa fa-times-circle"></i>
-    </span>
-    <div class="local-search-input-wrapper">
-      <input autocomplete="off"
-             placeholder="搜索..." spellcheck="false"
-             type="text" id="local-search-input">
-    </div>
-  </div>
-  <div id="local-search-result"></div>
-</div>
-
-
-
-    </div>
-  
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
 </nav>
 
 
 
- </div>
-    </header>
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
 
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
+    </div>
+  </div>
 
-  <div id="posts" class="posts-expand">
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ios%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.</span> <span class="nav-text">iOS文件系统</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ios%E7%8B%AC%E6%9C%89%E7%9B%AE%E5%BD%95"><span class="nav-number">1.1.</span> <span class="nav-text">iOS独有目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ios%E5%BA%94%E7%94%A8storeapp%E6%B2%99%E7%9B%92"><span class="nav-number">1.2.</span> <span class="nav-text">iOS应用（StoreApp）沙盒</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#bundle-container"><span class="nav-number">1.2.1.</span> <span class="nav-text">Bundle Container</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#data-container"><span class="nav-number">1.2.2.</span> <span class="nav-text">Data Container</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ios%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">iOS二进制文件类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#application"><span class="nav-number">2.1.</span> <span class="nav-text">Application</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9Fapp-vs.-storeapp"><span class="nav-number">2.1.1.</span> <span class="nav-text">系统App VS. StoreApp</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dynamic-library"><span class="nav-number">2.2.</span> <span class="nav-text">Dynamic Library</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#daemon"><span class="nav-number">2.3.</span> <span class="nav-text">Daemon</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">129</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">288</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
     
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
 
   
 
-  
+
+<div class="post-block">
   
   
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://chuquan.me/2018/02/06/ios-reverse-engineering-basis/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
     </span>
 
-    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="iOS逆向工程——基础篇 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
       <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS逆向工程——基础篇
+        </h1>
 
-        
-        
-          <h1 class="post-title" itemprop="name headline">iOS逆向工程——基础篇</h1>
-        
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
 
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="发表于" itemprop="dateCreated datePublished" datetime="2018-02-06T22:03:03+08:00">
-                2018-02-06
-              </time>
-            
+      <time title="创建时间：2018-02-06 22:03:03" itemprop="dateCreated datePublished" datetime="2018-02-06T22:03:03+08:00">2018-02-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-09-16 21:44:30" itemprop="dateModified" datetime="2023-09-16T21:44:30+08:00">2023-09-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+        </span>
+    </span>
 
-            
-              <span class="post-meta-divider">|</span>
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-check-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">更新于</span>
-              
-              <time title="更新于" itemprop="dateModified" datetime="2020-11-17T22:57:37+08:00">
-                2020-11-17
-              </time>
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
-          
-
-          
-
-          
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2018/02/06/ios-reverse-engineering-basis/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2018/02/06/ios-reverse-engineering-basis/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
 
         </div>
       </header>
-    
 
     
     
     
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <h1 id="iOS文件系统"><a href="#iOS文件系统" class="headerlink" title="iOS文件系统"></a>iOS文件系统</h1><p>iOS由OSX演化而来，而OSX又是基于UNIX的，它们都是类UNIX操作系统。类UNIX操作系统有一套标准的文件系统——<a target="_blank" rel="noopener" href="https://wylmer.gitbooks.io/filesystem-hierarchy-standard/content/">Filesystem Hierarchy Standard（FHS）</a>，其常用目录结构如下所示：</p>
+    <div class="post-body" itemprop="articleBody"><h1 id="ios文件系统">iOS文件系统</h1>
+<p>iOS由OSX演化而来，而OSX又是基于UNIX的，它们都是类UNIX操作系统。类UNIX操作系统有一套标准的文件系统——<a
+href="https://wylmer.gitbooks.io/filesystem-hierarchy-standard/content/">Filesystem
+Hierarchy Standard（FHS）</a>，其常用目录结构如下所示：</p>
+<span id="more"></span>
 <ul>
 <li><code>/</code>：根目录</li>
 <li><code>/bin</code>：binary，存放用户级基础功能的二进制文件，如<code>ls</code>、<code>ps</code>等</li>
 <li><code>/boot</code>：存放能使系统成功启动的所有文件。<strong>iOS中此目录为空</strong></li>
 <li><code>/dev</code>：device，存放BSD设备文件。每个文件代表系统的一个块设备或字符设备。块设备以块为单位传输数据，如硬盘；字符设备以字符为单位传输数据，如调制解调器</li>
-<li><code>/sbin</code>：system binaries，存放提供系统级基础功的二进制文件，如<code>netstat</code>、<code>reboot</code>等</li>
-<li><code>/etc</code>：法语Et Cetera（and so on的意思），存放系统脚本及配置文件，如<code>passwd</code>、<code>hosts</code>。iOS中，<code>/etc</code>是一个符号链接，实际指向<code>/private/etc</code></li>
+<li><code>/sbin</code>：system
+binaries，存放提供系统级基础功的二进制文件，如<code>netstat</code>、<code>reboot</code>等</li>
+<li><code>/etc</code>：法语Et Cetera（and so
+on的意思），存放系统脚本及配置文件，如<code>passwd</code>、<code>hosts</code>。iOS中，<code>/etc</code>是一个符号链接，实际指向<code>/private/etc</code></li>
 <li><code>/lib</code>：存放系统库文件、内核模块及设备驱动等。<strong>iOS中此目录为空</strong></li>
 <li><code>/mnt</code>：mount，存放临时的文件系统挂载点。<strong>iOS中此目录为空</strong></li>
 <li><code>/private</code>：存放两个目录，分别是<code>/private/etc</code>和<code>/private/var</code></li>
 <li><code>/tmp</code>：临时目录。iOS中，<code>/tmp</code>是一个符号链接，实际指向<code>/private/var/tmp</code></li>
-<li><code>/usr</code>：包含大多数用户和程序。<ul>
+<li><code>/usr</code>：包含大多数用户和程序。
+<ul>
 <li><code>/usr/bin</code>：包含那些<code>/bin</code>和<code>/sbin</code>中未出现的基础功能，如<code>nm</code>、<code>killall</code>等</li>
 <li><code>/usr/include</code>：包含所有的标准C头文件</li>
 <li><code>/usr/lib</code>：存放库文件</li>
-</ul>
-</li>
-<li><code>/var</code>：variable，存放一些经常更改的文件，如日志、用户数据、临时文件等。<ul>
+</ul></li>
+<li><code>/var</code>：variable，存放一些经常更改的文件，如日志、用户数据、临时文件等。
+<ul>
 <li><code>/var/mobile</code>：存放了mobile用户的文件。<strong>逆向工程重点关注目录</strong></li>
 <li><code>/var/root</code>：存放了root用户的文件</li>
+</ul></li>
 </ul>
-</li>
-</ul>
-<h2 id="iOS独有目录"><a href="#iOS独有目录" class="headerlink" title="iOS独有目录"></a>iOS独有目录</h2><p>下图所示分别是OSX和iOS的根目录结构，与FHS还是有一定的区别。<br><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-reverse-fhs001.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="ios独有目录">iOS独有目录</h2>
+<p>下图所示分别是OSX和iOS的根目录结构，与FHS还是有一定的区别。 <img
+src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-reverse-fhs001.png" /></p>
 <p>对于iOS，其独有的目录如下思维导图所示：</p>
-<p><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-reverse-fhs002.png?x-oss-process=image/resize,w_800"></p>
+<p><img
+src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-reverse-fhs002.png?x-oss-process=image/resize,w_500" /></p>
 <ul>
 <li><code>/Applications</code>：存放所有的<strong>系统App</strong>和<strong>来自于Cydia的App</strong>，不包括StoreApp</li>
-<li><code>/Developer</code>：如果一台设备连接Xcode后被指定为调试机，Xcode就会在iOS中生成该目录<ul>
+<li><code>/Developer</code>：如果一台设备连接Xcode后被指定为调试机，Xcode就会在iOS中生成该目录
+<ul>
 <li><code>/Developer/Applications</code></li>
 <li><code>/Developer/Library</code></li>
 <li><code>/Developer/Tools</code></li>
 <li><code>/Developer/usr</code></li>
-</ul>
-</li>
-<li><code>/Library</code>：存放一些提供系统支持的数据<ul>
+</ul></li>
+<li><code>/Library</code>：存放一些提供系统支持的数据
+<ul>
 <li><code>/Library/MobileSubstrate/DynamicLibraries</code>：<strong>存放Cydia安装程序的<code>.plist</code>和<code>.dylib</code>文件</strong></li>
-</ul>
-</li>
-<li><code>/System/Library</code>：iOS文件系统中最重要的目录之一，存放大量系统组件<ul>
+</ul></li>
+<li><code>/System/Library</code>：iOS文件系统中最重要的目录之一，存放大量系统组件
+<ul>
 <li><code>/System/Library/Frameworks</code>：<strong>存放iOS中各种日常使用的framework</strong></li>
 <li><code>/System/Library/PrivateFrameworks</code>：<strong>存放iOS中未公开的私有framework</strong></li>
 <li><code>/System/Library/CoreServices/SpringBoard.app</code>：iOS桌面管理器</li>
-</ul>
-</li>
-<li><code>/User</code>：用户目录（<code>mobile</code>用户的<code>home</code>目录），实际指向<code>/var/mobile</code>，存放大量用户数据<ul>
+</ul></li>
+<li><code>/User</code>：用户目录（<code>mobile</code>用户的<code>home</code>目录），实际指向<code>/var/mobile</code>，存放大量用户数据
+<ul>
 <li><code>/var/mobile/Media/DCIM</code>：存放照片</li>
 <li><code>/var/mobile/Media/Recording</code>：存放录音文件</li>
 <li><code>/var/mobile/Library/SMS</code>：存放短信数据库</li>
 <li><code>/var/mobile/Library/Mail</code>：存放邮件数据</li>
-<li><code>/var/mobile/Containers</code>：<strong>存放StoreApp</strong>。<ul>
+<li><code>/var/mobile/Containers</code>：<strong>存放StoreApp</strong>。
+<ul>
 <li><code>/var/mobile/Containers/Bundle</code>：<strong>存放所有StoreApp的可执行文件和相关资源</strong></li>
 <li><code>/var/mobile/Containers/Data</code>：<strong>存放所有StoreApp的数据，沙盒目录的真实目录</strong></li>
+</ul></li>
+</ul></li>
 </ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="iOS应用（StoreApp）沙盒"><a href="#iOS应用（StoreApp）沙盒" class="headerlink" title="iOS应用（StoreApp）沙盒"></a>iOS应用（StoreApp）沙盒</h2><p>出于安全考虑，iOS系统把每个应用（StoreApp）以及数据都放到一个沙盒（sandbox）里面，应用只能访问自己沙盒目录里面的文件、网络资源等（也有例外，比如系统通讯录、照相机、照片等能在用户授权的情况下被第三方应用访问）。</p>
-<p><img src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-reverse-fhs004.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="ios应用storeapp沙盒">iOS应用（StoreApp）沙盒</h2>
+<p>出于安全考虑，iOS系统把每个应用（StoreApp）以及数据都放到一个沙盒（sandbox）里面，应用只能访问自己沙盒目录里面的文件、网络资源等（也有例外，比如系统通讯录、照相机、照片等能在用户授权的情况下被第三方应用访问）。</p>
+<p><img
+src="http://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/ios-reverse-fhs004.png?x-oss-process=image/resize,w_500" /></p>
 <p>上图所示为沙盒结构，沙盒在逻辑上包含两个部分：<code>Bundle Container</code>和<code>Data Container</code>，两者在iOS文件系统中的位置是平行的，分别是<code>/var/mobile/Containers/Bundle</code>和<code>/var/mobile/Containers/Data</code>。实际开发中，通过<code>NSHomeDirectory()</code>方法获取到沙盒根目录对应的是<code>Data Container</code>的路径。</p>
-<h3 id="Bundle-Container"><a href="#Bundle-Container" class="headerlink" title="Bundle Container"></a>Bundle Container</h3><p>bundle的概念源自于NeXTSTEP，它是一个按某种标准结构来组织的目录，其中包含了二进制文件及运行所需的资源。正向开发中常见的App和framework都是以bundle的形式存在。在越狱iOS中常见的PreferenceBundle是一种依附于Settings的App，结构与App类似，本质也是bundle。Framework也是bundle，但framework的bundle中存放的是一个dylib（动态库），而非可执行文件。</p>
-<p>在正向开发时，我们上传至App Store的ipa（iPhone Application）包，解压后会有一个<code>Payload</code>目录，其内部又包含一个<code>.app</code>目录，这个目录就是一个App的目录结构，也是一个bundle。</p>
+<h3 id="bundle-container">Bundle Container</h3>
+<p>bundle的概念源自于NeXTSTEP，它是一个按某种标准结构来组织的目录，其中包含了二进制文件及运行所需的资源。正向开发中常见的App和framework都是以bundle的形式存在。在越狱iOS中常见的PreferenceBundle是一种依附于Settings的App，结构与App类似，本质也是bundle。Framework也是bundle，但framework的bundle中存放的是一个dylib（动态库），而非可执行文件。</p>
+<p>在正向开发时，我们上传至App Store的ipa（iPhone
+Application）包，解压后会有一个<code>Payload</code>目录，其内部又包含一个<code>.app</code>目录，这个目录就是一个App的目录结构，也是一个bundle。</p>
 <p><code>Bundle Container</code>位于<code>/var/mobile/Containers/Bundle/Application/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX/</code>主要用于存放静态资源，主要包含以下目录和文件：</p>
 <ul>
-<li><p><strong><code>MyApp.app</code></strong><br>  存放可执行文件和资源文件，包括：打包时的资源文件、本地文件、可执行文件、<code>.plist</code>文件。这个目录不会被iTunes同步。</p>
-</li>
-<li><p><strong><code>iTunesArtWork</code></strong></p>
-</li>
-<li><p><strong><code>iTunesMetadata.plist</code></strong></p>
-</li>
+<li><p><strong><code>MyApp.app</code></strong><br />
+存放可执行文件和资源文件，包括：打包时的资源文件、本地文件、可执行文件、<code>.plist</code>文件。这个目录不会被iTunes同步。</p></li>
+<li><p><strong><code>iTunesArtWork</code></strong></p></li>
+<li><p><strong><code>iTunesMetadata.plist</code></strong></p></li>
 </ul>
-<h3 id="Data-Container"><a href="#Data-Container" class="headerlink" title="Data Container"></a>Data Container</h3><p><code>Data Container</code>位于<code>/var/mobile/Containers/Data/Application/YYYYYYYY-YYYY-YYYY-YYYYYYYYYYYY/</code>，主要用于存放App运行时产生的动态数据，其主要包含以下目录和文件：</p>
+<h3 id="data-container">Data Container</h3>
+<p><code>Data Container</code>位于<code>/var/mobile/Containers/Data/Application/YYYYYYYY-YYYY-YYYY-YYYYYYYYYYYY/</code>，主要用于存放App运行时产生的动态数据，其主要包含以下目录和文件：</p>
 <ul>
-<li><strong><code>Documents</code></strong><br>  存放应用运行时生成的并且需要保存的不可再生数据。注：iTunes或iCloud同步设备时会备份该目录</li>
-<li><strong><code>Library</code></strong> <ul>
-<li><strong><code>Library/Caches</code></strong><br>  存放应用运行时生成且需要保存的可再生数据，比如网络请求，用户需要负责删除对应文件。iTunes或iCloud不同步。</li>
-<li><strong><code>Library/Preferences</code></strong><br>  存放偏好设置。使用<code>NSUserDefaults</code>写的设置数据都会保存在该目录下的一个<code>plist</code>文件中。iTunes或iCloud同步设备时备份该目录。</li>
-</ul>
-</li>
-<li><strong><code>tmp</code></strong><br>  存放应用下次启动不再需要的临时文件。当应用不再需要这些文件的时候，需要主动将其删除。（当应用不再运行的时候，系统可能会将此目录清空。）这个目录不会被iTunes同步。</li>
-</ul>
-<p>在正向开发时，沙盒目录路径均有相应的获取方式，具体如下所示：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// 沙盒目录</span><br><span class="line">NSLog(@&quot;%@&quot;,NSHomeDirectory());</span><br><span class="line">  </span><br><span class="line">// MyApp.app</span><br><span class="line">NSLog(@&quot;%@&quot;,[[NSBundle mainBundle] bundlePath]);</span><br><span class="line">  </span><br><span class="line">// Documents</span><br><span class="line">NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);</span><br><span class="line">NSString *docPath = [paths objectAtIndex:0];</span><br><span class="line">NSLog(@&quot;%@&quot;,docPath);</span><br><span class="line">  </span><br><span class="line">// Library</span><br><span class="line">NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);</span><br><span class="line">NSString *libPath = [paths objectAtIndex:0];</span><br><span class="line">NSLog(@&quot;%@&quot;,libPath);</span><br><span class="line">  </span><br><span class="line">// tmp</span><br><span class="line">NSLog(@&quot;%@&quot;,NSTemporaryDirectory());</span><br></pre></td></tr></table></figure>
-
-<p>在逆向工程中，可以通过以下方式获取相关的目录：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 获取App的Bundle路径</span><br><span class="line">iphone: root# ps -e | grep appname</span><br><span class="line">  </span><br><span class="line">// 获取App的Data路径</span><br><span class="line">iphone: root# cycript -p appname</span><br><span class="line">cy# directory = NSHomeDirectory()</span><br></pre></td></tr></table></figure>
-
-<h1 id="iOS二进制文件类型"><a href="#iOS二进制文件类型" class="headerlink" title="iOS二进制文件类型"></a>iOS二进制文件类型</h1><p>iOS逆向的目标主要包含三类二进制文件：<code>Application</code>、<code>Dynamic Library</code>、<code>Daemon</code>。</p>
-<h2 id="Application"><a href="#Application" class="headerlink" title="Application"></a>Application</h2><p>Application，即我们最熟悉的App。App的Bundle目录有以下三个部分比较重要：</p>
+<li><strong><code>Documents</code></strong><br />
+存放应用运行时生成的并且需要保存的不可再生数据。注：iTunes或iCloud同步设备时会备份该目录</li>
+<li><strong><code>Library</code></strong>
 <ul>
-<li><p><code>Info.plist</code><br>  Info.plist记录了App的基本信息，如：**<code>bundle identifier</code><strong>、</strong>可执行文件名<strong>、</strong>图标文件名**等。</p>
-</li>
-<li><p>可执行文件<br>  查看Info.plist，即可定位可执行文件</p>
-</li>
-<li><p>lproj目录<br>  lproj目录下存放的是各种本地化的字符串。</p>
-</li>
+<li><strong><code>Library/Caches</code></strong><br />
+存放应用运行时生成且需要保存的可再生数据，比如网络请求，用户需要负责删除对应文件。iTunes或iCloud不同步。</li>
+<li><strong><code>Library/Preferences</code></strong><br />
+存放偏好设置。使用<code>NSUserDefaults</code>写的设置数据都会保存在该目录下的一个<code>plist</code>文件中。iTunes或iCloud同步设备时备份该目录。</li>
+</ul></li>
+<li><strong><code>tmp</code></strong><br />
+存放应用下次启动不再需要的临时文件。当应用不再需要这些文件的时候，需要主动将其删除。（当应用不再运行的时候，系统可能会将此目录清空。）这个目录不会被iTunes同步。</li>
 </ul>
-<h3 id="系统App-VS-StoreApp"><a href="#系统App-VS-StoreApp" class="headerlink" title="系统App VS. StoreApp"></a>系统App VS. StoreApp</h3><p><code>/Applications/</code>目录下存放<strong>系统App</strong>（包括CydiaApp）；<code>/var/mobile/Containers/</code>目录下存放<strong>StoreApp</strong>。其区别在于：</p>
+<p>在正向开发时，沙盒目录路径均有相应的获取方式，具体如下所示：
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// 沙盒目录</span><br><span class="line">NSLog(@&quot;%@&quot;,NSHomeDirectory());</span><br><span class="line"></span><br><span class="line">// MyApp.app</span><br><span class="line">NSLog(@&quot;%@&quot;,[[NSBundle mainBundle] bundlePath]);</span><br><span class="line"></span><br><span class="line">// Documents</span><br><span class="line">NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);</span><br><span class="line">NSString *docPath = [paths objectAtIndex:0];</span><br><span class="line">NSLog(@&quot;%@&quot;,docPath);</span><br><span class="line"></span><br><span class="line">// Library</span><br><span class="line">NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);</span><br><span class="line">NSString *libPath = [paths objectAtIndex:0];</span><br><span class="line">NSLog(@&quot;%@&quot;,libPath);</span><br><span class="line"></span><br><span class="line">// tmp</span><br><span class="line">NSLog(@&quot;%@&quot;,NSTemporaryDirectory());</span><br></pre></td></tr></table></figure></p>
+<p>在逆向工程中，可以通过以下方式获取相关的目录： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 获取App的Bundle路径</span><br><span class="line">iphone: root# ps -e | grep appname</span><br><span class="line"></span><br><span class="line">// 获取App的Data路径</span><br><span class="line">iphone: root# cycript -p appname</span><br><span class="line">cy# directory = NSHomeDirectory()</span><br></pre></td></tr></table></figure></p>
+<h1 id="ios二进制文件类型">iOS二进制文件类型</h1>
+<p>iOS逆向的目标主要包含三类二进制文件：<code>Application</code>、<code>Dynamic Library</code>、<code>Daemon</code>。</p>
+<h2 id="application">Application</h2>
+<p>Application，即我们最熟悉的App。App的Bundle目录有以下三个部分比较重要：</p>
 <ul>
-<li><p>目录结构<br>  两种App的Bundle目录区别不大，都含有Info.plist、可执行文件、lproj目录等。只是Data目录的位置不同：StoreApp的数据目录在<code>/var/mobile/Containers/Data/</code>下，以mobile权限运行的系统App的数据目录在<code>/var/mobile/</code>下，以root权限运行的系统App的数据目录在<code>/var/root/</code>下。</p>
-</li>
-<li><p>安装格式和权限<br>  Cydia App的安装格式一般是deb，StoreApp的安装格式一般是ipa。前者的属主用户和属主组一般是root和admin，能够以root权限运行；后者的属主用户和属主组都是mobile，只能以mobile权限运行。</p>
-</li>
+<li><p><code>Info.plist</code><br />
+Info.plist记录了App的基本信息，如：<strong><code>bundle identifier</code></strong>、<strong>可执行文件名</strong>、<strong>图标文件名</strong>等。</p></li>
+<li><p>可执行文件<br />
+查看Info.plist，即可定位可执行文件</p></li>
+<li><p>lproj目录<br />
+lproj目录下存放的是各种本地化的字符串。</p></li>
 </ul>
-<h2 id="Dynamic-Library"><a href="#Dynamic-Library" class="headerlink" title="Dynamic Library"></a>Dynamic Library</h2><p>Dynamic Library简称dylib，即动态链接库。在正向开发中，在Xcode工程中导入的各种framework，链接的各种lib，其本质都是dylib。</p>
-<p>在iOS中，lib分为static和dynamic两种，其中static lib在编译阶段成为App可执行文件的一部分，会增加可执行文件的大小。dylib则不会改变可执行文件的大小，只有当App运行时调用到dylib时，iOS才会把它加载进内存，成为App进程的一部分。</p>
+<h3 id="系统app-vs.-storeapp">系统App VS. StoreApp</h3>
+<p><code>/Applications/</code>目录下存放<strong>系统App</strong>（包括CydiaApp）；<code>/var/mobile/Containers/</code>目录下存放<strong>StoreApp</strong>。其区别在于：</p>
+<ul>
+<li><p>目录结构<br />
+两种App的Bundle目录区别不大，都含有Info.plist、可执行文件、lproj目录等。只是Data目录的位置不同：StoreApp的数据目录在<code>/var/mobile/Containers/Data/</code>下，以mobile权限运行的系统App的数据目录在<code>/var/mobile/</code>下，以root权限运行的系统App的数据目录在<code>/var/root/</code>下。</p></li>
+<li><p>安装格式和权限<br />
+Cydia
+App的安装格式一般是deb，StoreApp的安装格式一般是ipa。前者的属主用户和属主组一般是root和admin，能够以root权限运行；后者的属主用户和属主组都是mobile，只能以mobile权限运行。</p></li>
+</ul>
+<h2 id="dynamic-library">Dynamic Library</h2>
+<p>Dynamic
+Library简称dylib，即动态链接库。在正向开发中，在Xcode工程中导入的各种framework，链接的各种lib，其本质都是dylib。</p>
+<p>在iOS中，lib分为static和dynamic两种，其中static
+lib在编译阶段成为App可执行文件的一部分，会增加可执行文件的大小。dylib则不会改变可执行文件的大小，只有当App运行时调用到dylib时，iOS才会把它加载进内存，成为App进程的一部分。</p>
 <p><strong>dylib是逆向工程的重要目标类型</strong>，但其本身并不是可执行文件，不能独立运行，只能为别的进程服务，而且它们寄生在别的进程里，成为这个进程的一部分。因此，dylib的权限是由它寄生的那个App决定的，同一个dylib寄生在系统App和StoreApp里时的权限是不同的。</p>
 <p>越狱iOS中，Cydia里的各种tweak无一不是以dylib的形式工作的。</p>
-<h2 id="Daemon"><a href="#Daemon" class="headerlink" title="Daemon"></a>Daemon</h2><p>iOS的daemon主要由一个可执行文件和一个plist文件构成。iOS的根进程是launchd，其会在开机时检查<code>/System/Library/LaunchDaemons</code>和<code>/Library/LaunchDaemons</code>下所有格式符合规定的plist文件，然后启动对应的daemon。这里的plist文件与App中的<code>Info.plist</code>文件作用类似，即记录Daemon的基本信息。</p>
-<p>(完)</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<h2 id="daemon">Daemon</h2>
+<p>iOS的daemon主要由一个可执行文件和一个plist文件构成。iOS的根进程是launchd，其会在开机时检查<code>/System/Library/LaunchDaemons</code>和<code>/Library/LaunchDaemons</code>下所有格式符合规定的plist文件，然后启动对应的daemon。这里的plist文件与App中的<code>Info.plist</code>文件作用类似，即记录Daemon的基本信息。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
 <li>《iOS应用逆向工程（第2版）》</li>
-<li><a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html">File System Programming Guide</a></li>
-<li><a target="_blank" rel="noopener" href="http://www.cnblogs.com/wujy/archive/2016/02/13/5188302.html">iOS底层基础知识-文件目录结构</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/9cc4f0975d1d">iOS APP沙盒目录</a></li>
-<li><a target="_blank" rel="noopener" href="https://bbs.feng.com/read-htm-tid-249.html">Mac OS X 术语表</a></li>
-<li><a target="_blank" rel="noopener" href="http://www.cocoachina.com/mac/20150122/10988.html">了解iOS上的可执行文件和Mach-O格式</a></li>
-<li><a target="_blank" rel="noopener" href="http://oncenote.com/2015/06/01/How-App-Launch/">由App的启动说起</a></li>
-<li><a target="_blank" rel="noopener" href="https://objccn.io/issue-6-3/">Mach-O 可执行文件</a></li>
+<li><a
+href="https://developer.apple.com/library/content/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html">File
+System Programming Guide</a></li>
+<li><a
+href="http://www.cnblogs.com/wujy/archive/2016/02/13/5188302.html">iOS底层基础知识-文件目录结构</a></li>
+<li><a href="https://www.jianshu.com/p/9cc4f0975d1d">iOS
+APP沙盒目录</a></li>
+<li><a href="https://bbs.feng.com/read-htm-tid-249.html">Mac OS X
+术语表</a></li>
+<li><a
+href="http://www.cocoachina.com/mac/20150122/10988.html">了解iOS上的可执行文件和Mach-O格式</a></li>
+<li><a
+href="http://oncenote.com/2015/06/01/How-App-Launch/">由App的启动说起</a></li>
+<li><a href="https://objccn.io/issue-6-3/">Mach-O 可执行文件</a></li>
 </ol>
 
-      
     </div>
-    
-    
-    
 
     
-
     
-      <div>
-        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
-  <div>欣赏此文？求鼓励，求支持！</div>
-  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
-    <span>赏</span>
-  </button>
-  <div id="QR" style="display: none;">
-
-    
-      <div id="wechat" style="display: inline-block">
-        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
-        <p>WeChat Pay</p>
-      </div>
-    
-
-    
-      <div id="alipay" style="display: inline-block">
-        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
-        <p>Alipay</p>
-      </div>
-    
-
-    
-
-  </div>
-</div>
-
-      </div>
-    
-
     
 
     <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B/" rel="tag"># 逆向工程</a>
-          
-            <a href="/tags/%E6%B2%99%E7%9B%92%E5%8E%9F%E7%90%86/" rel="tag"># 沙盒原理</a>
-          
-            <a href="/tags/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="tag"># 文件系统</a>
-          
-        </div>
-      
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
 
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2018/01/21/browser-architecture-overview/" rel="next" title="现代浏览器工作原理（一）">
-                <i class="fa fa-chevron-left"></i> 现代浏览器工作原理（一）
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/02/22/logos-syntax/" rel="prev" title="Logos基础语法">
-                Logos基础语法 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-        <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-  <a class="jiathis_button_tsina"></a>
-  <a class="jiathis_button_tqq"></a>
-  <a class="jiathis_button_weixin"></a>
-  <a class="jiathis_button_cqq"></a>
-  <a class="jiathis_button_douban"></a>
-  <a class="jiathis_button_renren"></a>
-  <a class="jiathis_button_qzone"></a>
-  <a class="jiathis_button_kaixin001"></a>
-  <a class="jiathis_button_copy"></a>
-  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
-  <a class="jiathis_counter_style"></a>
 </div>
-<script type="text/javascript" >
-  var jiathis_config={
-    hideMore:false
-  }
-</script>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
 
-      
-    </div>
-  </div>
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
 
+  <div class="social-list">
 
-          </div>
-          
-
-
-          
-  <div class="comments" id="comments">
-    
-      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
-    
-  </div>
-
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <img class="site-author-image" itemprop="image"
-               src="/images/SlamDunk.png"
-               alt="" />
-          <p class="site-author-name" itemprop="name"></p>
-           
-              <p class="site-description motion-element" itemprop="description"></p>
-          
-        </div>
-        <nav class="site-state motion-element">
-
-          
-            <div class="site-state-item site-state-posts">
-              <a href="/archives">
-                <span class="site-state-item-count">128</span>
-                <span class="site-state-item-name">日志</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-categories">
-              <a href="/categories/index.html">
-                <span class="site-state-item-count">28</span>
-                <span class="site-state-item-name">分类</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-tags">
-              <a href="/tags/index.html">
-                <span class="site-state-item-count">284</span>
-                <span class="site-state-item-name">标签</span>
-              </a>
-            </div>
-          
-
-        </nav>
-
-        
-          <div class="feed-link motion-element">
-            <a href="/atom.xml" rel="alternate">
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
               <i class="fa fa-rss"></i>
-              RSS
-            </a>
-          </div>
-        
+            </span>
 
-        <div class="links-of-author motion-element">
-          
-            
-              <span class="links-of-author-item">
-                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
-                  
-                    <i class="fa fa-fw fa-github"></i>
-                  
-                    
-                      GitHub
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
-                  
-                    <i class="fa fa-fw fa-weibo"></i>
-                  
-                    
-                      微博
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                    
-                      Facebook
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
-                  
-                    <i class="fa fa-fw fa-instagram"></i>
-                  
-                    
-                      Instagram
-                    
-                </a>
-              </span>
-            
-          
-        </div>
-
-        
-        
-
-        
-        
-
-        
-
-
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#iOS%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.</span> <span class="nav-text">iOS文件系统</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS%E7%8B%AC%E6%9C%89%E7%9B%AE%E5%BD%95"><span class="nav-number">1.1.</span> <span class="nav-text">iOS独有目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS%E5%BA%94%E7%94%A8%EF%BC%88StoreApp%EF%BC%89%E6%B2%99%E7%9B%92"><span class="nav-number">1.2.</span> <span class="nav-text">iOS应用（StoreApp）沙盒</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bundle-Container"><span class="nav-number">1.2.1.</span> <span class="nav-text">Bundle Container</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Data-Container"><span class="nav-number">1.2.2.</span> <span class="nav-text">Data Container</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#iOS%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">iOS二进制文件类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Application"><span class="nav-number">2.1.</span> <span class="nav-text">Application</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9FApp-VS-StoreApp"><span class="nav-number">2.1.1.</span> <span class="nav-text">系统App VS. StoreApp</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dynamic-Library"><span class="nav-number">2.2.</span> <span class="nav-text">Dynamic Library</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Daemon"><span class="nav-number">2.3.</span> <span class="nav-text">Daemon</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
-        
+            <span class="label">RSS</span>
+          </a>
       </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright" >
-  
-  &copy;  2018 - 
-  <span itemprop="copyrightYear">2023</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Pisces
-  </a>
-</div>
-
-<div>
-  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
-</div>
-
-
+          <div class="post-tags">
+              <a href="/tags/%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B/" rel="tag"># 逆向工程</a>
+              <a href="/tags/%E6%B2%99%E7%9B%92%E5%8E%9F%E7%90%86/" rel="tag"># 沙盒原理</a>
+              <a href="/tags/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="tag"># 文件系统</a>
+          </div>
 
         
-<div class="busuanzi-count">
-  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-  
-    <span class="site-uv">
-      <i class="fa fa-user"></i>本站总访客
-      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
-      人次
-    </span>
-  
-
-  
-    <span class="site-pv">
-      <i class="fa fa-eye"></i>本站总访问量
-      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
-      次
-    </span>
-  
-</div>
-
-
-        
-      </div>
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/01/21/browser-architecture-overview/" rel="prev" title="现代浏览器工作原理（一）">
+                  <i class="fa fa-angle-left"></i> 现代浏览器工作原理（一）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/02/22/logos-syntax/" rel="next" title="Logos基础语法">
+                  Logos基础语法 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
     </footer>
+  </article>
+</div>
 
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
 
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
   </div>
 
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
   
 
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2018/02/06/ios-reverse-engineering-basis/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
   }
+}
 </script>
 
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
-
-
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  
-
-
-
-
-	
-
-
-
-
-
-  
-
-
-
-
-
-  
-    <script type="text/javascript">
-      (function(d, s) {
-        var j, e = d.getElementsByTagName(s)[0];
-        if (typeof LivereTower === 'function') { return; }
-        j = d.createElement(s);
-        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
-        j.async = true;
-        e.parentNode.insertBefore(j, e);
-      })(document, 'script');
-    </script>
-  
-
-
-
-
-
-
-  
-
-  <script type="text/javascript">
-    // Popup Window;
-    var isfetched = false;
-    var isXml = true;
-    // Search DB path;
-    var search_path = "search.xml";
-    if (search_path.length === 0) {
-      search_path = "search.xml";
-    } else if (/json$/i.test(search_path)) {
-      isXml = false;
-    }
-    var path = "/" + search_path;
-    // monitor main search box;
-
-    var onPopupClose = function (e) {
-      $('.popup').hide();
-      $('#local-search-input').val('');
-      $('.search-result-list').remove();
-      $('#no-result').remove();
-      $(".local-search-pop-overlay").remove();
-      $('body').css('overflow', '');
-    }
-
-    function proceedsearch() {
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
-        .css('overflow', 'hidden');
-      $('.search-popup-overlay').click(onPopupClose);
-      $('.popup').toggle();
-      var $localSearchInput = $('#local-search-input');
-      $localSearchInput.attr("autocapitalize", "none");
-      $localSearchInput.attr("autocorrect", "off");
-      $localSearchInput.focus();
-    }
-
-    // search function;
-    var searchFunc = function(path, search_id, content_id) {
-      'use strict';
-
-      // start loading animation
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
-          '<div id="search-loading-icon">' +
-          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
-          '</div>' +
-          '</div>')
-        .css('overflow', 'hidden');
-      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
-
-      $.ajax({
-        url: path,
-        dataType: isXml ? "xml" : "json",
-        async: true,
-        success: function(res) {
-          // get the contents from search data
-          isfetched = true;
-          $('.popup').detach().appendTo('.header-inner');
-          var datas = isXml ? $("entry", res).map(function() {
-            return {
-              title: $("title", this).text(),
-              content: $("content",this).text(),
-              url: $("url" , this).text()
-            };
-          }).get() : res;
-          var input = document.getElementById(search_id);
-          var resultContent = document.getElementById(content_id);
-          var inputEventFunction = function() {
-            var searchText = input.value.trim().toLowerCase();
-            var keywords = searchText.split(/[\s\-]+/);
-            if (keywords.length > 1) {
-              keywords.push(searchText);
-            }
-            var resultItems = [];
-            if (searchText.length > 0) {
-              // perform local searching
-              datas.forEach(function(data) {
-                var isMatch = false;
-                var hitCount = 0;
-                var searchTextCount = 0;
-                var title = data.title.trim();
-                var titleInLowerCase = title.toLowerCase();
-                var content = data.content.trim().replace(/<[^>]+>/g,"");
-                var contentInLowerCase = content.toLowerCase();
-                var articleUrl = decodeURIComponent(data.url);
-                var indexOfTitle = [];
-                var indexOfContent = [];
-                // only match articles with not empty titles
-                if(title != '') {
-                  keywords.forEach(function(keyword) {
-                    function getIndexByWord(word, text, caseSensitive) {
-                      var wordLen = word.length;
-                      if (wordLen === 0) {
-                        return [];
-                      }
-                      var startPosition = 0, position = [], index = [];
-                      if (!caseSensitive) {
-                        text = text.toLowerCase();
-                        word = word.toLowerCase();
-                      }
-                      while ((position = text.indexOf(word, startPosition)) > -1) {
-                        index.push({position: position, word: word});
-                        startPosition = position + wordLen;
-                      }
-                      return index;
-                    }
-
-                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
-                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
-                  });
-                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
-                    isMatch = true;
-                    hitCount = indexOfTitle.length + indexOfContent.length;
-                  }
-                }
-
-                // show search results
-
-                if (isMatch) {
-                  // sort index by position of keyword
-
-                  [indexOfTitle, indexOfContent].forEach(function (index) {
-                    index.sort(function (itemLeft, itemRight) {
-                      if (itemRight.position !== itemLeft.position) {
-                        return itemRight.position - itemLeft.position;
-                      } else {
-                        return itemLeft.word.length - itemRight.word.length;
-                      }
-                    });
-                  });
-
-                  // merge hits into slices
-
-                  function mergeIntoSlice(text, start, end, index) {
-                    var item = index[index.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    var hits = [];
-                    var searchTextCountInSlice = 0;
-                    while (position + word.length <= end && index.length != 0) {
-                      if (word === searchText) {
-                        searchTextCountInSlice++;
-                      }
-                      hits.push({position: position, length: word.length});
-                      var wordEnd = position + word.length;
-
-                      // move to next position of hit
-
-                      index.pop();
-                      while (index.length != 0) {
-                        item = index[index.length - 1];
-                        position = item.position;
-                        word = item.word;
-                        if (wordEnd > position) {
-                          index.pop();
-                        } else {
-                          break;
-                        }
-                      }
-                    }
-                    searchTextCount += searchTextCountInSlice;
-                    return {
-                      hits: hits,
-                      start: start,
-                      end: end,
-                      searchTextCount: searchTextCountInSlice
-                    };
-                  }
-
-                  var slicesOfTitle = [];
-                  if (indexOfTitle.length != 0) {
-                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
-                  }
-
-                  var slicesOfContent = [];
-                  while (indexOfContent.length != 0) {
-                    var item = indexOfContent[indexOfContent.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    // cut out 100 characters
-                    var start = position - 20;
-                    var end = position + 80;
-                    if(start < 0){
-                      start = 0;
-                    }
-                    if (end < position + word.length) {
-                      end = position + word.length;
-                    }
-                    if(end > content.length){
-                      end = content.length;
-                    }
-                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
-                  }
-
-                  // sort slices in content by search text's count and hits' count
-
-                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
-                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
-                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
-                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
-                      return sliceRight.hits.length - sliceLeft.hits.length;
-                    } else {
-                      return sliceLeft.start - sliceRight.start;
-                    }
-                  });
-
-                  // select top N slices in content
-
-                  var upperBound = parseInt('1');
-                  if (upperBound >= 0) {
-                    slicesOfContent = slicesOfContent.slice(0, upperBound);
-                  }
-
-                  // highlight title and content
-
-                  function highlightKeyword(text, slice) {
-                    var result = '';
-                    var prevEnd = slice.start;
-                    slice.hits.forEach(function (hit) {
-                      result += text.substring(prevEnd, hit.position);
-                      var end = hit.position + hit.length;
-                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
-                      prevEnd = end;
-                    });
-                    result += text.substring(prevEnd, slice.end);
-                    return result;
-                  }
-
-                  var resultItem = '';
-
-                  if (slicesOfTitle.length != 0) {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
-                  } else {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
-                  }
-
-                  slicesOfContent.forEach(function (slice) {
-                    resultItem += "<a href='" + articleUrl + "'>" +
-                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
-                      "...</p>" + "</a>";
-                  });
-
-                  resultItem += "</li>";
-                  resultItems.push({
-                    item: resultItem,
-                    searchTextCount: searchTextCount,
-                    hitCount: hitCount,
-                    id: resultItems.length
-                  });
-                }
-              })
-            };
-            if (keywords.length === 1 && keywords[0] === "") {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
-            } else if (resultItems.length === 0) {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
-            } else {
-              resultItems.sort(function (resultLeft, resultRight) {
-                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
-                  return resultRight.searchTextCount - resultLeft.searchTextCount;
-                } else if (resultLeft.hitCount !== resultRight.hitCount) {
-                  return resultRight.hitCount - resultLeft.hitCount;
-                } else {
-                  return resultRight.id - resultLeft.id;
-                }
-              });
-              var searchResultList = '<ul class=\"search-result-list\">';
-              resultItems.forEach(function (result) {
-                searchResultList += result.item;
-              })
-              searchResultList += "</ul>";
-              resultContent.innerHTML = searchResultList;
-            }
-          }
-
-          if ('auto' === 'auto') {
-            input.addEventListener('input', inputEventFunction);
-          } else {
-            $('.search-icon').click(inputEventFunction);
-            input.addEventListener('keypress', function (event) {
-              if (event.keyCode === 13) {
-                inputEventFunction();
-              }
-            });
-          }
-
-          // remove loading animation
-          $(".local-search-pop-overlay").remove();
-          $('body').css('overflow', '');
-
-          proceedsearch();
-        }
-      });
-    }
-
-    // handle and trigger popup window;
-    $('.popup-trigger').click(function(e) {
-      e.stopPropagation();
-      if (isfetched === false) {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-      } else {
-        proceedsearch();
-      };
-    });
-
-    $('.popup-btn-close').click(onPopupClose);
-    $('.popup').click(function(e){
-      e.stopPropagation();
-    });
-    $(document).on('keyup', function (event) {
-      var shouldDismissSearchPopup = event.which === 27 &&
-        $('.search-popup').is(':visible');
-      if (shouldDismissSearchPopup) {
-        onPopupClose();
-      }
-    });
-  </script>
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      });
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      });
-    </script>
-    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
-
-
-  
-
-  
-
-
-  undefined
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
 </html>

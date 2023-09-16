@@ -1,529 +1,418 @@
 <!DOCTYPE html>
-
-
-
-  
-
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-  
-  
-  
-  
-
-  
-    
-    
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    
-    
-    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-  
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
-
-
-  <meta name="keywords" content="Podifle,TargetDefinition,DSL," />
-
-
-
-
-
-  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
-
-
-
-
-  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
-
-
-
-
-
-
-<meta name="description" content="作为 iOS 开发者，我们都知道 Podfile 是 CocoaPods 用于描述 Xcode 项目依赖的配置文件。当需要为项目添加依赖时，我们只需要在 Podfile 中声明一个 pod 即可，比如： 1pod &amp;#x27;Alamofire&amp;#x27;, &amp;#x27;~&gt; 5.4&amp;#x27;  当我们执行了 pod install 之后，项目就集成并依赖了这个第三方 pod 库了。那么，">
+    <meta name="description" content="作为 iOS 开发者，我们都知道 Podfile 是 CocoaPods 用于描述 Xcode 项目依赖的配置文件。当需要为项目添加依赖时，我们只需要在 Podfile 中声明一个 pod 即可，比如：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CocoaPods Podfile 解析原理">
 <meta property="og:url" content="http://chuquan.me/2021/12/24/podfile-analyze-principle/index.html">
 <meta property="og:site_name" content="楚权的世界">
-<meta property="og:description" content="作为 iOS 开发者，我们都知道 Podfile 是 CocoaPods 用于描述 Xcode 项目依赖的配置文件。当需要为项目添加依赖时，我们只需要在 Podfile 中声明一个 pod 即可，比如： 1pod &amp;#x27;Alamofire&amp;#x27;, &amp;#x27;~&gt; 5.4&amp;#x27;  当我们执行了 pod install 之后，项目就集成并依赖了这个第三方 pod 库了。那么，">
-<meta property="og:locale">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/targetdefinition-tree.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-01.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-00.png?x-oss-process=image/resize,w_800">
+<meta property="og:description" content="作为 iOS 开发者，我们都知道 Podfile 是 CocoaPods 用于描述 Xcode 项目依赖的配置文件。当需要为项目添加依赖时，我们只需要在 Podfile 中声明一个 pod 即可，比如：">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-12-24T14:51:11.000Z">
-<meta property="article:modified_time" content="2022-01-03T13:26:36.659Z">
+<meta property="article:modified_time" content="2023-09-16T11:16:15.035Z">
 <meta property="article:author" content="Bao Chuquan">
 <meta property="article:tag" content="Podifle">
 <meta property="article:tag" content="TargetDefinition">
 <meta property="article:tag" content="DSL">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/targetdefinition-tree.png?x-oss-process=image/resize,w_800">
+
+
+<link rel="canonical" href="http://chuquan.me/2021/12/24/podfile-analyze-principle/">
 
 
 
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '',
-    scheme: 'Pisces',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: true,
-    duoshuo: {
-      userId: '0',
-      author: '博主'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2021/12/24/podfile-analyze-principle/","path":"2021/12/24/podfile-analyze-principle/","title":"CocoaPods Podfile 解析原理"}</script>
 
-
-
-  <link rel="canonical" href="http://chuquan.me/2021/12/24/podfile-analyze-principle/"/>
-
-
-
-
-
-  <title>CocoaPods Podfile 解析原理 | 楚权的世界</title>
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>CocoaPods Podfile 解析原理 | 楚权的世界</title>
   
 
-
-
-
-
-  <script type="text/javascript">
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
 
 
 
 
 
 
-
-
-
-
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
 <!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
-  
-  
-    
-  
-
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
-    <div class="headband"></div>
-	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
-    
-
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">楚权的世界</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
     </div>
-      
-        <p class="site-subtitle">Seek the wonder of life.</p>
-      
   </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
   </div>
 </div>
+
+
 
 <nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-photos">
-          <a href="/photos" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
-            
-            相册
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            归档
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-commonweal">
-          <a href="/404.html" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
-            
-            公益
-          </a>
-        </li>
-      
-
-      
-        <li class="menu-item menu-item-search">
-          
-            <a href="javascript:;" class="popup-trigger">
-          
-            
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
-            
-            搜索
-          </a>
-        </li>
-      
-    </ul>
-  
-
-  
-    <div class="site-search">
-      
-  <div class="popup search-popup local-search-popup">
-  <div class="local-search-header clearfix">
-    <span class="search-icon">
-      <i class="fa fa-search"></i>
-    </span>
-    <span class="popup-btn-close">
-      <i class="fa fa-times-circle"></i>
-    </span>
-    <div class="local-search-input-wrapper">
-      <input autocomplete="off"
-             placeholder="搜索..." spellcheck="false"
-             type="text" id="local-search-input">
-    </div>
-  </div>
-  <div id="local-search-result"></div>
-</div>
-
-
-
-    </div>
-  
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
 </nav>
 
 
 
- </div>
-    </header>
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
 
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
+    </div>
+  </div>
 
-  <div id="posts" class="posts-expand">
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#podfile-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">2.</span> <span class="nav-text">Podfile 初始化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#targetdefinition-%E6%A0%91%E6%9E%84%E5%BB%BA"><span class="nav-number">3.</span> <span class="nav-text">TargetDefinition 树构建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#targetdefinition"><span class="nav-number">3.1.</span> <span class="nav-text">TargetDefinition</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#hash-keys"><span class="nav-number">3.1.1.</span> <span class="nav-text">Hash Keys</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#dsl-%E8%A7%A3%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">DSL 解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#root-options"><span class="nav-number">4.1.</span> <span class="nav-text">Root Options</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dependencies"><span class="nav-number">4.2.</span> <span class="nav-text">Dependencies</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#target-configurations"><span class="nav-number">4.3.</span> <span class="nav-text">Target Configurations</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#workspace"><span class="nav-number">4.4.</span> <span class="nav-text">Workspace</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sources"><span class="nav-number">4.5.</span> <span class="nav-text">Sources</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hooks"><span class="nav-number">4.6.</span> <span class="nav-text">Hooks</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#podfile-%E5%AF%B9%E8%B1%A1"><span class="nav-number">5.</span> <span class="nav-text">Podfile 对象</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E5%85%B3%E7%B3%BB"><span class="nav-number">6.</span> <span class="nav-text">依赖关系</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">129</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">288</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
     
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
 
   
 
-  
+
+<div class="post-block">
   
   
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://chuquan.me/2021/12/24/podfile-analyze-principle/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
     </span>
 
-    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="CocoaPods Podfile 解析原理 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
       <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CocoaPods Podfile 解析原理
+        </h1>
 
-        
-        
-          <h1 class="post-title" itemprop="name headline">CocoaPods Podfile 解析原理</h1>
-        
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
 
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="发表于" itemprop="dateCreated datePublished" datetime="2021-12-24T22:51:11+08:00">
-                2021-12-24
-              </time>
-            
+      <time title="创建时间：2021-12-24 22:51:11" itemprop="dateCreated datePublished" datetime="2021-12-24T22:51:11+08:00">2021-12-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-09-16 19:16:15" itemprop="dateModified" datetime="2023-09-16T19:16:15+08:00">2023-09-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/CocoaPods/" itemprop="url" rel="index"><span itemprop="name">CocoaPods</span></a>
+        </span>
+    </span>
 
-            
-              <span class="post-meta-divider">|</span>
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-check-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">更新于</span>
-              
-              <time title="更新于" itemprop="dateModified" datetime="2022-01-03T21:26:36+08:00">
-                2022-01-03
-              </time>
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/CocoaPods/" itemprop="url" rel="index">
-                    <span itemprop="name">CocoaPods</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
-          
-
-          
-
-          
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2021/12/24/podfile-analyze-principle/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2021/12/24/podfile-analyze-principle/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
 
         </div>
       </header>
-    
 
     
     
     
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <p>作为 iOS 开发者，我们都知道 Podfile 是 CocoaPods 用于描述 Xcode 项目依赖的配置文件。当需要为项目添加依赖时，我们只需要在 Podfile 中声明一个 <code>pod</code> 即可，比如：</p>
+    <div class="post-body" itemprop="articleBody"><p>作为 iOS 开发者，我们都知道 Podfile 是 CocoaPods 用于描述 Xcode
+项目依赖的配置文件。当需要为项目添加依赖时，我们只需要在 Podfile
+中声明一个 <code>pod</code> 即可，比如：</p>
+<span id="more"></span>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pod <span class="string">&#x27;Alamofire&#x27;</span>, <span class="string">&#x27;~&gt; 5.4&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>当我们执行了 <code>pod install</code> 之后，项目就集成并依赖了这个第三方 pod 库了。那么，这背后的原理到底是什么呢？</p>
-<p>为了探索 Podfile 背后的原理，我们来看 <a target="_blank" rel="noopener" href="https://github.com/CocoaPods/Core">CocoaPods-Core</a> 的相关源码实现，这里我们主要关注 3 个源码文件：</p>
+<p>当我们执行了 <code>pod install</code>
+之后，项目就集成并依赖了这个第三方 pod
+库了。那么，这背后的原理到底是什么呢？</p>
+<p>为了探索 Podfile 背后的原理，我们来看 <a
+href="https://github.com/CocoaPods/Core">CocoaPods-Core</a>
+的相关源码实现，这里我们主要关注 3 个源码文件：</p>
 <ul>
 <li><code>podfile/dsl.rb</code></li>
 <li><code>podfile/target_definition.rb</code></li>
 <li><code>podfile.rb</code></li>
 </ul>
-<h1 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h1><p>下文我们以一个 Demo Project 的例子进行介绍，如下所示为 Demo Project 的 Podfile 文件定义。</p>
+<h1 id="示例">示例</h1>
+<p>下文我们以一个 Demo Project 的例子进行介绍，如下所示为 Demo Project
+的 Podfile 文件定义。</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">source <span class="string">&#x27;https://cdn.cocoapods.org/&#x27;</span></span><br><span class="line"></span><br><span class="line">platform <span class="symbol">:ios</span>, <span class="string">&#x27;11.0&#x27;</span></span><br><span class="line"></span><br><span class="line">inhibit_all_warnings!</span><br><span class="line">use_modular_headers!</span><br><span class="line">install! <span class="string">&#x27;cocoapods&#x27;</span>, <span class="symbol">:warn_for_unused_master_specs_repo</span> =&gt; <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">target <span class="string">&#x27;Demo&#x27;</span> <span class="keyword">do</span></span><br><span class="line">  pod <span class="string">&#x27;Alamofire&#x27;</span>, <span class="string">&#x27;~&gt; 5.4&#x27;</span></span><br><span class="line">  pod <span class="string">&#x27;Dollar&#x27;</span></span><br><span class="line">  pod <span class="string">&#x27;SnapKit&#x27;</span>, <span class="string">&#x27;~&gt; 4.0&#x27;</span></span><br><span class="line"></span><br><span class="line">  target <span class="string">&#x27;DemoTests&#x27;</span> <span class="keyword">do</span></span><br><span class="line">    inherit! <span class="symbol">:search_paths</span></span><br><span class="line">    <span class="comment"># Pods for testing</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  target <span class="string">&#x27;DemoUITests&#x27;</span> <span class="keyword">do</span></span><br><span class="line">    inherit! <span class="symbol">:search_paths</span></span><br><span class="line">    <span class="comment"># Pods for testing</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="Podfile-初始化"><a href="#Podfile-初始化" class="headerlink" title="Podfile 初始化"></a>Podfile 初始化</h1><p>在上述例子中，Podfile 文件声明了项目的依赖，诸如：<code>Alamofire</code>、<code>Dollar</code>、<code>SnapKit</code> 等。当我们执行 <code>pod install</code> 命令时，CocoaPods 会根据 Podfile 文件路径进行初始化，如下所示：</p>
+<h1 id="podfile-初始化">Podfile 初始化</h1>
+<p>在上述例子中，Podfile
+文件声明了项目的依赖，诸如：<code>Alamofire</code>、<code>Dollar</code>、<code>SnapKit</code>
+等。当我们执行 <code>pod install</code> 命令时，CocoaPods 会根据 Podfile
+文件路径进行初始化，如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># config.rb</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">podfile</span></span><br><span class="line">  <span class="variable">@podfile</span> |<span class="params"></span>|= <span class="title class_">Podfile</span>.from_file(podfile_path) <span class="keyword">if</span> podfile_path</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p><code>Podfile</code> 类提供了类方法 <code>self.from_file</code>，根据 Podfile 文件路径进行初始化。<code>self.from_file</code> 方法的定义如下所示：</p>
+<p><code>Podfile</code> 类提供了类方法 <code>self.from_file</code>，根据
+Podfile 文件路径进行初始化。<code>self.from_file</code>
+方法的定义如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">self</span>.from_file(path)</span><br><span class="line">  path = <span class="title class_">Pathname</span>.new(path)</span><br><span class="line">  <span class="comment"># 根据路径判断 Podfile 是否存在</span></span><br><span class="line">  <span class="keyword">unless</span> path.exist?</span><br><span class="line">    <span class="keyword">raise</span> <span class="title class_">Informative</span>, <span class="string">&quot;No Podfile exists at path `<span class="subst">#&#123;path&#125;</span>`.&quot;</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># 根据路径的文件后缀名，选择对应的工厂方法进行初始化</span></span><br><span class="line">  <span class="keyword">case</span> path.extname</span><br><span class="line">  <span class="keyword">when</span> <span class="string">&#x27;&#x27;</span>, <span class="string">&#x27;.podfile&#x27;</span>, <span class="string">&#x27;.rb&#x27;</span></span><br><span class="line">    <span class="title class_">Podfile</span>.from_ruby(path)</span><br><span class="line">  <span class="keyword">when</span> <span class="string">&#x27;.yaml&#x27;</span></span><br><span class="line">    <span class="title class_">Podfile</span>.from_yaml(path)</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    <span class="keyword">raise</span> <span class="title class_">Informative</span>, <span class="string">&quot;Unsupported Podfile format `<span class="subst">#&#123;path&#125;</span>`.&quot;</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p>在 <code>self.from_file</code> 的实现中，首先会根据路径判断文件是否存在，如果不存在即抛出异常。然后，判断通过文件的后缀判断文件的类型，选择不同的工厂方法进行初始化。通过溯源代码定义，我们可以发现，CocoaPods 支持的 4 种命名方式的 Podfile，分别是：</p>
+<p>在 <code>self.from_file</code>
+的实现中，首先会根据路径判断文件是否存在，如果不存在即抛出异常。然后，判断通过文件的后缀判断文件的类型，选择不同的工厂方法进行初始化。通过溯源代码定义，我们可以发现，CocoaPods
+支持的 4 种命名方式的 Podfile，分别是：</p>
 <ul>
 <li><strong><code>CocoaPods.podfile.yaml</code></strong></li>
 <li><strong><code>CocoaPods.podfile</code></strong></li>
 <li><strong><code>Podfile</code></strong></li>
 <li><strong><code>Podfile.rb</code></strong></li>
 </ul>
-<p>对于 <code>yaml</code> 类型的 Podfile 文件，使用 <code>self.from_yaml</code> 工厂方法进行初始化；对于其他类型的 Podfile 文件，使用 <code>self.from_ruby</code> 工厂方法进行初始化。</p>
-<p>这里，我们重点看一下 <code>self.from_ruby</code> 的实现，如下所示：</p>
+<p>对于 <code>yaml</code> 类型的 Podfile 文件，使用
+<code>self.from_yaml</code> 工厂方法进行初始化；对于其他类型的 Podfile
+文件，使用 <code>self.from_ruby</code> 工厂方法进行初始化。</p>
+<p>这里，我们重点看一下 <code>self.from_ruby</code>
+的实现，如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">self</span>.from_ruby(path, contents = <span class="literal">nil</span>)</span><br><span class="line">  <span class="comment"># 读取 Podfile 中的内容</span></span><br><span class="line">  contents |<span class="params"></span>|= <span class="title class_">File</span>.open(path, <span class="string">&#x27;r:utf-8&#x27;</span>, &amp;<span class="symbol">:read</span>)</span><br><span class="line"></span><br><span class="line">  <span class="comment"># 使用 UTF-8 进行编码</span></span><br><span class="line">  <span class="keyword">if</span> contents.respond_to?(<span class="symbol">:encoding</span>) &amp;&amp; contents.encoding.name != <span class="string">&#x27;UTF-8&#x27;</span></span><br><span class="line">    contents.encode!(<span class="string">&#x27;UTF-8&#x27;</span>)</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># 如果存在非法字符，则报错。</span></span><br><span class="line">  <span class="keyword">if</span> contents.tr!(<span class="string">&#x27;“”‘’‛&#x27;</span>, <span class="string">%(&quot;&quot;&#x27;&#x27;&#x27;)</span>)</span><br><span class="line">  <span class="comment"># Changes have been made</span></span><br><span class="line">    <span class="title class_">Core</span>UI.warn <span class="string">&quot;Smart quotes were detected and ignored in your <span class="subst">#&#123;path.basename&#125;</span>. &quot;</span> \</span><br><span class="line">                <span class="string">&#x27;To avoid issues in the future, you should not use &#x27;</span> \</span><br><span class="line">                <span class="string">&#x27;TextEdit for editing it. If you are not using TextEdit, &#x27;</span> \</span><br><span class="line">                <span class="string">&#x27;you should turn off smart quotes in your editor of choice.&#x27;</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># 初始化 Podfile 对象，并传入尾随闭包</span></span><br><span class="line">  podfile = <span class="title class_">Podfile</span>.new(path) <span class="keyword">do</span></span><br><span class="line">    <span class="comment"># rubocop:disable Lint/RescueException</span></span><br><span class="line">    <span class="keyword">begin</span></span><br><span class="line">      <span class="comment"># rubocop:disable Security/Eval</span></span><br><span class="line">      <span class="comment"># 使用 eval 执行 Podfile 中定义的代码</span></span><br><span class="line">      eval(contents, <span class="literal">nil</span>, path.to_s)</span><br><span class="line">      <span class="comment"># rubocop:enable Security/Eval</span></span><br><span class="line">    <span class="keyword">rescue</span> <span class="title class_">Exception</span> =&gt; e</span><br><span class="line">      message = <span class="string">&quot;Invalid `<span class="subst">#&#123;path.basename&#125;</span>` file: <span class="subst">#&#123;e.message&#125;</span>&quot;</span></span><br><span class="line">      <span class="keyword">raise</span> <span class="title class_">DSLError</span>.new(message, path, e, contents)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="comment"># rubocop:enable Lint/RescueException</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line">  <span class="comment"># 返回 Podfile 对象</span></span><br><span class="line">  podfile</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
 <p>在工厂方法中，主要通过 3 个步骤来初始化 Podfile。</p>
 <ul>
-<li><strong>首先，读取 Podfile 文件的内容，并进行 UTF-8 编码。</strong></li>
+<li><strong>首先，读取 Podfile 文件的内容，并进行 UTF-8
+编码。</strong></li>
 <li><strong>然后，检测文件内容是否存在非法字符，如果存在则抛出异常。</strong></li>
-<li><strong>最后，通过 <code>Podfile</code> 类构造方法进行初始化，并传入一个尾随闭包。</strong></li>
+<li><strong>最后，通过 <code>Podfile</code>
+类构造方法进行初始化，并传入一个尾随闭包。</strong></li>
 </ul>
-<p>注意，最后一步的尾随闭包包含了一行关键代码：<code>eval(contents, nil, path.to_s)</code> 。正是这行代码，执行了我们在 Podfile 文件声明的所有内容，从而使它们正式生效。我们在 Podfile 文件进行声明，本质上是编写了对一系列 ruby 方法的调用。</p>
-<h1 id="TargetDefinition-树构建"><a href="#TargetDefinition-树构建" class="headerlink" title="TargetDefinition 树构建"></a>TargetDefinition 树构建</h1><p>我们继续深入 <code>Podfile</code> 类的构造方法，其定义如下所示：</p>
+<p>注意，最后一步的尾随闭包包含了一行关键代码：<code>eval(contents, nil, path.to_s)</code>
+。正是这行代码，执行了我们在 Podfile
+文件声明的所有内容，从而使它们正式生效。我们在 Podfile
+文件进行声明，本质上是编写了对一系列 ruby 方法的调用。</p>
+<h1 id="targetdefinition-树构建">TargetDefinition 树构建</h1>
+<p>我们继续深入 <code>Podfile</code> 类的构造方法，其定义如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">initialize</span>(<span class="params">defined_in_file = <span class="literal">nil</span>, internal_hash = &#123;&#125;, &amp;block</span>)</span><br><span class="line">  <span class="variable language_">self</span>.defined_in_file = defined_in_file</span><br><span class="line">  <span class="variable">@internal_hash</span> = internal_hash</span><br><span class="line">  <span class="keyword">if</span> block</span><br><span class="line">    <span class="comment"># ruby 类型的 Podfile 初始化逻辑</span></span><br><span class="line">    default_target_def = <span class="title class_">TargetDefinition</span>.new(<span class="string">&#x27;Pods&#x27;</span>, <span class="variable language_">self</span>)</span><br><span class="line">    default_target_def.abstract = <span class="literal">true</span></span><br><span class="line">    <span class="variable">@root_target_definitions</span> = [default_target_def]</span><br><span class="line">    <span class="variable">@current_target_definition</span> = default_target_def</span><br><span class="line">    <span class="comment"># 真正执行 Podfile 文件中所声明的代码</span></span><br><span class="line">    instance_eval(&amp;block)</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    <span class="comment"># yaml 类型的 Podfile 初始化逻辑</span></span><br><span class="line">    <span class="variable">@root_target_definitions</span> = []</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>对于 <code>ruby</code> 类型的 Podfile 文件，<code>Podfile</code> 对象初始化时，会构建一个 <code>TargetDefinition</code> 树的根节点。然后，通过 <code>instance_eval</code> 方法真正执行 Podfile 中的代码。<strong>从而在已有的 <code>TargetDefinition</code> 根节点的基础上，进一步构建了整棵 <code>TargetDefinition</code> 树</strong>。</p>
-<p>在 Demo Project 的例子中，<code>Podfile</code> 初始化后，构建的 <code>TargetDefinition</code> 树如下图所示：</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/targetdefinition-tree.png?x-oss-process=image/resize,w_800"></p>
-<p><code>TargetDefinition</code> 树的层级结构与 Podfile 文件中声明的 <code>target</code> 嵌套层级结构相关联，如下为 Podfile 文件中 <code>target</code> 的定义。</p>
+<p>对于 <code>ruby</code> 类型的 Podfile 文件，<code>Podfile</code>
+对象初始化时，会构建一个 <code>TargetDefinition</code>
+树的根节点。然后，通过 <code>instance_eval</code> 方法真正执行 Podfile
+中的代码。<strong>从而在已有的 <code>TargetDefinition</code>
+根节点的基础上，进一步构建了整棵 <code>TargetDefinition</code>
+树</strong>。</p>
+<p>在 Demo Project 的例子中，<code>Podfile</code> 初始化后，构建的
+<code>TargetDefinition</code> 树如下图所示：</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/targetdefinition-tree.png?x-oss-process=image/resize,w_800" /></p>
+<p><code>TargetDefinition</code> 树的层级结构与 Podfile 文件中声明的
+<code>target</code> 嵌套层级结构相关联，如下为 Podfile 文件中
+<code>target</code> 的定义。</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">target <span class="string">&#x27;Demo&#x27;</span> <span class="keyword">do</span></span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  target <span class="string">&#x27;DemoTests&#x27;</span> <span class="keyword">do</span></span><br><span class="line">    inherit! <span class="symbol">:search_paths</span></span><br><span class="line">    <span class="comment"># Pods for testing</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  target <span class="string">&#x27;DemoUITests&#x27;</span> <span class="keyword">do</span></span><br><span class="line">    inherit! <span class="symbol">:search_paths</span></span><br><span class="line">    <span class="comment"># Pods for testing</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
 <p>我们来看一下 <code>target</code> 方法的具体实现，如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">target</span>(<span class="params">name, options = <span class="literal">nil</span></span>)</span><br><span class="line">  <span class="keyword">if</span> options</span><br><span class="line">    <span class="keyword">raise</span> <span class="title class_">Informative</span>, <span class="string">&quot;Unsupported options `<span class="subst">#&#123;options&#125;</span>` for &quot;</span> \</span><br><span class="line">      <span class="string">&quot;target `<span class="subst">#&#123;name&#125;</span>`.&quot;</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  parent = current_target_definition</span><br><span class="line">  <span class="comment"># 初始化一个 TargetDefinition，并建立父子关系</span></span><br><span class="line">  definition = <span class="title class_">TargetDefinition</span>.new(name, parent)</span><br><span class="line">  <span class="variable language_">self</span>.current_target_definition = definition</span><br><span class="line">  <span class="comment"># 执行闭包</span></span><br><span class="line">  <span class="keyword">yield</span> <span class="keyword">if</span> block_given?</span><br><span class="line"><span class="keyword">ensure</span></span><br><span class="line">  <span class="comment"># 执行完毕，恢复 current_target_definition</span></span><br><span class="line">  <span class="variable language_">self</span>.current_target_definition = parent</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>在 <code>target</code> 方法中，会创建一个 <code>TargetDefinition</code> 对象，并将当前的 <code>TargetDefinition</code> 作为父对象，从而建立父子关系，构建树结构。构建完毕，执行 <code>target</code> 方法的尾随闭包，进行进一步的设置。最后，恢复现场。</p>
-<h2 id="TargetDefinition"><a href="#TargetDefinition" class="headerlink" title="TargetDefinition"></a>TargetDefinition</h2><p>那么 <code>TargetDefinition</code> 到底是什么？其实上图已经给了我们答案：<strong>一个 <code>TargetDefinition</code> 对应一个 Xcode Target</strong>。</p>
-<p>在 <a href="http://chuquan.me/2021/12/03/understand-concepts-in-xcode/">《理解 Xcode 中的各种概念》</a> 一文中，我们介绍了 Target 的作用，<strong>其包含构建特定 Product 所需的 build configuration、build rule、build phase，并指定对应的构建产物 Product</strong>。默认，Target 继承 Project 定义的 build configuration，并且可以覆盖或自定义 build settings。</p>
+<p>在 <code>target</code> 方法中，会创建一个
+<code>TargetDefinition</code> 对象，并将当前的
+<code>TargetDefinition</code>
+作为父对象，从而建立父子关系，构建树结构。构建完毕，执行
+<code>target</code>
+方法的尾随闭包，进行进一步的设置。最后，恢复现场。</p>
+<h2 id="targetdefinition">TargetDefinition</h2>
+<p>那么 <code>TargetDefinition</code>
+到底是什么？其实上图已经给了我们答案：<strong>一个
+<code>TargetDefinition</code> 对应一个 Xcode Target</strong>。</p>
+<p>在 <a
+href="http://chuquan.me/2021/12/03/understand-concepts-in-xcode/">《理解
+Xcode 中的各种概念》</a> 一文中，我们介绍了 Target
+的作用，<strong>其包含构建特定 Product 所需的 build configuration、build
+rule、build phase，并指定对应的构建产物 Product</strong>。默认，Target
+继承 Project 定义的 build configuration，并且可以覆盖或自定义 build
+settings。</p>
 <p>如下所示，为 <code>TargetDefinition</code> 类的主要定义如下：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> <span class="title class_">Pod</span></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">Podfile</span></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">TargetDefinition</span></span><br><span class="line">      <span class="comment"># [TargetDefinition, Podfile]</span></span><br><span class="line">      <span class="built_in">attr_reader</span> <span class="symbol">:parent</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># [Array&lt;TargetDefinition&gt;]</span></span><br><span class="line">      <span class="built_in">attr_reader</span> <span class="symbol">:children</span></span><br><span class="line">      </span><br><span class="line">      <span class="keyword">protected</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># [Hash]</span></span><br><span class="line">      <span class="built_in">attr_accessor</span> <span class="symbol">:internal_hash</span></span><br><span class="line">      </span><br><span class="line">      <span class="comment"># Methods</span></span><br><span class="line">      <span class="comment"># ...</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p><code>TargetDefinition</code> 类包含一个指向父节点的指针 <code>parent</code> 以及一组指向子节点的指针 <code>children</code>。最关键的是，<code>TargetDefinition</code> 通过一个内部的 <code>internal_hash</code> 存储了所有 <code>TargetDefinition</code> 的配置信息，包括：build configurations，build phases、build rules 等等。**<code>TargetDefinition</code> 定义的其他方法几乎全部都是对 <code>internal_hash</code> 进行增删查改。**</p>
-<h3 id="Hash-Keys"><a href="#Hash-Keys" class="headerlink" title="Hash Keys"></a>Hash Keys</h3><p><code>TargetDefinition</code> 内部通过定义一个 <code>HASH_KEYS</code> 的数组预定义了 <code>internal_hash</code> 将存储哪些键值对。<code>HASH_KEYS</code> 的定义如下所示：</p>
+<p><code>TargetDefinition</code> 类包含一个指向父节点的指针
+<code>parent</code> 以及一组指向子节点的指针
+<code>children</code>。最关键的是，<code>TargetDefinition</code>
+通过一个内部的 <code>internal_hash</code> 存储了所有
+<code>TargetDefinition</code> 的配置信息，包括：build
+configurations，build phases、build rules
+等等。<strong><code>TargetDefinition</code> 定义的其他方法几乎全部都是对
+<code>internal_hash</code> 进行增删查改。</strong></p>
+<h3 id="hash-keys">Hash Keys</h3>
+<p><code>TargetDefinition</code> 内部通过定义一个 <code>HASH_KEYS</code>
+的数组预定义了 <code>internal_hash</code>
+将存储哪些键值对。<code>HASH_KEYS</code> 的定义如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable constant_">HASH_KEYS</span> = <span class="string">%w(</span></span><br><span class="line"><span class="string">  name</span></span><br><span class="line"><span class="string">  platform</span></span><br><span class="line"><span class="string">  podspecs</span></span><br><span class="line"><span class="string">  exclusive               </span></span><br><span class="line"><span class="string">  inhibit_warnings</span></span><br><span class="line"><span class="string">  use_modular_headers</span></span><br><span class="line"><span class="string">  user_project_path</span></span><br><span class="line"><span class="string">  build_configurations</span></span><br><span class="line"><span class="string">  project_names</span></span><br><span class="line"><span class="string">  dependencies</span></span><br><span class="line"><span class="string">  script_phases</span></span><br><span class="line"><span class="string">  children</span></span><br><span class="line"><span class="string">  configuration_pod_whitelist</span></span><br><span class="line"><span class="string">  uses_frameworks</span></span><br><span class="line"><span class="string">  swift_version_requirements</span></span><br><span class="line"><span class="string">  inheritance</span></span><br><span class="line"><span class="string">  abstract</span></span><br><span class="line"><span class="string">  swift_version</span></span><br><span class="line"><span class="string">)</span>.freeze</span><br></pre></td></tr></table></figure>
-
-<p>对比一下 Xcode Target 的结构类图，如下所示，我们大概能找到一些对应关系，尤其是 <code>PBXNativeTarget</code>，如：<code>dependencies</code>、<code>build_configurations</code>、<code>script_phases</code> 等。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-01.png?x-oss-process=image/resize,w_800"></p>
-<h1 id="DSL-解析"><a href="#DSL-解析" class="headerlink" title="DSL 解析"></a>DSL 解析</h1><p>在 <code>TargetDefinition</code> 树构造过程中，我们用到的 <code>target</code> 方法定义在 Podfile DSL 中。除此之外，Podfile DSL 中还定义了一系列方法。这些 DSL 的主要作用是：<strong>为开发者提供简洁的语法，从而支持自定义配置 Target、Project、Workspace，并且提供了一系列 hook 方法，允许开发者执行自定义脚本。</strong></p>
-<p>Podfile DSL 本质上是一个 module，它会被 mixin 到 <code>Podfile</code> 类中，其内部实现与 <code>Podfile</code> 紧密关联。尤其是，Podfile DSL 使用了 <code>Podfile</code> 类中定义的 <code>current_target_definition</code> 和 <code>internal_hash</code>，用于存储 Podfile 所声明的配置信息。</p>
+<p>对比一下 Xcode Target
+的结构类图，如下所示，我们大概能找到一些对应关系，尤其是
+<code>PBXNativeTarget</code>，如：<code>dependencies</code>、<code>build_configurations</code>、<code>script_phases</code>
+等。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-01.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="dsl-解析">DSL 解析</h1>
+<p>在 <code>TargetDefinition</code> 树构造过程中，我们用到的
+<code>target</code> 方法定义在 Podfile DSL 中。除此之外，Podfile DSL
+中还定义了一系列方法。这些 DSL
+的主要作用是：<strong>为开发者提供简洁的语法，从而支持自定义配置
+Target、Project、Workspace，并且提供了一系列 hook
+方法，允许开发者执行自定义脚本。</strong></p>
+<p>Podfile DSL 本质上是一个 module，它会被 mixin 到 <code>Podfile</code>
+类中，其内部实现与 <code>Podfile</code> 紧密关联。尤其是，Podfile DSL
+使用了 <code>Podfile</code> 类中定义的
+<code>current_target_definition</code> 和
+<code>internal_hash</code>，用于存储 Podfile 所声明的配置信息。</p>
 <p>Podfile DSL 根据功能可以分为如下几种类型：</p>
 <ul>
 <li>Root Options</li>
@@ -534,886 +423,249 @@
 <li>Hooks</li>
 </ul>
 <p>下面，对这些 DSL 进行简要的介绍。</p>
-<h2 id="Root-Options"><a href="#Root-Options" class="headerlink" title="Root Options"></a>Root Options</h2><p>Root Options 相关的 DSL 主要用于对 Podfile 进行整体配置，如下所示：</p>
+<h2 id="root-options">Root Options</h2>
+<p>Root Options 相关的 DSL 主要用于对 Podfile
+进行整体配置，如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 声明安装过程中会使用的安装方法和选项</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     internal_hash[&#x27;installation_method&#x27;] =&gt; &#123;&quot;name&quot; =&gt; xxx, &quot;options&quot; =&gt; xxx&#125;</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">install!</span>(<span class="params">installation_method, options = &#123;&#125;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果使用 Global Gemset 运行 CocoaPods，则会抛出异常。</span></span><br><span class="line"><span class="comment"># 如果传入 version 参数，则严格限制 bundler 的版本号。</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ensure_bundler!</span>(<span class="params">version = <span class="literal">nil</span></span>)</span><br></pre></td></tr></table></figure>
-
-<h2 id="Dependencies"><a href="#Dependencies" class="headerlink" title="Dependencies"></a>Dependencies</h2><p>Dependencies 相关的 DSL 主要用于为每个 Target 指定依赖。其主要通过调用 <code>TargetDefinition</code> 类所提供的方法将配置存入 <code>TargetDefinition</code> 类的 <code>internal_hash</code> 中。相关 DSL 如下所示：</p>
+<h2 id="dependencies">Dependencies</h2>
+<p>Dependencies 相关的 DSL 主要用于为每个 Target
+指定依赖。其主要通过调用 <code>TargetDefinition</code>
+类所提供的方法将配置存入 <code>TargetDefinition</code> 类的
+<code>internal_hash</code> 中。相关 DSL 如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建一个特定依赖</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     current_target_definition.store_pod(name, *requirements)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pod</span>(<span class="params">name = <span class="literal">nil</span>, *requirements</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建一个 podspec</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     current_target_definition.store_podspec(options)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">podspec</span>(<span class="params">options = <span class="literal">nil</span></span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建一个子 target，关联父 target，设置当前为子 target</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     current_target_definition = definition</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">target</span>(<span class="params">name, options = <span class="literal">nil</span></span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建一个 build phase</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     current_target_definition.store_script_phase(options)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">script_phase</span>(<span class="params">options</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将当前 target 设置成抽象 target</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     current_target_definition.abstract = abstract</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">abstract!</span>(<span class="params">abstract = <span class="literal">true</span></span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建一个抽象 target</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">abstract_target</span>(<span class="params">name</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置继承模式</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     current_target_definition.inheritance = inheritance</span></span><br><span class="line"><span class="comment"># 三种模式</span></span><br><span class="line"><span class="comment">#    - :complete: 当前 target 继承父 target 的全部行为</span></span><br><span class="line"><span class="comment">#    - :none: 当前 target 不继承父 target 的任何行为</span></span><br><span class="line"><span class="comment">#    - :search_paths: 当前 target 只继承父 target 的 search paths</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">inherit!</span>(<span class="params">inheritance</span>)</span><br></pre></td></tr></table></figure>
-
-<h2 id="Target-Configurations"><a href="#Target-Configurations" class="headerlink" title="Target Configurations"></a>Target Configurations</h2><p>Target Configurations 相关的 DSL 主要用于控制 CocoaPods 生成 Project 文件。类似的，其主要也通过调用 <code>TargetDefinition</code> 类所提供的相关方法将配置存入 <code>TargetDefinition</code> 类的 <code>internal_hash</code> 中。相关 DSL 如下所示：</p>
+<h2 id="target-configurations">Target Configurations</h2>
+<p>Target Configurations 相关的 DSL 主要用于控制 CocoaPods 生成 Project
+文件。类似的，其主要也通过调用 <code>TargetDefinition</code>
+类所提供的相关方法将配置存入 <code>TargetDefinition</code> 类的
+<code>internal_hash</code> 中。相关 DSL 如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置当前 target 的目标平台</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     current_target_definition.set_platform!(name, target)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">platform</span>(<span class="params">name, target = <span class="literal">nil</span></span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定 target 所在的 project。注意：Pods 库会被该 target 链接</span></span><br><span class="line"><span class="comment"># 同时可以为 target 指定 build configuration</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     current_target_definition.user_project_path = path</span></span><br><span class="line"><span class="comment">#     current_target_definition.build_configurations = build_configurations</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">project</span>(<span class="params">path, build_configurations = &#123;&#125;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置当前 target 是否忽略所有来自 CocoaPods 库的警告</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     current_target_definition.inhibit_all_warnings = true</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">inhibit_all_warnings!</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置所有的 CocoaPods 静态库使用 modular header</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     current_target_definition.use_modular_headers_for_all_pods = true</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">use_modular_headers!</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置 Pods 使用 framework 而非静态库。注意：当使用 framework 时，我们需要指定 `:linkage` 的类型为 `:static` 或 `:dynamic`</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     current_target_definition.use_frameworks!(option)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">use_frameworks!</span>(<span class="params">option = <span class="literal">true</span></span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置 target 支持的 swift 版本约束</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     current_target_definition.store_swift_version_requirements(*requirements)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">supports_swift_versions</span>(<span class="params">*requirements</span>)</span><br></pre></td></tr></table></figure>
-
-<h2 id="Workspace"><a href="#Workspace" class="headerlink" title="Workspace"></a>Workspace</h2><p>Workspace 相关的 DSL 主要用于配置 Xcode Workspace，设置全局的 settings。其将配置存储在 <code>Podfile</code> 类的 <code>internal_hash</code> 中。相关 DSL 如下所示：</p>
+<h2 id="workspace">Workspace</h2>
+<p>Workspace 相关的 DSL 主要用于配置 Xcode Workspace，设置全局的
+settings。其将配置存储在 <code>Podfile</code> 类的
+<code>internal_hash</code> 中。相关 DSL 如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置包含所有 project 的 Xcode workspace </span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     internal_hash[&#x27;workspace&#x27;] =&gt; path</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">workspace</span>(<span class="params">path</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置根据所有已安装的 Pods 的头文件生成一个 BridgeSupport 元文件</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     internal_hash[&#x27;generate_bridge_support&#x27;] =&gt; true</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">generate_bridge_support!</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置为 `OTHER_LD_FLAGS` 添加 `-fobjc-arc` 标志</span></span><br><span class="line"><span class="comment"># 存储方式：</span></span><br><span class="line"><span class="comment">#     internal_hash[&#x27;set_arc_compatibility_flag&#x27;] =&gt; true</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">set_arc_compatibility_flag!</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Sources 相关的 DSL 主要用于设置源，Podfile 通过源列表查找对应的 Specification。相关的 DSL 如下所示：</p>
+<h2 id="sources">Sources</h2>
+<p>Sources 相关的 DSL 主要用于设置源，Podfile 通过源列表查找对应的
+Specification。相关的 DSL 如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 指定 spec 的位置</span></span><br><span class="line"><span class="comment"># 存储方法：</span></span><br><span class="line"><span class="comment">#     internal_hash[&#x27;sources&#x27;] &lt;&lt; source</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">source</span>(<span class="params">source</span>)</span><br></pre></td></tr></table></figure>
-
-<h2 id="Hooks"><a href="#Hooks" class="headerlink" title="Hooks"></a>Hooks</h2><p>Hooks 相关的 DSL 主要用于配置自定义脚本。Podfile 提供了一系列 hooks，这些 hooks 会在 install 过程中被执行。相关的 DSL 如下所示：</p>
+<h2 id="hooks">Hooks</h2>
+<p>Hooks 相关的 DSL 主要用于配置自定义脚本。Podfile 提供了一系列
+hooks，这些 hooks 会在 install 过程中被执行。相关的 DSL 如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置安装过程中会用到的插件</span></span><br><span class="line"><span class="comment"># internal_hash[&#x27;plugins&#x27;] &lt;&lt; name</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">plugin</span>(<span class="params">name, options = &#123;&#125;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在 Pods 下载完成后，安装之前，执行 hook</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pre_install</span>(<span class="params">&amp;block</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在 project 写入硬盘前，执行 hook</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pre_integrate</span>(<span class="params">&amp;block</span>)</span><br><span class="line"></span><br><span class="line">在 project 写入硬盘前，执行 hook 进行最后的修改</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">post_install</span>(<span class="params">&amp;block</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在 project 写入硬盘后，执行 hook</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">post_integrate</span>(<span class="params">&amp;block</span>)</span><br></pre></td></tr></table></figure>
-
-<h1 id="Podfile-对象"><a href="#Podfile-对象" class="headerlink" title="Podfile 对象"></a>Podfile 对象</h1><p>当 Podfile 文件中的代码执行完毕后，<code>Podfile</code> 对象也就构建完成了。<code>Podfile</code> 类的主要定义如下所示：</p>
+<h1 id="podfile-对象">Podfile 对象</h1>
+<p>当 Podfile 文件中的代码执行完毕后，<code>Podfile</code>
+对象也就构建完成了。<code>Podfile</code> 类的主要定义如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> <span class="title class_">Pod</span></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">Podfile</span></span><br><span class="line">    <span class="keyword">include</span> <span class="title class_">Pod::Podfile::DSL</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">StandardError</span> &lt; <span class="symbol">:</span><span class="symbol">:StandardError</span>; <span class="keyword">end</span></span><br><span class="line">    <span class="comment"># podfile 路径</span></span><br><span class="line">    <span class="built_in">attr_accessor</span> <span class="symbol">:defined_in_file</span></span><br><span class="line">    <span class="comment"># 所有的 TargetDefinition 的根节点, 正常只有一个，即 Pods.project target</span></span><br><span class="line">    <span class="built_in">attr_accessor</span> <span class="symbol">:root_target_definitions</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> </span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 记录 Pods.project 项目的配置信息</span></span><br><span class="line">    <span class="built_in">attr_accessor</span> <span class="symbol">:internal_hash</span></span><br><span class="line">    <span class="comment"># 当前 DSL 解析使用的 TargetDefinition</span></span><br><span class="line">    <span class="built_in">attr_accessor</span> <span class="symbol">:current_target_definition</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p>类似于 <code>TargetDefinition</code>，<code>Podfile</code> 也提供了一个 <code>internal_hash</code> 用于存储一些全局的设置，它通过一个 <code>HASH_KEYS</code> 数组预定义了一系列键，如下所示：</p>
+<p>类似于 <code>TargetDefinition</code>，<code>Podfile</code>
+也提供了一个 <code>internal_hash</code>
+用于存储一些全局的设置，它通过一个 <code>HASH_KEYS</code>
+数组预定义了一系列键，如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable constant_">HASH_KEYS</span> = <span class="string">%w(</span></span><br><span class="line"><span class="string">  installation_method</span></span><br><span class="line"><span class="string">  workspace</span></span><br><span class="line"><span class="string">  sources</span></span><br><span class="line"><span class="string">  plugins</span></span><br><span class="line"><span class="string">  set_arc_compatibility_flag</span></span><br><span class="line"><span class="string">  generate_bridge_support</span></span><br><span class="line"><span class="string">  target_definitions</span></span><br><span class="line"><span class="string">)</span>.freeze</span><br></pre></td></tr></table></figure>
-
-<p>在 DSL 解析一节中，我们知道了 DSL 将配置信息分别存储在了 <code>TargetDefinition</code> 类的 <code>internal_hash</code> 和 <code>Podfile</code> 类的 <code>internal_hash</code> 中。而 <code>Podfile</code> 类又持有了一个属性 <code>root_target_definition</code>，该属性引用了整个 <code>TargetDefinition</code> 树。因此，我们通过 <code>Podfile</code> 对象就可以得到所有相关内容。对此，<code>Podfile</code> 类提供了一个方法 <code>to_hash</code> 将所有的内容进行了合并，具体如下所示：</p>
+<p>在 DSL 解析一节中，我们知道了 DSL 将配置信息分别存储在了
+<code>TargetDefinition</code> 类的 <code>internal_hash</code> 和
+<code>Podfile</code> 类的 <code>internal_hash</code> 中。而
+<code>Podfile</code> 类又持有了一个属性
+<code>root_target_definition</code>，该属性引用了整个
+<code>TargetDefinition</code> 树。因此，我们通过 <code>Podfile</code>
+对象就可以得到所有相关内容。对此，<code>Podfile</code> 类提供了一个方法
+<code>to_hash</code> 将所有的内容进行了合并，具体如下所示：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">to_hash</span></span><br><span class="line">  hash = &#123;&#125;</span><br><span class="line">  <span class="comment"># 获取 TargetDefinition 树的所有内容</span></span><br><span class="line">  hash[<span class="string">&#x27;target_definitions&#x27;</span>] = root_target_definitions.map(&amp;<span class="symbol">:to_hash</span>)</span><br><span class="line">  <span class="comment"># 将 TargetDefinition 树的所有内容与 internal_hash 进行合并</span></span><br><span class="line">  hash.merge!(internal_hash)</span><br><span class="line">  hash</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="依赖关系"><a href="#依赖关系" class="headerlink" title="依赖关系"></a>依赖关系</h1><p>至此，我们差不多能明白 Podfile 的工作原理：Podfile 本质上是描述了一个 Pods Project 及其所包含的一系列 Xcode Target，其中每一个 Xcode Target 都指定一个 pod 库构建对应 Product。由于 Demo Project 和 Pods Project 处于同一个 Xcode Workspace 中，因此 Demo Project 可以直接引用 Pods Project 构建的所有 Target，大体的依赖关系如下所示。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-00.png?x-oss-process=image/resize,w_800"></p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文以 Podfile 文件为入口，简单分析了 Podfile 文件的作用及其解析流程。在解析过程中，我们发现内部构建了一棵 TargetDefinition 树，树的层级结构正好与 Podfile 文件中的 <code>target</code> 嵌套结构相对应。每一个 <code>TargetDefinition</code> 节点存储了其所声明的 pod 依赖以及相关配置。Podfile 文件解析完成后会生成一个 <code>Podfile</code> 对象，该对象包含了 Podfile 文件声明的所有信息。</p>
-<p>从本质上而言，Podfile 文件其实是描述了 Pods Project 的依赖以及配置。所有的第三方依赖都由 Pods Project 进行管理，主工程则是依赖 Pods Project 所构建的产物，从而有效地将主工程和第三方依赖进行了隔离。</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
-<li><a target="_blank" rel="noopener" href="https://github.com/CocoaPods/Core">CocoaPods-Core</a></li>
+<h1 id="依赖关系">依赖关系</h1>
+<p>至此，我们差不多能明白 Podfile 的工作原理：Podfile 本质上是描述了一个
+Pods Project 及其所包含的一系列 Xcode Target，其中每一个 Xcode Target
+都指定一个 pod 库构建对应 Product。由于 Demo Project 和 Pods Project
+处于同一个 Xcode Workspace 中，因此 Demo Project 可以直接引用 Pods
+Project 构建的所有 Target，大体的依赖关系如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/xcodeproj-00.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="总结">总结</h1>
+<p>本文以 Podfile 文件为入口，简单分析了 Podfile
+文件的作用及其解析流程。在解析过程中，我们发现内部构建了一棵
+TargetDefinition 树，树的层级结构正好与 Podfile 文件中的
+<code>target</code> 嵌套结构相对应。每一个 <code>TargetDefinition</code>
+节点存储了其所声明的 pod 依赖以及相关配置。Podfile
+文件解析完成后会生成一个 <code>Podfile</code> 对象，该对象包含了 Podfile
+文件声明的所有信息。</p>
+<p>从本质上而言，Podfile 文件其实是描述了 Pods Project
+的依赖以及配置。所有的第三方依赖都由 Pods Project
+进行管理，主工程则是依赖 Pods Project
+所构建的产物，从而有效地将主工程和第三方依赖进行了隔离。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li><a href="https://github.com/CocoaPods/Core">CocoaPods-Core</a></li>
 </ol>
 
-      
     </div>
-    
-    
-    
 
     
-
     
-      <div>
-        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
-  <div>欣赏此文？求鼓励，求支持！</div>
-  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
-    <span>赏</span>
-  </button>
-  <div id="QR" style="display: none;">
-
-    
-      <div id="wechat" style="display: inline-block">
-        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
-        <p>WeChat Pay</p>
-      </div>
-    
-
-    
-      <div id="alipay" style="display: inline-block">
-        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
-        <p>Alipay</p>
-      </div>
-    
-
-    
-
-  </div>
-</div>
-
-      </div>
-    
-
     
 
     <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/Podifle/" rel="tag"># Podifle</a>
-          
-            <a href="/tags/TargetDefinition/" rel="tag"># TargetDefinition</a>
-          
-            <a href="/tags/DSL/" rel="tag"># DSL</a>
-          
-        </div>
-      
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
 
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2021/12/14/understand-files-in-xcode/" rel="next" title="理解 Xcode 中的各种文件">
-                <i class="fa fa-chevron-left"></i> 理解 Xcode 中的各种文件
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2022/01/02/2021-summary/" rel="prev" title="2021 年度总结">
-                2021 年度总结 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-        <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-  <a class="jiathis_button_tsina"></a>
-  <a class="jiathis_button_tqq"></a>
-  <a class="jiathis_button_weixin"></a>
-  <a class="jiathis_button_cqq"></a>
-  <a class="jiathis_button_douban"></a>
-  <a class="jiathis_button_renren"></a>
-  <a class="jiathis_button_qzone"></a>
-  <a class="jiathis_button_kaixin001"></a>
-  <a class="jiathis_button_copy"></a>
-  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
-  <a class="jiathis_counter_style"></a>
 </div>
-<script type="text/javascript" >
-  var jiathis_config={
-    hideMore:false
-  }
-</script>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
 
-      
-    </div>
-  </div>
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
 
+  <div class="social-list">
 
-          </div>
-          
-
-
-          
-  <div class="comments" id="comments">
-    
-      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
-    
-  </div>
-
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <img class="site-author-image" itemprop="image"
-               src="/images/SlamDunk.png"
-               alt="" />
-          <p class="site-author-name" itemprop="name"></p>
-           
-              <p class="site-description motion-element" itemprop="description"></p>
-          
-        </div>
-        <nav class="site-state motion-element">
-
-          
-            <div class="site-state-item site-state-posts">
-              <a href="/archives">
-                <span class="site-state-item-count">128</span>
-                <span class="site-state-item-name">日志</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-categories">
-              <a href="/categories/index.html">
-                <span class="site-state-item-count">28</span>
-                <span class="site-state-item-name">分类</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-tags">
-              <a href="/tags/index.html">
-                <span class="site-state-item-count">284</span>
-                <span class="site-state-item-name">标签</span>
-              </a>
-            </div>
-          
-
-        </nav>
-
-        
-          <div class="feed-link motion-element">
-            <a href="/atom.xml" rel="alternate">
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
               <i class="fa fa-rss"></i>
-              RSS
-            </a>
-          </div>
-        
+            </span>
 
-        <div class="links-of-author motion-element">
-          
-            
-              <span class="links-of-author-item">
-                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
-                  
-                    <i class="fa fa-fw fa-github"></i>
-                  
-                    
-                      GitHub
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
-                  
-                    <i class="fa fa-fw fa-weibo"></i>
-                  
-                    
-                      微博
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                    
-                      Facebook
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
-                  
-                    <i class="fa fa-fw fa-instagram"></i>
-                  
-                    
-                      Instagram
-                    
-                </a>
-              </span>
-            
-          
-        </div>
-
-        
-        
-
-        
-        
-
-        
-
-
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Podfile-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">2.</span> <span class="nav-text">Podfile 初始化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TargetDefinition-%E6%A0%91%E6%9E%84%E5%BB%BA"><span class="nav-number">3.</span> <span class="nav-text">TargetDefinition 树构建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#TargetDefinition"><span class="nav-number">3.1.</span> <span class="nav-text">TargetDefinition</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Hash-Keys"><span class="nav-number">3.1.1.</span> <span class="nav-text">Hash Keys</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DSL-%E8%A7%A3%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">DSL 解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Root-Options"><span class="nav-number">4.1.</span> <span class="nav-text">Root Options</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dependencies"><span class="nav-number">4.2.</span> <span class="nav-text">Dependencies</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Target-Configurations"><span class="nav-number">4.3.</span> <span class="nav-text">Target Configurations</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Workspace"><span class="nav-number">4.4.</span> <span class="nav-text">Workspace</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sources"><span class="nav-number">4.5.</span> <span class="nav-text">Sources</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hooks"><span class="nav-number">4.6.</span> <span class="nav-text">Hooks</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Podfile-%E5%AF%B9%E8%B1%A1"><span class="nav-number">5.</span> <span class="nav-text">Podfile 对象</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E5%85%B3%E7%B3%BB"><span class="nav-number">6.</span> <span class="nav-text">依赖关系</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
-        
+            <span class="label">RSS</span>
+          </a>
       </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright" >
-  
-  &copy;  2018 - 
-  <span itemprop="copyrightYear">2023</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Pisces
-  </a>
-</div>
-
-<div>
-  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
-</div>
-
-
+          <div class="post-tags">
+              <a href="/tags/Podifle/" rel="tag"># Podifle</a>
+              <a href="/tags/TargetDefinition/" rel="tag"># TargetDefinition</a>
+              <a href="/tags/DSL/" rel="tag"># DSL</a>
+          </div>
 
         
-<div class="busuanzi-count">
-  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-  
-    <span class="site-uv">
-      <i class="fa fa-user"></i>本站总访客
-      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
-      人次
-    </span>
-  
-
-  
-    <span class="site-pv">
-      <i class="fa fa-eye"></i>本站总访问量
-      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
-      次
-    </span>
-  
-</div>
-
-
-        
-      </div>
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/12/14/understand-files-in-xcode/" rel="prev" title="理解 Xcode 中的各种文件">
+                  <i class="fa fa-angle-left"></i> 理解 Xcode 中的各种文件
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/01/02/2021-summary/" rel="next" title="2021 年度总结">
+                  2021 年度总结 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
     </footer>
+  </article>
+</div>
 
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
 
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
   </div>
 
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
   
 
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2021/12/24/podfile-analyze-principle/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
   }
+}
 </script>
 
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
-
-
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  
-
-
-
-
-	
-
-
-
-
-
-  
-
-
-
-
-
-  
-    <script type="text/javascript">
-      (function(d, s) {
-        var j, e = d.getElementsByTagName(s)[0];
-        if (typeof LivereTower === 'function') { return; }
-        j = d.createElement(s);
-        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
-        j.async = true;
-        e.parentNode.insertBefore(j, e);
-      })(document, 'script');
-    </script>
-  
-
-
-
-
-
-
-  
-
-  <script type="text/javascript">
-    // Popup Window;
-    var isfetched = false;
-    var isXml = true;
-    // Search DB path;
-    var search_path = "search.xml";
-    if (search_path.length === 0) {
-      search_path = "search.xml";
-    } else if (/json$/i.test(search_path)) {
-      isXml = false;
-    }
-    var path = "/" + search_path;
-    // monitor main search box;
-
-    var onPopupClose = function (e) {
-      $('.popup').hide();
-      $('#local-search-input').val('');
-      $('.search-result-list').remove();
-      $('#no-result').remove();
-      $(".local-search-pop-overlay").remove();
-      $('body').css('overflow', '');
-    }
-
-    function proceedsearch() {
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
-        .css('overflow', 'hidden');
-      $('.search-popup-overlay').click(onPopupClose);
-      $('.popup').toggle();
-      var $localSearchInput = $('#local-search-input');
-      $localSearchInput.attr("autocapitalize", "none");
-      $localSearchInput.attr("autocorrect", "off");
-      $localSearchInput.focus();
-    }
-
-    // search function;
-    var searchFunc = function(path, search_id, content_id) {
-      'use strict';
-
-      // start loading animation
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
-          '<div id="search-loading-icon">' +
-          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
-          '</div>' +
-          '</div>')
-        .css('overflow', 'hidden');
-      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
-
-      $.ajax({
-        url: path,
-        dataType: isXml ? "xml" : "json",
-        async: true,
-        success: function(res) {
-          // get the contents from search data
-          isfetched = true;
-          $('.popup').detach().appendTo('.header-inner');
-          var datas = isXml ? $("entry", res).map(function() {
-            return {
-              title: $("title", this).text(),
-              content: $("content",this).text(),
-              url: $("url" , this).text()
-            };
-          }).get() : res;
-          var input = document.getElementById(search_id);
-          var resultContent = document.getElementById(content_id);
-          var inputEventFunction = function() {
-            var searchText = input.value.trim().toLowerCase();
-            var keywords = searchText.split(/[\s\-]+/);
-            if (keywords.length > 1) {
-              keywords.push(searchText);
-            }
-            var resultItems = [];
-            if (searchText.length > 0) {
-              // perform local searching
-              datas.forEach(function(data) {
-                var isMatch = false;
-                var hitCount = 0;
-                var searchTextCount = 0;
-                var title = data.title.trim();
-                var titleInLowerCase = title.toLowerCase();
-                var content = data.content.trim().replace(/<[^>]+>/g,"");
-                var contentInLowerCase = content.toLowerCase();
-                var articleUrl = decodeURIComponent(data.url);
-                var indexOfTitle = [];
-                var indexOfContent = [];
-                // only match articles with not empty titles
-                if(title != '') {
-                  keywords.forEach(function(keyword) {
-                    function getIndexByWord(word, text, caseSensitive) {
-                      var wordLen = word.length;
-                      if (wordLen === 0) {
-                        return [];
-                      }
-                      var startPosition = 0, position = [], index = [];
-                      if (!caseSensitive) {
-                        text = text.toLowerCase();
-                        word = word.toLowerCase();
-                      }
-                      while ((position = text.indexOf(word, startPosition)) > -1) {
-                        index.push({position: position, word: word});
-                        startPosition = position + wordLen;
-                      }
-                      return index;
-                    }
-
-                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
-                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
-                  });
-                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
-                    isMatch = true;
-                    hitCount = indexOfTitle.length + indexOfContent.length;
-                  }
-                }
-
-                // show search results
-
-                if (isMatch) {
-                  // sort index by position of keyword
-
-                  [indexOfTitle, indexOfContent].forEach(function (index) {
-                    index.sort(function (itemLeft, itemRight) {
-                      if (itemRight.position !== itemLeft.position) {
-                        return itemRight.position - itemLeft.position;
-                      } else {
-                        return itemLeft.word.length - itemRight.word.length;
-                      }
-                    });
-                  });
-
-                  // merge hits into slices
-
-                  function mergeIntoSlice(text, start, end, index) {
-                    var item = index[index.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    var hits = [];
-                    var searchTextCountInSlice = 0;
-                    while (position + word.length <= end && index.length != 0) {
-                      if (word === searchText) {
-                        searchTextCountInSlice++;
-                      }
-                      hits.push({position: position, length: word.length});
-                      var wordEnd = position + word.length;
-
-                      // move to next position of hit
-
-                      index.pop();
-                      while (index.length != 0) {
-                        item = index[index.length - 1];
-                        position = item.position;
-                        word = item.word;
-                        if (wordEnd > position) {
-                          index.pop();
-                        } else {
-                          break;
-                        }
-                      }
-                    }
-                    searchTextCount += searchTextCountInSlice;
-                    return {
-                      hits: hits,
-                      start: start,
-                      end: end,
-                      searchTextCount: searchTextCountInSlice
-                    };
-                  }
-
-                  var slicesOfTitle = [];
-                  if (indexOfTitle.length != 0) {
-                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
-                  }
-
-                  var slicesOfContent = [];
-                  while (indexOfContent.length != 0) {
-                    var item = indexOfContent[indexOfContent.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    // cut out 100 characters
-                    var start = position - 20;
-                    var end = position + 80;
-                    if(start < 0){
-                      start = 0;
-                    }
-                    if (end < position + word.length) {
-                      end = position + word.length;
-                    }
-                    if(end > content.length){
-                      end = content.length;
-                    }
-                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
-                  }
-
-                  // sort slices in content by search text's count and hits' count
-
-                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
-                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
-                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
-                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
-                      return sliceRight.hits.length - sliceLeft.hits.length;
-                    } else {
-                      return sliceLeft.start - sliceRight.start;
-                    }
-                  });
-
-                  // select top N slices in content
-
-                  var upperBound = parseInt('1');
-                  if (upperBound >= 0) {
-                    slicesOfContent = slicesOfContent.slice(0, upperBound);
-                  }
-
-                  // highlight title and content
-
-                  function highlightKeyword(text, slice) {
-                    var result = '';
-                    var prevEnd = slice.start;
-                    slice.hits.forEach(function (hit) {
-                      result += text.substring(prevEnd, hit.position);
-                      var end = hit.position + hit.length;
-                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
-                      prevEnd = end;
-                    });
-                    result += text.substring(prevEnd, slice.end);
-                    return result;
-                  }
-
-                  var resultItem = '';
-
-                  if (slicesOfTitle.length != 0) {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
-                  } else {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
-                  }
-
-                  slicesOfContent.forEach(function (slice) {
-                    resultItem += "<a href='" + articleUrl + "'>" +
-                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
-                      "...</p>" + "</a>";
-                  });
-
-                  resultItem += "</li>";
-                  resultItems.push({
-                    item: resultItem,
-                    searchTextCount: searchTextCount,
-                    hitCount: hitCount,
-                    id: resultItems.length
-                  });
-                }
-              })
-            };
-            if (keywords.length === 1 && keywords[0] === "") {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
-            } else if (resultItems.length === 0) {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
-            } else {
-              resultItems.sort(function (resultLeft, resultRight) {
-                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
-                  return resultRight.searchTextCount - resultLeft.searchTextCount;
-                } else if (resultLeft.hitCount !== resultRight.hitCount) {
-                  return resultRight.hitCount - resultLeft.hitCount;
-                } else {
-                  return resultRight.id - resultLeft.id;
-                }
-              });
-              var searchResultList = '<ul class=\"search-result-list\">';
-              resultItems.forEach(function (result) {
-                searchResultList += result.item;
-              })
-              searchResultList += "</ul>";
-              resultContent.innerHTML = searchResultList;
-            }
-          }
-
-          if ('auto' === 'auto') {
-            input.addEventListener('input', inputEventFunction);
-          } else {
-            $('.search-icon').click(inputEventFunction);
-            input.addEventListener('keypress', function (event) {
-              if (event.keyCode === 13) {
-                inputEventFunction();
-              }
-            });
-          }
-
-          // remove loading animation
-          $(".local-search-pop-overlay").remove();
-          $('body').css('overflow', '');
-
-          proceedsearch();
-        }
-      });
-    }
-
-    // handle and trigger popup window;
-    $('.popup-trigger').click(function(e) {
-      e.stopPropagation();
-      if (isfetched === false) {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-      } else {
-        proceedsearch();
-      };
-    });
-
-    $('.popup-btn-close').click(onPopupClose);
-    $('.popup').click(function(e){
-      e.stopPropagation();
-    });
-    $(document).on('keyup', function (event) {
-      var shouldDismissSearchPopup = event.which === 27 &&
-        $('.search-popup').is(':visible');
-      if (shouldDismissSearchPopup) {
-        onPopupClose();
-      }
-    });
-  </script>
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      });
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      });
-    </script>
-    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
-
-
-  
-
-  
-
-
-  undefined
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
 </html>

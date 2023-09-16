@@ -1,475 +1,296 @@
 <!DOCTYPE html>
-
-
-
-  
-
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-  
-  
-  
-  
-
-  
-    
-    
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    
-    
-    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-  
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
-
-
-  <meta name="keywords" content="编译原理," />
-
-
-
-
-
-  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
-
-
-
-
-  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
-
-
-
-
-
-
-<meta name="description" content="最近在看《程序员的自我修养——链接、装载与库》一书，这本书以前看过一部分，由于难啃，当时没有坚持下去。现在工作了，每天接触的都是业务开发，对底层的一些东西感觉越来越陌生。于是，又把此书翻了出来拜读。为了加深阅读的印象，打算对书中的一些有价值的内容进行整理，也方便后续回顾。 程序构建流程下面以“Hello World”程序为例，来介绍程序的编译与链接过程。 1234567&#x2F;&#x2F; hello.c#inc">
+    <meta name="description" content="最近在看《程序员的自我修养——链接、装载与库》一书，这本书以前看过一部分，由于难啃，当时没有坚持下去。现在工作了，每天接触的都是业务开发，对底层的一些东西感觉越来越陌生。于是，又把此书翻了出来拜读。为了加深阅读的印象，打算对书中的一些有价值的内容进行整理，也方便后续回顾。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="计算机那些事(3)——程序构建及编译原理">
 <meta property="og:url" content="http://chuquan.me/2018/05/12/compiler-principle/index.html">
 <meta property="og:site_name" content="楚权的世界">
-<meta property="og:description" content="最近在看《程序员的自我修养——链接、装载与库》一书，这本书以前看过一部分，由于难啃，当时没有坚持下去。现在工作了，每天接触的都是业务开发，对底层的一些东西感觉越来越陌生。于是，又把此书翻了出来拜读。为了加深阅读的印象，打算对书中的一些有价值的内容进行整理，也方便后续回顾。 程序构建流程下面以“Hello World”程序为例，来介绍程序的编译与链接过程。 1234567&#x2F;&#x2F; hello.c#inc">
-<meta property="og:locale">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/code-compile-process.png?x-oss-process=image/resize,w_600">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-detail-process.png?x-oss-process=image/resize,w_600">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-syntax-tree.png?x-oss-process=image/resize,w_600">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-commented-syntax-tree.png?x-oss-process=image/resize,w_600">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-optimized-syntax-tree.png?x-oss-process=image/resize,w_600">
+<meta property="og:description" content="最近在看《程序员的自我修养——链接、装载与库》一书，这本书以前看过一部分，由于难啃，当时没有坚持下去。现在工作了，每天接触的都是业务开发，对底层的一些东西感觉越来越陌生。于是，又把此书翻了出来拜读。为了加深阅读的印象，打算对书中的一些有价值的内容进行整理，也方便后续回顾。">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2018-05-12T13:28:08.000Z">
-<meta property="article:modified_time" content="2019-05-14T14:57:35.024Z">
+<meta property="article:modified_time" content="2023-09-16T13:34:25.279Z">
 <meta property="article:author" content="Bao Chuquan">
 <meta property="article:tag" content="编译原理">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/code-compile-process.png?x-oss-process=image/resize,w_600">
+
+
+<link rel="canonical" href="http://chuquan.me/2018/05/12/compiler-principle/">
 
 
 
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '',
-    scheme: 'Pisces',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: true,
-    duoshuo: {
-      userId: '0',
-      author: '博主'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2018/05/12/compiler-principle/","path":"2018/05/12/compiler-principle/","title":"计算机那些事(3)——程序构建及编译原理"}</script>
 
-
-
-  <link rel="canonical" href="http://chuquan.me/2018/05/12/compiler-principle/"/>
-
-
-
-
-
-  <title>计算机那些事(3)——程序构建及编译原理 | 楚权的世界</title>
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>计算机那些事(3)——程序构建及编译原理 | 楚权的世界</title>
   
 
-
-
-
-
-  <script type="text/javascript">
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
 
 
 
 
 
 
-
-
-
-
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
 <!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
-  
-  
-    
-  
-
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
-    <div class="headband"></div>
-	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
-    
-
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">楚权的世界</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
     </div>
-      
-        <p class="site-subtitle">Seek the wonder of life.</p>
-      
   </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
   </div>
 </div>
+
+
 
 <nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-photos">
-          <a href="/photos" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
-            
-            相册
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            归档
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-commonweal">
-          <a href="/404.html" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
-            
-            公益
-          </a>
-        </li>
-      
-
-      
-        <li class="menu-item menu-item-search">
-          
-            <a href="javascript:;" class="popup-trigger">
-          
-            
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
-            
-            搜索
-          </a>
-        </li>
-      
-    </ul>
-  
-
-  
-    <div class="site-search">
-      
-  <div class="popup search-popup local-search-popup">
-  <div class="local-search-header clearfix">
-    <span class="search-icon">
-      <i class="fa fa-search"></i>
-    </span>
-    <span class="popup-btn-close">
-      <i class="fa fa-times-circle"></i>
-    </span>
-    <div class="local-search-input-wrapper">
-      <input autocomplete="off"
-             placeholder="搜索..." spellcheck="false"
-             type="text" id="local-search-input">
-    </div>
-  </div>
-  <div id="local-search-result"></div>
-</div>
-
-
-
-    </div>
-  
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
 </nav>
 
 
 
- </div>
-    </header>
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
 
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
+    </div>
+  </div>
 
-  <div id="posts" class="posts-expand">
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">程序构建流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%84%E7%BC%96%E8%AF%91"><span class="nav-number">1.1.</span> <span class="nav-text">预编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91"><span class="nav-number">1.2.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B1%87%E7%BC%96"><span class="nav-number">1.3.</span> <span class="nav-text">汇编</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5"><span class="nav-number">1.4.</span> <span class="nav-text">链接</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%99%A8%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">编译器工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90"><span class="nav-number">2.1.</span> <span class="nav-text">语法分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90"><span class="nav-number">2.2.</span> <span class="nav-text">语义分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96%E4%B8%AD%E9%97%B4%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-number">2.3.</span> <span class="nav-text">源代码优化（中间代码生成）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-number">2.4.</span> <span class="nav-text">目标代码生成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96"><span class="nav-number">2.5.</span> <span class="nav-text">目标代码优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E5%B0%BE"><span class="nav-number">3.</span> <span class="nav-text">结尾</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">129</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">288</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
     
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
 
   
 
-  
+
+<div class="post-block">
   
   
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://chuquan.me/2018/05/12/compiler-principle/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
     </span>
 
-    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="计算机那些事(3)——程序构建及编译原理 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
       <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          计算机那些事(3)——程序构建及编译原理
+        </h1>
 
-        
-        
-          <h1 class="post-title" itemprop="name headline">计算机那些事(3)——程序构建及编译原理</h1>
-        
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
 
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="发表于" itemprop="dateCreated datePublished" datetime="2018-05-12T21:28:08+08:00">
-                2018-05-12
-              </time>
-            
+      <time title="创建时间：2018-05-12 21:28:08" itemprop="dateCreated datePublished" datetime="2018-05-12T21:28:08+08:00">2018-05-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-09-16 21:34:25" itemprop="dateModified" datetime="2023-09-16T21:34:25+08:00">2023-09-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">计算机原理</span></a>
+        </span>
+    </span>
 
-            
-              <span class="post-meta-divider">|</span>
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-check-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">更新于</span>
-              
-              <time title="更新于" itemprop="dateModified" datetime="2019-05-14T22:57:35+08:00">
-                2019-05-14
-              </time>
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/" itemprop="url" rel="index">
-                    <span itemprop="name">计算机原理</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
-          
-
-          
-
-          
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2018/05/12/compiler-principle/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2018/05/12/compiler-principle/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
 
         </div>
       </header>
-    
 
     
     
     
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <p>最近在看《程序员的自我修养——链接、装载与库》一书，这本书以前看过一部分，由于难啃，当时没有坚持下去。现在工作了，每天接触的都是业务开发，对底层的一些东西感觉越来越陌生。于是，又把此书翻了出来拜读。为了加深阅读的印象，打算对书中的一些有价值的内容进行整理，也方便后续回顾。</p>
-<h1 id="程序构建流程"><a href="#程序构建流程" class="headerlink" title="程序构建流程"></a>程序构建流程</h1><p>下面以“Hello World”程序为例，来介绍程序的编译与链接过程。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// hello.c</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    printf(&quot;Hello World!\n&quot;);</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在Linux下，可以直接使用GCC来编译Hello World程序：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ gcc hello.c</span><br><span class="line">$ ./a.out</span><br><span class="line">Hello World!</span><br></pre></td></tr></table></figure>
-
+    <div class="post-body" itemprop="articleBody"><p>最近在看《程序员的自我修养——链接、装载与库》一书，这本书以前看过一部分，由于难啃，当时没有坚持下去。现在工作了，每天接触的都是业务开发，对底层的一些东西感觉越来越陌生。于是，又把此书翻了出来拜读。为了加深阅读的印象，打算对书中的一些有价值的内容进行整理，也方便后续回顾。</p>
+<span id="more"></span>
+<h1 id="程序构建流程">程序构建流程</h1>
+<p>下面以“Hello World”程序为例，来介绍程序的编译与链接过程。
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// hello.c</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    printf(&quot;Hello World!\n&quot;);</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在Linux下，可以直接使用GCC来编译Hello World程序： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ gcc hello.c</span><br><span class="line">$ ./a.out</span><br><span class="line">Hello World!</span><br></pre></td></tr></table></figure></p>
 <p>GCC编译命令隐藏了构建过程中的一些复杂的步骤，主要有4个步骤，如下图所示。</p>
 <ul>
 <li><strong>预处理（Propressing）</strong></li>
@@ -477,51 +298,48 @@
 <li><strong>汇编（Assembly）</strong></li>
 <li><strong>链接（Linking）</strong></li>
 </ul>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/code-compile-process.png?x-oss-process=image/resize,w_600"></p>
-<h2 id="预编译"><a href="#预编译" class="headerlink" title="预编译"></a>预编译</h2><p>预编译步骤将源代码文件<code>hello.c</code>以及相关头文件，如：<code>stdio.h</code>等预编译生成一个.i文件。对于C++程序，其源代码文件的扩展名可能是.cpp或.cxx，头文件的扩展名可能是.hpp，预编译生成.ii文件。</p>
-<p>预编译步骤相当于执行如下命令（选项-E表示只进行预编译）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -E hello.c -o hello.i</span><br></pre></td></tr></table></figure>
-<p>或</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cpp hello.c &gt; hello.i</span><br></pre></td></tr></table></figure>
-
-<p><strong>预编译</strong>主要处理源代码中的以“#”开始的预编译指令，如：“#include”、“#define”等，其主要处理规则如下：</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/code-compile-process.png" /></p>
+<h2 id="预编译">预编译</h2>
+<p>预编译步骤将源代码文件 <code>hello.c</code>
+以及相关头文件，如：<code>stdio.h</code>
+等预编译生成一个.i文件。对于C++程序，其源代码文件的扩展名可能是.cpp或.cxx，头文件的扩展名可能是.hpp，预编译生成.ii文件。</p>
+<p>预编译步骤相当于执行如下命令（选项-E表示只进行预编译） <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -E hello.c -o hello.i</span><br></pre></td></tr></table></figure>
+或 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cpp hello.c &gt; hello.i</span><br></pre></td></tr></table></figure></p>
+<p><strong>预编译</strong>
+主要处理源代码中的以“#”开始的预编译指令，如：“#include”、“#define”等，其主要处理规则如下：</p>
 <ul>
 <li>将所有的“#define”删除，并且展开所有的宏定义。</li>
 <li>处理所有条件预编译指令，如：“#if”、“#ifdef”、“#else”、“#endif”。</li>
 <li>处理“#include”预编译指令，将被包含的文件插入到该预编译指令的位置。该过程是递归进行的，因为被包含的文件可能还包含其他文件。</li>
-<li>删除所有的注释“&#x2F;&#x2F;”和“&#x2F;* *&#x2F;”。</li>
-<li>添加行号和文件名标识，比如#2 “hello.c” 2，以便于编译时编译器产生调试试用的行号信息以及用于编译时产生编译错误或警告时能够显示行号。</li>
+<li>删除所有的注释“//”和“/* */”。</li>
+<li>添加行号和文件名标识，比如#2 “hello.c”
+2，以便于编译时编译器产生调试试用的行号信息以及用于编译时产生编译错误或警告时能够显示行号。</li>
 <li>保留所有的#pragma编译器指令，因为编译器须要试用他们。</li>
 </ul>
 <p>预编译生成的.i文件不包含任何宏定义，因为所有的宏已经被展开，并且包含的文件也已经被插入到.i文件中。所以当我们无法判断宏定义是否正确或头文件包含是否正确时，可以查看预编译后的文件来确定问题。</p>
-<h2 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h2><p><strong>编译</strong>就是把预处理生成的文件进行一系列词法分析、语法分析、语义分析、优化，生成相应的汇编代码文件。这个过程是整个程序构建的核心部分，也是最复杂的部分之一。</p>
-<p>编译步骤相当于执行如下命令：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -S hello.i -o hello.s</span><br></pre></td></tr></table></figure>
-<p>或</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -S hello.c -o hello.s</span><br></pre></td></tr></table></figure>
-
-<p>现在版本的GCC把预编译和编译两个步骤合并成了一个步骤，使用一个叫cc1的程序来完成。该程序位于“<code>/usr/lib/gcc/x86_64-linux-gnu/4.8/</code>”，我们可以直接调用cc1来完成它：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ /usr/lib/gcc/x86_64-linux-gnu/4.8/cc1 hello.c</span><br></pre></td></tr></table></figure>
-
-<p>事实上，对于不同的语言，预编译与编译的程序是不同的，如下所示：</p>
-<ul>
-<li>C：<strong>cc1</strong></li>
-<li>C++：<strong>cc1plus</strong></li>
-<li>Objective-C：<strong>cc1obj</strong></li>
-<li>Fortran：<strong>f771</strong></li>
-<li>Java：<strong>jc1</strong></li>
-</ul>
+<h2 id="编译">编译</h2>
+<p><strong>编译</strong>
+就是把预处理生成的文件进行一系列词法分析、语法分析、语义分析、优化，生成相应的汇编代码文件。这个过程是整个程序构建的核心部分，也是最复杂的部分之一。</p>
+<p>编译步骤相当于执行如下命令： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -S hello.i -o hello.s</span><br></pre></td></tr></table></figure> 或 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -S hello.c -o hello.s</span><br></pre></td></tr></table></figure></p>
+<p>现在版本的GCC把预编译和编译两个步骤合并成了一个步骤，使用一个叫cc1的程序来完成。该程序位于“<code>/usr/lib/gcc/x86_64-linux-gnu/4.8/</code>”，我们可以直接调用cc1来完成它：
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ /usr/lib/gcc/x86_64-linux-gnu/4.8/cc1 hello.c</span><br></pre></td></tr></table></figure></p>
+<p>事实上，对于不同的语言，预编译与编译的程序是不同的，如下所示： -
+C：<strong>cc1</strong> - C++：<strong>cc1plus</strong> -
+Objective-C：<strong>cc1obj</strong> - Fortran：<strong>f771</strong> -
+Java：<strong>jc1</strong></p>
 <p>GCC是对这些后台程序的封装，它会根据不同的参数来调用预编译程序cc1、汇编器as、链接器ld。</p>
-<h2 id="汇编"><a href="#汇编" class="headerlink" title="汇编"></a>汇编</h2><p><strong>汇编</strong>就是将汇编代码转换成机器可以执行的指令，每一个汇编语句几乎都对应一条机器指令。汇编过程相对于编译比较简单，其没有复杂的语法、语义，也无需做指令优化，只是根据汇编指令和机器指令的对照表进行翻译。</p>
-<p>汇编步骤相当执行如下命令：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -c hello.s -o hello.o</span><br></pre></td></tr></table></figure>
-<p>或</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -c hello.c -o hello.o</span><br></pre></td></tr></table></figure>
-<p>GCC本质上是调用汇编器as来完成汇编步骤的，我们可以直接调用as来完成该步骤：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ as hello.s -o hello.o</span><br></pre></td></tr></table></figure>
-
-<h2 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h2><p><strong>链接</strong>主要是将前面步骤生成多个目标文件进行重定位等复杂的操作，从而生成可执行文件。链接可分为静态链接和动态链接。</p>
-<h1 id="编译器工作原理"><a href="#编译器工作原理" class="headerlink" title="编译器工作原理"></a>编译器工作原理</h1><p>编译过程可以分为6个步骤，如下图所示。</p>
+<h2 id="汇编">汇编</h2>
+<p><strong>汇编</strong>
+就是将汇编代码转换成机器可以执行的指令，每一个汇编语句几乎都对应一条机器指令。汇编过程相对于编译比较简单，其没有复杂的语法、语义，也无需做指令优化，只是根据汇编指令和机器指令的对照表进行翻译。</p>
+<p>汇编步骤相当执行如下命令： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -c hello.s -o hello.o</span><br></pre></td></tr></table></figure> 或 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -c hello.c -o hello.o</span><br></pre></td></tr></table></figure>
+GCC本质上是调用汇编器as来完成汇编步骤的，我们可以直接调用as来完成该步骤：
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ as hello.s -o hello.o</span><br></pre></td></tr></table></figure></p>
+<h2 id="链接">链接</h2>
+<p><strong>链接</strong>
+主要是将前面步骤生成多个目标文件进行重定位等复杂的操作，从而生成可执行文件。链接可分为静态链接和动态链接。</p>
+<h1 id="编译器工作原理">编译器工作原理</h1>
+<p>编译过程可以分为6个步骤，如下图所示。</p>
 <ul>
 <li><strong>扫描（Scanning）</strong>（又称词法分析）</li>
 <li><strong>语法分析（Syntax analysis）</strong></li>
@@ -530,970 +348,317 @@
 <li><strong>目标代码生成（Target Code Generation）</strong></li>
 <li><strong>目标代码优化（Target Code Optimization）</strong></li>
 </ul>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-detail-process.png?x-oss-process=image/resize,w_600"></p>
-<p>下面我们以一行简单的C语言代码为例，简单描述从<strong>源代码（Source Code）</strong>到<strong>最终目标代码</strong>的过程。代码示例如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// CompilerExpression.c</span><br><span class="line">array[index] = (index + 4) * (2 + 6)</span><br></pre></td></tr></table></figure>
-<h2 id="扫描（词法分析）"><a href="#扫描（词法分析）" class="headerlink" title="扫描（词法分析）"></a>扫描（词法分析）</h2><p>首先源代码被输入到<strong>扫描器（Scanner）</strong>，扫描器的任务很简单，只是简单地进行词法分析，运用一种类似于<strong>有限状态机（Finite State Machine）</strong>的算法将源代码的字符序列分割成一系列的<strong>记号（Token）</strong>。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-detail-process.png" /></p>
+<p>下面我们以一行简单的C语言代码为例，简单描述从 <strong>源代码（Source
+Code）</strong> 到 <strong>最终目标代码</strong> 的过程。代码示例如下：
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// CompilerExpression.c</span><br><span class="line">array[index] = (index + 4) * (2 + 6)</span><br></pre></td></tr></table></figure> ## 扫描（词法分析） 首先源代码被输入到
+<strong>扫描器（Scanner）</strong>，扫描器的任务很简单，只是简单地进行词法分析，运用一种类似于
+<strong>有限状态机（Finite State Machine）</strong>
+的算法将源代码的字符序列分割成一系列的
+<strong>记号（Token）</strong>。</p>
 <p>以上述代码为例，总共包含了28个非空字符，经过扫描后，产生了16个记号。</p>
 <table>
 <thead>
-<tr>
-<th align="left">记号</th>
-<th align="left">类型</th>
+<tr class="header">
+<th style="text-align: left;">记号</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">记号</th>
+<th style="text-align: left;">类型</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left">array</td>
-<td align="left">标识符</td>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">array</td>
+<td style="text-align: left;">标识符</td>
+<td style="text-align: left;">[</td>
+<td style="text-align: left;">左方括号</td>
 </tr>
-<tr>
-<td align="left">[</td>
-<td align="left">左方括号</td>
+<tr class="even">
+<td style="text-align: left;">index</td>
+<td style="text-align: left;">标识符</td>
+<td style="text-align: left;">]</td>
+<td style="text-align: left;">右方括号</td>
 </tr>
-<tr>
-<td align="left">index</td>
-<td align="left">标识符</td>
+<tr class="odd">
+<td style="text-align: left;">=</td>
+<td style="text-align: left;">赋值</td>
+<td style="text-align: left;">(</td>
+<td style="text-align: left;">左圆括号</td>
 </tr>
-<tr>
-<td align="left">[</td>
-<td align="left">右方括号</td>
+<tr class="even">
+<td style="text-align: left;">index</td>
+<td style="text-align: left;">标识符</td>
+<td style="text-align: left;">+</td>
+<td style="text-align: left;">加号</td>
 </tr>
-<tr>
-<td align="left">&#x3D;</td>
-<td align="left">赋值</td>
+<tr class="odd">
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">数字</td>
+<td style="text-align: left;">)</td>
+<td style="text-align: left;">右圆括号</td>
 </tr>
-<tr>
-<td align="left">(</td>
-<td align="left">左圆括号</td>
+<tr class="even">
+<td style="text-align: left;">*</td>
+<td style="text-align: left;">乘号</td>
+<td style="text-align: left;">(</td>
+<td style="text-align: left;">左圆括号</td>
 </tr>
-<tr>
-<td align="left">index</td>
-<td align="left">标识符</td>
+<tr class="odd">
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">数字</td>
+<td style="text-align: left;">+</td>
+<td style="text-align: left;">加号</td>
 </tr>
-<tr>
-<td align="left">+</td>
-<td align="left">加号</td>
+<tr class="even">
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">数字</td>
+<td style="text-align: left;">)</td>
+<td style="text-align: left;">右圆括号</td>
 </tr>
-<tr>
-<td align="left">4</td>
-<td align="left">数字</td>
-</tr>
-<tr>
-<td align="left">)</td>
-<td align="left">右圆括号</td>
-</tr>
-<tr>
-<td align="left">*</td>
-<td align="left">乘号</td>
-</tr>
-<tr>
-<td align="left">(</td>
-<td align="left">左圆括号</td>
-</tr>
-<tr>
-<td align="left">2</td>
-<td align="left">数字</td>
-</tr>
-<tr>
-<td align="left">+</td>
-<td align="left">加号</td>
-</tr>
-<tr>
-<td align="left">6</td>
-<td align="left">数字</td>
-</tr>
-<tr>
-<td align="left">)</td>
-<td align="left">右圆括号</td>
-</tr>
-</tbody></table>
-<p>词法分析产生的记号一般可以分为一下几类：<strong>关键字</strong>、<strong>字面量</strong>（包含数字、字符串等）和<strong>特殊符号</strong>（如加号、等号）。</p>
+</tbody>
+</table>
+<p>词法分析产生的记号一般可以分为一下几类：<strong>关键字</strong>、<strong>字面量</strong>（包含数字、字符串等）和
+<strong>特殊符号</strong>（如加号、等号）。</p>
 <p>在识别记号的同时，扫描器也完成了其他工作。如：将标识符存放到符号表，将数字、字符串常量存放到文字表等，以备后面的步骤使用。</p>
 <p>有一个名为lex的程序可以实现词法扫描，它会按照用户之前描述好的词法规则将输入的字符串分割成一个个记号。正因为有这样一个程序存在，编译器的开发者就无需为每个编译器开发一个独立的词法扫描器，而是根据需要改变词法规则即可。</p>
-<h2 id="语法分析"><a href="#语法分析" class="headerlink" title="语法分析"></a>语法分析</h2><p><strong>语法分析器（Grammar Parser）</strong>将对由扫描器产生的记号进行语法分析。从而产生<strong>语法树（Syntax Tree）</strong>。整个分析过程采用了<strong>上下文无关语法（Context-freeGrammar）</strong>的分析手段。简单地讲，由语法分析器生成的语法树是以<strong>表达式（Expression）</strong>为节点的树。</p>
-<p>以上述代码为例，其中的语句就是一个由赋值表达式、加法表达式、乘法表达式、数组表达式、括号表达式组成的复杂语句，下图所示为该语句经过语法分析器后生成的语法树。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// CompilerExpression.c</span><br><span class="line">array[index] = (index + 4) * (2 + 6)</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-syntax-tree.png?x-oss-process=image/resize,w_600"></p>
+<h2 id="语法分析">语法分析</h2>
+<p><strong>语法分析器（Grammar Parser）</strong>
+将对由扫描器产生的记号进行语法分析。从而产生 <strong>语法树（Syntax
+Tree）</strong>。整个分析过程采用了
+<strong>上下文无关语法（Context-freeGrammar）</strong>
+的分析手段。简单地讲，由语法分析器生成的语法树是以
+<strong>表达式（Expression）</strong> 为节点的树。</p>
+<p>以上述代码为例，其中的语句就是一个由赋值表达式、加法表达式、乘法表达式、数组表达式、括号表达式组成的复杂语句，下图所示为该语句经过语法分析器后生成的语法树。
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// CompilerExpression.c</span><br><span class="line">array[index] = (index + 4) * (2 + 6)</span><br></pre></td></tr></table></figure></p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-syntax-tree.png" /></p>
 <p>在语法分析的同时，很多运算符号的优先级和含义也被确定下来了。如：乘法表达式的优先级比加法高，圆括号表达式的优先级比乘法高，等等。另外，有些符号具有多重含义，如“*”在C语言中可以表示乘法表达式，也可以表示对指针取内容的表达式，因此语法分析阶段必须对这些内容进行区分。如果出现了表达式不合法，如各种括号不匹配、表达式中缺少操作符等，编译器就会报告语法分析阶段的错误。</p>
-<p>有一个名为yacc（Yet Another Compiler Compiler）的工具可以实现语法分析。其根据用户给定的语法规则对输入的记号序列进行解析，从而构建出语法树。对于不同的编程语言，编译器的开发者只需改变语法规则，而无需为每个编译器编写一个语法分析器。因此，其也称为“编译器编译器（Compiler Compiler）”</p>
-<h2 id="语义分析"><a href="#语义分析" class="headerlink" title="语义分析"></a>语义分析</h2><p>语法分析仅仅完成了对表达式的语法层面的分析，但它并不了解这个语句的真正含义，如：C语言里两个指针做乘法运算是没有意义的，但这个语句在语法上是合法的。编译器所能分析的语义是<strong>静态语义（Static Semantic）</strong>，所谓静态语义是指在编译期间可以确定的语义，与之对应的<strong>动态语义（Dynamic Semantic）</strong>就是只有在运行期才能确定的语义。</p>
+<p>有一个名为yacc（Yet Another Compiler
+Compiler）的工具可以实现语法分析。其根据用户给定的语法规则对输入的记号序列进行解析，从而构建出语法树。对于不同的编程语言，编译器的开发者只需改变语法规则，而无需为每个编译器编写一个语法分析器。因此，其也称为“编译器编译器（Compiler
+Compiler）”</p>
+<h2 id="语义分析">语义分析</h2>
+<p>语法分析仅仅完成了对表达式的语法层面的分析，但它并不了解这个语句的真正含义，如：C语言里两个指针做乘法运算是没有意义的，但这个语句在语法上是合法的。编译器所能分析的语义是
+<strong>静态语义（Static
+Semantic）</strong>，所谓静态语义是指在编译期间可以确定的语义，与之对应的
+<strong>动态语义（Dynamic Semantic）</strong>
+就是只有在运行期才能确定的语义。</p>
 <p>静态语义通常包括声明和类型的匹配，类型的转换。比如当一个浮点型的表达式赋值给一个整型的表达式时，其中隐含了一个浮点型到整型的转换过程，语义分析过程中需要完成该步骤。比如讲一个浮点赋值给一个指针时，语义分析程序会发现这个类型不匹配，编译器将会报错。动态语义一般是指在运行期出现的语义相关的问题，比如将0作为除数是一个运行期语义错误。</p>
 <p>经过语义分析阶段之后，整个语法树的表达式都被标识了类型，如果有些类型需要做隐式转换，语义分析程序会在语法树中插入相应的转换节点。下图所示为标记语义后的语法树。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-commented-syntax-tree.png?x-oss-process=image/resize,w_600"></p>
-<h2 id="源代码优化（中间代码生成）"><a href="#源代码优化（中间代码生成）" class="headerlink" title="源代码优化（中间代码生成）"></a>源代码优化（中间代码生成）</h2><p>现代编译器有着很多层次的优化，<strong>源码优化器（Source Code Optimizer）</strong>则是在源代码级别进行优化。上述例子中，（2 + 6）这个表达式可以被优化掉。因为它的值在编译期就可以被确定。下图所示为优化后的语法树。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-optimized-syntax-tree.png?x-oss-process=image/resize,w_600"></p>
-<p>事实上，直接在语法树上作优化比较困难，所以源代码优化器往往将整个语法树转换成<strong>中间代码（Intermediate Code）</strong>，它是语法树的顺序表示，其实它已经非常接近目标代码了。但它一般与目标机器和运行时环境是无关的，比如它不包含数据的尺寸、变量地址和寄存器的名字等。</p>
-<p>中间代码有很多种类型，在不同的编译器中有着不同的形式，比较常见的有：<strong>三地址码（Three-address Code）</strong>、<strong>P-代码（P-Code）</strong>。以三地址码为例，最基本的三地址码如下所示：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = y op z</span><br><span class="line"># 表示将变量y和z进行op操作后，赋值给x。</span><br></pre></td></tr></table></figure>
-
-<p>因此，可以将上述例子的代码翻译成三地址码：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">t1 = 2 + 6</span><br><span class="line">t2 = index + 4</span><br><span class="line">t3 = t2 * t1</span><br><span class="line">array[index] = t3</span><br></pre></td></tr></table></figure>
-<p>为了使所有的操作符合三地址码形式，这里使用了几个临时变量：t1、t2和t3。在三地址码的基础上进行优化时，优化程序会将2+6的结果计算出来，得到t1 &#x3D; 6。因此，进一步优化后可以得到如下的代码：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">t2 = index + 4</span><br><span class="line">t2 = t2 * 8</span><br><span class="line">array[index] = t2</span><br></pre></td></tr></table></figure>
-<p>中间代码将编译器分为<strong>前端（Front End）</strong>和<strong>后端（Back End）</strong>。编译器前端负责产生机器无关的中间代码，编译器后端负责将中间代码转换成目标机器代码。这样，对于一些可跨平台的编译器，它们可以针对不同的平台使用同一个前端和针对不同机器平台的数个后端。比如clange就是一个前端工具，而LLVM则负责后端处理。GCC则是一个套装，包揽了前后端的所有任务。</p>
-<hr>
-<h2 id="目标代码生成"><a href="#目标代码生成" class="headerlink" title="目标代码生成"></a>目标代码生成</h2><p>目标代码生成主要由<strong>代码生成器（Code Generator）</strong>完成。代码生成器将中间代码转换成目标机器代码，该过程十分依赖目标机器，因为不同的机器有着不同的字长、寄存器、整数数据类型和浮点数数据类型等。</p>
-<p>上述例子的中间代码，经过代码生成器的处理之后可能会生成如下所示的代码序列（以x86汇编为例，假设index的类型为int型，array的类型为int型数组）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">movl index, %ecx            ; value of index to ecx</span><br><span class="line">addl $4, %ecx               ; ecx = ecx + 4</span><br><span class="line">mull $8, %ecx               ; ecx = ecx * 8</span><br><span class="line">movl index, %eax            ; value of index to eax</span><br><span class="line">movl %ecx, array(,%eax,4)    ; array[index] = ecx</span><br></pre></td></tr></table></figure>
-
-<h2 id="目标代码优化"><a href="#目标代码优化" class="headerlink" title="目标代码优化"></a>目标代码优化</h2><p>目标代码生成后，由<strong>目标代码优化器（Target Code Optimizer）</strong>来进行优化。比如选择合适的寻址方式、使用位移来代替乘法运算、删除多余的指令等。</p>
-<p>上述例子中，乘法由一条相对复杂的<strong>基址比例变址寻址（Base Index Scale Addressing）</strong>的lea指令完成，随后由一条mov指令完成最后的赋值操作，这条mov指令的寻址方式与lea是一样的。如下所示为优化后的目标代码：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">movl index, %edx</span><br><span class="line">leal 32(,%edx,8), %eax</span><br><span class="line">movl %eax, array(,%edx,4)</span><br></pre></td></tr></table></figure>
-
-<h1 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h1><p>经过扫描、语法分析、语义分析、源代码优化、目标代码生成、目标代码优化等一系列步骤之后，源代码终于被编译成了目标代码。但是这个目标代码中有一个问题：</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-commented-syntax-tree.png" /></p>
+<h2 id="源代码优化中间代码生成">源代码优化（中间代码生成）</h2>
+<p>现代编译器有着很多层次的优化，<strong>源码优化器（Source Code
+Optimizer）</strong> 则是在源代码级别进行优化。上述例子中，（2 +
+6）这个表达式可以被优化掉。因为它的值在编译期就可以被确定。下图所示为优化后的语法树。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/compile-optimized-syntax-tree.png" /></p>
+<p>事实上，直接在语法树上作优化比较困难，所以源代码优化器往往将整个语法树转换成
+<strong>中间代码（Intermediate
+Code）</strong>，它是语法树的顺序表示，其实它已经非常接近目标代码了。但它一般与目标机器和运行时环境是无关的，比如它不包含数据的尺寸、变量地址和寄存器的名字等。</p>
+<p>中间代码有很多种类型，在不同的编译器中有着不同的形式，比较常见的有：<strong>三地址码（Three-address
+Code）</strong>、<strong>P-代码（P-Code）</strong>。以三地址码为例，最基本的三地址码如下所示：
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = y op z</span><br><span class="line"># 表示将变量y和z进行op操作后，赋值给x。</span><br></pre></td></tr></table></figure></p>
+<p>因此，可以将上述例子的代码翻译成三地址码： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">t1 = 2 + 6</span><br><span class="line">t2 = index + 4</span><br><span class="line">t3 = t2 * t1</span><br><span class="line">array[index] = t3</span><br></pre></td></tr></table></figure>
+为了使所有的操作符合三地址码形式，这里使用了几个临时变量：t1、t2和t3。在三地址码的基础上进行优化时，优化程序会将2+6的结果计算出来，得到t1
+= 6。因此，进一步优化后可以得到如下的代码： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">t2 = index + 4</span><br><span class="line">t2 = t2 * 8</span><br><span class="line">array[index] = t2</span><br></pre></td></tr></table></figure>
+中间代码将编译器分为 <strong>前端（Front End）</strong> 和
+<strong>后端（Back
+End）</strong>。编译器前端负责产生机器无关的中间代码，编译器后端负责将中间代码转换成目标机器代码。这样，对于一些可跨平台的编译器，它们可以针对不同的平台使用同一个前端和针对不同机器平台的数个后端。比如clange就是一个前端工具，而LLVM则负责后端处理。GCC则是一个套装，包揽了前后端的所有任务。</p>
+<hr />
+<h2 id="目标代码生成">目标代码生成</h2>
+<p>目标代码生成主要由 <strong>代码生成器（Code Generator）</strong>
+完成。代码生成器将中间代码转换成目标机器代码，该过程十分依赖目标机器，因为不同的机器有着不同的字长、寄存器、整数数据类型和浮点数数据类型等。</p>
+<p>上述例子的中间代码，经过代码生成器的处理之后可能会生成如下所示的代码序列（以x86汇编为例，假设index的类型为int型，array的类型为int型数组）：
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">movl index, %ecx            ; value of index to ecx</span><br><span class="line">addl $4, %ecx               ; ecx = ecx + 4</span><br><span class="line">mull $8, %ecx               ; ecx = ecx * 8</span><br><span class="line">movl index, %eax            ; value of index to eax</span><br><span class="line">movl %ecx, array(,%eax,4)    ; array[index] = ecx</span><br></pre></td></tr></table></figure></p>
+<h2 id="目标代码优化">目标代码优化</h2>
+<p>目标代码生成后，由 <strong>目标代码优化器（Target Code
+Optimizer）</strong>
+来进行优化。比如选择合适的寻址方式、使用位移来代替乘法运算、删除多余的指令等。</p>
+<p>上述例子中，乘法由一条相对复杂的 <strong>基址比例变址寻址（Base Index
+Scale Addressing）</strong>
+的lea指令完成，随后由一条mov指令完成最后的赋值操作，这条mov指令的寻址方式与lea是一样的。如下所示为优化后的目标代码：
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">movl index, %edx</span><br><span class="line">leal 32(,%edx,8), %eax</span><br><span class="line">movl %eax, array(,%edx,4)</span><br></pre></td></tr></table></figure></p>
+<h1 id="结尾">结尾</h1>
+<p>经过扫描、语法分析、语义分析、源代码优化、目标代码生成、目标代码优化等一系列步骤之后，源代码终于被编译成了目标代码。但是这个目标代码中有一个问题：</p>
 <blockquote>
 <p>index和array的地址还没有确定</p>
 </blockquote>
-<p>如果我们把目标代码使用汇编器编译成真正能够在机器上运行的指令，那么index和array的地址来自哪里？<br>如果index和array定义在跟上面的源代码同一个编译单元里，那么编译器可以为index和array分配空间，确定地址；但如果是定义在其他的程序模块呢？</p>
+<p>如果我们把目标代码使用汇编器编译成真正能够在机器上运行的指令，那么index和array的地址来自哪里？<br />
+如果index和array定义在跟上面的源代码同一个编译单元里，那么编译器可以为index和array分配空间，确定地址；但如果是定义在其他的程序模块呢？</p>
 <p>事实上，定义其他模块的全局变量和函数在最终运行时的绝对地址都要在最终链接的时候才能确定。所以现代编译器可以将一个源文件编译成一个未链接的目标文件，然后由编译器最终将这些目标文件链接起来形成可执行文件。</p>
 <p>后面，我们将继而探讨链接的原理。</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
-<li>《程序员的自我修养——链接、装载与库》</li>
-</ol>
 <p>（完）</p>
 
-      
     </div>
-    
-    
-    
 
     
-
     
-      <div>
-        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
-  <div>欣赏此文？求鼓励，求支持！</div>
-  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
-    <span>赏</span>
-  </button>
-  <div id="QR" style="display: none;">
-
-    
-      <div id="wechat" style="display: inline-block">
-        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
-        <p>WeChat Pay</p>
-      </div>
-    
-
-    
-      <div id="alipay" style="display: inline-block">
-        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
-        <p>Alipay</p>
-      </div>
-    
-
-    
-
-  </div>
-</div>
-
-      </div>
-    
-
     
 
     <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/" rel="tag"># 编译原理</a>
-          
-        </div>
-      
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
 
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2018/04/26/a-design-of-ios-storage-architecture/" rel="next" title="一种简易的客户端存储架构设计">
-                <i class="fa fa-chevron-left"></i> 一种简易的客户端存储架构设计
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/05/21/elf-introduce/" rel="prev" title="计算机那些事(4)——ELF文件结构">
-                计算机那些事(4)——ELF文件结构 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-        <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-  <a class="jiathis_button_tsina"></a>
-  <a class="jiathis_button_tqq"></a>
-  <a class="jiathis_button_weixin"></a>
-  <a class="jiathis_button_cqq"></a>
-  <a class="jiathis_button_douban"></a>
-  <a class="jiathis_button_renren"></a>
-  <a class="jiathis_button_qzone"></a>
-  <a class="jiathis_button_kaixin001"></a>
-  <a class="jiathis_button_copy"></a>
-  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
-  <a class="jiathis_counter_style"></a>
 </div>
-<script type="text/javascript" >
-  var jiathis_config={
-    hideMore:false
-  }
-</script>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
 
-      
-    </div>
-  </div>
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
 
+  <div class="social-list">
 
-          </div>
-          
-
-
-          
-  <div class="comments" id="comments">
-    
-      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
-    
-  </div>
-
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <img class="site-author-image" itemprop="image"
-               src="/images/SlamDunk.png"
-               alt="" />
-          <p class="site-author-name" itemprop="name"></p>
-           
-              <p class="site-description motion-element" itemprop="description"></p>
-          
-        </div>
-        <nav class="site-state motion-element">
-
-          
-            <div class="site-state-item site-state-posts">
-              <a href="/archives">
-                <span class="site-state-item-count">128</span>
-                <span class="site-state-item-name">日志</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-categories">
-              <a href="/categories/index.html">
-                <span class="site-state-item-count">28</span>
-                <span class="site-state-item-name">分类</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-tags">
-              <a href="/tags/index.html">
-                <span class="site-state-item-count">284</span>
-                <span class="site-state-item-name">标签</span>
-              </a>
-            </div>
-          
-
-        </nav>
-
-        
-          <div class="feed-link motion-element">
-            <a href="/atom.xml" rel="alternate">
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
               <i class="fa fa-rss"></i>
-              RSS
-            </a>
-          </div>
-        
+            </span>
 
-        <div class="links-of-author motion-element">
-          
-            
-              <span class="links-of-author-item">
-                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
-                  
-                    <i class="fa fa-fw fa-github"></i>
-                  
-                    
-                      GitHub
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
-                  
-                    <i class="fa fa-fw fa-weibo"></i>
-                  
-                    
-                      微博
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                    
-                      Facebook
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
-                  
-                    <i class="fa fa-fw fa-instagram"></i>
-                  
-                    
-                      Instagram
-                    
-                </a>
-              </span>
-            
-          
-        </div>
-
-        
-        
-
-        
-        
-
-        
-
-
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">程序构建流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%84%E7%BC%96%E8%AF%91"><span class="nav-number">1.1.</span> <span class="nav-text">预编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91"><span class="nav-number">1.2.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B1%87%E7%BC%96"><span class="nav-number">1.3.</span> <span class="nav-text">汇编</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5"><span class="nav-number">1.4.</span> <span class="nav-text">链接</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%99%A8%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">编译器工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%AB%E6%8F%8F%EF%BC%88%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">扫描（词法分析）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90"><span class="nav-number">2.2.</span> <span class="nav-text">语法分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90"><span class="nav-number">2.3.</span> <span class="nav-text">语义分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96%EF%BC%88%E4%B8%AD%E9%97%B4%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">源代码优化（中间代码生成）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-number">2.5.</span> <span class="nav-text">目标代码生成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96"><span class="nav-number">2.6.</span> <span class="nav-text">目标代码优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E5%B0%BE"><span class="nav-number">3.</span> <span class="nav-text">结尾</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
-        
+            <span class="label">RSS</span>
+          </a>
       </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright" >
-  
-  &copy;  2018 - 
-  <span itemprop="copyrightYear">2023</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Pisces
-  </a>
-</div>
-
-<div>
-  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
-</div>
-
-
+          <div class="post-tags">
+              <a href="/tags/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/" rel="tag"># 编译原理</a>
+          </div>
 
         
-<div class="busuanzi-count">
-  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-  
-    <span class="site-uv">
-      <i class="fa fa-user"></i>本站总访客
-      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
-      人次
-    </span>
-  
-
-  
-    <span class="site-pv">
-      <i class="fa fa-eye"></i>本站总访问量
-      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
-      次
-    </span>
-  
-</div>
-
-
-        
-      </div>
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/04/26/a-design-of-ios-storage-architecture/" rel="prev" title="一种简易的客户端存储架构设计">
+                  <i class="fa fa-angle-left"></i> 一种简易的客户端存储架构设计
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/05/21/elf-introduce/" rel="next" title="计算机那些事(4)——ELF文件结构">
+                  计算机那些事(4)——ELF文件结构 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
     </footer>
+  </article>
+</div>
 
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
 
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
   </div>
 
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
   
 
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2018/05/12/compiler-principle/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
   }
+}
 </script>
 
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
-
-
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  
-
-
-
-
-	
-
-
-
-
-
-  
-
-
-
-
-
-  
-    <script type="text/javascript">
-      (function(d, s) {
-        var j, e = d.getElementsByTagName(s)[0];
-        if (typeof LivereTower === 'function') { return; }
-        j = d.createElement(s);
-        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
-        j.async = true;
-        e.parentNode.insertBefore(j, e);
-      })(document, 'script');
-    </script>
-  
-
-
-
-
-
-
-  
-
-  <script type="text/javascript">
-    // Popup Window;
-    var isfetched = false;
-    var isXml = true;
-    // Search DB path;
-    var search_path = "search.xml";
-    if (search_path.length === 0) {
-      search_path = "search.xml";
-    } else if (/json$/i.test(search_path)) {
-      isXml = false;
-    }
-    var path = "/" + search_path;
-    // monitor main search box;
-
-    var onPopupClose = function (e) {
-      $('.popup').hide();
-      $('#local-search-input').val('');
-      $('.search-result-list').remove();
-      $('#no-result').remove();
-      $(".local-search-pop-overlay").remove();
-      $('body').css('overflow', '');
-    }
-
-    function proceedsearch() {
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
-        .css('overflow', 'hidden');
-      $('.search-popup-overlay').click(onPopupClose);
-      $('.popup').toggle();
-      var $localSearchInput = $('#local-search-input');
-      $localSearchInput.attr("autocapitalize", "none");
-      $localSearchInput.attr("autocorrect", "off");
-      $localSearchInput.focus();
-    }
-
-    // search function;
-    var searchFunc = function(path, search_id, content_id) {
-      'use strict';
-
-      // start loading animation
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
-          '<div id="search-loading-icon">' +
-          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
-          '</div>' +
-          '</div>')
-        .css('overflow', 'hidden');
-      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
-
-      $.ajax({
-        url: path,
-        dataType: isXml ? "xml" : "json",
-        async: true,
-        success: function(res) {
-          // get the contents from search data
-          isfetched = true;
-          $('.popup').detach().appendTo('.header-inner');
-          var datas = isXml ? $("entry", res).map(function() {
-            return {
-              title: $("title", this).text(),
-              content: $("content",this).text(),
-              url: $("url" , this).text()
-            };
-          }).get() : res;
-          var input = document.getElementById(search_id);
-          var resultContent = document.getElementById(content_id);
-          var inputEventFunction = function() {
-            var searchText = input.value.trim().toLowerCase();
-            var keywords = searchText.split(/[\s\-]+/);
-            if (keywords.length > 1) {
-              keywords.push(searchText);
-            }
-            var resultItems = [];
-            if (searchText.length > 0) {
-              // perform local searching
-              datas.forEach(function(data) {
-                var isMatch = false;
-                var hitCount = 0;
-                var searchTextCount = 0;
-                var title = data.title.trim();
-                var titleInLowerCase = title.toLowerCase();
-                var content = data.content.trim().replace(/<[^>]+>/g,"");
-                var contentInLowerCase = content.toLowerCase();
-                var articleUrl = decodeURIComponent(data.url);
-                var indexOfTitle = [];
-                var indexOfContent = [];
-                // only match articles with not empty titles
-                if(title != '') {
-                  keywords.forEach(function(keyword) {
-                    function getIndexByWord(word, text, caseSensitive) {
-                      var wordLen = word.length;
-                      if (wordLen === 0) {
-                        return [];
-                      }
-                      var startPosition = 0, position = [], index = [];
-                      if (!caseSensitive) {
-                        text = text.toLowerCase();
-                        word = word.toLowerCase();
-                      }
-                      while ((position = text.indexOf(word, startPosition)) > -1) {
-                        index.push({position: position, word: word});
-                        startPosition = position + wordLen;
-                      }
-                      return index;
-                    }
-
-                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
-                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
-                  });
-                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
-                    isMatch = true;
-                    hitCount = indexOfTitle.length + indexOfContent.length;
-                  }
-                }
-
-                // show search results
-
-                if (isMatch) {
-                  // sort index by position of keyword
-
-                  [indexOfTitle, indexOfContent].forEach(function (index) {
-                    index.sort(function (itemLeft, itemRight) {
-                      if (itemRight.position !== itemLeft.position) {
-                        return itemRight.position - itemLeft.position;
-                      } else {
-                        return itemLeft.word.length - itemRight.word.length;
-                      }
-                    });
-                  });
-
-                  // merge hits into slices
-
-                  function mergeIntoSlice(text, start, end, index) {
-                    var item = index[index.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    var hits = [];
-                    var searchTextCountInSlice = 0;
-                    while (position + word.length <= end && index.length != 0) {
-                      if (word === searchText) {
-                        searchTextCountInSlice++;
-                      }
-                      hits.push({position: position, length: word.length});
-                      var wordEnd = position + word.length;
-
-                      // move to next position of hit
-
-                      index.pop();
-                      while (index.length != 0) {
-                        item = index[index.length - 1];
-                        position = item.position;
-                        word = item.word;
-                        if (wordEnd > position) {
-                          index.pop();
-                        } else {
-                          break;
-                        }
-                      }
-                    }
-                    searchTextCount += searchTextCountInSlice;
-                    return {
-                      hits: hits,
-                      start: start,
-                      end: end,
-                      searchTextCount: searchTextCountInSlice
-                    };
-                  }
-
-                  var slicesOfTitle = [];
-                  if (indexOfTitle.length != 0) {
-                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
-                  }
-
-                  var slicesOfContent = [];
-                  while (indexOfContent.length != 0) {
-                    var item = indexOfContent[indexOfContent.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    // cut out 100 characters
-                    var start = position - 20;
-                    var end = position + 80;
-                    if(start < 0){
-                      start = 0;
-                    }
-                    if (end < position + word.length) {
-                      end = position + word.length;
-                    }
-                    if(end > content.length){
-                      end = content.length;
-                    }
-                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
-                  }
-
-                  // sort slices in content by search text's count and hits' count
-
-                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
-                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
-                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
-                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
-                      return sliceRight.hits.length - sliceLeft.hits.length;
-                    } else {
-                      return sliceLeft.start - sliceRight.start;
-                    }
-                  });
-
-                  // select top N slices in content
-
-                  var upperBound = parseInt('1');
-                  if (upperBound >= 0) {
-                    slicesOfContent = slicesOfContent.slice(0, upperBound);
-                  }
-
-                  // highlight title and content
-
-                  function highlightKeyword(text, slice) {
-                    var result = '';
-                    var prevEnd = slice.start;
-                    slice.hits.forEach(function (hit) {
-                      result += text.substring(prevEnd, hit.position);
-                      var end = hit.position + hit.length;
-                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
-                      prevEnd = end;
-                    });
-                    result += text.substring(prevEnd, slice.end);
-                    return result;
-                  }
-
-                  var resultItem = '';
-
-                  if (slicesOfTitle.length != 0) {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
-                  } else {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
-                  }
-
-                  slicesOfContent.forEach(function (slice) {
-                    resultItem += "<a href='" + articleUrl + "'>" +
-                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
-                      "...</p>" + "</a>";
-                  });
-
-                  resultItem += "</li>";
-                  resultItems.push({
-                    item: resultItem,
-                    searchTextCount: searchTextCount,
-                    hitCount: hitCount,
-                    id: resultItems.length
-                  });
-                }
-              })
-            };
-            if (keywords.length === 1 && keywords[0] === "") {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
-            } else if (resultItems.length === 0) {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
-            } else {
-              resultItems.sort(function (resultLeft, resultRight) {
-                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
-                  return resultRight.searchTextCount - resultLeft.searchTextCount;
-                } else if (resultLeft.hitCount !== resultRight.hitCount) {
-                  return resultRight.hitCount - resultLeft.hitCount;
-                } else {
-                  return resultRight.id - resultLeft.id;
-                }
-              });
-              var searchResultList = '<ul class=\"search-result-list\">';
-              resultItems.forEach(function (result) {
-                searchResultList += result.item;
-              })
-              searchResultList += "</ul>";
-              resultContent.innerHTML = searchResultList;
-            }
-          }
-
-          if ('auto' === 'auto') {
-            input.addEventListener('input', inputEventFunction);
-          } else {
-            $('.search-icon').click(inputEventFunction);
-            input.addEventListener('keypress', function (event) {
-              if (event.keyCode === 13) {
-                inputEventFunction();
-              }
-            });
-          }
-
-          // remove loading animation
-          $(".local-search-pop-overlay").remove();
-          $('body').css('overflow', '');
-
-          proceedsearch();
-        }
-      });
-    }
-
-    // handle and trigger popup window;
-    $('.popup-trigger').click(function(e) {
-      e.stopPropagation();
-      if (isfetched === false) {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-      } else {
-        proceedsearch();
-      };
-    });
-
-    $('.popup-btn-close').click(onPopupClose);
-    $('.popup').click(function(e){
-      e.stopPropagation();
-    });
-    $(document).on('keyup', function (event) {
-      var shouldDismissSearchPopup = event.which === 27 &&
-        $('.search-popup').is(':visible');
-      if (shouldDismissSearchPopup) {
-        onPopupClose();
-      }
-    });
-  </script>
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      });
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      });
-    </script>
-    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
-
-
-  
-
-  
-
-
-  undefined
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
 </html>

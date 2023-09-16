@@ -1,1517 +1,896 @@
 <!DOCTYPE html>
-
-
-
-  
-
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-  
-  
-  
-  
-
-  
-    
-    
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    
-    
-    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-  
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
-
-
-  <meta name="keywords" content="源码解读,KVO,Aspects,AOP," />
-
-
-
-
-
-  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
-
-
-
-
-  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
-
-
-
-
-
-
-<meta name="description" content="最近希望在业务中实现一套基于 AOP 的埋点方案，调研过程中，我花了些时间阅读了一下 Aspects 的源码，对于 Aspects 设计有了一些更深入的理解。因此，通过本文记录我在阅读源码后的一些收获和思考，以供后续进行回顾。 概述Aspects 是一款轻量且简易的面向切面编程的框架，其基于 Objective-C Runtime 原理实现。Aspects 允许我们对 类的所有实例的实例方法 或">
+    <meta name="description" content="最近希望在业务中实现一套基于 AOP 的埋点方案，调研过程中，我花了些时间阅读了一下 Aspects 的源码，对于 Aspects 设计有了一些更深入的理解。因此，通过本文记录我在阅读源码后的一些收获和思考，以供后续进行回顾。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="深入理解 Aspects 设计原理">
 <meta property="og:url" content="http://chuquan.me/2022/11/13/understand-principle-of-aspects/index.html">
 <meta property="og:site_name" content="楚权的世界">
-<meta property="og:description" content="最近希望在业务中实现一套基于 AOP 的埋点方案，调研过程中，我花了些时间阅读了一下 Aspects 的源码，对于 Aspects 设计有了一些更深入的理解。因此，通过本文记录我在阅读源码后的一些收获和思考，以供后续进行回顾。 概述Aspects 是一款轻量且简易的面向切面编程的框架，其基于 Objective-C Runtime 原理实现。Aspects 允许我们对 类的所有实例的实例方法 或">
-<meta property="og:locale">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/objc-message-passing-01.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/objc-message-passing-02.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/objc-message-passing-03.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/objc-message-forward.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-uml.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-01.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-02.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-03.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-04.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-05.png?x-oss-process=image/resize,w_800">
+<meta property="og:description" content="最近希望在业务中实现一套基于 AOP 的埋点方案，调研过程中，我花了些时间阅读了一下 Aspects 的源码，对于 Aspects 设计有了一些更深入的理解。因此，通过本文记录我在阅读源码后的一些收获和思考，以供后续进行回顾。">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-11-13T11:35:25.000Z">
-<meta property="article:modified_time" content="2022-11-14T03:10:52.811Z">
+<meta property="article:modified_time" content="2023-09-16T09:20:01.364Z">
 <meta property="article:author" content="Bao Chuquan">
 <meta property="article:tag" content="源码解读">
 <meta property="article:tag" content="KVO">
 <meta property="article:tag" content="Aspects">
 <meta property="article:tag" content="AOP">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/objc-message-passing-01.png?x-oss-process=image/resize,w_800">
+
+
+<link rel="canonical" href="http://chuquan.me/2022/11/13/understand-principle-of-aspects/">
 
 
 
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '',
-    scheme: 'Pisces',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: true,
-    duoshuo: {
-      userId: '0',
-      author: '博主'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2022/11/13/understand-principle-of-aspects/","path":"2022/11/13/understand-principle-of-aspects/","title":"深入理解 Aspects 设计原理"}</script>
 
-
-
-  <link rel="canonical" href="http://chuquan.me/2022/11/13/understand-principle-of-aspects/"/>
-
-
-
-
-
-  <title>深入理解 Aspects 设计原理 | 楚权的世界</title>
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>深入理解 Aspects 设计原理 | 楚权的世界</title>
   
 
-
-
-
-
-  <script type="text/javascript">
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
 
 
 
 
 
 
-
-
-
-
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
 <!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
-  
-  
-    
-  
-
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
-    <div class="headband"></div>
-	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
-    
-
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">楚权的世界</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
     </div>
-      
-        <p class="site-subtitle">Seek the wonder of life.</p>
-      
   </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
   </div>
 </div>
+
+
 
 <nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-photos">
-          <a href="/photos" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
-            
-            相册
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            归档
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-commonweal">
-          <a href="/404.html" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
-            
-            公益
-          </a>
-        </li>
-      
-
-      
-        <li class="menu-item menu-item-search">
-          
-            <a href="javascript:;" class="popup-trigger">
-          
-            
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
-            
-            搜索
-          </a>
-        </li>
-      
-    </ul>
-  
-
-  
-    <div class="site-search">
-      
-  <div class="popup search-popup local-search-popup">
-  <div class="local-search-header clearfix">
-    <span class="search-icon">
-      <i class="fa fa-search"></i>
-    </span>
-    <span class="popup-btn-close">
-      <i class="fa fa-times-circle"></i>
-    </span>
-    <div class="local-search-input-wrapper">
-      <input autocomplete="off"
-             placeholder="搜索..." spellcheck="false"
-             type="text" id="local-search-input">
-    </div>
-  </div>
-  <div id="local-search-result"></div>
-</div>
-
-
-
-    </div>
-  
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
 </nav>
 
 
 
- </div>
-    </header>
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
 
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
+    </div>
+  </div>
 
-  <div id="posts" class="posts-expand">
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80"><span class="nav-number">2.</span> <span class="nav-text">基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E4%BC%A0%E9%80%92"><span class="nav-number">2.1.</span> <span class="nav-text">消息传递</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.1.</span> <span class="nav-text">实例方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.2.</span> <span class="nav-text">类方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E8%BD%AC%E5%8F%91"><span class="nav-number">2.2.</span> <span class="nav-text">消息转发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E6%B6%88%E6%81%AF%E8%A7%A3%E6%9E%90"><span class="nav-number">2.2.1.</span> <span class="nav-text">动态消息解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%87%E7%94%A8%E6%8E%A5%E6%94%B6%E8%80%85"><span class="nav-number">2.2.2.</span> <span class="nav-text">备用接收者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E6%B6%88%E6%81%AF%E8%BD%AC%E5%8F%91"><span class="nav-number">2.2.3.</span> <span class="nav-text">完整消息转发</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">核心原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E5%86%8C%E5%85%B3%E8%81%94%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.1.</span> <span class="nav-text">注册关联对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%8A%A8%E6%80%81%E7%B1%BB"><span class="nav-number">3.2.</span> <span class="nav-text">创建动态类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%96%B9%E6%B3%95%E4%BA%A4%E6%8D%A2"><span class="nav-number">3.3.</span> <span class="nav-text">核心方法交换</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">具体实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">4.1.</span> <span class="nav-text">数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#aspectscontainer"><span class="nav-number">4.1.1.</span> <span class="nav-text">AspectsContainer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#aspectidentifer"><span class="nav-number">4.1.2.</span> <span class="nav-text">AspectIdentifer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#aspectinfo"><span class="nav-number">4.1.3.</span> <span class="nav-text">AspectInfo</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B"><span class="nav-number">4.2.</span> <span class="nav-text">代码流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#aspect_isselectorallowedandtrack"><span class="nav-number">4.2.1.</span> <span class="nav-text">aspect_isSelectorAllowedAndTrack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#aspect_prepareclassandhookselector"><span class="nav-number">4.2.2.</span> <span class="nav-text">aspect_prepareClassAndHookSelector</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#aspect_hookclass"><span class="nav-number">4.2.3.</span> <span class="nav-text">aspect_hookClass</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">相关问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E4%B8%80%E4%B8%BA%E4%BB%80%E4%B9%88-aspects-%E4%BB%85%E6%94%AF%E6%8C%81%E5%AF%B9%E5%AE%9E%E4%BE%8B%E6%96%B9%E6%B3%95%E8%BF%9B%E8%A1%8C-hook"><span class="nav-number">5.1.</span> <span class="nav-text">问题一：为什么
+Aspects 仅支持对实例方法进行 hook？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E4%BA%8C%E5%9C%A8%E9%A1%B9%E7%9B%AE%E4%B8%AD%E4%BD%BF%E7%94%A8-aspects-%E8%BF%9B%E8%A1%8C-hook-%E6%98%AF%E5%90%A6%E6%9C%89%E4%BB%80%E4%B9%88%E5%9D%91"><span class="nav-number">5.2.</span> <span class="nav-text">问题二：在项目中使用
+Aspects 进行 hook 是否有什么坑？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E4%B8%89%E4%B8%BA%E4%BB%80%E4%B9%88%E5%9C%A8-hook-%E5%AE%9E%E4%BE%8B%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%AE%9E%E4%BE%8B%E6%96%B9%E6%B3%95%E6%97%B6%E8%A6%81%E5%88%9B%E5%BB%BA%E5%8A%A8%E6%80%81%E7%B1%BB"><span class="nav-number">5.3.</span> <span class="nav-text">问题三：为什么在
+hook 实例对象的实例方法时要创建动态类？</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">129</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">288</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
     
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
 
   
 
-  
+
+<div class="post-block">
   
   
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://chuquan.me/2022/11/13/understand-principle-of-aspects/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
     </span>
 
-    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="深入理解 Aspects 设计原理 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
       <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          深入理解 Aspects 设计原理
+        </h1>
 
-        
-        
-          <h1 class="post-title" itemprop="name headline">深入理解 Aspects 设计原理</h1>
-        
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
 
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="发表于" itemprop="dateCreated datePublished" datetime="2022-11-13T19:35:25+08:00">
-                2022-11-13
-              </time>
-            
+      <time title="创建时间：2022-11-13 19:35:25" itemprop="dateCreated datePublished" datetime="2022-11-13T19:35:25+08:00">2022-11-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-09-16 17:20:01" itemprop="dateModified" datetime="2023-09-16T17:20:01+08:00">2023-09-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+        </span>
+    </span>
 
-            
-              <span class="post-meta-divider">|</span>
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-check-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">更新于</span>
-              
-              <time title="更新于" itemprop="dateModified" datetime="2022-11-14T11:10:52+08:00">
-                2022-11-14
-              </time>
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
-          
-
-          
-
-          
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2022/11/13/understand-principle-of-aspects/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2022/11/13/understand-principle-of-aspects/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
 
         </div>
       </header>
-    
 
     
     
     
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <p>最近希望在业务中实现一套基于 AOP 的埋点方案，调研过程中，我花了些时间阅读了一下 Aspects 的源码，对于 Aspects 设计有了一些更深入的理解。因此，通过本文记录我在阅读源码后的一些收获和思考，以供后续进行回顾。</p>
-<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>Aspects 是一款轻量且简易的面向切面编程的框架，其基于 Objective-C Runtime 原理实现。Aspects 允许我们对 <strong>类的所有实例的实例方法</strong> 或 <strong>单个实例的实例方法</strong> 添加额外的代码，并且支持设置代码的执行时机，包括：<code>before</code>、<code>instead</code>、<code>after</code> 三种。</p>
-<p><strong>注意：Aspects 无法为类方法提供面向切面编程的能力</strong>。</p>
+    <div class="post-body" itemprop="articleBody"><p>最近希望在业务中实现一套基于 AOP
+的埋点方案，调研过程中，我花了些时间阅读了一下 Aspects 的源码，对于
+Aspects
+设计有了一些更深入的理解。因此，通过本文记录我在阅读源码后的一些收获和思考，以供后续进行回顾。</p>
+<span id="more"></span>
+<h1 id="概述">概述</h1>
+<p>Aspects 是一款轻量且简易的面向切面编程的框架，其基于 Objective-C
+Runtime 原理实现。Aspects 允许我们对
+<strong>类的所有实例的实例方法</strong> 或
+<strong>单个实例的实例方法</strong>
+添加额外的代码，并且支持设置代码的执行时机，包括：<code>before</code>、<code>instead</code>、<code>after</code>
+三种。</p>
+<p><strong>注意：Aspects
+无法为类方法提供面向切面编程的能力</strong>。</p>
 <table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 22%" />
+<col style="width: 26%" />
+<col style="width: 17%" />
+</colgroup>
 <thead>
-<tr>
-<th align="left">对象类型</th>
-<th align="left">目标方法类型</th>
-<th align="left">Aspects 是否支持 hook</th>
-<th align="left">hook 效果</th>
+<tr class="header">
+<th style="text-align: left;">对象类型</th>
+<th style="text-align: left;">目标方法类型</th>
+<th style="text-align: left;">Aspects 是否支持 hook</th>
+<th style="text-align: left;">hook 效果</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left">类对象（UIViewController）</td>
-<td align="left">类方法（“+”开头的方法）</td>
-<td align="left">不支持</td>
-<td align="left">-</td>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">类对象（UIViewController）</td>
+<td style="text-align: left;">类方法（“+”开头的方法）</td>
+<td style="text-align: left;">不支持</td>
+<td style="text-align: left;">-</td>
 </tr>
-<tr>
-<td align="left">类对象（UIViewController）</td>
-<td align="left">实例方法（“-”开头的方法）</td>
-<td align="left">支持</td>
-<td align="left">对类的所有实例对象生效</td>
+<tr class="even">
+<td style="text-align: left;">类对象（UIViewController）</td>
+<td style="text-align: left;">实例方法（“-”开头的方法）</td>
+<td style="text-align: left;">支持</td>
+<td style="text-align: left;">对类的所有实例对象生效</td>
 </tr>
-<tr>
-<td align="left">实例对象（vc）</td>
-<td align="left">类方法（“+”开头的方法）</td>
-<td align="left">不支持</td>
-<td align="left">-</td>
+<tr class="odd">
+<td style="text-align: left;">实例对象（vc）</td>
+<td style="text-align: left;">类方法（“+”开头的方法）</td>
+<td style="text-align: left;">不支持</td>
+<td style="text-align: left;">-</td>
 </tr>
-<tr>
-<td align="left">实例对象（vc）</td>
-<td align="left">实例方法（“-”开头的方法）</td>
-<td align="left">支持</td>
-<td align="left">对单个实例对象生效</td>
+<tr class="even">
+<td style="text-align: left;">实例对象（vc）</td>
+<td style="text-align: left;">实例方法（“-”开头的方法）</td>
+<td style="text-align: left;">支持</td>
+<td style="text-align: left;">对单个实例对象生效</td>
 </tr>
-</tbody></table>
-<p>这里我们提出第一个问题：为什么 Aspects 仅支持对实例方法进行 hook？</p>
-<p>另一方面，Aspects 的作者在框架的 README 中明确表示不要在生产环境中使用 Aspects。这里我们提出第二个问题：在项目中使用 Aspects 进行 hook 是否有什么坑？</p>
-<h1 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h1><p>Aspects 巧妙利用了 Objective-C 的消息传递和消息转发机制，实现了一套与 KVO 类似的技术方案。为了能够更加清晰地理解 Aspects 的设计，这里我们简单地回顾一下 Objective-C 的消息传递和消息转发机制。</p>
-<h2 id="消息传递"><a href="#消息传递" class="headerlink" title="消息传递"></a>消息传递</h2><p>Objective-C 是一门动态语言，其 <strong>方法调用</strong> 在底层的实现是 <strong>消息传递（Message Passing）</strong>。本质上，消息发送是 <strong>沿着一条引用链依次查找不同的对象，判断该对象是否能够处理消息</strong>。在 Objective-C 中，一切都是对象，包括类、元类，消息就是在这些对象之间进行传递的。</p>
-<p>因此，我们需要了解这些对象之间的关系。下图所示，为 Objective-C 对象在内存中的引用关系图。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/objc-message-passing-01.png?x-oss-process=image/resize,w_800"></p>
-<p>在 Objective-C 中，涉及消息传递的方法主要有两种：实例方法、类方法。下面，我们来分别介绍。</p>
-<h3 id="实例方法"><a href="#实例方法" class="headerlink" title="实例方法"></a>实例方法</h3><p>对于实例方法，消息传递时，根据当前实例对象的 <code>isa</code> 指针，找到其所属的类对象，并在类对象的方法列表中查找。如果找到，则执行；否则，根据 <code>superclass</code> 指针，找到类对象的超类对象，并在超类对象的方法列表中查找，以此类推，如下所示。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/objc-message-passing-02.png?x-oss-process=image/resize,w_800"></p>
-<h3 id="类方法"><a href="#类方法" class="headerlink" title="类方法"></a>类方法</h3><p>虽然 Aspects 不支持 hook 类方法，但是为了方便进行对照，这里我们也介绍一下类方法的查找。</p>
-<p>对于类方法，消息传递时，根据当前类对象的 <code>isa</code> 指针，找到其所属的元类对象，并在元类对象的方法列表中查找。如果找到，则执行；否则，根据 <code>superclass</code> 指针，找到元类对象的元超类对象，并在元超类对象的方法列表中查找，以此类推，如下所示。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/objc-message-passing-03.png?x-oss-process=image/resize,w_800"></p>
-<h2 id="消息转发"><a href="#消息转发" class="headerlink" title="消息转发"></a>消息转发</h2><p>如果消息传递无法找到可以处理消息的对象，那么，Objective-C runtime 将进入消息转发（Message Forwarding）。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/objc-message-forward.png?x-oss-process=image/resize,w_800"></p>
+</tbody>
+</table>
+<p>这里我们提出第一个问题：为什么 Aspects 仅支持对实例方法进行
+hook？</p>
+<p>另一方面，Aspects 的作者在框架的 README
+中明确表示不要在生产环境中使用
+Aspects。这里我们提出第二个问题：在项目中使用 Aspects 进行 hook
+是否有什么坑？</p>
+<h1 id="基础">基础</h1>
+<p>Aspects 巧妙利用了 Objective-C 的消息传递和消息转发机制，实现了一套与
+KVO 类似的技术方案。为了能够更加清晰地理解 Aspects
+的设计，这里我们简单地回顾一下 Objective-C
+的消息传递和消息转发机制。</p>
+<h2 id="消息传递">消息传递</h2>
+<p>Objective-C 是一门动态语言，其 <strong>方法调用</strong>
+在底层的实现是 <strong>消息传递（Message
+Passing）</strong>。本质上，消息发送是
+<strong>沿着一条引用链依次查找不同的对象，判断该对象是否能够处理消息</strong>。在
+Objective-C
+中，一切都是对象，包括类、元类，消息就是在这些对象之间进行传递的。</p>
+<p>因此，我们需要了解这些对象之间的关系。下图所示，为 Objective-C
+对象在内存中的引用关系图。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/objc-message-passing-01.png?x-oss-process=image/resize,w_800" /></p>
+<p>在 Objective-C
+中，涉及消息传递的方法主要有两种：实例方法、类方法。下面，我们来分别介绍。</p>
+<h3 id="实例方法">实例方法</h3>
+<p>对于实例方法，消息传递时，根据当前实例对象的 <code>isa</code>
+指针，找到其所属的类对象，并在类对象的方法列表中查找。如果找到，则执行；否则，根据
+<code>superclass</code>
+指针，找到类对象的超类对象，并在超类对象的方法列表中查找，以此类推，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/objc-message-passing-02.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="类方法">类方法</h3>
+<p>虽然 Aspects 不支持 hook
+类方法，但是为了方便进行对照，这里我们也介绍一下类方法的查找。</p>
+<p>对于类方法，消息传递时，根据当前类对象的 <code>isa</code>
+指针，找到其所属的元类对象，并在元类对象的方法列表中查找。如果找到，则执行；否则，根据
+<code>superclass</code>
+指针，找到元类对象的元超类对象，并在元超类对象的方法列表中查找，以此类推，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/objc-message-passing-03.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="消息转发">消息转发</h2>
+<p>如果消息传递无法找到可以处理消息的对象，那么，Objective-C runtime
+将进入消息转发（Message Forwarding）。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/objc-message-forward.png?x-oss-process=image/resize,w_800" /></p>
 <p>消息转发包含三个阶段：</p>
 <ul>
 <li><strong>动态消息解析</strong></li>
 <li><strong>备用接收者</strong></li>
 <li><strong>完整消息转发</strong></li>
 </ul>
-<h3 id="动态消息解析"><a href="#动态消息解析" class="headerlink" title="动态消息解析"></a>动态消息解析</h3><p>当对象接收到未知消息时，首先会调用所属类的实例方法 <code>+ (BOOL)resolveInstanceMethod:(SEL)sel</code> 或类方法 <code>+ (BOOL)resolveClassMethod:(SEL)sel</code>。我们可以在方法内部动态添加一个“处理方法”，通过 <code>class_addMethod</code> 函数动态添加到类中。比如：</p>
+<h3 id="动态消息解析">动态消息解析</h3>
+<p>当对象接收到未知消息时，首先会调用所属类的实例方法
+<code>+ (BOOL)resolveInstanceMethod:(SEL)sel</code> 或类方法
+<code>+ (BOOL)resolveClassMethod:(SEL)sel</code>。我们可以在方法内部动态添加一个“处理方法”，通过
+<code>class_addMethod</code> 函数动态添加到类中。比如：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">dynamicMethodIMP</span><span class="params">(id self, SEL _cmd)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 方法实现</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">+ (BOOL)resolveInstanceMethod:(SEL)aSEL &#123;</span><br><span class="line">    <span class="keyword">if</span> (aSEL == @<span class="built_in">selector</span>(resolveThisMethodDynamically)) &#123;</span><br><span class="line">        <span class="built_in">class_addMethod</span>([self <span class="keyword">class</span>], aSEL, (IMP) dynamicMethodIMP, <span class="string">&quot;v@:&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> YES;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> [super resolveInstanceMethod:aSEL];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="备用接收者"><a href="#备用接收者" class="headerlink" title="备用接收者"></a>备用接收者</h3><p>如果上一步无法处理消息，则 runtime 会继续调用 <code>forwardingTargetForSelector:</code> 方法。</p>
-<p>如果一个对象实现了这个方法，并返回一个非 <code>nil</code>（也不能是 <code>self</code>） 的对象，则这个对象会作为消息的新接收者，消息会被分发到这个对象。比如：</p>
+<h3 id="备用接收者">备用接收者</h3>
+<p>如果上一步无法处理消息，则 runtime 会继续调用
+<code>forwardingTargetForSelector:</code> 方法。</p>
+<p>如果一个对象实现了这个方法，并返回一个非 <code>nil</code>（也不能是
+<code>self</code>）
+的对象，则这个对象会作为消息的新接收者，消息会被分发到这个对象。比如：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">- (id)forwardingTargetForSelector:(SEL)aSelector &#123;</span><br><span class="line">    NSString * selString = <span class="built_in">NSStringFromSelector</span>(aSelector);</span><br><span class="line">    <span class="keyword">if</span> ([selString isEqualToString:@<span class="string">&quot;walk&quot;</span>]) &#123;</span><br><span class="line">        <span class="keyword">return</span> self.otherObject;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> [super forwardingTargetForSelector:aSelector];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这一步合适于我们只想将消息转发到另一个能处理该消息的对象上。但这一步无法对消息进行处理，如操作消息的参数和返回值。</p>
-<h3 id="完整消息转发"><a href="#完整消息转发" class="headerlink" title="完整消息转发"></a>完整消息转发</h3><p>如果在上一步还不能处理未知消息，则唯一能做的就是启用完整的消息转发机制了。</p>
-<p>这步调用 <code>methodSignatureForSelector:</code> 进行方法签名，这可以将函数的参数类型和返回值进行封装。如果返回 <code>nil</code>，则说明消息无法处理并报错 <code>unrecognized selector sent to instance</code>。</p>
+<h3 id="完整消息转发">完整消息转发</h3>
+<p>如果在上一步还不能处理未知消息，则唯一能做的就是启用完整的消息转发机制了。</p>
+<p>这步调用 <code>methodSignatureForSelector:</code>
+进行方法签名，这可以将函数的参数类型和返回值进行封装。如果返回
+<code>nil</code>，则说明消息无法处理并报错
+<code>unrecognized selector sent to instance</code>。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector &#123;</span><br><span class="line">    <span class="keyword">if</span> ([<span class="built_in">NSStringFromSelector</span>(aSelector) isEqualToString:@<span class="string">&quot;testInstanceMethod&quot;</span>])&#123;</span><br><span class="line">        <span class="keyword">return</span> [NSMethodSignature signatureWithObjcTypes:<span class="string">&quot;v@:&quot;</span>];</span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">return</span> [super methodSignatureForSelector: aSelector];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>如果返回 <code>methodSignature</code>，则进入 <code>forwardInvocation</code>。对象会创建一个表示消息的 <code>NSInvocation</code> 对象，把与尚未处理的消息有关的全部细节都封装在 <code>anInvocation</code> 中，包括 <code>selector</code>，<code>target</code>，参数。在这个方法中可以修改实现方法，修改响应对象等，如果方法调用成功，则结束。如果依然不能正确响应消息，则报错 <code>unrecognized selector sent to instance</code>。</p>
+<p>如果返回 <code>methodSignature</code>，则进入
+<code>forwardInvocation</code>。对象会创建一个表示消息的
+<code>NSInvocation</code> 对象，把与尚未处理的消息有关的全部细节都封装在
+<code>anInvocation</code> 中，包括
+<code>selector</code>，<code>target</code>，参数。在这个方法中可以修改实现方法，修改响应对象等，如果方法调用成功，则结束。如果依然不能正确响应消息，则报错
+<code>unrecognized selector sent to instance</code>。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="type">void</span>)forwardInvovation:(NSInvocation)anInvocation &#123;</span><br><span class="line">    [anInvocation invokeWithTarget:_helper];</span><br><span class="line">    [anInvocation setSelector:@<span class="built_in">selector</span>(run)];</span><br><span class="line">    [anInvocation invokeWithTarget:self];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="核心原理"><a href="#核心原理" class="headerlink" title="核心原理"></a>核心原理</h1><p>Aspects 的核心原理主要包括三个部分：</p>
+<h1 id="核心原理">核心原理</h1>
+<p>Aspects 的核心原理主要包括三个部分：</p>
 <ul>
-<li><strong>注册关联对象</strong>：在 hook 实例方法时，均会注册关联对象 <code>AspectsContainer</code>。</li>
-<li><strong>创建动态类</strong>：只有在 hook 实例对象的实例方法时，才会创建动态类。</li>
-<li><strong>核心方法交换</strong>：在 hook 实例方法时，均会对核心方法的实现进行交换。</li>
+<li><strong>注册关联对象</strong>：在 hook 实例方法时，均会注册关联对象
+<code>AspectsContainer</code>。</li>
+<li><strong>创建动态类</strong>：只有在 hook
+实例对象的实例方法时，才会创建动态类。</li>
+<li><strong>核心方法交换</strong>：在 hook
+实例方法时，均会对核心方法的实现进行交换。</li>
 </ul>
-<h2 id="注册关联对象"><a href="#注册关联对象" class="headerlink" title="注册关联对象"></a>注册关联对象</h2><p>当 hook 实例方法时，Aspects 会为 <strong>实例对象</strong> 或 <strong>类对象</strong> 注册关联对象 <code>AspectsContainer</code>。<code>AspectsContainer</code> 保存了用户 hook 的目标方法、执行闭包、闭包参数、执行时机等信息。下图所示，为 <code>AspectsContainer</code> 引用关系图。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-uml.png?x-oss-process=image/resize,w_800"></p>
+<h2 id="注册关联对象">注册关联对象</h2>
+<p>当 hook 实例方法时，Aspects 会为 <strong>实例对象</strong> 或
+<strong>类对象</strong> 注册关联对象
+<code>AspectsContainer</code>。<code>AspectsContainer</code> 保存了用户
+hook 的目标方法、执行闭包、闭包参数、执行时机等信息。下图所示，为
+<code>AspectsContainer</code> 引用关系图。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-uml.png?x-oss-process=image/resize,w_800" /></p>
 <p>关联对象注册的目标分两种情况，这种设计策略是有原因的：</p>
 <ul>
-<li><strong>在实例对象中注册关联对象，可以实现让每个实例对象单独管理 aspects，从而保证实例之间相互不影响。</strong></li>
-<li><strong>在类对象中注册关联对象，可以实现让类的每个实例对象共享 aspects，从而实现影响所有实例对象。</strong></li>
+<li><strong>在实例对象中注册关联对象，可以实现让每个实例对象单独管理
+aspects，从而保证实例之间相互不影响。</strong></li>
+<li><strong>在类对象中注册关联对象，可以实现让类的每个实例对象共享
+aspects，从而实现影响所有实例对象。</strong></li>
 </ul>
-<h2 id="创建动态类"><a href="#创建动态类" class="headerlink" title="创建动态类"></a>创建动态类</h2><p>当且仅当 hook 实例对象的实例方法时，Aspects 会为实例的所属类 <code>TestClass</code> 创建一个子类 <code>TestClass_Aspects_</code>（同时创建对应的元类），并修改实例的 <code>isa</code> 指针，使其指向 <code>TestClass_Aspects_</code> 子类，同时 hook <code>TestClass_Aspects_</code> 的 <code>class</code> 方法，使其返回实例的所属类 <code>TestClass</code>，如下图所示。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-01.png?x-oss-process=image/resize,w_800"></p>
-<p>整体的实现方式与 KVO 原理一致，尤其是修改动态类 <code>class</code> 方法的实现，使得在外部看来，实例的所属类并没有发生任何变化。</p>
-<p>这里，我们可以思考一下第三个问题：为什么在 hook 实例对象的实例方法时要创建动态类？</p>
-<h2 id="核心方法交换"><a href="#核心方法交换" class="headerlink" title="核心方法交换"></a>核心方法交换</h2><p>当 hook 实例方法时，最重要的一步是对 <strong>动态创建的类对象</strong>（下文简称：动态类对象） 或 <strong>原始继承链中的类对象</strong>（下文简称：目标类对象） 的两个核心方法与 Aspects 提供的方法进行交换。这两个方法分别是：目标 selector 和 <code>forwardInvocation:</code>。具体的交换逻辑如下图所示。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-02.png?x-oss-process=image/resize,w_800"></p>
-<p>Aspects 会将目标 selector 的实现设置为 Aspects 提供的 <code>aspect_getMsgForwardIMP</code> 方法的返回值。<code>aspects_getMsgForwardIMP</code> 的返回值本质上是一个能够直接触发消息转发机制的方法。更加特殊的地方在于，这里会直接进入消息转发的最后一步 <code>forwardInvocation:</code>。</p>
-<p>与此同时，Aspects 会将动态类对象或目标类对象的 <code>forwardInvocation:</code> 的实现设置为 Aspects 提供的 <code>__ASPECTS_ARE_BEING_CALLED__</code> 方法实现。<code>__ASPECTS_ARE_BEING_CALLED__</code> 内部会从 <strong>实例对象</strong> 或 <strong>类对象</strong> 中取出关联对象 <code>AspectsContainer</code>，并根据其所保存的 hook 信息执行闭包和目标 selector 的原始实现。</p>
-<p><strong>注意：对于核心方法交换，Aspects 支持幂等。即如果对同一个实例方法 hook 多次，Aspects 会保证对这两个方法只交换一次</strong>。</p>
-<h1 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h1><p>下面，我们来通过源码，具体分析一下 Aspects 中的设计细节。</p>
-<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><p>首先，简要介绍一下 Aspects 定义的数据结构，主要包括三种数据结构：</p>
+<h2 id="创建动态类">创建动态类</h2>
+<p>当且仅当 hook 实例对象的实例方法时，Aspects 会为实例的所属类
+<code>TestClass</code> 创建一个子类
+<code>TestClass_Aspects_</code>（同时创建对应的元类），并修改实例的
+<code>isa</code> 指针，使其指向 <code>TestClass_Aspects_</code>
+子类，同时 hook <code>TestClass_Aspects_</code> 的 <code>class</code>
+方法，使其返回实例的所属类 <code>TestClass</code>，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-01.png?x-oss-process=image/resize,w_800" /></p>
+<p>整体的实现方式与 KVO 原理一致，尤其是修改动态类 <code>class</code>
+方法的实现，使得在外部看来，实例的所属类并没有发生任何变化。</p>
+<p>这里，我们可以思考一下第三个问题：为什么在 hook
+实例对象的实例方法时要创建动态类？</p>
+<h2 id="核心方法交换">核心方法交换</h2>
+<p>当 hook 实例方法时，最重要的一步是对
+<strong>动态创建的类对象</strong>（下文简称：动态类对象） 或
+<strong>原始继承链中的类对象</strong>（下文简称：目标类对象）
+的两个核心方法与 Aspects 提供的方法进行交换。这两个方法分别是：目标
+selector 和
+<code>forwardInvocation:</code>。具体的交换逻辑如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-02.png?x-oss-process=image/resize,w_800" /></p>
+<p>Aspects 会将目标 selector 的实现设置为 Aspects 提供的
+<code>aspect_getMsgForwardIMP</code>
+方法的返回值。<code>aspects_getMsgForwardIMP</code>
+的返回值本质上是一个能够直接触发消息转发机制的方法。更加特殊的地方在于，这里会直接进入消息转发的最后一步
+<code>forwardInvocation:</code>。</p>
+<p>与此同时，Aspects 会将动态类对象或目标类对象的
+<code>forwardInvocation:</code> 的实现设置为 Aspects 提供的
+<code>__ASPECTS_ARE_BEING_CALLED__</code>
+方法实现。<code>__ASPECTS_ARE_BEING_CALLED__</code> 内部会从
+<strong>实例对象</strong> 或 <strong>类对象</strong> 中取出关联对象
+<code>AspectsContainer</code>，并根据其所保存的 hook 信息执行闭包和目标
+selector 的原始实现。</p>
+<p><strong>注意：对于核心方法交换，Aspects
+支持幂等。即如果对同一个实例方法 hook 多次，Aspects
+会保证对这两个方法只交换一次</strong>。</p>
+<h1 id="具体实现">具体实现</h1>
+<p>下面，我们来通过源码，具体分析一下 Aspects 中的设计细节。</p>
+<h2 id="数据结构">数据结构</h2>
+<p>首先，简要介绍一下 Aspects 定义的数据结构，主要包括三种数据结构：</p>
 <ul>
 <li><code>AspectsContainer</code></li>
 <li><code>AspectIdentifier</code></li>
 <li><code>AspectInfo</code></li>
 </ul>
-<h3 id="AspectsContainer"><a href="#AspectsContainer" class="headerlink" title="AspectsContainer"></a>AspectsContainer</h3><p>如下所示，为 <code>AspectsContainer</code> 的数据结构定义。<code>AspectsContainer</code> 是 Aspects 所有信息的根容器，其包含了三个数组，用于保存三种类型的 <code>AspectIdentifier</code>。</p>
+<h3 id="aspectscontainer">AspectsContainer</h3>
+<p>如下所示，为 <code>AspectsContainer</code>
+的数据结构定义。<code>AspectsContainer</code> 是 Aspects
+所有信息的根容器，其包含了三个数组，用于保存三种类型的
+<code>AspectIdentifier</code>。</p>
 <ul>
-<li><code>beforeAspects</code>：用于保存执行时机为 <code>AspectPositionBefore</code> 的 <code>AspectIdentifier</code>。</li>
-<li><code>insteadAspects</code>：用于保存执行时机为 <code>AspectPositionInstead</code> 的 <code>AspectIdentifier</code>。</li>
-<li><code>afterAspects</code>：用于保存执行时机为 <code>AspectPositionAfter</code> 的 <code>AspectIdentifier</code>。</li>
+<li><code>beforeAspects</code>：用于保存执行时机为
+<code>AspectPositionBefore</code> 的
+<code>AspectIdentifier</code>。</li>
+<li><code>insteadAspects</code>：用于保存执行时机为
+<code>AspectPositionInstead</code> 的
+<code>AspectIdentifier</code>。</li>
+<li><code>afterAspects</code>：用于保存执行时机为
+<code>AspectPositionAfter</code> 的 <code>AspectIdentifier</code>。</li>
 </ul>
-<p>除此之外，<code>AspectsContainer</code> 还提供了对于数组进行增删操作的方法。</p>
+<p>除此之外，<code>AspectsContainer</code>
+还提供了对于数组进行增删操作的方法。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Tracks all aspects for an object/class.</span></span><br><span class="line">@interface AspectsContainer : NSObject</span><br><span class="line">- (<span class="type">void</span>)addAspect:(AspectIdentifier *)aspect withOptions:(AspectOptions)injectPosition;</span><br><span class="line">- (BOOL)removeAspect:(id)aspect;</span><br><span class="line">- (BOOL)hasAspects;</span><br><span class="line">@<span class="built_in">property</span> (atomic, copy) NSArray *beforeAspects;</span><br><span class="line">@<span class="built_in">property</span> (atomic, copy) NSArray *insteadAspects;</span><br><span class="line">@<span class="built_in">property</span> (atomic, copy) NSArray *afterAspects;</span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
-
-<h3 id="AspectIdentifer"><a href="#AspectIdentifer" class="headerlink" title="AspectIdentifer"></a>AspectIdentifer</h3><p>如下所示，为 <code>AspectIdentifier</code> 的数据结构定义。<code>AspectIdentifier</code> 是用于表示一个 aspect 的相关信息，其包含了目标 selector、执行闭包、闭包签名、目标对象、执行时机等。</p>
+<h3 id="aspectidentifer">AspectIdentifer</h3>
+<p>如下所示，为 <code>AspectIdentifier</code>
+的数据结构定义。<code>AspectIdentifier</code> 是用于表示一个 aspect
+的相关信息，其包含了目标
+selector、执行闭包、闭包签名、目标对象、执行时机等。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Tracks a single aspect.</span></span><br><span class="line">@interface AspectIdentifier : NSObject</span><br><span class="line">+ (instancetype)identifierWithSelector:(SEL)selector object:(id)object options:(AspectOptions)options block:(id)block error:(NSError **)error;</span><br><span class="line">- (BOOL)invokeWithInfo:(id&lt;AspectInfo&gt;)info;</span><br><span class="line">@<span class="built_in">property</span> (nonatomic, assign) SEL selector;</span><br><span class="line">@<span class="built_in">property</span> (nonatomic, strong) id block;</span><br><span class="line">@<span class="built_in">property</span> (nonatomic, strong) NSMethodSignature *blockSignature;</span><br><span class="line">@<span class="built_in">property</span> (nonatomic, weak) id object;</span><br><span class="line">@<span class="built_in">property</span> (nonatomic, assign) AspectOptions options;</span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
-
-<h3 id="AspectInfo"><a href="#AspectInfo" class="headerlink" title="AspectInfo"></a>AspectInfo</h3><p>如下所示，为 <code>AspectInfo</code> 的数据结构定义。<code>AspectInfo</code> 的作用是保存目标 selector 的原始实现的执行环境。由于目标 selector 会被交换方法实现，因此 <code>originalInvocation</code> 的 <code>selector</code> 其实是 Aspects 交换的 selector，即 <code>aspects__SEL</code>。</p>
+<h3 id="aspectinfo">AspectInfo</h3>
+<p>如下所示，为 <code>AspectInfo</code>
+的数据结构定义。<code>AspectInfo</code> 的作用是保存目标 selector
+的原始实现的执行环境。由于目标 selector 会被交换方法实现，因此
+<code>originalInvocation</code> 的 <code>selector</code> 其实是 Aspects
+交换的 selector，即 <code>aspects__SEL</code>。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@interface AspectInfo : NSObject &lt;AspectInfo&gt;</span><br><span class="line">- (id)initWithInstance:(__unsafe_unretained id)instance invocation:(NSInvocation *)invocation;</span><br><span class="line">@<span class="built_in">property</span> (nonatomic, unsafe_unretained, readonly) id instance;</span><br><span class="line">@<span class="built_in">property</span> (nonatomic, strong, readonly) NSArray *arguments;</span><br><span class="line">@<span class="built_in">property</span> (nonatomic, strong, readonly) NSInvocation *originalInvocation;</span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
-
-<h2 id="代码流程"><a href="#代码流程" class="headerlink" title="代码流程"></a>代码流程</h2><p>如下所示，Aspects 对外提供两个接口，分别用于 hook 类方法和实例方法，即添加 aspect。</p>
+<h2 id="代码流程">代码流程</h2>
+<p>如下所示，Aspects 对外提供两个接口，分别用于 hook
+类方法和实例方法，即添加 aspect。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// Adds a block of code before/instead/after the current `selector` for a specific class.</span></span><br><span class="line">+ (id&lt;AspectToken&gt;)aspect_hookSelector:(SEL)selector</span><br><span class="line">                      withOptions:(AspectOptions)options</span><br><span class="line">                       usingBlock:(id)block</span><br><span class="line">                            error:(NSError **)error;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// Adds a block of code before/instead/after the current `selector` for a specific instance.</span></span><br><span class="line">- (id&lt;AspectToken&gt;)aspect_hookSelector:(SEL)selector</span><br><span class="line">                      withOptions:(AspectOptions)options</span><br><span class="line">                       usingBlock:(id)block</span><br><span class="line">                            error:(NSError **)error;</span><br></pre></td></tr></table></figure>
-
-<p>两者的内部实现都只调用了同一个方法 <code>aspect_add</code>，其内部实现逻辑如下所示。</p>
+<p>两者的内部实现都只调用了同一个方法
+<code>aspect_add</code>，其内部实现逻辑如下所示。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> id <span class="title">aspect_add</span><span class="params">(id self, SEL selector, AspectOptions options, id block, NSError **error)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">NSCParameterAssert</span>(self);</span><br><span class="line">    <span class="built_in">NSCParameterAssert</span>(selector);</span><br><span class="line">    <span class="built_in">NSCParameterAssert</span>(block);</span><br><span class="line"></span><br><span class="line">    __block AspectIdentifier *identifier = nil;</span><br><span class="line">    <span class="built_in">aspect_performLocked</span>(^&#123;</span><br><span class="line">        <span class="comment">// 判断是否允许 add aspect</span></span><br><span class="line">        <span class="comment">// 如果允许，会顺带构建 tracker 链。</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">aspect_isSelectorAllowedAndTrack</span>(self, selector, options, error)) &#123;</span><br><span class="line">            <span class="comment">// 加载或创建 container，每个 selector 对应一个 container。</span></span><br><span class="line">            AspectsContainer *aspectContainer = <span class="built_in">aspect_getContainerForObject</span>(self, selector);</span><br><span class="line">            identifier = [AspectIdentifier identifierWithSelector:selector object:self options:options block:block error:error];</span><br><span class="line">            <span class="keyword">if</span> (identifier) &#123;</span><br><span class="line">                [aspectContainer addAspect:identifier withOptions:options];</span><br><span class="line"></span><br><span class="line">                <span class="comment">// Modify the class to allow message interception.</span></span><br><span class="line">                <span class="built_in">aspect_prepareClassAndHookSelector</span>(self, selector, error);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> identifier;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在 <code>aspect_add</code> 方法内部实现中，首先通过 <code>aspect_isSelectorAllowedAndTrack</code> 方法判断是否允许添加 aspect。如果允许，则初始化 <code>AspectsContainer</code>，并将其设置成实例对象或类对象的关联对象。一个 selector 对应一个 container，一个实例对象或类对象可包含多个 container。最后通过 <code>aspect_prepareClassAndHookSelector</code> 执行核心方法交换，对于实例对象，还会创建动态类。</p>
-<h3 id="aspect-isSelectorAllowedAndTrack"><a href="#aspect-isSelectorAllowedAndTrack" class="headerlink" title="aspect_isSelectorAllowedAndTrack"></a><code>aspect_isSelectorAllowedAndTrack</code></h3><p>Aspects 通过 <code>aspect_isSelectorAllowedAndTrack</code> 方法来判断是否允许添加 aspect，如果允许则进行追踪。具体实现逻辑如下所示。</p>
+<p>在 <code>aspect_add</code> 方法内部实现中，首先通过
+<code>aspect_isSelectorAllowedAndTrack</code> 方法判断是否允许添加
+aspect。如果允许，则初始化
+<code>AspectsContainer</code>，并将其设置成实例对象或类对象的关联对象。一个
+selector 对应一个 container，一个实例对象或类对象可包含多个
+container。最后通过 <code>aspect_prepareClassAndHookSelector</code>
+执行核心方法交换，对于实例对象，还会创建动态类。</p>
+<h3
+id="aspect_isselectorallowedandtrack"><code>aspect_isSelectorAllowedAndTrack</code></h3>
+<p>Aspects 通过 <code>aspect_isSelectorAllowedAndTrack</code>
+方法来判断是否允许添加
+aspect，如果允许则进行追踪。具体实现逻辑如下所示。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> BOOL <span class="title">aspect_isSelectorAllowedAndTrack</span><span class="params">(NSObject *self, SEL selector, AspectOptions options, NSError **error)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// part 1</span></span><br><span class="line">    <span class="comment">// 静态变量，作为黑名单</span></span><br><span class="line">    <span class="type">static</span> NSSet *disallowedSelectorList;</span><br><span class="line">    <span class="type">static</span> <span class="type">dispatch_once_t</span> pred;</span><br><span class="line">    <span class="built_in">dispatch_once</span>(&amp;pred, ^&#123;</span><br><span class="line">        <span class="comment">// 不允许添加 aspect 的方法黑名单</span></span><br><span class="line">        disallowedSelectorList = [NSSet setWithObjects:@<span class="string">&quot;retain&quot;</span>, @<span class="string">&quot;release&quot;</span>, @<span class="string">&quot;autorelease&quot;</span>, @<span class="string">&quot;forwardInvocation:&quot;</span>, nil];</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查方法是否属于黑名单</span></span><br><span class="line">    NSString *selectorName = <span class="built_in">NSStringFromSelector</span>(selector);</span><br><span class="line">    <span class="keyword">if</span> ([disallowedSelectorList containsObject:selectorName]) &#123;</span><br><span class="line">        NSString *errorDescription = [NSString stringWithFormat:@<span class="string">&quot;Selector %@ is blacklisted.&quot;</span>, selectorName];</span><br><span class="line">        <span class="built_in">AspectError</span>(AspectErrorSelectorBlacklisted, errorDescription);</span><br><span class="line">        <span class="keyword">return</span> NO;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对于 dealloc 方法，只允许在 before 阶段进行 hook</span></span><br><span class="line">    AspectOptions position = options&amp;AspectPositionFilter;</span><br><span class="line">    <span class="keyword">if</span> ([selectorName isEqualToString:@<span class="string">&quot;dealloc&quot;</span>] &amp;&amp; position != AspectPositionBefore) &#123;</span><br><span class="line">        NSString *errorDesc = @<span class="string">&quot;AspectPositionBefore is the only valid position when hooking dealloc.&quot;</span>;</span><br><span class="line">        <span class="built_in">AspectError</span>(AspectErrorSelectorDeallocPosition, errorDesc);</span><br><span class="line">        <span class="keyword">return</span> NO;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 不能 hook 不存在的实例方法</span></span><br><span class="line">    <span class="keyword">if</span> (![self respondsToSelector:selector] &amp;&amp; ![self.<span class="keyword">class</span> instancesRespondToSelector:selector]) &#123;</span><br><span class="line">        NSString *errorDesc = [NSString stringWithFormat:@<span class="string">&quot;Unable to find selector -[%@ %@].&quot;</span>, <span class="built_in">NSStringFromClass</span>(self.<span class="keyword">class</span>), selectorName];</span><br><span class="line">        <span class="built_in">AspectError</span>(AspectErrorDoesNotRespondToSelector, errorDesc);</span><br><span class="line">        <span class="keyword">return</span> NO;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// part 2</span></span><br><span class="line">    <span class="comment">// 如果 hook 目标是类对象，必须保证类继承链上，只允许对一个方法进行一次 hook</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">class_isMetaClass</span>(<span class="built_in">object_getClass</span>(self))) &#123;</span><br><span class="line">        Class klass = [self <span class="keyword">class</span>];</span><br><span class="line">        NSMutableDictionary *swizzledClassesDict = <span class="built_in">aspect_getSwizzledClassesDict</span>();</span><br><span class="line">        Class currentClass = [self <span class="keyword">class</span>];</span><br><span class="line">        <span class="comment">// 检查继承链中是否 hook 过目标类方法</span></span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            AspectTracker *tracker = swizzledClassesDict[currentClass];</span><br><span class="line">            <span class="comment">// 依次遍历超类直到根类，根据类对应的 track 进行判断</span></span><br><span class="line">            <span class="comment">// 如果类方法已经 hook 过，则进一步判断</span></span><br><span class="line">            <span class="keyword">if</span> ([tracker.selectorNames containsObject:selectorName]) &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (tracker.parentEntry) &#123;</span><br><span class="line">                    <span class="comment">// 如果父类中 hook 过，则不允许 hook</span></span><br><span class="line">                    <span class="comment">// 同时查找最顶层 tracker，打印日志</span></span><br><span class="line">                    AspectTracker *topmostEntry = tracker.parentEntry;</span><br><span class="line">                    <span class="keyword">while</span> (topmostEntry.parentEntry) &#123;</span><br><span class="line">                        topmostEntry = topmostEntry.parentEntry;</span><br><span class="line">                    &#125;</span><br><span class="line">                    NSString *errorDescription = [NSString stringWithFormat:@<span class="string">&quot;Error: %@ already hooked in %@. A method can only be hooked once per class hierarchy.&quot;</span>, selectorName, <span class="built_in">NSStringFromClass</span>(topmostEntry.trackedClass)];</span><br><span class="line">                    <span class="built_in">AspectError</span>(AspectErrorSelectorAlreadyHookedInClassHierarchy, errorDescription);</span><br><span class="line">                    <span class="keyword">return</span> NO;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (klass == currentClass) &#123;</span><br><span class="line">                    <span class="comment">// 如果当前类的方法已经 hook 过，则允许 hook</span></span><br><span class="line">                    <span class="keyword">return</span> YES;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">while</span> ((currentClass = <span class="built_in">class_getSuperclass</span>(currentClass)));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果继承链上没有类对目标方法hook过，则允许 hook，并记录 tracker</span></span><br><span class="line">        <span class="comment">// Add the selector as being modified.</span></span><br><span class="line">        currentClass = klass;</span><br><span class="line">        AspectTracker *parentTracker = nil;</span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            AspectTracker *tracker = swizzledClassesDict[currentClass];</span><br><span class="line">            <span class="keyword">if</span> (!tracker) &#123;</span><br><span class="line">                tracker = [[AspectTracker alloc] initWithTrackedClass:currentClass parent:parentTracker];</span><br><span class="line">                swizzledClassesDict[(id&lt;NSCopying&gt;)currentClass] = tracker;</span><br><span class="line">            &#125;</span><br><span class="line">            [tracker.selectorNames addObject:selectorName];</span><br><span class="line">            <span class="comment">// All superclasses get marked as having a subclass that is modified.</span></span><br><span class="line">            parentTracker = tracker;</span><br><span class="line">        &#125;<span class="keyword">while</span> ((currentClass = <span class="built_in">class_getSuperclass</span>(currentClass)));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> YES;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>aspect_isSelectorAllowedAndTrack</code> 的内部逻辑可以分为两部分：<strong>方法黑名单检查</strong>、<strong>对象类型检查</strong>。</p>
+<p><code>aspect_isSelectorAllowedAndTrack</code>
+的内部逻辑可以分为两部分：<strong>方法黑名单检查</strong>、<strong>对象类型检查</strong>。</p>
 <p>对于方法黑名单检查，可细分为三个步骤：</p>
 <ul>
-<li>判断目标方法是不是 <code>retain</code>、<code>release</code>、<code>autorelease</code> 等，如果是，则不允许 hook。</li>
-<li>如果目标方法是 <code>dealloc</code>，则只允许 hook <code>before</code> 时机，其他时机，则不允许 hook。</li>
+<li>判断目标方法是不是
+<code>retain</code>、<code>release</code>、<code>autorelease</code>
+等，如果是，则不允许 hook。</li>
+<li>如果目标方法是 <code>dealloc</code>，则只允许 hook
+<code>before</code> 时机，其他时机，则不允许 hook。</li>
 <li>进一步确认 hook 的目标方法是否存在，如果不存在，则不允许 hook。</li>
 </ul>
-<p>对于对象类型检查，如果对象类型是实例对象，则允许 hook。如果对象类型是类对象，则进一步判断。根据目标类对象，遍历继承链，对于继承链中的每一个类对象，从全局字典 <code>swizzledClassesDict</code> 中读取对应的追踪器 <code>AspectTracker</code>。根据追踪器的记录，我们可以处理两种情况：</p>
+<p>对于对象类型检查，如果对象类型是实例对象，则允许
+hook。如果对象类型是类对象，则进一步判断。根据目标类对象，遍历继承链，对于继承链中的每一个类对象，从全局字典
+<code>swizzledClassesDict</code> 中读取对应的追踪器
+<code>AspectTracker</code>。根据追踪器的记录，我们可以处理两种情况：</p>
 <ul>
-<li><strong>如果目标类没有 hook 过目标方法，但其父类 hook 过，则不允许 hook。</strong></li>
-<li><strong>如果目标类 hook 过父类方法，但其子类没有 hook 过，则允许 hook。</strong></li>
+<li><strong>如果目标类没有 hook 过目标方法，但其父类 hook 过，则不允许
+hook。</strong></li>
+<li><strong>如果目标类 hook 过父类方法，但其子类没有 hook 过，则允许
+hook。</strong></li>
 </ul>
 <p>如下图所示，为追踪器工作原理示意图。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-03.png?x-oss-process=image/resize,w_800"></p>
-<p>当对 <code>SubClass</code> 类对象 hook 实例方法 <code>SEL01</code> 时，Aspects 会从 <code>SubClass</code> 类对象开始，遍历其继承链，读取继承链上的每一个类对象所对应的追踪器（如果没有则创建），将目标方法 <code>SEL01</code> 保存至其内部的 <code>selectorNames</code> 数组中作为记录。</p>
-<p>后续，如果对 <code>Class</code> 类对象 hook 实例方法 <code>SEL01</code> 时，由于其子类 <code>SubClass</code> 已经 hook 过同名方法，则不允许 <code>Class</code> 对其再次 hook。根据消息传递的原理，对 <code>Class</code> 进行 hook 是不会生效的，因为子类 <code>SubClass</code> 会在消息传递链中提前返回 <code>SEL01</code>。所以，Aspects 的设计不允许在这种情况下再次 hook 同名方法。</p>
-<p>当然，如果对 <code>Class</code> 类对象 hook 实例方法 <code>SEL02</code> 时，由于所有其子类均没有 hook 过同名方法，因此允许 <code>Class</code> 对其再次 hook。</p>
-<p>本质上，Aspects 利用了 <strong>正向的类对象继承链</strong> 和 <strong>反向的追踪器链</strong>，通过全局字典 <code>swizzledClassDict</code> 进行绑定，形成了一个双向链表，便于判断是否允许对类对象的实例方法进行 hook。</p>
-<h3 id="aspect-prepareClassAndHookSelector"><a href="#aspect-prepareClassAndHookSelector" class="headerlink" title="aspect_prepareClassAndHookSelector"></a><code>aspect_prepareClassAndHookSelector</code></h3><p>如下所示，为 <code>aspect_prepareClassAndHookSelector</code> 的实现逻辑。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-03.png?x-oss-process=image/resize,w_800" /></p>
+<p>当对 <code>SubClass</code> 类对象 hook 实例方法 <code>SEL01</code>
+时，Aspects 会从 <code>SubClass</code>
+类对象开始，遍历其继承链，读取继承链上的每一个类对象所对应的追踪器（如果没有则创建），将目标方法
+<code>SEL01</code> 保存至其内部的 <code>selectorNames</code>
+数组中作为记录。</p>
+<p>后续，如果对 <code>Class</code> 类对象 hook 实例方法
+<code>SEL01</code> 时，由于其子类 <code>SubClass</code> 已经 hook
+过同名方法，则不允许 <code>Class</code> 对其再次
+hook。根据消息传递的原理，对 <code>Class</code> 进行 hook
+是不会生效的，因为子类 <code>SubClass</code> 会在消息传递链中提前返回
+<code>SEL01</code>。所以，Aspects 的设计不允许在这种情况下再次 hook
+同名方法。</p>
+<p>当然，如果对 <code>Class</code> 类对象 hook 实例方法
+<code>SEL02</code> 时，由于所有其子类均没有 hook 过同名方法，因此允许
+<code>Class</code> 对其再次 hook。</p>
+<p>本质上，Aspects 利用了 <strong>正向的类对象继承链</strong> 和
+<strong>反向的追踪器链</strong>，通过全局字典
+<code>swizzledClassDict</code>
+进行绑定，形成了一个双向链表，便于判断是否允许对类对象的实例方法进行
+hook。</p>
+<h3
+id="aspect_prepareclassandhookselector"><code>aspect_prepareClassAndHookSelector</code></h3>
+<p>如下所示，为 <code>aspect_prepareClassAndHookSelector</code>
+的实现逻辑。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">aspect_prepareClassAndHookSelector</span><span class="params">(NSObject *self, SEL selector, NSError **error)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">NSCParameterAssert</span>(selector);</span><br><span class="line">    <span class="comment">// Aspects_Class_</span></span><br><span class="line">    Class klass = <span class="built_in">aspect_hookClass</span>(self, error);</span><br><span class="line">    <span class="comment">// 读取 Aspects_Class_ 的 selector 方法</span></span><br><span class="line">    Method targetMethod = <span class="built_in">class_getInstanceMethod</span>(klass, selector);</span><br><span class="line">    IMP targetMethodIMP = <span class="built_in">method_getImplementation</span>(targetMethod);</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">aspect_isMsgForwardIMP</span>(targetMethodIMP)) &#123;</span><br><span class="line">        <span class="comment">// IMP 不能是 _objc_msgForward 或 _objc_msgForward_stret</span></span><br><span class="line">        <span class="type">const</span> <span class="type">char</span> *typeEncoding = <span class="built_in">method_getTypeEncoding</span>(targetMethod);</span><br><span class="line">        <span class="comment">// aspects__SEL</span></span><br><span class="line">        SEL aliasSelector = <span class="built_in">aspect_aliasForSelector</span>(selector);</span><br><span class="line">        <span class="keyword">if</span> (![klass instancesRespondToSelector:aliasSelector]) &#123;</span><br><span class="line">            <span class="comment">// 如果不存在 aspects__SEL，即没有被交换过，则新增一个 aspects__SEL 方法，其实现指向 selector IMP</span></span><br><span class="line">            __unused BOOL addedAlias = <span class="built_in">class_addMethod</span>(klass, aliasSelector, <span class="built_in">method_getImplementation</span>(targetMethod), typeEncoding);</span><br><span class="line">            <span class="built_in">NSCAssert</span>(addedAlias, @<span class="string">&quot;Original implementation for %@ is already copied to %@ on %@&quot;</span>, <span class="built_in">NSStringFromSelector</span>(selector), <span class="built_in">NSStringFromSelector</span>(aliasSelector), klass);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将 selector 方法的实现指向 _objc_msgForward，从而直接触发消息转发</span></span><br><span class="line">        <span class="built_in">class_replaceMethod</span>(klass, selector, <span class="built_in">aspect_getMsgForwardIMP</span>(self, selector), typeEncoding);</span><br><span class="line">        <span class="built_in">AspectLog</span>(@<span class="string">&quot;Aspects: Installed hook for -[%@ %@].&quot;</span>, klass, <span class="built_in">NSStringFromSelector</span>(selector));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>其中 <code>aspect_hookClass</code> 将判断对象类型，如果是实例对象，则创建一个动态类对象返回；如果是类对象，则返回对应的类对象。</p>
-<p>基于 <code>aspect_hookClass</code> 返回的对象，Aspects 将修改该对象的两个方法，使其指向 Aspects 的两个方法实现，即上述我们介绍的 <strong>核心方法交换</strong>。</p>
-<p>在 <code>aspect_prepareClassAndHookSelector</code> 的实现中，Aspects 会在进行方法交换之前进行检查，避免重复交换，从而实现幂等。</p>
-<h3 id="aspect-hookClass"><a href="#aspect-hookClass" class="headerlink" title="aspect_hookClass"></a><code>aspect_hookClass</code></h3><p>如下所示，为 <code>aspect_hookClass</code> 的实现逻辑。</p>
+<p>其中 <code>aspect_hookClass</code>
+将判断对象类型，如果是实例对象，则创建一个动态类对象返回；如果是类对象，则返回对应的类对象。</p>
+<p>基于 <code>aspect_hookClass</code> 返回的对象，Aspects
+将修改该对象的两个方法，使其指向 Aspects
+的两个方法实现，即上述我们介绍的 <strong>核心方法交换</strong>。</p>
+<p>在 <code>aspect_prepareClassAndHookSelector</code> 的实现中，Aspects
+会在进行方法交换之前进行检查，避免重复交换，从而实现幂等。</p>
+<h3 id="aspect_hookclass"><code>aspect_hookClass</code></h3>
+<p>如下所示，为 <code>aspect_hookClass</code> 的实现逻辑。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> Class <span class="title">aspect_hookClass</span><span class="params">(NSObject *self, NSError **error)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">NSCParameterAssert</span>(self);</span><br><span class="line">    Class statedClass = self.<span class="keyword">class</span>;         <span class="comment">// 其所声明的类</span></span><br><span class="line">    Class baseClass = <span class="built_in">object_getClass</span>(self);<span class="comment">// isa</span></span><br><span class="line">    NSString *className = <span class="built_in">NSStringFromClass</span>(baseClass);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ([className hasSuffix:AspectsSubclassSuffix]) &#123;</span><br><span class="line">        <span class="comment">// 如果是实例对象，且实例对象已经 hook 过方法，即其 isa 指向的是动态类对象 Aspects_Class_，则直接复用动态类对象</span></span><br><span class="line">        <span class="keyword">return</span> baseClass;</span><br><span class="line"></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">class_isMetaClass</span>(baseClass)) &#123;</span><br><span class="line">        <span class="comment">// 如果是类对象，则将该类对象 forwardInvocation: 的实现设置为 _aspects_forwardInvocation:。</span></span><br><span class="line">        <span class="comment">// 方法交换完成后，返回该类对象。</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">aspect_swizzleClassInPlace</span>((Class)self);</span><br><span class="line">        </span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (statedClass != baseClass) &#123;</span><br><span class="line">        <span class="comment">// 如果是被 KVO 的实例对象。</span></span><br><span class="line">        <span class="comment">// baseClass 为 KVO 所创建的动态类，则直接对 KVO 创建的动态类对象进行方法交换，交换 forwardInvocation: 与 _aspects_forwardInvocation: 的方法实现。</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">aspect_swizzleClassInPlace</span>(baseClass);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果是实例对象，且实例对象未 hook 过方法，则创建动态子类 Aspects_Class_</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *subclassName = [className stringByAppendingString:AspectsSubclassSuffix].UTF8String;</span><br><span class="line">    Class subclass = <span class="built_in">objc_getClass</span>(subclassName);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (subclass == nil) &#123;</span><br><span class="line">        subclass = <span class="built_in">objc_allocateClassPair</span>(baseClass, subclassName, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span> (subclass == nil) &#123;</span><br><span class="line">            NSString *errrorDesc = [NSString stringWithFormat:@<span class="string">&quot;objc_allocateClassPair failed to allocate class %s.&quot;</span>, subclassName];</span><br><span class="line">            <span class="built_in">AspectError</span>(AspectErrorFailedToAllocateClassPair, errrorDesc);</span><br><span class="line">            <span class="keyword">return</span> nil;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将动态类对象的 forwardInvocation: 与 _aspects_forwardInvocation: 进行方法交换</span></span><br><span class="line">        <span class="built_in">aspect_swizzleForwardInvocation</span>(subclass);</span><br><span class="line">        <span class="comment">// 将动态类对象的 class 设置成 statedClass</span></span><br><span class="line">        <span class="built_in">aspect_hookedGetClass</span>(subclass, statedClass);</span><br><span class="line">        <span class="comment">// 将动态类对象的元类的 class 设置成 stateClass</span></span><br><span class="line">        <span class="built_in">aspect_hookedGetClass</span>(<span class="built_in">object_getClass</span>(subclass), statedClass);</span><br><span class="line">        <span class="built_in">objc_registerClassPair</span>(subclass);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置 isa 指针，指向 subclass</span></span><br><span class="line">    <span class="built_in">object_setClass</span>(self, subclass);</span><br><span class="line">    <span class="keyword">return</span> subclass;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>aspect_hookClass</code> 方法主要用于 <strong>选择对哪个对象的目标方法执行 hook</strong>，这里面包含了 4 种具体的情况，依次为：</p>
+<p><code>aspect_hookClass</code> 方法主要用于
+<strong>选择对哪个对象的目标方法执行 hook</strong>，这里面包含了 4
+种具体的情况，依次为：</p>
 <ul>
-<li>如果目标对象是实例对象，且实例对象曾经 hook 过方法，则直接返回已创建的动态类对象。</li>
-<li>如果目标对象是类对象，则对类对象的 <code>forwardInvocation:</code> 方法的实现设置为 Aspects 提供的 <code>_aspects_forwardInvocation:</code>，并返回该类对象。</li>
-<li>如果目标对象是被 KVO 的对象，则直接复用 KVO 所创建的动态类，并对动态类对象的 <code>forwardInvocation:</code> 方法的实现设置为 Aspects 提供的 <code>_aspects_forwardInvocation:</code>，并返回 KVO 的动态类对象。</li>
-<li>如果目标对象是实例对象，且实例对象没有 hook 过方法，则创建一个动态类对象 <code>Aspects_Class_</code>，同时包括元类对象，并对动态类对象的 <code>forwardInvocation:</code> 方法执行方法交换，并且设置动态类与原始类之间的关系，最终返回动态类对象。</li>
+<li>如果目标对象是实例对象，且实例对象曾经 hook
+过方法，则直接返回已创建的动态类对象。</li>
+<li>如果目标对象是类对象，则对类对象的 <code>forwardInvocation:</code>
+方法的实现设置为 Aspects 提供的
+<code>_aspects_forwardInvocation:</code>，并返回该类对象。</li>
+<li>如果目标对象是被 KVO 的对象，则直接复用 KVO
+所创建的动态类，并对动态类对象的 <code>forwardInvocation:</code>
+方法的实现设置为 Aspects 提供的
+<code>_aspects_forwardInvocation:</code>，并返回 KVO 的动态类对象。</li>
+<li>如果目标对象是实例对象，且实例对象没有 hook
+过方法，则创建一个动态类对象
+<code>Aspects_Class_</code>，同时包括元类对象，并对动态类对象的
+<code>forwardInvocation:</code>
+方法执行方法交换，并且设置动态类与原始类之间的关系，最终返回动态类对象。</li>
 </ul>
-<h1 id="相关问题"><a href="#相关问题" class="headerlink" title="相关问题"></a>相关问题</h1><p>本节，我们将来介绍上文所提出的几个问题。</p>
-<h2 id="问题一：为什么-Aspects-仅支持对实例方法进行-hook？"><a href="#问题一：为什么-Aspects-仅支持对实例方法进行-hook？" class="headerlink" title="问题一：为什么 Aspects 仅支持对实例方法进行 hook？"></a>问题一：为什么 Aspects 仅支持对实例方法进行 hook？</h2><p>在 Aspects 的实现中，在判断能够添加 aspect 的逻辑中，会通过 <code>aspect_isCompatibleBlockSignature</code> 方法来判断 block 与 selector 的方法签名是否匹配，如下所示。其中，它会通过类的 <code>instanceMethodSignatureForSelector</code> 方法获取 selector 的方法签名。对于类方法，通过这种方式必然返回 <code>nil</code>，从而导致判断条件无法满足，因此无法 hook 类方法。</p>
+<h1 id="相关问题">相关问题</h1>
+<p>本节，我们将来介绍上文所提出的几个问题。</p>
+<h2 id="问题一为什么-aspects-仅支持对实例方法进行-hook">问题一：为什么
+Aspects 仅支持对实例方法进行 hook？</h2>
+<p>在 Aspects 的实现中，在判断能够添加 aspect 的逻辑中，会通过
+<code>aspect_isCompatibleBlockSignature</code> 方法来判断 block 与
+selector 的方法签名是否匹配，如下所示。其中，它会通过类的
+<code>instanceMethodSignatureForSelector</code> 方法获取 selector
+的方法签名。对于类方法，通过这种方式必然返回
+<code>nil</code>，从而导致判断条件无法满足，因此无法 hook 类方法。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> BOOL <span class="title">aspect_isCompatibleBlockSignature</span><span class="params">(NSMethodSignature *blockSignature, id object, SEL selector, NSError **error)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">NSCParameterAssert</span>(blockSignature);</span><br><span class="line">    <span class="built_in">NSCParameterAssert</span>(object);</span><br><span class="line">    <span class="built_in">NSCParameterAssert</span>(selector);</span><br><span class="line"></span><br><span class="line">    BOOL signaturesMatch = YES;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 对于类方法，通过 instanceMethodSignatureForSelector: 读取必然返回 nil</span></span><br><span class="line">    NSMethodSignature *methodSignature = [[object <span class="keyword">class</span>] instanceMethodSignatureForSelector:selector];</span><br><span class="line">    <span class="keyword">if</span> (blockSignature.numberOfArguments &gt; methodSignature.numberOfArguments) &#123;</span><br><span class="line">        signaturesMatch = NO;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h2 id="问题二：在项目中使用-Aspects-进行-hook-是否有什么坑？"><a href="#问题二：在项目中使用-Aspects-进行-hook-是否有什么坑？" class="headerlink" title="问题二：在项目中使用 Aspects 进行 hook 是否有什么坑？"></a>问题二：在项目中使用 Aspects 进行 hook 是否有什么坑？</h2><p>如果我们真正理解了 Aspects 的设计原理，很容易明白为什么作者不推荐在生产环境中使用 Aspects。事实上，在实际的项目开发中，我们经常会用到对已有方法进行 hook。当然，我们可以保证自己写的代码只使用 Aspects 进行 hook，但是我们无法确定引入的第三方库是否使用其他方式对方法进行 hook。那么，这时候埋下了未知的风险。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-04.png?x-oss-process=image/resize,w_800"></p>
-<p>如上图所示，假如我们对 <code>SEL</code> 与 <code>bcq_SEL</code> 进行了 swizzle。那么，<code>bcq_SEL</code> 的实现将指向 <code>SEL</code> 的实现 <code>aspect_getMsgForwardIMP</code>；<code>SEL</code> 的实现将指向 <code>bcq_SEL</code> 的实现 <code>bcq_IMP</code>。</p>
-<p>在有些情况下，比如：hook <code>viewWillAppear:</code> 方法。<code>bcq_IMP</code> 里会再次调用 <code>bcq_SEL</code>，从而再次调用原始实现。这时候，我们调用 <code>SEL</code>，它最终仍然会调用 <code>aspect_getMsgForwardIMP</code>，Aspects 的设置不受影响。</p>
-<p>但是有些情况下，<code>bcq_IMP</code> 的内部逻辑可能只在特定条件下调用原始实现，其他条件下调用自定义实现。这时候，我们调用 <code>SEL</code>，在某些条件下将不会触发 <code>aspect_getMsgForwardIMP</code>，最终导致 Aspects 的设置不生效。</p>
-<p>显而易见，在生产环境在使用 Aspects 的确可能会出现不确定的异常问题。因此，作者不建议我们在生产环境中使用 Aspects。</p>
-<h2 id="问题三：为什么在-hook-实例对象的实例方法时要创建动态类？"><a href="#问题三：为什么在-hook-实例对象的实例方法时要创建动态类？" class="headerlink" title="问题三：为什么在 hook 实例对象的实例方法时要创建动态类？"></a>问题三：为什么在 hook 实例对象的实例方法时要创建动态类？</h2><p>对于实例对象的实例方法，我们显然不能直接 hook 继承链中的类对象，否则将影响类的所有实例的实例方法。因此，Aspects 选择了一种类似于 KVO 的设计，动态创建一个子类，并将实例对象的 <code>isa</code> 指针指向动态子类。动态子类的 <code>class</code> 方法则指向实例对象的声明类，从而是外部看来没有任何变化。</p>
-<p>这种做法，为实例对象单独开辟了一条继承链分支，如下图所示。只有被 hook 的实例对象才会走这条分支继承链，因此不影响其他实例。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-05.png?x-oss-process=image/resize,w_800"></p>
-<p>如果对同一个类的多个实例进行 Aspects，那么会怎么样？从上图中，我们也能猜到，Aspects 会复用动态子类。只不过 hook 的闭包由各个实例对象自己管理而已。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>通过分析 Aspects 的源码及其设计原理，我们同时加深了对于 Objective-C Runtime 的理解。从中，我们也了解到 Aspects 的局限性，引入需谨慎。</p>
+<h2
+id="问题二在项目中使用-aspects-进行-hook-是否有什么坑">问题二：在项目中使用
+Aspects 进行 hook 是否有什么坑？</h2>
+<p>如果我们真正理解了 Aspects
+的设计原理，很容易明白为什么作者不推荐在生产环境中使用
+Aspects。事实上，在实际的项目开发中，我们经常会用到对已有方法进行
+hook。当然，我们可以保证自己写的代码只使用 Aspects 进行
+hook，但是我们无法确定引入的第三方库是否使用其他方式对方法进行
+hook。那么，这时候埋下了未知的风险。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-04.png?x-oss-process=image/resize,w_800" /></p>
+<p>如上图所示，假如我们对 <code>SEL</code> 与 <code>bcq_SEL</code>
+进行了 swizzle。那么，<code>bcq_SEL</code> 的实现将指向 <code>SEL</code>
+的实现 <code>aspect_getMsgForwardIMP</code>；<code>SEL</code>
+的实现将指向 <code>bcq_SEL</code> 的实现 <code>bcq_IMP</code>。</p>
+<p>在有些情况下，比如：hook <code>viewWillAppear:</code>
+方法。<code>bcq_IMP</code> 里会再次调用
+<code>bcq_SEL</code>，从而再次调用原始实现。这时候，我们调用
+<code>SEL</code>，它最终仍然会调用
+<code>aspect_getMsgForwardIMP</code>，Aspects 的设置不受影响。</p>
+<p>但是有些情况下，<code>bcq_IMP</code>
+的内部逻辑可能只在特定条件下调用原始实现，其他条件下调用自定义实现。这时候，我们调用
+<code>SEL</code>，在某些条件下将不会触发
+<code>aspect_getMsgForwardIMP</code>，最终导致 Aspects
+的设置不生效。</p>
+<p>显而易见，在生产环境在使用 Aspects
+的确可能会出现不确定的异常问题。因此，作者不建议我们在生产环境中使用
+Aspects。</p>
+<h2
+id="问题三为什么在-hook-实例对象的实例方法时要创建动态类">问题三：为什么在
+hook 实例对象的实例方法时要创建动态类？</h2>
+<p>对于实例对象的实例方法，我们显然不能直接 hook
+继承链中的类对象，否则将影响类的所有实例的实例方法。因此，Aspects
+选择了一种类似于 KVO 的设计，动态创建一个子类，并将实例对象的
+<code>isa</code> 指针指向动态子类。动态子类的 <code>class</code>
+方法则指向实例对象的声明类，从而是外部看来没有任何变化。</p>
+<p>这种做法，为实例对象单独开辟了一条继承链分支，如下图所示。只有被 hook
+的实例对象才会走这条分支继承链，因此不影响其他实例。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aspects-05.png?x-oss-process=image/resize,w_800" /></p>
+<p>如果对同一个类的多个实例进行
+Aspects，那么会怎么样？从上图中，我们也能猜到，Aspects
+会复用动态子类。只不过 hook 的闭包由各个实例对象自己管理而已。</p>
+<h1 id="总结">总结</h1>
+<p>通过分析 Aspects 的源码及其设计原理，我们同时加深了对于 Objective-C
+Runtime 的理解。从中，我们也了解到 Aspects 的局限性，引入需谨慎。</p>
 <p>在 Aspects 中，我们看到了很多 Objective-C 的黑魔法 API，比如：</p>
 <ul>
-<li><code>_objc_msgForward</code>&#x2F;<code>_objc_msgForward_stret</code>：直接触发 <code>forwardInvocation:</code></li>
+<li><code>_objc_msgForward</code>/<code>_objc_msgForward_stret</code>：直接触发
+<code>forwardInvocation:</code></li>
 <li><code>objc_allocateClassPair</code>：动态创建类对象和元类对象</li>
 <li><code>objc_registerClassPair</code>：注册类对象和元类对象</li>
 <li><code>object_setClass</code>：设置 <code>isa</code> 指针指向。</li>
 </ul>
-<p>除此之外，Aspects 使用了非常底层的方式实现了闭包的参数检查与匹配，这一块非常值得我们深入学习，后续有机会我们再来研究一下。</p>
-<p>最后，向作者表达一下敬意！如果对 Objective-C 底层原理没有如此深刻的理解，一般人是写不出来这样的框架的！</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
-<li><a target="_blank" rel="noopener" href="https://github.com/steipete/Aspects">Aspects</a></li>
-<li><a href="http://chuquan.me/2018/10/20/ios-runtime-message-sending-and-forwarding/">Objective-C Runtime 消息传递与转发</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.mikeash.com/pyblog/friday-qa-2009-03-27-objective-c-message-forwarding.html">Friday Q&amp;A 2009-03-27: Objective-C Message Forwarding</a></li>
-<li><a target="_blank" rel="noopener" href="https://wereadteam.github.io/2016/06/30/Aspects/">面向切面编程之 Aspects 源码解析及应用</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ae5c32708bc6">object_getClass(obj)与[obj class]的区别</a></li>
-<li><a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html">Type Encodings</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/a420751e3e93">Aspects关联&amp;调用流程浅析</a></li>
-<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903828265893895#heading-6">Aspects源码分析</a></li>
+<p>除此之外，Aspects
+使用了非常底层的方式实现了闭包的参数检查与匹配，这一块非常值得我们深入学习，后续有机会我们再来研究一下。</p>
+<p>最后，向作者表达一下敬意！如果对 Objective-C
+底层原理没有如此深刻的理解，一般人是写不出来这样的框架的！</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li><a href="https://github.com/steipete/Aspects">Aspects</a></li>
+<li><a
+href="http://chuquan.me/2018/10/20/ios-runtime-message-sending-and-forwarding/">Objective-C
+Runtime 消息传递与转发</a></li>
+<li><a
+href="https://www.mikeash.com/pyblog/friday-qa-2009-03-27-objective-c-message-forwarding.html">Friday
+Q&amp;A 2009-03-27: Objective-C Message Forwarding</a></li>
+<li><a
+href="https://wereadteam.github.io/2016/06/30/Aspects/">面向切面编程之
+Aspects 源码解析及应用</a></li>
+<li><a
+href="https://www.jianshu.com/p/ae5c32708bc6">object_getClass(obj)与[obj
+class]的区别</a></li>
+<li><a
+href="https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html">Type
+Encodings</a></li>
+<li><a
+href="https://www.jianshu.com/p/a420751e3e93">Aspects关联&amp;调用流程浅析</a></li>
+<li><a
+href="https://juejin.cn/post/6844903828265893895#heading-6">Aspects源码分析</a></li>
 </ol>
 
-      
     </div>
-    
-    
-    
 
     
-
     
-      <div>
-        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
-  <div>欣赏此文？求鼓励，求支持！</div>
-  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
-    <span>赏</span>
-  </button>
-  <div id="QR" style="display: none;">
-
-    
-      <div id="wechat" style="display: inline-block">
-        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
-        <p>WeChat Pay</p>
-      </div>
-    
-
-    
-      <div id="alipay" style="display: inline-block">
-        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
-        <p>Alipay</p>
-      </div>
-    
-
-    
-
-  </div>
-</div>
-
-      </div>
-    
-
     
 
     <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag"># 源码解读</a>
-          
-            <a href="/tags/KVO/" rel="tag"># KVO</a>
-          
-            <a href="/tags/Aspects/" rel="tag"># Aspects</a>
-          
-            <a href="/tags/AOP/" rel="tag"># AOP</a>
-          
-        </div>
-      
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
 
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2022/10/29/promisekit/" rel="next" title="源码解读——PromiseKit">
-                <i class="fa fa-chevron-left"></i> 源码解读——PromiseKit
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2022/12/05/future-and-promise/" rel="prev" title="Future 和 Promise">
-                Future 和 Promise <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-        <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-  <a class="jiathis_button_tsina"></a>
-  <a class="jiathis_button_tqq"></a>
-  <a class="jiathis_button_weixin"></a>
-  <a class="jiathis_button_cqq"></a>
-  <a class="jiathis_button_douban"></a>
-  <a class="jiathis_button_renren"></a>
-  <a class="jiathis_button_qzone"></a>
-  <a class="jiathis_button_kaixin001"></a>
-  <a class="jiathis_button_copy"></a>
-  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
-  <a class="jiathis_counter_style"></a>
 </div>
-<script type="text/javascript" >
-  var jiathis_config={
-    hideMore:false
-  }
-</script>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
 
-      
-    </div>
-  </div>
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
 
+  <div class="social-list">
 
-          </div>
-          
-
-
-          
-  <div class="comments" id="comments">
-    
-      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
-    
-  </div>
-
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <img class="site-author-image" itemprop="image"
-               src="/images/SlamDunk.png"
-               alt="" />
-          <p class="site-author-name" itemprop="name"></p>
-           
-              <p class="site-description motion-element" itemprop="description"></p>
-          
-        </div>
-        <nav class="site-state motion-element">
-
-          
-            <div class="site-state-item site-state-posts">
-              <a href="/archives">
-                <span class="site-state-item-count">128</span>
-                <span class="site-state-item-name">日志</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-categories">
-              <a href="/categories/index.html">
-                <span class="site-state-item-count">28</span>
-                <span class="site-state-item-name">分类</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-tags">
-              <a href="/tags/index.html">
-                <span class="site-state-item-count">284</span>
-                <span class="site-state-item-name">标签</span>
-              </a>
-            </div>
-          
-
-        </nav>
-
-        
-          <div class="feed-link motion-element">
-            <a href="/atom.xml" rel="alternate">
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
               <i class="fa fa-rss"></i>
-              RSS
-            </a>
-          </div>
-        
+            </span>
 
-        <div class="links-of-author motion-element">
-          
-            
-              <span class="links-of-author-item">
-                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
-                  
-                    <i class="fa fa-fw fa-github"></i>
-                  
-                    
-                      GitHub
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
-                  
-                    <i class="fa fa-fw fa-weibo"></i>
-                  
-                    
-                      微博
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                    
-                      Facebook
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
-                  
-                    <i class="fa fa-fw fa-instagram"></i>
-                  
-                    
-                      Instagram
-                    
-                </a>
-              </span>
-            
-          
-        </div>
-
-        
-        
-
-        
-        
-
-        
-
-
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80"><span class="nav-number">2.</span> <span class="nav-text">基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E4%BC%A0%E9%80%92"><span class="nav-number">2.1.</span> <span class="nav-text">消息传递</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.1.</span> <span class="nav-text">实例方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.2.</span> <span class="nav-text">类方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E8%BD%AC%E5%8F%91"><span class="nav-number">2.2.</span> <span class="nav-text">消息转发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E6%B6%88%E6%81%AF%E8%A7%A3%E6%9E%90"><span class="nav-number">2.2.1.</span> <span class="nav-text">动态消息解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%87%E7%94%A8%E6%8E%A5%E6%94%B6%E8%80%85"><span class="nav-number">2.2.2.</span> <span class="nav-text">备用接收者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E6%B6%88%E6%81%AF%E8%BD%AC%E5%8F%91"><span class="nav-number">2.2.3.</span> <span class="nav-text">完整消息转发</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">核心原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E5%86%8C%E5%85%B3%E8%81%94%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.1.</span> <span class="nav-text">注册关联对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%8A%A8%E6%80%81%E7%B1%BB"><span class="nav-number">3.2.</span> <span class="nav-text">创建动态类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%96%B9%E6%B3%95%E4%BA%A4%E6%8D%A2"><span class="nav-number">3.3.</span> <span class="nav-text">核心方法交换</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">具体实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">4.1.</span> <span class="nav-text">数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AspectsContainer"><span class="nav-number">4.1.1.</span> <span class="nav-text">AspectsContainer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AspectIdentifer"><span class="nav-number">4.1.2.</span> <span class="nav-text">AspectIdentifer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AspectInfo"><span class="nav-number">4.1.3.</span> <span class="nav-text">AspectInfo</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B"><span class="nav-number">4.2.</span> <span class="nav-text">代码流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#aspect-isSelectorAllowedAndTrack"><span class="nav-number">4.2.1.</span> <span class="nav-text">aspect_isSelectorAllowedAndTrack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#aspect-prepareClassAndHookSelector"><span class="nav-number">4.2.2.</span> <span class="nav-text">aspect_prepareClassAndHookSelector</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#aspect-hookClass"><span class="nav-number">4.2.3.</span> <span class="nav-text">aspect_hookClass</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">相关问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E4%B8%80%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88-Aspects-%E4%BB%85%E6%94%AF%E6%8C%81%E5%AF%B9%E5%AE%9E%E4%BE%8B%E6%96%B9%E6%B3%95%E8%BF%9B%E8%A1%8C-hook%EF%BC%9F"><span class="nav-number">5.1.</span> <span class="nav-text">问题一：为什么 Aspects 仅支持对实例方法进行 hook？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E4%BA%8C%EF%BC%9A%E5%9C%A8%E9%A1%B9%E7%9B%AE%E4%B8%AD%E4%BD%BF%E7%94%A8-Aspects-%E8%BF%9B%E8%A1%8C-hook-%E6%98%AF%E5%90%A6%E6%9C%89%E4%BB%80%E4%B9%88%E5%9D%91%EF%BC%9F"><span class="nav-number">5.2.</span> <span class="nav-text">问题二：在项目中使用 Aspects 进行 hook 是否有什么坑？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E4%B8%89%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%9C%A8-hook-%E5%AE%9E%E4%BE%8B%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%AE%9E%E4%BE%8B%E6%96%B9%E6%B3%95%E6%97%B6%E8%A6%81%E5%88%9B%E5%BB%BA%E5%8A%A8%E6%80%81%E7%B1%BB%EF%BC%9F"><span class="nav-number">5.3.</span> <span class="nav-text">问题三：为什么在 hook 实例对象的实例方法时要创建动态类？</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
-        
+            <span class="label">RSS</span>
+          </a>
       </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright" >
-  
-  &copy;  2018 - 
-  <span itemprop="copyrightYear">2023</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Pisces
-  </a>
-</div>
-
-<div>
-  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
-</div>
-
-
+          <div class="post-tags">
+              <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag"># 源码解读</a>
+              <a href="/tags/KVO/" rel="tag"># KVO</a>
+              <a href="/tags/Aspects/" rel="tag"># Aspects</a>
+              <a href="/tags/AOP/" rel="tag"># AOP</a>
+          </div>
 
         
-<div class="busuanzi-count">
-  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-  
-    <span class="site-uv">
-      <i class="fa fa-user"></i>本站总访客
-      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
-      人次
-    </span>
-  
-
-  
-    <span class="site-pv">
-      <i class="fa fa-eye"></i>本站总访问量
-      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
-      次
-    </span>
-  
-</div>
-
-
-        
-      </div>
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/10/29/promisekit/" rel="prev" title="源码解读——PromiseKit">
+                  <i class="fa fa-angle-left"></i> 源码解读——PromiseKit
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/12/05/future-and-promise/" rel="next" title="Future 和 Promise">
+                  Future 和 Promise <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
     </footer>
+  </article>
+</div>
 
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
 
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
   </div>
 
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
   
 
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2022/11/13/understand-principle-of-aspects/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
   }
+}
 </script>
 
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
-
-
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  
-
-
-
-
-	
-
-
-
-
-
-  
-
-
-
-
-
-  
-    <script type="text/javascript">
-      (function(d, s) {
-        var j, e = d.getElementsByTagName(s)[0];
-        if (typeof LivereTower === 'function') { return; }
-        j = d.createElement(s);
-        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
-        j.async = true;
-        e.parentNode.insertBefore(j, e);
-      })(document, 'script');
-    </script>
-  
-
-
-
-
-
-
-  
-
-  <script type="text/javascript">
-    // Popup Window;
-    var isfetched = false;
-    var isXml = true;
-    // Search DB path;
-    var search_path = "search.xml";
-    if (search_path.length === 0) {
-      search_path = "search.xml";
-    } else if (/json$/i.test(search_path)) {
-      isXml = false;
-    }
-    var path = "/" + search_path;
-    // monitor main search box;
-
-    var onPopupClose = function (e) {
-      $('.popup').hide();
-      $('#local-search-input').val('');
-      $('.search-result-list').remove();
-      $('#no-result').remove();
-      $(".local-search-pop-overlay").remove();
-      $('body').css('overflow', '');
-    }
-
-    function proceedsearch() {
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
-        .css('overflow', 'hidden');
-      $('.search-popup-overlay').click(onPopupClose);
-      $('.popup').toggle();
-      var $localSearchInput = $('#local-search-input');
-      $localSearchInput.attr("autocapitalize", "none");
-      $localSearchInput.attr("autocorrect", "off");
-      $localSearchInput.focus();
-    }
-
-    // search function;
-    var searchFunc = function(path, search_id, content_id) {
-      'use strict';
-
-      // start loading animation
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
-          '<div id="search-loading-icon">' +
-          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
-          '</div>' +
-          '</div>')
-        .css('overflow', 'hidden');
-      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
-
-      $.ajax({
-        url: path,
-        dataType: isXml ? "xml" : "json",
-        async: true,
-        success: function(res) {
-          // get the contents from search data
-          isfetched = true;
-          $('.popup').detach().appendTo('.header-inner');
-          var datas = isXml ? $("entry", res).map(function() {
-            return {
-              title: $("title", this).text(),
-              content: $("content",this).text(),
-              url: $("url" , this).text()
-            };
-          }).get() : res;
-          var input = document.getElementById(search_id);
-          var resultContent = document.getElementById(content_id);
-          var inputEventFunction = function() {
-            var searchText = input.value.trim().toLowerCase();
-            var keywords = searchText.split(/[\s\-]+/);
-            if (keywords.length > 1) {
-              keywords.push(searchText);
-            }
-            var resultItems = [];
-            if (searchText.length > 0) {
-              // perform local searching
-              datas.forEach(function(data) {
-                var isMatch = false;
-                var hitCount = 0;
-                var searchTextCount = 0;
-                var title = data.title.trim();
-                var titleInLowerCase = title.toLowerCase();
-                var content = data.content.trim().replace(/<[^>]+>/g,"");
-                var contentInLowerCase = content.toLowerCase();
-                var articleUrl = decodeURIComponent(data.url);
-                var indexOfTitle = [];
-                var indexOfContent = [];
-                // only match articles with not empty titles
-                if(title != '') {
-                  keywords.forEach(function(keyword) {
-                    function getIndexByWord(word, text, caseSensitive) {
-                      var wordLen = word.length;
-                      if (wordLen === 0) {
-                        return [];
-                      }
-                      var startPosition = 0, position = [], index = [];
-                      if (!caseSensitive) {
-                        text = text.toLowerCase();
-                        word = word.toLowerCase();
-                      }
-                      while ((position = text.indexOf(word, startPosition)) > -1) {
-                        index.push({position: position, word: word});
-                        startPosition = position + wordLen;
-                      }
-                      return index;
-                    }
-
-                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
-                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
-                  });
-                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
-                    isMatch = true;
-                    hitCount = indexOfTitle.length + indexOfContent.length;
-                  }
-                }
-
-                // show search results
-
-                if (isMatch) {
-                  // sort index by position of keyword
-
-                  [indexOfTitle, indexOfContent].forEach(function (index) {
-                    index.sort(function (itemLeft, itemRight) {
-                      if (itemRight.position !== itemLeft.position) {
-                        return itemRight.position - itemLeft.position;
-                      } else {
-                        return itemLeft.word.length - itemRight.word.length;
-                      }
-                    });
-                  });
-
-                  // merge hits into slices
-
-                  function mergeIntoSlice(text, start, end, index) {
-                    var item = index[index.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    var hits = [];
-                    var searchTextCountInSlice = 0;
-                    while (position + word.length <= end && index.length != 0) {
-                      if (word === searchText) {
-                        searchTextCountInSlice++;
-                      }
-                      hits.push({position: position, length: word.length});
-                      var wordEnd = position + word.length;
-
-                      // move to next position of hit
-
-                      index.pop();
-                      while (index.length != 0) {
-                        item = index[index.length - 1];
-                        position = item.position;
-                        word = item.word;
-                        if (wordEnd > position) {
-                          index.pop();
-                        } else {
-                          break;
-                        }
-                      }
-                    }
-                    searchTextCount += searchTextCountInSlice;
-                    return {
-                      hits: hits,
-                      start: start,
-                      end: end,
-                      searchTextCount: searchTextCountInSlice
-                    };
-                  }
-
-                  var slicesOfTitle = [];
-                  if (indexOfTitle.length != 0) {
-                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
-                  }
-
-                  var slicesOfContent = [];
-                  while (indexOfContent.length != 0) {
-                    var item = indexOfContent[indexOfContent.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    // cut out 100 characters
-                    var start = position - 20;
-                    var end = position + 80;
-                    if(start < 0){
-                      start = 0;
-                    }
-                    if (end < position + word.length) {
-                      end = position + word.length;
-                    }
-                    if(end > content.length){
-                      end = content.length;
-                    }
-                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
-                  }
-
-                  // sort slices in content by search text's count and hits' count
-
-                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
-                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
-                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
-                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
-                      return sliceRight.hits.length - sliceLeft.hits.length;
-                    } else {
-                      return sliceLeft.start - sliceRight.start;
-                    }
-                  });
-
-                  // select top N slices in content
-
-                  var upperBound = parseInt('1');
-                  if (upperBound >= 0) {
-                    slicesOfContent = slicesOfContent.slice(0, upperBound);
-                  }
-
-                  // highlight title and content
-
-                  function highlightKeyword(text, slice) {
-                    var result = '';
-                    var prevEnd = slice.start;
-                    slice.hits.forEach(function (hit) {
-                      result += text.substring(prevEnd, hit.position);
-                      var end = hit.position + hit.length;
-                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
-                      prevEnd = end;
-                    });
-                    result += text.substring(prevEnd, slice.end);
-                    return result;
-                  }
-
-                  var resultItem = '';
-
-                  if (slicesOfTitle.length != 0) {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
-                  } else {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
-                  }
-
-                  slicesOfContent.forEach(function (slice) {
-                    resultItem += "<a href='" + articleUrl + "'>" +
-                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
-                      "...</p>" + "</a>";
-                  });
-
-                  resultItem += "</li>";
-                  resultItems.push({
-                    item: resultItem,
-                    searchTextCount: searchTextCount,
-                    hitCount: hitCount,
-                    id: resultItems.length
-                  });
-                }
-              })
-            };
-            if (keywords.length === 1 && keywords[0] === "") {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
-            } else if (resultItems.length === 0) {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
-            } else {
-              resultItems.sort(function (resultLeft, resultRight) {
-                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
-                  return resultRight.searchTextCount - resultLeft.searchTextCount;
-                } else if (resultLeft.hitCount !== resultRight.hitCount) {
-                  return resultRight.hitCount - resultLeft.hitCount;
-                } else {
-                  return resultRight.id - resultLeft.id;
-                }
-              });
-              var searchResultList = '<ul class=\"search-result-list\">';
-              resultItems.forEach(function (result) {
-                searchResultList += result.item;
-              })
-              searchResultList += "</ul>";
-              resultContent.innerHTML = searchResultList;
-            }
-          }
-
-          if ('auto' === 'auto') {
-            input.addEventListener('input', inputEventFunction);
-          } else {
-            $('.search-icon').click(inputEventFunction);
-            input.addEventListener('keypress', function (event) {
-              if (event.keyCode === 13) {
-                inputEventFunction();
-              }
-            });
-          }
-
-          // remove loading animation
-          $(".local-search-pop-overlay").remove();
-          $('body').css('overflow', '');
-
-          proceedsearch();
-        }
-      });
-    }
-
-    // handle and trigger popup window;
-    $('.popup-trigger').click(function(e) {
-      e.stopPropagation();
-      if (isfetched === false) {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-      } else {
-        proceedsearch();
-      };
-    });
-
-    $('.popup-btn-close').click(onPopupClose);
-    $('.popup').click(function(e){
-      e.stopPropagation();
-    });
-    $(document).on('keyup', function (event) {
-      var shouldDismissSearchPopup = event.which === 27 &&
-        $('.search-popup').is(':visible');
-      if (shouldDismissSearchPopup) {
-        onPopupClose();
-      }
-    });
-  </script>
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      });
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      });
-    </script>
-    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
-
-
-  
-
-  
-
-
-  undefined
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
 </html>

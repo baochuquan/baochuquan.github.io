@@ -1,531 +1,409 @@
 <!DOCTYPE html>
-
-
-
-  
-
-
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-  
-  
-  
-  
-
-  
-    
-    
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    
-    
-    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-  
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
-
-
-  <meta name="keywords" content="Git,Blob," />
-
-
-
-
-
-  <link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml" />
-
-
-
-
-  <link rel="shortcut icon" type="image/x-icon" href="/chu.ico?v=5.1.2" />
-
-
-
-
-
-
-<meta property="og:type" content="article">
+    <meta property="og:type" content="article">
 <meta property="og:title" content="深入理解 Git 底层实现原理">
 <meta property="og:url" content="http://chuquan.me/2022/05/21/understand-principle-of-git/index.html">
 <meta property="og:site_name" content="楚权的世界">
-<meta property="og:locale">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-01.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-02.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-03.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-04.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-05.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-06.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-07.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-08.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-09.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-01.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-11.png?x-oss-process=image/resize,w_800">
-<meta property="og:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-10.png?x-oss-process=image/resize,w_800">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-05-21T06:00:09.000Z">
-<meta property="article:modified_time" content="2022-06-19T03:29:02.921Z">
+<meta property="article:modified_time" content="2023-09-16T11:06:08.084Z">
 <meta property="article:author" content="Bao Chuquan">
 <meta property="article:tag" content="Git">
 <meta property="article:tag" content="Blob">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-01.png?x-oss-process=image/resize,w_800">
+
+
+<link rel="canonical" href="http://chuquan.me/2022/05/21/understand-principle-of-git/">
 
 
 
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '',
-    scheme: 'Pisces',
-    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: true,
-    duoshuo: {
-      userId: '0',
-      author: '博主'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2022/05/21/understand-principle-of-git/","path":"2022/05/21/understand-principle-of-git/","title":"深入理解 Git 底层实现原理"}</script>
 
-
-
-  <link rel="canonical" href="http://chuquan.me/2022/05/21/understand-principle-of-git/"/>
-
-
-
-
-
-  <title>深入理解 Git 底层实现原理 | 楚权的世界</title>
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>深入理解 Git 底层实现原理 | 楚权的世界</title>
   
 
-
-
-
-
-  <script type="text/javascript">
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
 
 
 
 
 
 
-
-
-
-
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
 <!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
-  
-  
-    
-  
-
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
-    <div class="headband"></div>
-	<a target="_blank" rel="noopener" href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
-    
-
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">楚权的世界</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
     </div>
-      
-        <p class="site-subtitle">Seek the wonder of life.</p>
-      
   </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
   </div>
 </div>
+
+
 
 <nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-photos">
-          <a href="/photos" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-image"></i> <br />
-            
-            相册
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            归档
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-commonweal">
-          <a href="/404.html" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
-            
-            公益
-          </a>
-        </li>
-      
-
-      
-        <li class="menu-item menu-item-search">
-          
-            <a href="javascript:;" class="popup-trigger">
-          
-            
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
-            
-            搜索
-          </a>
-        </li>
-      
-    </ul>
-  
-
-  
-    <div class="site-search">
-      
-  <div class="popup search-popup local-search-popup">
-  <div class="local-search-header clearfix">
-    <span class="search-icon">
-      <i class="fa fa-search"></i>
-    </span>
-    <span class="popup-btn-close">
-      <i class="fa fa-times-circle"></i>
-    </span>
-    <div class="local-search-input-wrapper">
-      <input autocomplete="off"
-             placeholder="搜索..." spellcheck="false"
-             type="text" id="local-search-input">
-    </div>
-  </div>
-  <div id="local-search-result"></div>
-</div>
-
-
-
-    </div>
-  
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
 </nav>
 
 
 
- </div>
-    </header>
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
 
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
+    </div>
+  </div>
 
-  <div id="posts" class="posts-expand">
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B5%B7%E6%BA%90"><span class="nav-number">1.</span> <span class="nav-text">起源</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">整体架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8A%E5%B1%82%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">上层命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%95%E5%B1%82%E5%91%BD%E4%BB%A4"><span class="nav-number">2.2.</span> <span class="nav-text">底层命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">2.3.</span> <span class="nav-text">对象数据库</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#git-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-vs-ext-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">3.</span> <span class="nav-text">Git 文件系统 vs Ext 文件系统</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F"><span class="nav-number">3.1.</span> <span class="nav-text">存储方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E6%96%B9%E5%BC%8F"><span class="nav-number">3.2.</span> <span class="nav-text">索引方式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">对象模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#blob-object"><span class="nav-number">4.1.</span> <span class="nav-text">Blob Object</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tree-object"><span class="nav-number">4.2.</span> <span class="nav-text">Tree Object</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#commit-object"><span class="nav-number">4.3.</span> <span class="nav-text">Commit Object</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">引用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#head-%E5%BC%95%E7%94%A8"><span class="nav-number">5.1.</span> <span class="nav-text">HEAD 引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%87%E7%AD%BE%E5%BC%95%E7%94%A8"><span class="nav-number">5.2.</span> <span class="nav-text">标签引用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E6%A0%87%E7%AD%BE"><span class="nav-number">5.2.1.</span> <span class="nav-text">轻量标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%84%E6%B3%A8%E6%A0%87%E7%AD%BE"><span class="nav-number">5.2.2.</span> <span class="nav-text">附注标签</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9C%E7%A8%8B%E5%BC%95%E7%94%A8"><span class="nav-number">5.3.</span> <span class="nav-text">远程引用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8C%85%E6%96%87%E4%BB%B6"><span class="nav-number">6.</span> <span class="nav-text">包文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">7.</span> <span class="nav-text">基于底层原理的应用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">9.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">129</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">288</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
     
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
 
   
 
-  
+
+<div class="post-block">
   
   
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://chuquan.me/2022/05/21/understand-principle-of-git/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
     </span>
 
-    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="深入理解 Git 底层实现原理 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
       <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          深入理解 Git 底层实现原理
+        </h1>
 
-        
-        
-          <h1 class="post-title" itemprop="name headline">深入理解 Git 底层实现原理</h1>
-        
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
 
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="发表于" itemprop="dateCreated datePublished" datetime="2022-05-21T14:00:09+08:00">
-                2022-05-21
-              </time>
-            
+      <time title="创建时间：2022-05-21 14:00:09" itemprop="dateCreated datePublished" datetime="2022-05-21T14:00:09+08:00">2022-05-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-09-16 19:06:08" itemprop="dateModified" datetime="2023-09-16T19:06:08+08:00">2023-09-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Git/" itemprop="url" rel="index"><span itemprop="name">Git</span></a>
+        </span>
+    </span>
 
-            
-              <span class="post-meta-divider">|</span>
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-check-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">更新于</span>
-              
-              <time title="更新于" itemprop="dateModified" datetime="2022-06-19T11:29:02+08:00">
-                2022-06-19
-              </time>
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Git/" itemprop="url" rel="index">
-                    <span itemprop="name">Git</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-eye"></i>&nbsp;&nbsp;浏览量
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
-          
-
-          
-
-          
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2022/05/21/understand-principle-of-git/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2022/05/21/understand-principle-of-git/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
 
         </div>
       </header>
-    
 
     
     
     
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-01.png?x-oss-process=image/resize,w_800"></p>
+    <div class="post-body" itemprop="articleBody"><p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-01.png?x-oss-process=image/resize,w_800" /></p>
 <span id="more"></span>
-
-<p>一直以来，关于 Git 的底层原理其实是一知半解的。直到最近，在理解了文件系统的设计原理，并阅读了 Linus Torvalds 的第一版 Git 源码之后，终于彻底搞明白了 Git 的设计哲学。</p>
-<p>借此机会，总结一下自己对于 Git 底层原理的理解。当然，关于 Git 的学习，《Pro Git》仍然是最权威的参考书籍。本文只不过是在此基础上，梳理了一下笔者自己的理解，希望能够达到深入浅出的效果。</p>
-<p>注：Git 本质上是一个内容寻址的文件系统，如果你希望有一个更加深入的理解，建议先阅读 <a href="http://chuquan.me/2022/05/01/understand-principle-of-filesystem/">《深入理解 Linux Ext 文件系统设计原理》</a>。</p>
-<h1 id="起源"><a href="#起源" class="headerlink" title="起源"></a>起源</h1><p>从 Linux 诞生以来，它就有着为数众多的参与者，在很长一段时间里，绝大多数的 Linux 内核维护工作都花在了提交补丁和保存归档的繁琐事务上（1991-2002年期间）。直到 2002 年，整个开源项目组开始启用一个专有的分布式版本控制系统 BitKeeper 来管理和维护代码。</p>
-<p>2005 年，一位社区开发者反编译 BitKeeper 并利用了其未公开的接口，导致 BitKeeper 回收了 Linux 内核社区关于 BitKeeper 的使用许可。对此，Linus Torvalds 利用假期时间开发了一款全新的分布式版本控制工具——Git。</p>
-<h1 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h1><p>下图所示为 Git 的整体架构示意图，其主要包含三大部分：</p>
+<p>一直以来，关于 Git
+的底层原理其实是一知半解的。直到最近，在理解了文件系统的设计原理，并阅读了
+Linus Torvalds 的第一版 Git 源码之后，终于彻底搞明白了 Git
+的设计哲学。</p>
+<p>借此机会，总结一下自己对于 Git 底层原理的理解。当然，关于 Git
+的学习，《Pro
+Git》仍然是最权威的参考书籍。本文只不过是在此基础上，梳理了一下笔者自己的理解，希望能够达到深入浅出的效果。</p>
+<p>注：Git
+本质上是一个内容寻址的文件系统，如果你希望有一个更加深入的理解，建议先阅读
+<a
+href="http://chuquan.me/2022/05/01/understand-principle-of-filesystem/">《深入理解
+Linux Ext 文件系统设计原理》</a>。</p>
+<h1 id="起源">起源</h1>
+<p>从 Linux
+诞生以来，它就有着为数众多的参与者，在很长一段时间里，绝大多数的 Linux
+内核维护工作都花在了提交补丁和保存归档的繁琐事务上（1991-2002年期间）。直到
+2002 年，整个开源项目组开始启用一个专有的分布式版本控制系统 BitKeeper
+来管理和维护代码。</p>
+<p>2005 年，一位社区开发者反编译 BitKeeper 并利用了其未公开的接口，导致
+BitKeeper 回收了 Linux 内核社区关于 BitKeeper 的使用许可。对此，Linus
+Torvalds 利用假期时间开发了一款全新的分布式版本控制工具——Git。</p>
+<h1 id="整体架构">整体架构</h1>
+<p>下图所示为 Git 的整体架构示意图，其主要包含三大部分：</p>
 <ul>
 <li><strong>上层命令</strong>（Porcelain Commands）</li>
 <li><strong>底层命令</strong>（Plumbing Commands）</li>
 <li><strong>对象数据库</strong>（Object Database）</li>
 </ul>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-02.png?x-oss-process=image/resize,w_800"></p>
-<h2 id="上层命令"><a href="#上层命令" class="headerlink" title="上层命令"></a>上层命令</h2><p>在日常开发中，我们所使用的 Git命令基本上都是上层命令，如：<code>commit</code>、<code>add</code>、<code>checkout</code>、<code>branch</code>、<code>remote</code> 等。上层命令通过组合底层命令或直接操作底层数据对象，使 Git 底层实现细节对用户透明，从而为用户提供了一系列简单易用的命令集合。</p>
-<h2 id="底层命令"><a href="#底层命令" class="headerlink" title="底层命令"></a>底层命令</h2><p>在日常开发中，我们基本接触不到 Git 的底层命令，如果要想使用这些底层命令，我们必须要对 Git 的设计原理有一定的认知。Linus Torvalds 的第一版 Git，其实就是实现了几个核心的底层命令，如：<code>update-cache</code>、<code>write-tree</code>、<code>read-tree</code>、<code>commit-tree</code>、<code>cat-file</code>、<code>show-diff</code> 等。注意，在底层命令的命名上，我们当前版本与最初版本存在细微的差异，下表是几个核心底层命令的简单对照。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-02.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="上层命令">上层命令</h2>
+<p>在日常开发中，我们所使用的
+Git命令基本上都是上层命令，如：<code>commit</code>、<code>add</code>、<code>checkout</code>、<code>branch</code>、<code>remote</code>
+等。上层命令通过组合底层命令或直接操作底层数据对象，使 Git
+底层实现细节对用户透明，从而为用户提供了一系列简单易用的命令集合。</p>
+<h2 id="底层命令">底层命令</h2>
+<p>在日常开发中，我们基本接触不到 Git
+的底层命令，如果要想使用这些底层命令，我们必须要对 Git
+的设计原理有一定的认知。Linus Torvalds 的第一版
+Git，其实就是实现了几个核心的底层命令，如：<code>update-cache</code>、<code>write-tree</code>、<code>read-tree</code>、<code>commit-tree</code>、<code>cat-file</code>、<code>show-diff</code>
+等。注意，在底层命令的命名上，我们当前版本与最初版本存在细微的差异，下表是几个核心底层命令的简单对照。</p>
 <table>
 <thead>
-<tr>
-<th align="left">当前版本</th>
-<th align="left">原始版本</th>
+<tr class="header">
+<th style="text-align: left;">当前版本</th>
+<th style="text-align: left;">原始版本</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left"><code>git update-index</code></td>
-<td align="left"><code>update-cache</code></td>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>git update-index</code></td>
+<td style="text-align: left;"><code>update-cache</code></td>
 </tr>
-<tr>
-<td align="left"><code>git write-tree</code></td>
-<td align="left"><code>write-tree</code></td>
+<tr class="even">
+<td style="text-align: left;"><code>git write-tree</code></td>
+<td style="text-align: left;"><code>write-tree</code></td>
 </tr>
-<tr>
-<td align="left"><code>git read-tree</code></td>
-<td align="left"><code>read-tree</code></td>
+<tr class="odd">
+<td style="text-align: left;"><code>git read-tree</code></td>
+<td style="text-align: left;"><code>read-tree</code></td>
 </tr>
-<tr>
-<td align="left"><code>git commit-tree</code></td>
-<td align="left"><code>commit-tree</code></td>
+<tr class="even">
+<td style="text-align: left;"><code>git commit-tree</code></td>
+<td style="text-align: left;"><code>commit-tree</code></td>
 </tr>
-<tr>
-<td align="left"><code>git cat-file</code></td>
-<td align="left"><code>cat-file</code></td>
+<tr class="odd">
+<td style="text-align: left;"><code>git cat-file</code></td>
+<td style="text-align: left;"><code>cat-file</code></td>
 </tr>
-</tbody></table>
-<h2 id="对象数据库"><a href="#对象数据库" class="headerlink" title="对象数据库"></a>对象数据库</h2><p>Git <strong>最核心、最底层</strong> 的部分则是其所实现的一套 <strong>对象数据库</strong>（Object Database），其本质是一个基于 Key-Value 的内容寻址文件系统（Content-addressable File System）。笔者认为其设计理念与传统的文件系统的设计理念极其相似，为了方便理解和对照，因此在下文中，我们将以 <strong>Git 文件系统</strong> 作为简称。</p>
-<p>Git 文件系统中存储了所有文件的所有历史快照，通过索引不同的历史快照，Git 才能够实现版本控制。下面，我们来介绍一下 Git 文件系统。</p>
-<h1 id="Git-文件系统-vs-Ext-文件系统"><a href="#Git-文件系统-vs-Ext-文件系统" class="headerlink" title="Git 文件系统 vs Ext 文件系统"></a>Git 文件系统 vs Ext 文件系统</h1><p>为了便于理解，我们使用 Linux Ext 文件系统与 Git 文件系统进行对比。</p>
-<h2 id="存储方式"><a href="#存储方式" class="headerlink" title="存储方式"></a>存储方式</h2><p>在 Ext 文件系统中，<strong>使用 Block 存储所有类型的内容</strong>；在 Git 文件系统中，<strong>使用 Object 存储所有类型的内容</strong>，也称为 Git 对象，不同类型的 Object 共同构成了一整套对象模型。</p>
-<p>对于普通类型文件，Ext 文件系统 <strong>使用一个或多个 Block 存储文件内容</strong>；Git 文件系统 <strong>使用一个 Blob Object（二进制对象）存储文件内容</strong>。</p>
-<p>对于目录类型文件，Ext 文件系统 <strong>使用一个 Block 存储一系列目录项（dir entry），每个目录项存储一个普通文件或目录文件的元数据</strong>；Git 文件系统 <strong>使用一个 Tree Object（树对象）存储一系列树对象记录（tree entry），每个树对象记录存储一个 Blob Object（对应一个普通文件）或一个 Tree Object（对应一个目录文件）的元数据</strong>。</p>
+</tbody>
+</table>
+<h2 id="对象数据库">对象数据库</h2>
+<p>Git <strong>最核心、最底层</strong> 的部分则是其所实现的一套
+<strong>对象数据库</strong>（Object Database），其本质是一个基于
+Key-Value 的内容寻址文件系统（Content-addressable File
+System）。笔者认为其设计理念与传统的文件系统的设计理念极其相似，为了方便理解和对照，因此在下文中，我们将以
+<strong>Git 文件系统</strong> 作为简称。</p>
+<p>Git
+文件系统中存储了所有文件的所有历史快照，通过索引不同的历史快照，Git
+才能够实现版本控制。下面，我们来介绍一下 Git 文件系统。</p>
+<h1 id="git-文件系统-vs-ext-文件系统">Git 文件系统 vs Ext 文件系统</h1>
+<p>为了便于理解，我们使用 Linux Ext 文件系统与 Git
+文件系统进行对比。</p>
+<h2 id="存储方式">存储方式</h2>
+<p>在 Ext 文件系统中，<strong>使用 Block 存储所有类型的内容</strong>；在
+Git 文件系统中，<strong>使用 Object 存储所有类型的内容</strong>，也称为
+Git 对象，不同类型的 Object 共同构成了一整套对象模型。</p>
+<p>对于普通类型文件，Ext 文件系统 <strong>使用一个或多个 Block
+存储文件内容</strong>；Git 文件系统 <strong>使用一个 Blob
+Object（二进制对象）存储文件内容</strong>。</p>
+<p>对于目录类型文件，Ext 文件系统 <strong>使用一个 Block
+存储一系列目录项（dir
+entry），每个目录项存储一个普通文件或目录文件的元数据</strong>；Git
+文件系统 <strong>使用一个 Tree
+Object（树对象）存储一系列树对象记录（tree
+entry），每个树对象记录存储一个 Blob Object（对应一个普通文件）或一个
+Tree Object（对应一个目录文件）的元数据</strong>。</p>
 <p>下图所示，为两种文件系统关于目录和文件的组织方式的对比示意图。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-03.png?x-oss-process=image/resize,w_800"></p>
-<h2 id="索引方式"><a href="#索引方式" class="headerlink" title="索引方式"></a>索引方式</h2><p>上图中，我们使用 “index” 简单地表示了文件的索引过程。事实上，文件系统的索引方式也是经过特殊设计的。</p>
-<p>在 Ext 文件系统中，<strong>使用一个 Inode 记录一个文件或目录存储内容时占用的所有 Block 的序号</strong>，最终通过硬盘控制器进行索引；在 Git 文件系统中，<strong>使用一个 40 位的 SHA-1 值作为一个文件或目录存储内容时所占用的一个 Object 文件的唯一标识符</strong>，最终在 <code>.git/objects/</code> 目录下进行匹配查找，其中前 2 位 SHA-1 值作为存储子目录，后 38 位 SHA-1 值作为文件名。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-04.png?x-oss-process=image/resize,w_800"></p>
-<h1 id="对象模型"><a href="#对象模型" class="headerlink" title="对象模型"></a>对象模型</h1><p>通过对比 Git 文件系统和 Ext 文件系统，我们基本了解了 Git 是如何存储和索引文件及目录的。接下来，我们来深入了解 Git 的对象模型，即数据存储的基本单元及类型。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-03.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="索引方式">索引方式</h2>
+<p>上图中，我们使用 “index”
+简单地表示了文件的索引过程。事实上，文件系统的索引方式也是经过特殊设计的。</p>
+<p>在 Ext 文件系统中，<strong>使用一个 Inode
+记录一个文件或目录存储内容时占用的所有 Block
+的序号</strong>，最终通过硬盘控制器进行索引；在 Git
+文件系统中，<strong>使用一个 40 位的 SHA-1
+值作为一个文件或目录存储内容时所占用的一个 Object
+文件的唯一标识符</strong>，最终在 <code>.git/objects/</code>
+目录下进行匹配查找，其中前 2 位 SHA-1 值作为存储子目录，后 38 位 SHA-1
+值作为文件名。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-04.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="对象模型">对象模型</h1>
+<p>通过对比 Git 文件系统和 Ext 文件系统，我们基本了解了 Git
+是如何存储和索引文件及目录的。接下来，我们来深入了解 Git
+的对象模型，即数据存储的基本单元及类型。</p>
 <p>Git 对象模型主要包括以下 4 种对象</p>
 <ul>
 <li><strong>二进制对象（Blob Object）</strong></li>
@@ -533,59 +411,101 @@
 <li><strong>提交对象（Commit Object）</strong></li>
 <li><strong>标签对象（Tag Object）</strong></li>
 </ul>
-<p><strong>所有对象均存储在 <code>.git/objects/</code> 目录下，并采用相同格式进行表示，其可以分为两部分</strong>：</p>
+<p><strong>所有对象均存储在 <code>.git/objects/</code>
+目录下，并采用相同格式进行表示，其可以分为两部分</strong>：</p>
 <ul>
 <li>头部信息：<strong>类型 + 空格 + 内容字节数 + \0</strong></li>
 <li>存储内容</li>
 </ul>
-<p><strong>Git 使用两部分的未压缩内容的 40 位 SHA-1 值（前 2 为作为子目录，后 38 位作为文件名）作为快照文件的唯一标识，并对它们进行 zlib 压缩，然后将压缩后的结果作为快照文件的实际内容进行存储。</strong></p>
+<p><strong>Git 使用两部分内容的 40 位 SHA-1 值（前 2 为作为子目录，后 38
+位作为文件名）作为快照文件的唯一标识，并对它们进行 zlib
+压缩，然后将压缩后的结果作为快照文件的实际内容进行存储。</strong></p>
 <p>下面，我们来主要介绍一下其中前三种对象类型。</p>
-<h2 id="Blob-Object"><a href="#Blob-Object" class="headerlink" title="Blob Object"></a>Blob Object</h2><p>Block Object 用于存储普通文件的内容数据，其头部信息为 <strong>“blob” + 空格 + 内容字节数 + \0</strong>，存储内容为对应文件的内容快照。</p>
-<p>下面，我们使用底层命令 <code>git cat-file</code> 来查看 <a target="_blank" rel="noopener" href="https://github.com/baochuquan/analyze-git">analyze-git</a> 仓库的一个 Blob Object 的存储内容。</p>
+<h2 id="blob-object">Blob Object</h2>
+<p>Block Object 用于存储普通文件的内容数据，其头部信息为 <strong>"blob"
++ 空格 + 内容字节数 + \0</strong>，存储内容为对应文件的内容快照。</p>
+<p>下面，我们使用底层命令 <code>git cat-file</code> 来查看 <a
+href="https://github.com/baochuquan/analyze-git">analyze-git</a>
+仓库的一个 Blob Object 的存储内容。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看对象的类型</span></span><br><span class="line">$ git cat-file -t fa49b077972391ad58037050f2a75f74e3671e92</span><br><span class="line">blob</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看对象的内容长度</span></span><br><span class="line">$ git cat-file -s fa49b077972391ad58037050f2a75f74e3671e92</span><br><span class="line">9</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看对象的内容</span></span><br><span class="line">$ git cat-file -p fa49b077972391ad58037050f2a75f74e3671e92</span><br><span class="line">new file</span><br></pre></td></tr></table></figure>
-
-<h2 id="Tree-Object"><a href="#Tree-Object" class="headerlink" title="Tree Object"></a>Tree Object</h2><p>Tree Object 用于存储目录文件的内容数据，其头部信息为 <strong>“tree” + 空格 + 内容字节数 + \0</strong>，存储内容为 <strong>一个或多个树对象记录（Tree Entry）</strong>。</p>
-<p>其中，树对象记录的结构（Git v2.0.0）为：<strong>文件模式 + 空格 + 树对象记录的字节数 + 文件路径 + \0 + SHA-1</strong>。</p>
-<p>如果某一时刻，Git 仓库的文件结构如下所示，那么在 Git 文件系统中，会建立一个对象关系图，如下图所示。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ tree</span><br><span class="line">.</span><br><span class="line">├── bak</span><br><span class="line">│   └── test.txt</span><br><span class="line">├── new.txt</span><br><span class="line">└── test.txt</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-05.png?x-oss-process=image/resize,w_800"></p>
-<p><strong>注意，当我们执行 <code>git add</code>（进入暂存区）时，Git 会为暂存文件创建 Blob Object，为暂存目录创建 Tree Object ，结合未修改文件和目录的 Object，建立一个整体的索引关系，从而形成一个版本快照。</strong></p>
-<h2 id="Commit-Object"><a href="#Commit-Object" class="headerlink" title="Commit Object"></a>Commit Object</h2><p>Tree Object 和 Blob Object <strong>用于表示版本快照</strong>，Commit Object 则不同，它 <strong>用于表示版本索引和版本关系</strong>。</p>
-<p>此外，Tree Object 和 Blob Object 的 SHA-1 值是根据内容计算得到的，只要内容相同，SHA-1 值相同；而 Commit Object 会结合内容、时间、作者等数据，因此 SHA-1 值很难出现冲突。</p>
-<p>Commit Object 的头部信息为 <strong>“commit” + 空格 + 内容字节数 + \0</strong>，存储内容包含多个部分（Git v2.0.0），具体如下图所示。</p>
+<h2 id="tree-object">Tree Object</h2>
+<p>Tree Object 用于存储目录文件的内容数据，其头部信息为 <strong>"tree" +
+空格 + 内容字节数 + \0</strong>，存储内容为
+<strong>一个或多个树对象记录（Tree Entry）</strong>。</p>
+<p>其中，树对象记录的结构（Git v2.0.0）为：<strong>文件模式 + 空格 +
+树对象记录的字节数 + 文件路径 + \0 + SHA-1</strong>。</p>
+<p>如果某一时刻，Git 仓库的文件结构如下所示，那么在 Git
+文件系统中，会建立一个对象关系图，如下图所示。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ tree</span><br><span class="line">.</span><br><span class="line">├── bak</span><br><span class="line">│   └── test.txt</span><br><span class="line">├── new.txt</span><br><span class="line">└── test.txt</span><br></pre></td></tr></table></figure></p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-05.png?x-oss-process=image/resize,w_800" /></p>
+<p><strong>注意，当我们执行 <code>git add</code>（进入暂存区）时，Git
+会为暂存文件创建 Blob Object，为暂存目录创建 Tree Object
+，结合未修改文件和目录的
+Object，建立一个整体的索引关系，从而形成一个版本快照。</strong></p>
+<h2 id="commit-object">Commit Object</h2>
+<p>Tree Object 和 Blob Object <strong>用于表示版本快照</strong>，Commit
+Object 则不同，它 <strong>用于表示版本索引和版本关系</strong>。</p>
+<p>此外，Tree Object 和 Blob Object 的 SHA-1
+值是根据内容计算得到的，只要内容相同，SHA-1 值相同；而 Commit Object
+会结合内容、时间、作者等数据，因此 SHA-1 值很难出现冲突。</p>
+<p>Commit Object 的头部信息为 <strong>"commit" + 空格 + 内容字节数 +
+\0</strong>，存储内容包含多个部分（Git v2.0.0），具体如下图所示。</p>
 <ul>
 <li>对应的根 Tree Object 对应的 SHA-1</li>
-<li>一个或多个父级 Commit Object 对应的 SHA-1。当进行分支合并时就会出现多个父级 Commit Object。</li>
+<li>一个或多个父级 Commit Object 对应的
+SHA-1。当进行分支合并时就会出现多个父级 Commit Object。</li>
 <li>提交相关内容，包括：作者信息、提交者信息、编码、提交描述等</li>
 </ul>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-06.png?x-oss-process=image/resize,w_800"></p>
-<p>下图所示，为 Commit Object 与 Tree Object 的关系示意图。每一个 Commit Object 索引一个版本快照，每一个版本快照则是由一个 Tree Object 作为根节点进行构建。不同的版本快照之间会进行数据复用，从而最大限度地节省磁盘空间。每一个 Commit Object 记录了其父版本的索引信息，即另一个 Commit Object 的 SHA-1 值，从而构建了一个完整的版本关系图（有向无环图）。通过版本关系图，我们可以基于一个 Commit Object 回溯其任意历史版本。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-07.png?x-oss-process=image/resize,w_800"></p>
-<h1 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h1><p>如果我们对仓库的某一个提交及其历史版本感兴趣，那么我们可以使用该提交的 SHA-1 值进行查找。显然，直接使用 SHA-1 值来记忆是非常不便且易错的。对此，Git 提供了容易记忆的 “别名” 来代替 SHA-1 值，这就是 “<strong>引用</strong>（referrences，简称 refs）”。</p>
-<p>Git 支持三种引用类型，不同的引用类型对应的引用文件各自存储在 <code>.git/refs/</code> 下的不同子目录中。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-06.png?x-oss-process=image/resize,w_800" /></p>
+<p>下图所示，为 Commit Object 与 Tree Object 的关系示意图。每一个 Commit
+Object 索引一个版本快照，每一个版本快照则是由一个 Tree Object
+作为根节点进行构建。不同的版本快照之间会进行数据复用，从而最大限度地节省磁盘空间。每一个
+Commit Object 记录了其父版本的索引信息，即另一个 Commit Object 的 SHA-1
+值，从而构建了一个完整的版本关系图（有向无环图）。通过版本关系图，我们可以基于一个
+Commit Object 回溯其任意历史版本。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-07.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="引用">引用</h1>
+<p>如果我们对仓库的某一个提交及其历史版本感兴趣，那么我们可以使用该提交的
+SHA-1 值进行查找。显然，直接使用 SHA-1
+值来记忆是非常不便且易错的。对此，Git 提供了容易记忆的 “别名” 来代替
+SHA-1 值，这就是 “<strong>引用</strong>（referrences，简称 refs）”。</p>
+<p>Git 支持三种引用类型，不同的引用类型对应的引用文件各自存储在
+<code>.git/refs/</code> 下的不同子目录中。</p>
 <ul>
 <li><strong>HEAD 引用</strong></li>
 <li><strong>标签引用</strong></li>
 <li><strong>远程引用</strong></li>
 </ul>
-<h2 id="HEAD-引用"><a href="#HEAD-引用" class="headerlink" title="HEAD 引用"></a>HEAD 引用</h2><p>当我们执行 <code>git branch &lt;branch&gt;</code> 新建一个分支时，Git 是如何知道最新提交的 SHA-1 值呢？答案就是 <strong>HEAD 文件</strong>。</p>
-<p>HEAD 文件通常是一个 <strong>符号引用</strong>（symbolic reference），指向当前所在的分支。所谓符号引用，表示它是一个指向其他引用的指针，类似于符号链接。</p>
-<p>在某些特殊情况下，HEAD 文件可能会包含一个 Git 对象的 SHA-1 值。当我们在检出一个标签、提交或远程分支时，让仓库变成 “<strong>分离 HEAD</strong>” 状态时，就会出现这种情况。</p>
-<p>我们可以通过 <a target="_blank" rel="noopener" href="https://github.com/baochuquan/analyze-git">analyze-git</a> 来查看 HEAD 文件。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ git checkout master</span><br><span class="line">$ <span class="built_in">cat</span> .git/HEAD</span><br><span class="line">ref: refs/heads/master</span><br><span class="line"></span><br><span class="line">$ git checkout <span class="built_in">test</span></span><br><span class="line">$ <span class="built_in">cat</span> .git/HEAD</span><br><span class="line">ref: refs/heads/test</span><br></pre></td></tr></table></figure>
-
-<p>当我们执行 <code>git commit</code> 时，该命令会使用 HEAD 文件中引用所指向的 SHA-1 值作为其父提交，创建一个 Commit Object。</p>
-<h2 id="标签引用"><a href="#标签引用" class="headerlink" title="标签引用"></a>标签引用</h2><p>标签引用（Tag Reference）包含两种类型：<strong>轻量标签</strong> 和 <strong>附注标签</strong>。</p>
-<h3 id="轻量标签"><a href="#轻量标签" class="headerlink" title="轻量标签"></a>轻量标签</h3><p>对于轻量标签，我们可以通过如下命令进行创建。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git update-ref refs/tags/v1.0 a9f2652cb992f300c0a251d3607bdabfe8901bb2</span><br><span class="line">$ <span class="built_in">cat</span> .git/refs/tags/v1.0</span><br><span class="line">a9f2652cb992f300c0a251d3607bdabfe8901bb2</span><br></pre></td></tr></table></figure>
-
-<p>该命令会创建一个以标签名命名的文本文件，文件内容为其所引用的 Commit Object 的 SHA-1 值。</p>
-<h3 id="附注标签"><a href="#附注标签" class="headerlink" title="附注标签"></a>附注标签</h3><p>对于附注标签，我们可以通过如下命令进行创建。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$  git tag -a v1.1 e73b484c6e1802c36dceae4535f6c85 -m <span class="string">&quot;test tag&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>该命令会创建一个 <strong>标签对象</strong>（Tag Object），存储在 <code>.git/objects/</code> 目录下。</p>
-<p>Tag Object 是第 4 种 Git 对象，其头部信息为 <strong>“tag” + 空格 + 内容字节数 + \0</strong>，存储内容包含多个部分（Git v2.0.0），具体如下图所示。</p>
+<h2 id="head-引用">HEAD 引用</h2>
+<p>当我们执行 <code>git branch &lt;branch&gt;</code> 新建一个分支时，Git
+是如何知道最新提交的 SHA-1 值呢？答案就是 <strong>HEAD
+文件</strong>。</p>
+<p>HEAD 文件通常是一个 <strong>符号引用</strong>（symbolic
+reference），指向当前所在的分支。所谓符号引用，表示它是一个指向其他引用的指针，类似于符号链接。</p>
+<p>在某些特殊情况下，HEAD 文件可能会包含一个 Git 对象的 SHA-1
+值。当我们在检出一个标签、提交或远程分支时，让仓库变成 “<strong>分离
+HEAD</strong>” 状态时，就会出现这种情况。</p>
+<p>我们可以通过 <a
+href="https://github.com/baochuquan/analyze-git">analyze-git</a> 来查看
+HEAD 文件。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ git checkout master</span><br><span class="line">$ <span class="built_in">cat</span> .git/HEAD</span><br><span class="line">ref: refs/heads/master</span><br><span class="line"></span><br><span class="line">$ git checkout <span class="built_in">test</span></span><br><span class="line">$ <span class="built_in">cat</span> .git/HEAD</span><br><span class="line">ref: refs/heads/test</span><br></pre></td></tr></table></figure></p>
+<p>当我们执行 <code>git commit</code> 时，该命令会使用 HEAD
+文件中引用所指向的 SHA-1 值作为其父提交，创建一个 Commit Object。</p>
+<h2 id="标签引用">标签引用</h2>
+<p>标签引用（Tag Reference）包含两种类型：<strong>轻量标签</strong> 和
+<strong>附注标签</strong>。</p>
+<h3 id="轻量标签">轻量标签</h3>
+<p>对于轻量标签，我们可以通过如下命令进行创建。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git update-ref refs/tags/v1.0 a9f2652cb992f300c0a251d3607bdabfe8901bb2</span><br><span class="line">$ <span class="built_in">cat</span> .git/refs/tags/v1.0</span><br><span class="line">a9f2652cb992f300c0a251d3607bdabfe8901bb2</span><br></pre></td></tr></table></figure></p>
+<p>该命令会创建一个以标签名命名的文本文件，文件内容为其所引用的 Commit
+Object 的 SHA-1 值。</p>
+<h3 id="附注标签">附注标签</h3>
+<p>对于附注标签，我们可以通过如下命令进行创建。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$  git tag -a v1.1 e73b484c6e1802c36dceae4535f6c85 -m <span class="string">&quot;test tag&quot;</span></span><br></pre></td></tr></table></figure></p>
+<p>该命令会创建一个 <strong>标签对象</strong>（Tag Object），存储在
+<code>.git/objects/</code> 目录下。</p>
+<p>Tag Object 是第 4 种 Git 对象，其头部信息为 <strong>"tag" + 空格 +
+内容字节数 + \0</strong>，存储内容包含多个部分（Git
+v2.0.0），具体如下图所示。</p>
 <ul>
 <li>所引用对象的 SHA-1 值</li>
 <li>所引用对象的类型</li>
@@ -593,27 +513,55 @@
 <li>标签创建者和日期</li>
 <li>注释信息</li>
 </ul>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-08.png?x-oss-process=image/resize,w_800"></p>
-<p>Tag Object 通常指向一个 Commit Object，而不是 Tree Object。它像是一个永不移动的分支引用——永远指向同一个 Commit Object，只不过给这个 Commit Object 加上一个更友好的名字罢了。</p>
-<p>我们可以通过 <a target="_blank" rel="noopener" href="https://github.com/baochuquan/analyze-git">analyze-git</a> 来查看一个附注标签所创建的 Tag Object。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> .git/resfs/tags/v1.1</span><br><span class="line">163827fe0e0a63112bee25a48bdcca2de89982e3</span><br><span class="line"></span><br><span class="line">$ git cat-file -p 163827fe0e0a63112bee25a48bdcca2de89982e3</span><br><span class="line">object e73b484c6e1802c36dceae4535f6c8517716650c</span><br><span class="line"><span class="built_in">type</span> commit</span><br><span class="line">tag v1.1</span><br><span class="line">tagger baocq &lt;baocq@fenbi.com&gt; 1652526376 +0800</span><br><span class="line"></span><br><span class="line"><span class="built_in">test</span> tag</span><br></pre></td></tr></table></figure>
-
-<p>我们可以看到 Tag Object 的 object 字段为我们打了标签的的 Commit Object 的 SHA-1 值。从 Tag Object 的内容定义上能看出，Tag Object 并非必须指向某个 Commit Object；我们可以对任意类型的 Git 对象打标签。比如，在 Git 源码中，项目维护者将他们的 GPG 公钥添加为一个数据对象，然后对这个对象打了个标签。我们可以在 Git 源码仓库下执行以下命令查看。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-08.png?x-oss-process=image/resize,w_800" /></p>
+<p>Tag Object 通常指向一个 Commit Object，而不是 Tree
+Object。它像是一个永不移动的分支引用——永远指向同一个 Commit
+Object，只不过给这个 Commit Object 加上一个更友好的名字罢了。</p>
+<p>我们可以通过 <a
+href="https://github.com/baochuquan/analyze-git">analyze-git</a>
+来查看一个附注标签所创建的 Tag Object。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> .git/resfs/tags/v1.1</span><br><span class="line">163827fe0e0a63112bee25a48bdcca2de89982e3</span><br><span class="line"></span><br><span class="line">$ git cat-file -p 163827fe0e0a63112bee25a48bdcca2de89982e3</span><br><span class="line">object e73b484c6e1802c36dceae4535f6c8517716650c</span><br><span class="line"><span class="built_in">type</span> commit</span><br><span class="line">tag v1.1</span><br><span class="line">tagger baocq &lt;baocq@fenbi.com&gt; 1652526376 +0800</span><br><span class="line"></span><br><span class="line"><span class="built_in">test</span> tag</span><br></pre></td></tr></table></figure></p>
+<p>我们可以看到 Tag Object 的 object 字段为我们打了标签的的 Commit
+Object 的 SHA-1 值。从 Tag Object 的内容定义上能看出，Tag Object
+并非必须指向某个 Commit Object；我们可以对任意类型的 Git
+对象打标签。比如，在 Git 源码中，项目维护者将他们的 GPG
+公钥添加为一个数据对象，然后对这个对象打了个标签。我们可以在 Git
+源码仓库下执行以下命令查看。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git cat-file blob junio-gpg-pub</span><br></pre></td></tr></table></figure>
-
-<h2 id="远程引用"><a href="#远程引用" class="headerlink" title="远程引用"></a>远程引用</h2><p>远程引用（Remote Reference）主要用于远程仓库与本地仓库进行映射和对比。如果我们添加了一个远程仓库并对其执行过推送操作，Git 会记录下最近一次推送操作时每一个分支所对应的值，并保存在 <code>.git/refs/remotes/</code> 目录下。</p>
-<p>远程引用和分支（位于 <code>.git/refs/heads/</code> 目录下的引用）之间的最主要区别在于：远程引用是只读的。虽然我们可以 <code>git checkout</code> 到某个远程引用，但是 Git 并不会将 HEAD 引用指向该远程引用。因此，我们永远不能通过 <code>git commit</code> 命令来更新远程引用。Git 将这些远程引用作为记录远程服务器上各个分支最后已知位置状态的书签来管理。</p>
-<h1 id="包文件"><a href="#包文件" class="headerlink" title="包文件"></a>包文件</h1><p>通过上文我们知道，如果我们对任意一个文件进行修改，Git 就会创建一个新的 Blob Object，并将该文件的所有内容存储到里面。那么这时候问题来了，如果一个文件非常大，而每次我们只修改其中极小一部分内容，这样的话，Git 会创建很多 Blob Object，而它们的绝大部分的内容都是相同的，因此会存在严重的磁盘空间浪费问题。如果 Git 只完整保存其中一个，在保存另外一个对象与之前版本的差异内容，岂不是更好？</p>
-<p>对于这方面的优化，Git 的确采用了增量存储的方式进行了优化。那么具体怎么做的呢？</p>
-<p>事实上，Git 会不定时地自动对仓库中的对象进行打包并移除，最终生成两个文件：</p>
+<h2 id="远程引用">远程引用</h2>
+<p>远程引用（Remote
+Reference）主要用于远程仓库与本地仓库进行映射和对比。如果我们添加了一个远程仓库并对其执行过推送操作，Git
+会记录下最近一次推送操作时每一个分支所对应的值，并保存在
+<code>.git/refs/remotes/</code> 目录下。</p>
+<p>远程引用和分支（位于 <code>.git/refs/heads/</code>
+目录下的引用）之间的最主要区别在于：远程引用是只读的。虽然我们可以
+<code>git checkout</code> 到某个远程引用，但是 Git 并不会将 HEAD
+引用指向该远程引用。因此，我们永远不能通过 <code>git commit</code>
+命令来更新远程引用。Git
+将这些远程引用作为记录远程服务器上各个分支最后已知位置状态的书签来管理。</p>
+<h1 id="包文件">包文件</h1>
+<p>通过上文我们知道，如果我们对任意一个文件进行修改，Git
+就会创建一个新的 Blob
+Object，并将该文件的所有内容存储到里面。那么这时候问题来了，如果一个文件非常大，而每次我们只修改其中极小一部分内容，这样的话，Git
+会创建很多 Blob
+Object，而它们的绝大部分的内容都是相同的，因此会存在严重的磁盘空间浪费问题。如果
+Git
+只完整保存其中一个，在保存另外一个对象与之前版本的差异内容，岂不是更好？</p>
+<p>对于这方面的优化，Git
+的确采用了增量存储的方式进行了优化。那么具体怎么做的呢？</p>
+<p>事实上，Git
+会不定时地自动对仓库中的对象进行打包并移除，最终生成两个文件：</p>
 <ul>
-<li><strong>包文件（Pack File）</strong> ：采用 <strong>原始内容 + 增量内容</strong> 的形式进存储，从而节省存储空间。</li>
-<li><strong>索引文件（Index File）</strong>：存储了各个包文件中各个对象的大小、偏移、类型等数据，从而便于重建文件快照和对象关系。</li>
+<li><strong>包文件（Pack File）</strong> ：采用 <strong>原始内容 +
+增量内容</strong> 的形式进存储，从而节省存储空间。</li>
+<li><strong>索引文件（Index
+File）</strong>：存储了各个包文件中各个对象的大小、偏移、类型等数据，从而便于重建文件快照和对象关系。</li>
 </ul>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-09.png?x-oss-process=image/resize,w_800"></p>
-<p>我们可以使用 <code>git verify-pack</code> 这个底层命令来查看 <a target="_blank" rel="noopener" href="https://github.com/baochuquan/analyze-git">analyze-git</a> 中的索引文件。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ git verify-pack -v .git/objects/pack/pack-b850d8225332999ae75a6a83e36c4729173c1e8d.idx</span><br><span class="line">92261eb83bf2bf5da2a0b2ca5e88d4099ee2b71f commit 217 150 12</span><br><span class="line">3103a76a8bc9daea112a4fdbee03f8c5686d8f86 commit 208 144 162</span><br><span class="line">e73b484c6e1802c36dceae4535f6c8517716650c commit 207 143 306</span><br><span class="line">a9f2652cb992f300c0a251d3607bdabfe8901bb2 commit 208 142 449</span><br><span class="line">163827fe0e0a63112bee25a48bdcca2de89982e3 tag    126 117 591</span><br><span class="line">bc36caf5d579e4275ec0c8b32a6d620b99d37e8d commit 159 112 708</span><br><span class="line">fe879577cb8cffcdf25441725141e310dd7d239b tree   136 136 820</span><br><span class="line">d8329fc1cc938780ffdd9f94e0d364e0ea74f579 tree   36 46 956</span><br><span class="line">deef2e1b793907545e50a2ea2ddb5ba6c58c4506 tree   136 136 1002</span><br><span class="line">3c4e9cd789d88d8d89c1073707c3585e41b0e614 tree   8 19 1138 1 deef2e1b793907545e50a2ea2ddb5ba6c58c4506</span><br><span class="line">0155eb4229851634a0f03eb265b69f5a2d56f341 tree   71 76 1157</span><br><span class="line">83baae61804e65cc73a7201a7252750c76066a30 blob   10 19 1233</span><br><span class="line">fa49b077972391ad58037050f2a75f74e3671e92 blob   9 18 1252</span><br><span class="line">b042a60ef7dff760008df33cee372b945b6e884e blob   22054 5799 1270</span><br><span class="line">033b4468fa6b2a9547a70d88d1bbe8bf3f9ed0d5 blob   9 20 7069 1 b042a60ef7dff760008df33cee372b945b6e884e</span><br><span class="line">1f7a7a472abf3dd9643fd615f6da379c4acb3e3a blob   10 19 7089</span><br><span class="line">non delta: 14 objects</span><br><span class="line">chain length = 1: 2 objects</span><br><span class="line">.git/objects/pack/pack-b850d8225332999ae75a6a83e36c4729173c1e8d.pack: ok</span><br></pre></td></tr></table></figure>
-<p>其中，各列数据分别是：</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-09.png?x-oss-process=image/resize,w_800" /></p>
+<p>我们可以使用 <code>git verify-pack</code> 这个底层命令来查看 <a
+href="https://github.com/baochuquan/analyze-git">analyze-git</a>
+中的索引文件。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ git verify-pack -v .git/objects/pack/pack-b850d8225332999ae75a6a83e36c4729173c1e8d.idx</span><br><span class="line">92261eb83bf2bf5da2a0b2ca5e88d4099ee2b71f commit 217 150 12</span><br><span class="line">3103a76a8bc9daea112a4fdbee03f8c5686d8f86 commit 208 144 162</span><br><span class="line">e73b484c6e1802c36dceae4535f6c8517716650c commit 207 143 306</span><br><span class="line">a9f2652cb992f300c0a251d3607bdabfe8901bb2 commit 208 142 449</span><br><span class="line">163827fe0e0a63112bee25a48bdcca2de89982e3 tag    126 117 591</span><br><span class="line">bc36caf5d579e4275ec0c8b32a6d620b99d37e8d commit 159 112 708</span><br><span class="line">fe879577cb8cffcdf25441725141e310dd7d239b tree   136 136 820</span><br><span class="line">d8329fc1cc938780ffdd9f94e0d364e0ea74f579 tree   36 46 956</span><br><span class="line">deef2e1b793907545e50a2ea2ddb5ba6c58c4506 tree   136 136 1002</span><br><span class="line">3c4e9cd789d88d8d89c1073707c3585e41b0e614 tree   8 19 1138 1 deef2e1b793907545e50a2ea2ddb5ba6c58c4506</span><br><span class="line">0155eb4229851634a0f03eb265b69f5a2d56f341 tree   71 76 1157</span><br><span class="line">83baae61804e65cc73a7201a7252750c76066a30 blob   10 19 1233</span><br><span class="line">fa49b077972391ad58037050f2a75f74e3671e92 blob   9 18 1252</span><br><span class="line">b042a60ef7dff760008df33cee372b945b6e884e blob   22054 5799 1270</span><br><span class="line">033b4468fa6b2a9547a70d88d1bbe8bf3f9ed0d5 blob   9 20 7069 1 b042a60ef7dff760008df33cee372b945b6e884e</span><br><span class="line">1f7a7a472abf3dd9643fd615f6da379c4acb3e3a blob   10 19 7089</span><br><span class="line">non delta: 14 objects</span><br><span class="line">chain length = 1: 2 objects</span><br><span class="line">.git/objects/pack/pack-b850d8225332999ae75a6a83e36c4729173c1e8d.pack: ok</span><br></pre></td></tr></table></figure> 其中，各列数据分别是：</p>
 <ul>
 <li>SHA-1：对象的 SHA-1 值</li>
 <li>type：对象的类型</li>
@@ -623,878 +571,235 @@
 <li>depth：对象在包文件所处的索引关系中的深度</li>
 <li>base-SHA-1：增量对象的父级对象的 SHA-1 值</li>
 </ul>
-<p>关于包文件，Git 经常自动进行打包来节省空间，当然我们也可以手动执行 <code>git gc</code> 命令来进行打包。注意，当我们执行将代码推送至远程仓库时，Git 也会进行打包。我们可以看到 <code>git push</code> 或 <code>git pull</code> 时控制台输出的打包相关的信息，如下所示。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ git push -u origin master</span><br><span class="line">Enumerating objects: 7, <span class="keyword">done</span>.</span><br><span class="line">Counting objects: 100% (7/7), <span class="keyword">done</span>.</span><br><span class="line">Delta compression using up to 4 threads.</span><br><span class="line">Compressing objects: 100% (5/5), <span class="keyword">done</span>.</span><br><span class="line">Writing objects: 100% (6/6), 6.27 KiB | 6.27 MiB/s, <span class="keyword">done</span>.</span><br><span class="line">Total 6 (delta 1), reused 6 (delta 1)</span><br><span class="line">remote: Resolving deltas: 100% (1/1), <span class="keyword">done</span>.</span><br><span class="line">To https://github.com/baochuquan/analyze-git.git</span><br><span class="line">   e73b484..92261eb  master -&gt; master</span><br><span class="line">Branch <span class="string">&#x27;master&#x27;</span> <span class="built_in">set</span> up to track remote branch <span class="string">&#x27;master&#x27;</span> from <span class="string">&#x27;origin&#x27;</span>.</span><br></pre></td></tr></table></figure>
-
-<h1 id="基于底层原理的应用"><a href="#基于底层原理的应用" class="headerlink" title="基于底层原理的应用"></a>基于底层原理的应用</h1><p>关于 Git 底层原理的应用例子其实很多，这里我们来介绍一个 CocoaPods Source 管理机制的例子。</p>
-<p>下图所示为 CocoaPods Source 管理机制的 <code>Master</code> 方案。<code>Specs</code> 目录下为什么要细分出来多级子目录？</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-01.png?x-oss-process=image/resize,w_800"></p>
-<p>这样设计的目的为了在 Git 版本变更时尽可能少地增加 Git 对象体积。假设，有个 Git 仓库包含 100 个文件，我们使用两种方式进行管理：</p>
+<p>关于包文件，Git 经常自动进行打包来节省空间，当然我们也可以手动执行
+<code>git gc</code>
+命令来进行打包。注意，当我们执行将代码推送至远程仓库时，Git
+也会进行打包。我们可以看到 <code>git push</code> 或
+<code>git pull</code> 时控制台输出的打包相关的信息，如下所示。
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ git push -u origin master</span><br><span class="line">Enumerating objects: 7, <span class="keyword">done</span>.</span><br><span class="line">Counting objects: 100% (7/7), <span class="keyword">done</span>.</span><br><span class="line">Delta compression using up to 4 threads.</span><br><span class="line">Compressing objects: 100% (5/5), <span class="keyword">done</span>.</span><br><span class="line">Writing objects: 100% (6/6), 6.27 KiB | 6.27 MiB/s, <span class="keyword">done</span>.</span><br><span class="line">Total 6 (delta 1), reused 6 (delta 1)</span><br><span class="line">remote: Resolving deltas: 100% (1/1), <span class="keyword">done</span>.</span><br><span class="line">To https://github.com/baochuquan/analyze-git.git</span><br><span class="line">   e73b484..92261eb  master -&gt; master</span><br><span class="line">Branch <span class="string">&#x27;master&#x27;</span> <span class="built_in">set</span> up to track remote branch <span class="string">&#x27;master&#x27;</span> from <span class="string">&#x27;origin&#x27;</span>.</span><br></pre></td></tr></table></figure></p>
+<h1 id="基于底层原理的应用">基于底层原理的应用</h1>
+<p>关于 Git 底层原理的应用例子其实很多，这里我们来介绍一个 CocoaPods
+Source 管理机制的例子。</p>
+<p>下图所示为 CocoaPods Source 管理机制的 <code>Master</code>
+方案。<code>Specs</code> 目录下为什么要细分出来多级子目录？</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cocoapods-source-01.png?x-oss-process=image/resize,w_800" /></p>
+<p>这样设计的目的为了在 Git 版本变更时尽可能少地增加 Git
+对象体积。假设，有个 Git 仓库包含 100
+个文件，我们使用两种方式进行管理：</p>
 <ul>
-<li>分级管理：两级目录，根目录下有 10 个子目录，每个子目录下 10 个文件。</li>
+<li>分级管理：两级目录，根目录下有 10 个子目录，每个子目录下 10
+个文件。</li>
 <li>扁平管理：100个文件全部放在根目录下。</li>
 </ul>
 <p>我们分别计算一下两种方案下版本变更时，产生的 git 对象体积。</p>
-<p>下图所示为分级管理的情况下，修改一个文件所产生的对象示意图。新增的数据包括：1 个 Commit Object、2 个 Tree Object、1 个 Blob Object。两个 Tree Object 总共包含 20 个记录项。新建两个 Tree Object 总共需要遍历 10 + 10 个对象即可。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-11.png?x-oss-process=image/resize,w_800"></p>
-<p>下图所示为扁平管理的情况下，修改一个文件所产生的对象示意图。新增的数据包括：1 个 Commit Object、1 个 Tree Object、1 个 Blob Object。虽然新增的 Tree Object 数量少，但是新增的 Tree Object 的记录项非常多，有 100 个。此外，新建这个 Tree Object 需要遍历 100 个对象。</p>
-<p><img src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-10.png?x-oss-process=image/resize,w_800"></p>
+<p>下图所示为分级管理的情况下，修改一个文件所产生的对象示意图。新增的数据包括：1
+个 Commit Object、2 个 Tree Object、1 个 Blob Object。两个 Tree Object
+总共包含 20 个记录项。新建两个 Tree Object 总共需要遍历 10 + 10
+个对象即可。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-11.png?x-oss-process=image/resize,w_800" /></p>
+<p>下图所示为扁平管理的情况下，修改一个文件所产生的对象示意图。新增的数据包括：1
+个 Commit Object、1 个 Tree Object、1 个 Blob Object。虽然新增的 Tree
+Object 数量少，但是新增的 Tree Object 的记录项非常多，有 100
+个。此外，新建这个 Tree Object 需要遍历 100 个对象。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-principle-10.png?x-oss-process=image/resize,w_800" /></p>
 <p>对比之下，我们可以发现分级管理虽然产生的对象多，但是实际占用的空间反而是更小的，并且新建对象时遍历的对象更少，效率更高。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文主要介绍了 Git 的底层实现原理，首先是其架构，大概分为三层，分别是：上层命令、底层命令、对象数据库（内容寻址文件系统）。</p>
-<p>我们重点介绍了对象数据库，使用 Linux Ext 文件系统跟它进行了对比，两者在设计理念上基本是一致的。整个设计理念非常清晰，将文件和目录进行区分存储。使用轻量级数据结构表示目录可以在某些场景下提升效率，比如重命名等。</p>
-<p>关于底层数据，我们介绍了其核心的 4 种：Blob Object、Tree Object、Commit Object 以及 Tag Object。这些对象各司其职，在底层支持了 Git 的设计理念。</p>
-<p>最后，我们介绍了一个真实的设计案例——CocoaPods Source 管理机制，其正是应用了 Git 的底层原理对自身系统进行了性能优化。未来，我们在设计自己的软件时，也可以借鉴 Git 底层原理进行优化。</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
-<li><a target="_blank" rel="noopener" href="https://github.com/git/git">git</a></li>
-<li><a target="_blank" rel="noopener" href="https://git-scm.com/book">Pro Git</a></li>
+<h1 id="总结">总结</h1>
+<p>本文主要介绍了 Git
+的底层实现原理，首先是其架构，大概分为三层，分别是：上层命令、底层命令、对象数据库（内容寻址文件系统）。</p>
+<p>我们重点介绍了对象数据库，使用 Linux Ext
+文件系统跟它进行了对比，两者在设计理念上基本是一致的。整个设计理念非常清晰，将文件和目录进行区分存储。使用轻量级数据结构表示目录可以在某些场景下提升效率，比如重命名等。</p>
+<p>关于底层数据，我们介绍了其核心的 4 种：Blob Object、Tree
+Object、Commit Object 以及 Tag Object。这些对象各司其职，在底层支持了
+Git 的设计理念。</p>
+<p>最后，我们介绍了一个真实的设计案例——CocoaPods Source
+管理机制，其正是应用了 Git
+的底层原理对自身系统进行了性能优化。未来，我们在设计自己的软件时，也可以借鉴
+Git 底层原理进行优化。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li><a href="https://github.com/git/git">git</a></li>
+<li><a href="https://git-scm.com/book">Pro Git</a></li>
 <li>《开源软件架构》</li>
-<li><a target="_blank" rel="noopener" href="https://hutusi.com/articles/the-greatest-git-commit">改变世界的一次代码提交</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.cocoapods.org/Master-Spec-Repo-Rate-Limiting-Post-Mortem/#too-many-directory-entries">Master spec-repo rate limiting post‑mortem</a></li>
+<li><a
+href="https://hutusi.com/articles/the-greatest-git-commit">改变世界的一次代码提交</a></li>
+<li><a
+href="https://blog.cocoapods.org/Master-Spec-Repo-Rate-Limiting-Post-Mortem/#too-many-directory-entries">Master
+spec-repo rate limiting post‑mortem</a></li>
 </ol>
 
-      
     </div>
-    
-    
-    
 
     
-
     
-      <div>
-        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
-  <div>欣赏此文？求鼓励，求支持！</div>
-  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
-    <span>赏</span>
-  </button>
-  <div id="QR" style="display: none;">
-
-    
-      <div id="wechat" style="display: inline-block">
-        <img id="wechat_qr" src="/images/wechatpay-2022.png" alt=" WeChat Pay"/>
-        <p>WeChat Pay</p>
-      </div>
-    
-
-    
-      <div id="alipay" style="display: inline-block">
-        <img id="alipay_qr" src="/images/alipay-2022.png" alt=" Alipay"/>
-        <p>Alipay</p>
-      </div>
-    
-
-    
-
-  </div>
-</div>
-
-      </div>
-    
-
     
 
     <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/Git/" rel="tag"># Git</a>
-          
-            <a href="/tags/Blob/" rel="tag"># Blob</a>
-          
-        </div>
-      
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
 
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2022/05/01/understand-principle-of-filesystem/" rel="next" title="深入理解 Linux Ext 文件系统设计原理">
-                <i class="fa fa-chevron-left"></i> 深入理解 Linux Ext 文件系统设计原理
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2022/06/22/compiler-principle-tool-lex/" rel="prev" title="编译原理工具系列(1)——lex">
-                编译原理工具系列(1)——lex <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-        <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-  <a class="jiathis_button_tsina"></a>
-  <a class="jiathis_button_tqq"></a>
-  <a class="jiathis_button_weixin"></a>
-  <a class="jiathis_button_cqq"></a>
-  <a class="jiathis_button_douban"></a>
-  <a class="jiathis_button_renren"></a>
-  <a class="jiathis_button_qzone"></a>
-  <a class="jiathis_button_kaixin001"></a>
-  <a class="jiathis_button_copy"></a>
-  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
-  <a class="jiathis_counter_style"></a>
 </div>
-<script type="text/javascript" >
-  var jiathis_config={
-    hideMore:false
-  }
-</script>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
 
-      
-    </div>
-  </div>
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
 
+  <div class="social-list">
 
-          </div>
-          
-
-
-          
-  <div class="comments" id="comments">
-    
-      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk2My8xMDQ5OA=="></div>
-    
-  </div>
-
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <img class="site-author-image" itemprop="image"
-               src="/images/SlamDunk.png"
-               alt="" />
-          <p class="site-author-name" itemprop="name"></p>
-           
-              <p class="site-description motion-element" itemprop="description"></p>
-          
-        </div>
-        <nav class="site-state motion-element">
-
-          
-            <div class="site-state-item site-state-posts">
-              <a href="/archives">
-                <span class="site-state-item-count">128</span>
-                <span class="site-state-item-name">日志</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-categories">
-              <a href="/categories/index.html">
-                <span class="site-state-item-count">28</span>
-                <span class="site-state-item-name">分类</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-tags">
-              <a href="/tags/index.html">
-                <span class="site-state-item-count">284</span>
-                <span class="site-state-item-name">标签</span>
-              </a>
-            </div>
-          
-
-        </nav>
-
-        
-          <div class="feed-link motion-element">
-            <a href="/atom.xml" rel="alternate">
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
               <i class="fa fa-rss"></i>
-              RSS
-            </a>
-          </div>
-        
+            </span>
 
-        <div class="links-of-author motion-element">
-          
-            
-              <span class="links-of-author-item">
-                <a href="https://github.com/baochuquan" target="_blank" title="GitHub">
-                  
-                    <i class="fa fa-fw fa-github"></i>
-                  
-                    
-                      GitHub
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://weibo.com/baochuquan" target="_blank" title="微博">
-                  
-                    <i class="fa fa-fw fa-weibo"></i>
-                  
-                    
-                      微博
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.facebook.com/profile.php?id=100008422440696" target="_blank" title="Facebook">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                    
-                      Facebook
-                    
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="https://www.instagram.com/baochuquan/" target="_blank" title="Instagram">
-                  
-                    <i class="fa fa-fw fa-instagram"></i>
-                  
-                    
-                      Instagram
-                    
-                </a>
-              </span>
-            
-          
-        </div>
-
-        
-        
-
-        
-        
-
-        
-
-
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B5%B7%E6%BA%90"><span class="nav-number">1.</span> <span class="nav-text">起源</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">整体架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8A%E5%B1%82%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">上层命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%95%E5%B1%82%E5%91%BD%E4%BB%A4"><span class="nav-number">2.2.</span> <span class="nav-text">底层命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">2.3.</span> <span class="nav-text">对象数据库</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Git-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-vs-Ext-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">3.</span> <span class="nav-text">Git 文件系统 vs Ext 文件系统</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F"><span class="nav-number">3.1.</span> <span class="nav-text">存储方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E6%96%B9%E5%BC%8F"><span class="nav-number">3.2.</span> <span class="nav-text">索引方式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">对象模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Blob-Object"><span class="nav-number">4.1.</span> <span class="nav-text">Blob Object</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Tree-Object"><span class="nav-number">4.2.</span> <span class="nav-text">Tree Object</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Commit-Object"><span class="nav-number">4.3.</span> <span class="nav-text">Commit Object</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">引用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#HEAD-%E5%BC%95%E7%94%A8"><span class="nav-number">5.1.</span> <span class="nav-text">HEAD 引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%87%E7%AD%BE%E5%BC%95%E7%94%A8"><span class="nav-number">5.2.</span> <span class="nav-text">标签引用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E6%A0%87%E7%AD%BE"><span class="nav-number">5.2.1.</span> <span class="nav-text">轻量标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%84%E6%B3%A8%E6%A0%87%E7%AD%BE"><span class="nav-number">5.2.2.</span> <span class="nav-text">附注标签</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9C%E7%A8%8B%E5%BC%95%E7%94%A8"><span class="nav-number">5.3.</span> <span class="nav-text">远程引用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8C%85%E6%96%87%E4%BB%B6"><span class="nav-number">6.</span> <span class="nav-text">包文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">7.</span> <span class="nav-text">基于底层原理的应用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">9.</span> <span class="nav-text">参考</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
-        
+            <span class="label">RSS</span>
+          </a>
       </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright" >
-  
-  &copy;  2018 - 
-  <span itemprop="copyrightYear">2023</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
 </div>
 
-
-<div class="powered-by">
-  由 <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Pisces
-  </a>
-</div>
-
-<div>
-  <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
-</div>
-
-
+          <div class="post-tags">
+              <a href="/tags/Git/" rel="tag"># Git</a>
+              <a href="/tags/Blob/" rel="tag"># Blob</a>
+          </div>
 
         
-<div class="busuanzi-count">
-  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-  
-    <span class="site-uv">
-      <i class="fa fa-user"></i>本站总访客
-      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
-      人次
-    </span>
-  
-
-  
-    <span class="site-pv">
-      <i class="fa fa-eye"></i>本站总访问量
-      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
-      次
-    </span>
-  
-</div>
-
-
-        
-      </div>
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/05/01/understand-principle-of-filesystem/" rel="prev" title="深入理解 Linux Ext 文件系统设计原理">
+                  <i class="fa fa-angle-left"></i> 深入理解 Linux Ext 文件系统设计原理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/06/22/compiler-principle-tool-lex/" rel="next" title="编译原理工具系列(1)——lex">
+                  编译原理工具系列(1)——lex <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
     </footer>
+  </article>
+</div>
 
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
 
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
   </div>
 
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
   
 
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2022/05/21/understand-principle-of-git/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
   }
+}
 </script>
 
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
-
-
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
-
-
-
-  
-
-
-  
-
-
-
-
-	
-
-
-
-
-
-  
-
-
-
-
-
-  
-    <script type="text/javascript">
-      (function(d, s) {
-        var j, e = d.getElementsByTagName(s)[0];
-        if (typeof LivereTower === 'function') { return; }
-        j = d.createElement(s);
-        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
-        j.async = true;
-        e.parentNode.insertBefore(j, e);
-      })(document, 'script');
-    </script>
-  
-
-
-
-
-
-
-  
-
-  <script type="text/javascript">
-    // Popup Window;
-    var isfetched = false;
-    var isXml = true;
-    // Search DB path;
-    var search_path = "search.xml";
-    if (search_path.length === 0) {
-      search_path = "search.xml";
-    } else if (/json$/i.test(search_path)) {
-      isXml = false;
-    }
-    var path = "/" + search_path;
-    // monitor main search box;
-
-    var onPopupClose = function (e) {
-      $('.popup').hide();
-      $('#local-search-input').val('');
-      $('.search-result-list').remove();
-      $('#no-result').remove();
-      $(".local-search-pop-overlay").remove();
-      $('body').css('overflow', '');
-    }
-
-    function proceedsearch() {
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
-        .css('overflow', 'hidden');
-      $('.search-popup-overlay').click(onPopupClose);
-      $('.popup').toggle();
-      var $localSearchInput = $('#local-search-input');
-      $localSearchInput.attr("autocapitalize", "none");
-      $localSearchInput.attr("autocorrect", "off");
-      $localSearchInput.focus();
-    }
-
-    // search function;
-    var searchFunc = function(path, search_id, content_id) {
-      'use strict';
-
-      // start loading animation
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
-          '<div id="search-loading-icon">' +
-          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
-          '</div>' +
-          '</div>')
-        .css('overflow', 'hidden');
-      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
-
-      $.ajax({
-        url: path,
-        dataType: isXml ? "xml" : "json",
-        async: true,
-        success: function(res) {
-          // get the contents from search data
-          isfetched = true;
-          $('.popup').detach().appendTo('.header-inner');
-          var datas = isXml ? $("entry", res).map(function() {
-            return {
-              title: $("title", this).text(),
-              content: $("content",this).text(),
-              url: $("url" , this).text()
-            };
-          }).get() : res;
-          var input = document.getElementById(search_id);
-          var resultContent = document.getElementById(content_id);
-          var inputEventFunction = function() {
-            var searchText = input.value.trim().toLowerCase();
-            var keywords = searchText.split(/[\s\-]+/);
-            if (keywords.length > 1) {
-              keywords.push(searchText);
-            }
-            var resultItems = [];
-            if (searchText.length > 0) {
-              // perform local searching
-              datas.forEach(function(data) {
-                var isMatch = false;
-                var hitCount = 0;
-                var searchTextCount = 0;
-                var title = data.title.trim();
-                var titleInLowerCase = title.toLowerCase();
-                var content = data.content.trim().replace(/<[^>]+>/g,"");
-                var contentInLowerCase = content.toLowerCase();
-                var articleUrl = decodeURIComponent(data.url);
-                var indexOfTitle = [];
-                var indexOfContent = [];
-                // only match articles with not empty titles
-                if(title != '') {
-                  keywords.forEach(function(keyword) {
-                    function getIndexByWord(word, text, caseSensitive) {
-                      var wordLen = word.length;
-                      if (wordLen === 0) {
-                        return [];
-                      }
-                      var startPosition = 0, position = [], index = [];
-                      if (!caseSensitive) {
-                        text = text.toLowerCase();
-                        word = word.toLowerCase();
-                      }
-                      while ((position = text.indexOf(word, startPosition)) > -1) {
-                        index.push({position: position, word: word});
-                        startPosition = position + wordLen;
-                      }
-                      return index;
-                    }
-
-                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
-                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
-                  });
-                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
-                    isMatch = true;
-                    hitCount = indexOfTitle.length + indexOfContent.length;
-                  }
-                }
-
-                // show search results
-
-                if (isMatch) {
-                  // sort index by position of keyword
-
-                  [indexOfTitle, indexOfContent].forEach(function (index) {
-                    index.sort(function (itemLeft, itemRight) {
-                      if (itemRight.position !== itemLeft.position) {
-                        return itemRight.position - itemLeft.position;
-                      } else {
-                        return itemLeft.word.length - itemRight.word.length;
-                      }
-                    });
-                  });
-
-                  // merge hits into slices
-
-                  function mergeIntoSlice(text, start, end, index) {
-                    var item = index[index.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    var hits = [];
-                    var searchTextCountInSlice = 0;
-                    while (position + word.length <= end && index.length != 0) {
-                      if (word === searchText) {
-                        searchTextCountInSlice++;
-                      }
-                      hits.push({position: position, length: word.length});
-                      var wordEnd = position + word.length;
-
-                      // move to next position of hit
-
-                      index.pop();
-                      while (index.length != 0) {
-                        item = index[index.length - 1];
-                        position = item.position;
-                        word = item.word;
-                        if (wordEnd > position) {
-                          index.pop();
-                        } else {
-                          break;
-                        }
-                      }
-                    }
-                    searchTextCount += searchTextCountInSlice;
-                    return {
-                      hits: hits,
-                      start: start,
-                      end: end,
-                      searchTextCount: searchTextCountInSlice
-                    };
-                  }
-
-                  var slicesOfTitle = [];
-                  if (indexOfTitle.length != 0) {
-                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
-                  }
-
-                  var slicesOfContent = [];
-                  while (indexOfContent.length != 0) {
-                    var item = indexOfContent[indexOfContent.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    // cut out 100 characters
-                    var start = position - 20;
-                    var end = position + 80;
-                    if(start < 0){
-                      start = 0;
-                    }
-                    if (end < position + word.length) {
-                      end = position + word.length;
-                    }
-                    if(end > content.length){
-                      end = content.length;
-                    }
-                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
-                  }
-
-                  // sort slices in content by search text's count and hits' count
-
-                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
-                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
-                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
-                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
-                      return sliceRight.hits.length - sliceLeft.hits.length;
-                    } else {
-                      return sliceLeft.start - sliceRight.start;
-                    }
-                  });
-
-                  // select top N slices in content
-
-                  var upperBound = parseInt('1');
-                  if (upperBound >= 0) {
-                    slicesOfContent = slicesOfContent.slice(0, upperBound);
-                  }
-
-                  // highlight title and content
-
-                  function highlightKeyword(text, slice) {
-                    var result = '';
-                    var prevEnd = slice.start;
-                    slice.hits.forEach(function (hit) {
-                      result += text.substring(prevEnd, hit.position);
-                      var end = hit.position + hit.length;
-                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
-                      prevEnd = end;
-                    });
-                    result += text.substring(prevEnd, slice.end);
-                    return result;
-                  }
-
-                  var resultItem = '';
-
-                  if (slicesOfTitle.length != 0) {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
-                  } else {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
-                  }
-
-                  slicesOfContent.forEach(function (slice) {
-                    resultItem += "<a href='" + articleUrl + "'>" +
-                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
-                      "...</p>" + "</a>";
-                  });
-
-                  resultItem += "</li>";
-                  resultItems.push({
-                    item: resultItem,
-                    searchTextCount: searchTextCount,
-                    hitCount: hitCount,
-                    id: resultItems.length
-                  });
-                }
-              })
-            };
-            if (keywords.length === 1 && keywords[0] === "") {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
-            } else if (resultItems.length === 0) {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
-            } else {
-              resultItems.sort(function (resultLeft, resultRight) {
-                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
-                  return resultRight.searchTextCount - resultLeft.searchTextCount;
-                } else if (resultLeft.hitCount !== resultRight.hitCount) {
-                  return resultRight.hitCount - resultLeft.hitCount;
-                } else {
-                  return resultRight.id - resultLeft.id;
-                }
-              });
-              var searchResultList = '<ul class=\"search-result-list\">';
-              resultItems.forEach(function (result) {
-                searchResultList += result.item;
-              })
-              searchResultList += "</ul>";
-              resultContent.innerHTML = searchResultList;
-            }
-          }
-
-          if ('auto' === 'auto') {
-            input.addEventListener('input', inputEventFunction);
-          } else {
-            $('.search-icon').click(inputEventFunction);
-            input.addEventListener('keypress', function (event) {
-              if (event.keyCode === 13) {
-                inputEventFunction();
-              }
-            });
-          }
-
-          // remove loading animation
-          $(".local-search-pop-overlay").remove();
-          $('body').css('overflow', '');
-
-          proceedsearch();
-        }
-      });
-    }
-
-    // handle and trigger popup window;
-    $('.popup-trigger').click(function(e) {
-      e.stopPropagation();
-      if (isfetched === false) {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-      } else {
-        proceedsearch();
-      };
-    });
-
-    $('.popup-btn-close').click(onPopupClose);
-    $('.popup').click(function(e){
-      e.stopPropagation();
-    });
-    $(document).on('keyup', function (event) {
-      var shouldDismissSearchPopup = event.which === 27 &&
-        $('.search-popup').is(':visible');
-      if (shouldDismissSearchPopup) {
-        onPopupClose();
-      }
-    });
-  </script>
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      });
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      });
-    </script>
-    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
-
-
-  
-
-  
-
-
-  undefined
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
 </html>

@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta property="og:type" content="article">
+<meta property="og:title" content="Myers 差分算法">
+<meta property="og:url" content="http://chuquan.me/2023/09/13/myers-difference-algorithm/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-09-13T05:24:31.000Z">
+<meta property="article:modified_time" content="2023-09-15T03:39:21.145Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="Myers">
+<meta property="article:tag" content="最长公共子序列">
+<meta property="article:tag" content="最短编辑距离">
+<meta property="article:tag" content="最短编辑脚本">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chuquan.me/2023/09/13/myers-difference-algorithm/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2023/09/13/myers-difference-algorithm/","path":"2023/09/13/myers-difference-algorithm/","title":"Myers 差分算法"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Myers 差分算法 | 楚权的世界</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
+
+
+
+
+
+
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%80%E9%95%BF%E5%85%AC%E5%85%B1%E5%AD%90%E5%BA%8F%E5%88%97"><span class="nav-number">1.</span> <span class="nav-text">最长公共子序列</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%80%E5%B0%8F%E7%BC%96%E8%BE%91%E8%B7%9D%E7%A6%BB"><span class="nav-number">2.</span> <span class="nav-text">最小编辑距离</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#myers-%E5%B7%AE%E5%88%86%E7%AE%97%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">Myers 差分算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%AE%9A%E4%B9%89"><span class="nav-number">3.1.</span> <span class="nav-text">基本定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#k-d-%E5%9D%90%E6%A0%87%E7%B3%BB"><span class="nav-number">3.2.</span> <span class="nav-text">K-D 坐标系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E4%BD%B3%E4%BD%8D%E7%BD%AE"><span class="nav-number">3.3.</span> <span class="nav-text">最佳位置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86"><span class="nav-number">3.4.</span> <span class="nav-text">算法原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.5.</span> <span class="nav-text">算法实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">129</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">288</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2023/09/13/myers-difference-algorithm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Myers 差分算法 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Myers 差分算法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-09-13 13:24:31" itemprop="dateCreated datePublished" datetime="2023-09-13T13:24:31+08:00">2023-09-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-09-15 11:39:21" itemprop="dateModified" datetime="2023-09-15T11:39:21+08:00">2023-09-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">算法</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2023/09/13/myers-difference-algorithm/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2023/09/13/myers-difference-algorithm/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-01.png?x-oss-process=image/resize,w_800" /></p>
+<span id="more"></span>
+<p>差分算法（Difference
+Algorithm）是一种数值计算方法，其主要用于解决两个数据集之间的差异问题，通过计算两个数据集之间的差异，取代对整个数据集的处理。</p>
+<p>差分算法的应用非常广泛，主要有以下这些应用领域：</p>
+<ul>
+<li><strong>数据压缩</strong>：差分算法可以用来检测和删除冗余数据，从而实现数据的压缩。比如，对于一段音频数据，如果相邻的数据点之间的值几乎没有变化，那么就可以用差分值来代替原始数据，从而大大减小数据的大小。</li>
+<li><strong>版本控制</strong>：差分算法可以用来比较不同版本的源代码，以便开发者能够知道哪些部分被修改了。比如：git、svn
+等版本控制工具。</li>
+<li><strong>UI
+框架</strong>：差分算法可以用来比较两个状态的界面树，并找到最少的更新操作，从而高性能刷新界面。比如：SwiftUI、IGList、React、Flutter
+等 UI 框架。</li>
+</ul>
+<p>本文，我们将深入探讨广泛应用在各种版本控制工具中的差分算法——Myers
+差分算法。</p>
+<h1 id="最长公共子序列">最长公共子序列</h1>
+<p>在介绍 Myers 算法之前，我们先来了解一下著名的
+<strong>最长公共子序列（Longest Common Subsequence，LCS）</strong>
+问题。我们引用一下 LeetCode 中的问题描述，如下所示。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">给定两个字符串 text1 和 text2，返回这两个字符串的最长「公共子序列」的长度。如果不存在「公共子序列」，则返回 0 。</span><br><span class="line"> </span><br><span class="line">一个字符串的「子序列」是指这样一个新的字符串：它是由原字符串在不改变字符的相对顺序的情况下删除某些字符（也可以不删除任何字符）后组成的新字符串。</span><br><span class="line"></span><br><span class="line">例如，<span class="string">&quot;ace&quot;</span> 是 <span class="string">&quot;abcde&quot;</span> 的子序列，但 <span class="string">&quot;aec&quot;</span> 不是 <span class="string">&quot;abcde&quot;</span> 的子序列。两个字符串的「公共子序列」是这两个字符串所共同拥有的子序列。</span><br><span class="line"></span><br><span class="line">示例 1：</span><br><span class="line">&gt; 输入：text1 = <span class="string">&quot;CBABAC&quot;</span>, text2 = <span class="string">&quot;ABCABBA&quot;</span> </span><br><span class="line">&gt; 输出：4  </span><br><span class="line">&gt; 解释：最长公共子序列是 <span class="string">&quot;BABA&quot;</span> 或 <span class="string">&quot;CABA&quot;</span> 或 <span class="string">&quot;CBBA&quot;</span> ，它的长度为 4 。</span><br></pre></td></tr></table></figure>
+<p>对于 LCS 问题，经典思路是使用动态规划来解决。动态规划的核心思想是
+<strong>将一个大问题拆分成多个子问题，分别求解各个子问题，基于各个子问题的解推断出大问题的解</strong>。与分治、递归相比，动态规划会记录各个子问题的解，避免重复运算，以空间换时间，从而实现对时间复杂度的优化。下面，我们来介绍一下
+LCS 的动态规划解法。</p>
+<p>假设字符串 <span class="math inline">\(text1\)</span> 和
+<code>text2</code> 的长度分别为 <code>m</code> 和
+<code>n</code>，对此创建一个 <code>m+1</code> 行 <code>n+1</code>
+列的二维数组 <code>dp</code>，其中 <code>dp[i][j]</code> 表示
+<code>text1[0:i]</code> 和 <code>text2[0:j]</code>
+的最长公共子序列的长度。</p>
+<blockquote>
+<p>上述表示中，<code>text1[0:i]</code> 表示 <code>text1</code> 的长度为
+<code>i</code> 的前缀，<code>text2[0:j]</code> 表示 <code>text2</code>
+的长度为 <code>j</code> 的前缀。</p>
+</blockquote>
+<p>考虑动态规划的边界情况：</p>
+<ul>
+<li>当 <code>i = 0</code> 时，<code>text1[0:i]</code>
+为空，空字符串和任何字符串的最长公共子序列的长度都是
+<code>0</code>，因此对任意 <code>0 ≤ j ≤ n</code>，有
+<code>dp[0][j] = 0</code>；</li>
+<li>当 <code>j = 0</code> 时，<code>text2[0:j]</code>
+为空，同理可得，对任意 <code>0 ≤ i ≤ m</code>，有
+<code>dp[i][0] = 0</code>。</li>
+</ul>
+<p>因此动态规划的边界情况是：当 <code>i = 0</code> 或 <code>j = 0</code>
+时，<code>dp[i][j] = 0</code>。</p>
+<p>当 <code>i &gt; 0</code> 且 <code>j &gt; 0</code> 时，考虑
+<code>dp[i][j]</code> 的计算：</p>
+<ul>
+<li>当 <code>text1[i-1] = text2[j-1]</code>
+时，将这两个相同的字符称为公共字符，考虑 <code>text1[0:i-1]</code> 和
+<code>text2[0:j-1]</code> 的最长公共子序列，再增加一个公共字符即可得到
+<code>text1[0:i]</code> 和 <code>text2[0:j]</code>
+的最长公共子序列，因此 <code>dp[i][j] = dp[i-1][j-1] + 1</code>。</li>
+<li>当 <code>text1[i-1] != text2[j-1]</code> 时，考虑一下两种情况：
+<ul>
+<li>情况一：<code>text1[0:i-1]</code> 和 <code>text2[0:j]</code>
+的最长公共子序列</li>
+<li>情况二：<code>text1[0:i]</code> 和 <code>text2[0:j-1]</code>
+的最长公共子序列</li>
+<li>对此，计算 <code>text1[0:i]</code> 和 <code>text2[0:j]</code>
+的最长公共子序列，应取两项中长度较大的一项，因此
+<code>dp[i][j] = max(dp[i-1]][j], dp[i][j-1])</code>。</li>
+</ul></li>
+</ul>
+<p>最终得到如下所示的状态转移方程：</p>
+<p><span class="math display">\[
+dp[i][j] =
+\begin{cases}
+dp[i-1][j-1], &amp; \text{text1[i-1] = text2[j-1]}  \\
+max(dp[i-1][j], dp[i][j-1]), &amp; \text{text1[i-1]$\neq$text2[j-1]}
+\end{cases}
+\]</span></p>
+<p>根据状态转移方程，我们可以得到如下代码实现：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// C++</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">longestCommonSubsequence</span><span class="params">(string text1, string text2)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> m = text1.<span class="built_in">size</span>();</span><br><span class="line">    <span class="type">int</span> n = text2.<span class="built_in">size</span>();</span><br><span class="line">    vector&lt;vector&lt;<span class="type">int</span>&gt;&gt; <span class="built_in">dp</span>(m+<span class="number">1</span>, <span class="built_in">vector</span>&lt;<span class="type">int</span>&gt;(n+<span class="number">1</span>, <span class="number">0</span>));</span><br><span class="line">    <span class="type">int</span> result = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= m; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (text1[i<span class="number">-1</span>] == text2[j<span class="number">-1</span>]) &#123;</span><br><span class="line">                dp[i][j] = dp[i<span class="number">-1</span>][j<span class="number">-1</span>] + <span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                dp[i][j] = <span class="built_in">max</span>(dp[i<span class="number">-1</span>][j], dp[i][j<span class="number">-1</span>]);</span><br><span class="line">            &#125;</span><br><span class="line">            result = <span class="built_in">max</span>(result, dp[i][j]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下图所示为二维数组 <code>dp[i][j]</code>
+的存储内容，大问题的解由子问题的解推导而出，数组整体从左到右，从上到下推导构建。我们在图中使用黄色标识了
+<code>text1[i-1] == text2[j-1]</code>
+的情况。此时将从左上角相邻的位置取值并加
+1；否则，取左边或上边的相邻值中的最大值。整个二维数组中保存的最大值就是
+LCS 问题的解。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-02.png?x-oss-process=image/resize,w_800" /></p>
+<p>至此我们计算得到了最长公共子序列的长度，然而在实际情况中，我们倾向于得到最长公共子序列本身。此时，可以借助我们构建的二维数组进行回溯。</p>
+<p>回溯的方法是：从二维数组的右下角向左上角遍历，当
+<code>i = m+1</code>，<code>j = n+1</code> 时可能会遇到三种情况：</p>
+<ul>
+<li>如果 <code>text1[i] = text2[j]</code>，那么向左上角遍历。</li>
+<li>如果 <code>text1[i] != text2[j]</code>，判断 <code>dp[i][j]</code>
+和 <code>dp[i-1][j]</code> 的值。
+<ul>
+<li>如果 <code>dp[i][j] = dp[i-1][j]</code>，则向上遍历；</li>
+<li>否则，向左遍历。</li>
+</ul></li>
+</ul>
+<p>由此，我们可以得到如下的遍历路径。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-03.png?x-oss-process=image/resize,w_800" /></p>
+<p>在回溯得到遍历路径之后，我们对路径中向左上角遍历的起始位置进行染色（黄色），即可得到最长公共子序列
+<code>CABA</code>，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-05.png?x-oss-process=image/resize,w_800" /></p>
+<p>当然，细心的同学可能会对上述的回溯方法产生疑问：为什么
+<code>dp[i][j] = dp[i-1][j]</code>
+时向上遍历，而非向左遍历？事实上，如果我们也可以修改回溯方法，得到如下的遍历路径。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-04.png?x-oss-process=image/resize,w_800" /></p>
+<p>同样，我们对路径中向左上角遍历的起始位置进行染色（黄色），即可得到最长公共子序列
+<code>BABA</code>，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-06.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="最小编辑距离">最小编辑距离</h1>
+<p>事实上，在特定设定下，最长公共子序列问题可以等价为
+<strong>最小编辑距离（Minimum Edit Distance，也称 Levenshtein）</strong>
+问题。</p>
+<p>具体设定为：在最小编辑距离问题中，如果编辑操作只有
+<strong>删除</strong> 和 <strong>插入</strong>，没有
+<strong>替换</strong> 操作，且每个操作的代价是 1，那么从字符串 A
+转换成字符串 B 的最小编辑距离就可以转换成如下公式。</p>
+<p><span class="math display">\[
+med(A, B) = length(A) + length(B) - 2 * lcs(A, B)
+\]</span></p>
+<p>以上述 <code>text1 = CBABAC</code>，<code>text2 = ABCABBA</code>
+为例，寻找最长公共子序列问题，我们可以视为将 <code>text2</code> 转换成
+<code>text1</code> 的最小编辑距离问题。</p>
+<p>此时，我们可以将向左遍历的起始位置染成红色，将向上遍历的起始位置染成绿色，如下所示是分别对
+<code>CABA</code> 和 <code>BABA</code> 遍历路径的染色图。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-07.png?x-oss-process=image/resize,w_800" /></p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-08.png?x-oss-process=image/resize,w_800" /></p>
+<p>这里，我们对已经染色的路径进行编辑规则的定义，如下：</p>
+<ul>
+<li>被染成红色的位置，表示在路径中删除原始字符串对应的字符</li>
+<li>被染成绿色的位置，表示在路径中插入目标字符串对应的字符</li>
+<li>被染成黄色的位置，表示不进行任何编辑编辑操作</li>
+</ul>
+<p>此时，我们就可以得到最小编辑距离的实际操作步骤，即
+<strong>最短编辑脚本（Shortest Edit
+Script，SES）</strong>，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-09.png?x-oss-process=image/resize,w_800" /></p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-10.png?x-oss-process=image/resize,w_800" /></p>
+<p>上面两图的右半部分是两个符合预期的最短编辑脚本。然而，在实际过程中，对某一个原始文本进行编辑得到另一个目标文本，可能会存在非常多的最短编辑脚本。此时我们该如何选择？<strong>根据实际经验，我们认为先删除旧内容，后插入新内容，具有更直观的体验</strong>。比如：Code
+Review
+的差异比较也都是按照先删除后插入的方式进行展示，如下所示。因此，上述第一种最短编辑脚本更加直观，符合预期。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-11.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="myers-差分算法">Myers 差分算法</h1>
+<p>1986 年 Eugene W.Myers 发表了一篇论文《An O(ND) Difference Algorithm
+and Its
+Variations》，提出一种基于广度优先搜索和贪心策略的算法，优化了最短编辑路径问题。该算法在求解大规模字符串编辑距离问题时比传统的动态规划更加有效。</p>
+<p>下面，我们以 <code>source = ABCABBA</code>
+为原始字符串，<code>target = CBAABAC</code> 为目标字符串，基于 Myers
+差分算法来查找最短编辑距离和最小编辑脚本。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-12.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="基本定义">基本定义</h2>
+<p>与上述算法类似，Myers
+差分算法的基本思想仍然是查找一条从左上角至右下角的路径。在路径遍历时，这里有几个基本定义：</p>
+<ul>
+<li><strong>遍历的方向</strong>：仅支持三个方向，分别是
+<strong>向右</strong>、<strong>向下</strong>、<strong>右下</strong>。</li>
+<li><strong>遍历的步长</strong>：对于向右和向下，步长为
+1。一次只能移动一格；对于右下，一次可以移动任意长度，前提移动过程中所有坐标的
+x、y
+值对应在原始字符串和目标字符串中的对应位置的字符必须相同。下图所示，黄色箭头表示可以允许移动的起始位置和终点位置。</li>
+<li><strong>遍历的深度</strong>：对于向右和向下，每移动一步，深度加
+1；对于右下，无论移动步长为多少，深度始终加 0。</li>
+</ul>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-13.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="k-d-坐标系">K-D 坐标系</h2>
+<p>除了对比原始字符串和目标字符串所建立的 X-Y 坐标系外，Myers
+还建立了一个 K-D 坐标系，如下图所示。</p>
+<p>K 来源于 X 与 Y 的关系式 <code>y = x - k</code>，即偏移量。根据 X 和
+K 的值，我们可以计算得到 Y 的值。</p>
+<p>D 表示遍历的深度。由于向右或向下移动一步，深度加
+1；右下移动一步，深度加 0。因此，D 轴并不是完全垂直于 K
+轴，而是类似于等高线，向多方向增长，相同 D
+值所连成的线可能是折线，而不一定是直线。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-21.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="最佳位置">最佳位置</h2>
+<p>Myers 差分算法是基于贪心策略实现的，对此它定义了一个
+<strong>最佳位置</strong> 的概念，作为贪心的基准值。在 K-D
+坐标系中，同一条 K 线上，X 值越大的位置（根据 K 的值可以计算得到 Y
+值），则越靠近右下角的终点。</p>
+<p>那么如何记录最佳位置？很显然，每一个 K
+值需要单独记录各自的最佳位置，因此，需要有一个 Map 来进行存储，其中 Key
+是 K 值，Value 则是 X 值。根据 K 和 X，我们可以计算出 Y 值。</p>
+<h2 id="算法原理">算法原理</h2>
+<p>在了解了算法的基本定义、K-D
+坐标系以及最佳位置等概念之后，我们来看一下算法具体原理。</p>
+<p>算法整体包含两层循环：</p>
+<ul>
+<li>外层循环：迭代遍历的深度。在最坏的情况下（删除全部原始字符，掺入全部目标字符），遍历的深度为两个字符的长度之和，因此深度的范围为
+<code>[0, M+N)</code>。</li>
+<li>内层循环：迭代必要的 K 值。对于每一条 K
+线，从其上的最佳位置出发，移动深度加 1 后的位置只能在其相邻的两条 K
+线上。因此，相同深度的最佳位置所在的 K 线，相邻之间的 K 值差为
+2。对应地，内层循环的步长也为 2，并且每一轮遍历，深度加 1，K
+的范围也会外扩 2。</li>
+</ul>
+<p>下面，我们来图解一下算法的运行过程，以下每张图表示一次完整的内层循环。</p>
+<p>首先，为 <code>k(0)</code> 查找所有深度为 <code>d0</code>
+的最佳位置，很显然，只有起点符合，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-22.png?x-oss-process=image/resize,w_800" /></p>
+<p>其次，为 <code>k(-1)</code> 和 <code>k(1)</code> 查找所有深度为
+<code>d1</code> 的最佳位置。由于 <code>d1</code> 是基于 <code>d0</code>
+宽度优先搜索查找的，而 <code>d0</code>
+只有一个，所以由此向两个方向搜索的 K 线只有 <code>k(-1)</code> 和
+<code>k(1)</code>。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-23.png?x-oss-process=image/resize,w_800" /></p>
+<p>然后，我们继续基于 <code>d1</code> 的各个最佳位置进行宽度优先搜索，为
+<code>(k-2)</code>、<code>k(0)</code>、<code>k(2)</code> 查找
+<code>d2</code> 的各个最佳位置。由于每一轮内层循环的 K 线数量都会外扩
+1，因此，首尾的两条 K 线，只能基于内侧 K
+线的上一轮循环最佳位置来查找本轮最佳位置；对于中间的 K 线，它两侧的 K
+线都有上一轮的最佳位置，它可以从中选择更优的最佳位置（即 X
+值更大的最佳位置）来查找本轮的最佳位置。如下图所示，<code>k(-2)</code>
+的最佳位置 <code>d2</code> 只能基于 <code>k(-1)</code> 的最佳位置
+<code>d1</code> 来查找得到；<code>k(2)</code> 的最佳位置 <code>d2</code>
+只能基于 <code>k(1)</code> 的最佳位置 <code>d1</code>
+来查找得到。对于中间的 K 线，这里只有
+<code>k(0)</code>，它会在左右两边的 K 线中选择一个最佳位置，显然
+<code>k(1)</code> 上的 <code>d1</code> 的 X
+值更大，因此选择它作为搜索的起点。</p>
+<p>从图中，我们还可以看到，当到达深度加 1
+的位置后，算法还会进一步判断是否可以向右下移动，因为右下移动时，深度不会增加。此时，我们发现这几个位置都能沿着黄色的线移动，于是
+<code>d2</code> 就到达了图中所示的位置。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-24.png?x-oss-process=image/resize,w_800" /></p>
+<p>接着，为
+<code>k(-3)</code>、<code>k(-1)</code>、<code>k(1)</code>、<code>k(3)</code>
+查找 <code>d3</code> 的各个最佳位置。注意，这里我们看一下
+<code>k(-1)</code> 的处理，此时它两侧 <code>k(-2)</code> 和
+<code>k(0)</code> 的最佳位置的 X 值相同。此时，我们选择基于
+<code>k(-2)</code> 右移，很明显，这样必然会比基于 <code>k(0)</code>
+下移能找到 X 值更大的位置。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-25.png?x-oss-process=image/resize,w_800" /></p>
+<p>然后，为
+<code>k(-4)</code>、<code>k(-2)</code>、<code>k(0)</code>、<code>k(2)</code>、<code>k(4)</code>
+查找 <code>d4</code> 的各个最佳位置。注意，此时会存在部分 K
+线的最佳位置不包含 X-Y 坐标系中真实存在的位置，比如 <code>k(-4)</code>
+的最佳位置。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-26.png?x-oss-process=image/resize,w_800" /></p>
+<p>最后，我们在为
+<code>k(-35)</code>、<code>k(-3)</code>、<code>k(-1)</code>、<code>k(1)</code>、<code>k(3)</code>、<code>k(5)</code>
+查找最佳位置时，发现其中一条 K
+线的最佳位置已经到达终点，那么此时我们已经找到了最短编辑距离，那么可以结束遍历。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-27.png?x-oss-process=image/resize,w_800" /></p>
+<p>在上述过程中，Myers 算法使用一个 Map 记录每条 K 线的最佳位置，其中
+Key 为 K 值，Value 为最佳位置。当对同一条 K 线多次更新最佳位置时，Map
+只会记录最新的最佳位置。为了便于复现完整的编辑路径，Myers 算法还使用一个
+Map 用于记录每个深度的所有最佳位置，其中 Key 为深度值 D，Value 是一个子
+Map，记录了该深度时各个 K 线的最佳位置。通过回溯这个包含全部最佳位置的
+Map，我们可以重建遍历路径，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/myers-28.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="算法实现">算法实现</h2>
+<p>下面，我们使用代码来实现一下 Myers 算法。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ruby </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">myers</span>(<span class="params">stra, strb</span>)</span><br><span class="line">  <span class="comment"># 字符串 a 和 b 的长度，分别为 n 和 m</span></span><br><span class="line">  m = stra.length</span><br><span class="line">  n = strb.length</span><br><span class="line"></span><br><span class="line">  <span class="comment"># 用于存储每条 K 线上最佳位置的 Map</span></span><br><span class="line">  v = &#123; <span class="number">1</span> =&gt; <span class="number">0</span> &#125;</span><br><span class="line">  <span class="comment"># 用于存储所有深度的所有最佳位置的 Map，用于回溯编辑路径</span></span><br><span class="line">  vs = &#123; <span class="number">0</span> =&gt; &#123; <span class="number">1</span> =&gt; <span class="number">0</span> &#125; &#125;</span><br><span class="line"></span><br><span class="line">  loop <span class="keyword">do</span></span><br><span class="line">    <span class="comment"># 外层循环，遍历深度</span></span><br><span class="line">    (<span class="number">0</span>..m + n).each <span class="keyword">do</span> |<span class="params">d</span>|</span><br><span class="line">      tmp = &#123;&#125;</span><br><span class="line">      <span class="comment"># 内层循环，宽度优先搜索，遍历 K 线</span></span><br><span class="line">      (-d..d).step(<span class="number">2</span>) <span class="keyword">do</span> |<span class="params">k</span>|</span><br><span class="line">        down = ((k == -d) |<span class="params"></span>| ((k != d) &amp;&amp; v[k + <span class="number">1</span>] &gt; v[k - <span class="number">1</span>]))</span><br><span class="line">        kPrev = down ? k + <span class="number">1</span> : k - <span class="number">1</span></span><br><span class="line">        <span class="comment"># 获取移动的起点位置</span></span><br><span class="line">        xStart = v[kPrev]</span><br><span class="line">        yStart = xStart - kPrev</span><br><span class="line">        <span class="comment"># 获取移动一步的中间位置，向右或向下</span></span><br><span class="line">        xMid = down ? xStart : xStart + <span class="number">1</span></span><br><span class="line">        yMid = xMid - k</span><br><span class="line">        <span class="comment"># 获取移动的终点位置，后续可能会向右下移动。</span></span><br><span class="line">        xEnd = xMid</span><br><span class="line">        yEnd = yMid</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 向右下移动，深度始终不变</span></span><br><span class="line">        <span class="keyword">while</span>(xEnd &lt; m &amp;&amp; yEnd &lt; n &amp;&amp; stra[xEnd] == strb[yEnd]) <span class="keyword">do</span></span><br><span class="line">          xEnd += <span class="number">1</span></span><br><span class="line">          yEnd += <span class="number">1</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 记录对应 K 线所能达到的最佳位置</span></span><br><span class="line">        v[k] = xEnd</span><br><span class="line"></span><br><span class="line">        tmp[k] = xEnd</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 如果两个字符串均到达末端，表示找到了终点，可以结束查找</span></span><br><span class="line">        <span class="keyword">if</span> xEnd == m &amp;&amp; yEnd == n</span><br><span class="line">          vs[d] = tmp</span><br><span class="line">          <span class="comment"># 生成最短编辑路径</span></span><br><span class="line">          snakes = solution(vs, m, n, d)</span><br><span class="line">          <span class="comment"># 打印最短编辑路径</span></span><br><span class="line">          printDiff(snakes, stra, strb)</span><br><span class="line">          <span class="keyword">return</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      <span class="comment"># 记录深度为 D 的所有 K 线的最佳位置</span></span><br><span class="line">      vs[d] = tmp</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">solution</span>(<span class="params">vs, m, n, d</span>)</span><br><span class="line">  snakes = []</span><br><span class="line">  <span class="comment"># 定义位置结构</span></span><br><span class="line">  p = &#123; <span class="symbol">x:</span> m, <span class="symbol">y:</span> n &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment"># 回溯最短编辑路径</span></span><br><span class="line">  <span class="keyword">while</span> d &gt; <span class="number">0</span> <span class="keyword">do</span></span><br><span class="line">    v = vs[d]</span><br><span class="line">    vPrev = vs[d-<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">    k = p[<span class="symbol">:x</span>] - p[<span class="symbol">:y</span>]</span><br><span class="line">    <span class="comment"># 判断之前位置到当前位置最开始移动的方式，向下或向右</span></span><br><span class="line">    down = ((k == -d) |<span class="params"></span>| ((k != d) &amp;&amp; (vPrev[k + <span class="number">1</span>] &gt; vPrev[k - <span class="number">1</span>])))</span><br><span class="line">    kPrev = down ? k + <span class="number">1</span> : k - <span class="number">1</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 当前位置</span></span><br><span class="line">    xEnd = v[k]</span><br><span class="line">    yEnd = xEnd - k</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 之前位置</span></span><br><span class="line">    xStart = vPrev[kPrev]</span><br><span class="line">    yStart = xStart - kPrev</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 中间走斜线时的起始位置</span></span><br><span class="line">    xMid = down ? xStart : xStart + <span class="number">1</span></span><br><span class="line">    yMid = xMid - k</span><br><span class="line"></span><br><span class="line">    snakes.unshift([xStart, xMid, xEnd])</span><br><span class="line"></span><br><span class="line">    p[<span class="symbol">:x</span>] = xStart</span><br><span class="line">    p[<span class="symbol">:y</span>] = yStart</span><br><span class="line"></span><br><span class="line">    d -= <span class="number">1</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">return</span> snakes</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">printDiff</span>(<span class="params">snakes, stra, strb</span>)</span><br><span class="line">  diffresult = <span class="string">&#x27;&#x27;</span></span><br><span class="line">  yOffset = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">  snakes.each_with_index <span class="keyword">do</span> |<span class="params">snake, index</span>|</span><br><span class="line">    s = snake[<span class="number">0</span>]</span><br><span class="line">    m = snake[<span class="number">1</span>]</span><br><span class="line">    e = snake[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 如果是第一个差异，并且差异的开始点不是字符串头（即两字符串在开始部分有相同子字符串）</span></span><br><span class="line">    <span class="keyword">if</span> index === <span class="number">0</span> &amp;&amp; s != <span class="number">0</span></span><br><span class="line">      <span class="comment"># 打印所有相同字符，直到s</span></span><br><span class="line">      (<span class="number">0</span>..s-<span class="number">1</span>).each <span class="keyword">do</span> |<span class="params">j</span>|</span><br><span class="line">        diffresult += <span class="string">&quot;  <span class="subst">#&#123;stra[j]&#125;</span>\n&quot;</span></span><br><span class="line">        yOffset += <span class="number">1</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">if</span> m - s == <span class="number">1</span></span><br><span class="line">      <span class="comment"># 用红色打印删除的字符</span></span><br><span class="line">      diffresult += <span class="string">&quot;\033[0;31m- <span class="subst">#&#123;stra[s]&#125;</span>\033[0m\n&quot;</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      <span class="comment"># 用绿色打印插入的字符</span></span><br><span class="line">      diffresult += <span class="string">&quot;\033[0;32m+ <span class="subst">#&#123;strb[yOffset]&#125;</span>\033[0m\n&quot;</span></span><br><span class="line">      yOffset += <span class="number">1</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="comment"># 打印相同的字符</span></span><br><span class="line">    (<span class="number">0</span>..e-m-<span class="number">1</span>).each <span class="keyword">do</span> |<span class="params">i</span>|</span><br><span class="line">      diffresult += <span class="string">&quot;  <span class="subst">#&#123;stra[m+i]&#125;</span>\n&quot;</span></span><br><span class="line">      yOffset += <span class="number">1</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line">  puts diffresult</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">s1 = <span class="string">&#x27;ABCABBA&#x27;</span></span><br><span class="line">s2 = <span class="string">&#x27;CBABAC&#x27;</span></span><br><span class="line">myers(s1, s2)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="总结">总结</h1>
+<p>传统动态规划的时间复杂度为 <code>O(mn)</code>，空间复杂度为
+<code>O(mn)</code>，其中 <code>m</code> 和 <code>n</code>
+分别是两个字符串的长度；Myers 算法的时间复杂度为
+<code>O((m+n)D)</code>，<code>D</code>
+是最小编辑距离，当最短编辑距离相对较小时，Myers
+算法的时间效率是优于传统动态规划的，Myers 算法的空间复杂度为
+<code>O(m+n)</code>。因此，当面对大规模且较为相似的字符串比较任务时，Myers
+算法相比动态规划更具优势。</p>
+<p>后续，我们将阅读一些开源软件或框架，来学习一下 Myers
+差分算法在其中的应用。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li><a href="https://www.nathaniel.ai/myers-diff/">Visualizing
+Diffs</a></li>
+<li><a
+href="https://chenshinan.github.io/2019/05/02/git%E7%94%9F%E6%88%90diff%E5%8E%9F%E7%90%86%EF%BC%9AMyers%E5%B7%AE%E5%88%86%E7%AE%97%E6%B3%95/">git生成diff原理：Myers差分算法</a></li>
+<li><a
+href="https://mcll.top/2019/05/23/diff%E7%AE%97%E6%B3%95/">一种diff算法：Myers</a></li>
+<li><a
+href="https://blog.jcoglan.com/2017/02/12/the-myers-diff-algorithm-part-1/">The
+Myers diff algorithm: part 1</a></li>
+<li><a
+href="https://blog.jcoglan.com/2017/02/15/the-myers-diff-algorithm-part-2/">The
+Myers diff algorithm: part 2</a></li>
+<li><a
+href="https://blog.jcoglan.com/2017/02/17/the-myers-diff-algorithm-part-3/">The
+Myers diff algorithm: part 3</a></li>
+<li><a
+href="https://blog.jcoglan.com/2017/03/22/myers-diff-in-linear-space-theory/">Myers
+diff in linear space: theory</a></li>
+<li><a
+href="https://blog.jcoglan.com/2017/04/25/myers-diff-in-linear-space-implementation/">Myers
+diff in linear space: implementation</a></li>
+<li>An O(ND) Difference Algorithm and Its Variations. Eugene
+W.Myers.</li>
+<li><a href="https://zhuanlan.zhihu.com/p/35256233">Diff应用：从LCS
+到UICollectionView</a></li>
+<li><a
+href="https://www.cnblogs.com/oto-G/p/16357245.html">Myers差分算法的理解、实现、可视化</a></li>
+<li><a
+href="https://juejin.cn/post/6887367495021330445#heading-8">Myers‘Diff之贪婪算法</a></li>
+<li><a href="https://github.com/pkg/diff">pkg diff</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Myers/" rel="tag"># Myers</a>
+              <a href="/tags/%E6%9C%80%E9%95%BF%E5%85%AC%E5%85%B1%E5%AD%90%E5%BA%8F%E5%88%97/" rel="tag"># 最长公共子序列</a>
+              <a href="/tags/%E6%9C%80%E7%9F%AD%E7%BC%96%E8%BE%91%E8%B7%9D%E7%A6%BB/" rel="tag"># 最短编辑距离</a>
+              <a href="/tags/%E6%9C%80%E7%9F%AD%E7%BC%96%E8%BE%91%E8%84%9A%E6%9C%AC/" rel="tag"># 最短编辑脚本</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/08/27/understand-the-design-of-homebrew/" rel="prev" title="Homebrew 的设计哲学">
+                  <i class="fa fa-angle-left"></i> Homebrew 的设计哲学
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/09/16/about-blog-upgrade/" rel="next" title="关于本次博客升级我想说...">
+                  关于本次博客升级我想说... <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Bao Chuquan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2023/09/13/myers-difference-algorithm/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
+  }
+}
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":"hijiki","bottom":-30,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>
