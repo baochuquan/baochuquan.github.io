@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上一篇 文章 我们介绍了矩阵变换在计算机图形学中的应用，包括：视图变换、模型变换、投影变换。此外，我们还详细介绍了投影变换中的正交投影和透视投影，以及屏幕映射过程中的视口变换。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机图形学基础（4）——光栅化">
+<meta property="og:url" content="http://chuquan.me/2024/03/30/foundation-of-computer-graphic-04/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="上一篇 文章 我们介绍了矩阵变换在计算机图形学中的应用，包括：视图变换、模型变换、投影变换。此外，我们还详细介绍了投影变换中的正交投影和透视投影，以及屏幕映射过程中的视口变换。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-30T01:20:55.000Z">
+<meta property="article:modified_time" content="2024-03-30T01:39:10.562Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="画家算法">
+<meta property="article:tag" content="深度缓冲算法">
+<meta property="article:tag" content="采样">
+<meta property="article:tag" content="走样">
+<meta property="article:tag" content="滤波">
+<meta property="article:tag" content="傅里叶级数">
+<meta property="article:tag" content="卷积">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chuquan.me/2024/03/30/foundation-of-computer-graphic-04/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2024/03/30/foundation-of-computer-graphic-04/","path":"2024/03/30/foundation-of-computer-graphic-04/","title":"计算机图形学基础（4）——光栅化"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>计算机图形学基础（4）——光栅化 | 楚权的世界</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
+
+
+
+
+
+
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-rss"><a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%85%E6%A0%BC%E6%98%BE%E7%A4%BA"><span class="nav-number">1.</span> <span class="nav-text">栅格显示</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%89%E6%A0%85%E5%8C%96"><span class="nav-number">2.</span> <span class="nav-text">光栅化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%8D%95%E5%85%83"><span class="nav-number">2.1.</span> <span class="nav-text">基本单元</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%87%E6%A0%B7%E7%BB%98%E5%88%B6"><span class="nav-number">2.2.</span> <span class="nav-text">采样绘制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98"><span class="nav-number">2.3.</span> <span class="nav-text">核心问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="nav-number">2.4.</span> <span class="nav-text">解决方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%87%87%E6%A0%B7%E7%90%86%E8%AE%BA"><span class="nav-number">3.</span> <span class="nav-text">采样理论</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%82%85%E9%87%8C%E5%8F%B6%E7%BA%A7%E6%95%B0"><span class="nav-number">3.1.</span> <span class="nav-text">傅里叶级数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E5%9F%9F%E4%B8%8E%E9%A2%91%E5%9F%9F"><span class="nav-number">3.2.</span> <span class="nav-text">时域与频域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%B0%E6%A0%B7%E5%8E%9F%E7%90%86"><span class="nav-number">3.3.</span> <span class="nav-text">走样原理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BB%A4%E6%B3%A2"><span class="nav-number">4.</span> <span class="nav-text">滤波</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AB%98%E9%80%9A%E6%BB%A4%E6%B3%A2"><span class="nav-number">4.1.</span> <span class="nav-text">高通滤波</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%8E%E9%80%9A%E6%BB%A4%E6%B3%A2"><span class="nav-number">4.2.</span> <span class="nav-text">低通滤波</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%A6%E9%80%9A%E6%BB%A4%E6%B3%A2"><span class="nav-number">4.3.</span> <span class="nav-text">带通滤波</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%B7%E7%A7%AF"><span class="nav-number">4.4.</span> <span class="nav-text">卷积</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%8D%E8%B5%B0%E6%A0%B7%E5%8E%9F%E7%90%86"><span class="nav-number">5.</span> <span class="nav-text">反走样原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%81%AE%E6%8C%A1%E4%B8%8E%E5%8F%AF%E8%A7%81"><span class="nav-number">6.</span> <span class="nav-text">遮挡与可见</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%BB%E5%AE%B6%E7%AE%97%E6%B3%95"><span class="nav-number">6.1.</span> <span class="nav-text">画家算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%B1%E5%BA%A6%E7%BC%93%E5%86%B2%E7%AE%97%E6%B3%95"><span class="nav-number">6.2.</span> <span class="nav-text">深度缓冲算法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">141</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">342</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2024/03/30/foundation-of-computer-graphic-04/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="计算机图形学基础（4）——光栅化 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          计算机图形学基础（4）——光栅化
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2024-03-30 09:20:55 / 修改时间：09:39:10" itemprop="dateCreated datePublished" datetime="2024-03-30T09:20:55+08:00">2024-03-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2024/03/30/foundation-of-computer-graphic-04/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2024/03/30/foundation-of-computer-graphic-04/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上一篇 <a
+href="http://chuquan.me/2024/03/23/foundation-of-computer-graphic-03/">文章</a>
+我们介绍了矩阵变换在计算机图形学中的应用，包括：视图变换、模型变换、投影变换。此外，我们还详细介绍了投影变换中的正交投影和透视投影，以及屏幕映射过程中的视口变换。</p>
+<span id="more"></span>
+<p>本文，我们来介绍一下计算机图形学中最重要的内容之一——光栅化。</p>
+<h1 id="栅格显示">栅格显示</h1>
+<p>光栅化（Rasterization）中光栅（Raster）一词来源于德语，表示栅格的意思。我们现在用的显示设备基本上都是由像素点阵构成的栅格显示设备。因此，我们很容易理解光栅化的含义，即在栅格显示设备上绘制图形。</p>
+<p>这里我们先介绍一下常见的栅格显示设备。</p>
+<p>旧式的阴极射线管（Cathode Ray Tube，CRT）电视，它的基本原理是
+<strong>通过射线管将电子射到屏幕进行逐行扫描</strong>，如下图所示。在实际应用中，会借助视觉暂留效应，对屏幕进行
+<strong>隔行扫描</strong>，从而降低扫描的计算量。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-01.png?x-oss-process=image/resize,w_800" /></p>
+<p>现代平板显示器（Flat Panel Displays）中最常用的是液晶显示器（Liquid
+Crystal Display，LCD），它的基本原理是
+<strong>通过扭转偏振来阻挡或传输光线</strong>，如下图所示。在实际应用中，会使用
+<strong>帧缓冲</strong>（Frame
+Buffer）来提前缓存画面的帧数据，从而提高显示流畅度。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-02.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="光栅化">光栅化</h1>
+<h2 id="基本单元">基本单元</h2>
+<p>光栅化的基本单元是三角形，采用三角形作为基本单元的原因是：</p>
+<ul>
+<li>三角形是最基本的多边形。</li>
+<li>三角形具有平面性。</li>
+<li>三角形可以明确定义内部和外部。我们可以通过向量叉积来判断，详见 <a
+href="http://chuquan.me/2024/01/15/foundation-of-computer-graphic-01/">计算机图形学基础（1）——线性代数</a>。</li>
+<li>任意多边形可以拆分成 N 个三角形。</li>
+</ul>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-07.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="采样绘制">采样绘制</h2>
+<p>2D
+屏幕是一个离散的像素阵列，空间中的三角形则是一个连续的函数。采样绘制的本质则是对一个函数进行离散化。具体的做法是：</p>
+<ul>
+<li>遍历像素阵列，判断每一个像素阵列是否位于三角形的投射区域内</li>
+<li>如果是，进行绘制像素；否则，不绘制。</li>
+</ul>
+<p>如下所示为采样绘制的伪代码和示意图。注意，像素本身是一个矩形区域，因此判断像素是否在三角形内部时，采用的是像素点的中心作为参照。
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">bool</span> <span class="title">inside</span><span class="params">(t, x, y)</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">if</span> <span class="title">point</span><span class="params">(x, y)</span> in <span class="title">triangle</span><span class="params">(t)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> x = <span class="number">0</span>; x &lt; xmax; ++x) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> y = <span class="number">0</span>; y &lt; ymax; ++y) &#123;</span><br><span class="line">        image[x][y] = <span class="built_in">inside</span>(tri, x + <span class="number">0.5</span>, y + <span class="number">0.5</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-03.png?x-oss-process=image/resize,w_800" /></p>
+<p>在绘制三角形时，一般不会对整个屏幕的像素点进行扫描，而是仅仅对三角形的
+<strong>包围盒</strong>（Bounding
+Box）区域内的像素进行扫描和绘制，从而有效降低算法复杂度。对于一些窄长三角形，甚至可以进一步优化算法，如下图右侧所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-04.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="核心问题">核心问题</h2>
+<p>我们观察上述这种简单的采样绘制方式，可以发现一个很明显的问题——<strong>锯齿</strong>（Jaggies）。这个问题根本上是采样导致的，对于这种现象我们称之为
+<strong>走样</strong>（Aliasing）。走样会带来很多奇怪的现象，比如：锯齿、摩尔纹（Moire
+Patterns）、车轮效应等，如下图所示。</p>
+<p>光栅化要解决的核心问题就是走样问题，即
+<strong>反走样</strong>（Antialiasing）。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-05.png?x-oss-process=image/resize,w_800" /></p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-06.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="解决方法">解决方法</h2>
+<p>计算机图形学中解决走样问题的最常用方法是：<strong>先模糊，后采样</strong>。模糊，从字面上理解就是将图片虚化，从数学上理解则是
+<strong>滤波</strong>，关于滤波，我们将在下一节中进行介绍。</p>
+<p>下图所示，为「直接采样」和「先模糊，后采样」的流程对比图。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-08.png?x-oss-process=image/resize,w_800" /></p>
+<p>在具体实践中，通过这种方式能够有效解决光栅化中的锯齿问题，如下所示为反走样前后的效果对比图。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-09.png?x-oss-process=image/resize,w_800" /></p>
+<p>这里，我们可能会产生疑问：</p>
+<ul>
+<li>出现走样的根本原因是什么？</li>
+<li>为什么先模糊（滤波）后采样能够实现反走样？</li>
+</ul>
+<p>要讲明白这些内容，我们必须要介绍一下采样理论。</p>
+<h1 id="采样理论">采样理论</h1>
+<p>采样理论是信号系统中非常重要的一个理论，它在数字信号处理、数字通信、图像处理等众多领域都有着广泛的应用。</p>
+<p>在实际应用中，我们通过一定的采样率把连续信号转换为离散信号，然后再对离散信号进行处理。处理完后，我们又可以通过一定的重构方法把离散信号转换回连续信号，以便在实际系统中使用。</p>
+<h2 id="傅里叶级数">傅里叶级数</h2>
+<p>那么如何表示任意一种信号呢？法国数学家傅里叶认为，任何周期函数（信号）都可以用正弦函数和余弦函数构成的无穷级数来表示，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-10.png?x-oss-process=image/resize,w_800" /></p>
+<p>对于上图中的信号，使用傅里叶级数展开的表示如下所示。其中，这里 <span
+class="math inline">\(t\)</span> 表示时间，<span
+class="math inline">\(A\)</span> 表示振幅，<span
+class="math inline">\(w\)</span> 表示角频率。</p>
+<span class="math display">\[\begin{aligned}
+f(x) = \frac{2Acos(tw)}{\pi} - \frac{2Acos(3tw)}{3\pi} +
+\frac{2Acos(5tw)}{5\pi} - \frac{2Acos(7tw)}{7\pi} + ...
+\end{aligned}\]</span>
+<h2 id="时域与频域">时域与频域</h2>
+<p>基于傅里叶级数，我们可以对信号的时域（以时间为横坐标）和频域（以频率为横坐标）进行相互转换：</p>
+<ul>
+<li>时域转换成频域：采用 <strong>傅里叶变换</strong>（Fourier
+Transform）</li>
+<li>频域转换成时域：采用 <strong>逆傅里叶变换</strong>（Inverse Fourier
+Transform）</li>
+</ul>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-11.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="走样原理">走样原理</h2>
+<p>了解了信号的时域和频域之后，我们再来介绍走样的原理。</p>
+<p>理想情况下，对一个连续信号进行采样后得到的离散信号，应该能够近似重构原始信号。然而，当采样频率低于原始信号的频率时，就会很容易出现走样的问题。换句话说，就是采样得到的离散信号无法近似重构原始信号。</p>
+<p>下图所示，我们列举了几种信号，信号频率依次从高到低，我们使用相同的频率对这些信号进行采样。很显然，我们对低频信号进行采样时，由于采样频率大于信号频率，得到的离散信号可以近似重构原始信号；但是，我们对高频信号采样时，由于采样频率小于信号频率，得到的离散信号则无法近似重构原始信号。</p>
+<p>因此走样的根本原因就是 <strong>采样频率小于信号频率</strong>。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-12.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="滤波">滤波</h1>
+<p>由于滤波在反走样中起到了重要作用，因此我们简单介绍一下图像处理中滤波。</p>
+<p>如下图所示，通过傅里叶变换将左侧的像素空间（空间域）变为右侧的频谱（频域）。对于二维信号，其频谱的表示如下：</p>
+<ul>
+<li>高频部分代表细节、边缘、噪声</li>
+<li>低频占据绝大多数能量，其中直流分量（零频）能量占比最大</li>
+<li>频率分部具有中心对称性</li>
+</ul>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-13.png?x-oss-process=image/resize,w_800" /></p>
+<p>下面，我们来介绍一下几种常见的滤波。</p>
+<h2 id="高通滤波">高通滤波</h2>
+<p>高通滤波（High-pass
+filter），保留高频信号。在图像中，轮廓的边缘会发生剧烈变化，属于高频信号。经过高通滤波后，图像只会保留一些轮廓信息，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-14.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="低通滤波">低通滤波</h2>
+<p>低通滤波（Low-pass
+filter），保留低频信号。在图像中，颜色变化平缓的区域属于低频信号。经过低通滤波后，图像会抹去轮廓信息，如下图所示。模糊处理基于低通滤波实现的。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-15.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="带通滤波">带通滤波</h2>
+<p>带通滤波（Band-pass
+filter），顾名思义，只保留一部分频率范围内的信号。对图像滤波后的效果取决于带通滤波所选择的频率范围。下图所示，为两种不同频率范围的带通滤波。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-16.png?x-oss-process=image/resize,w_800" /></p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-17.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="卷积">卷积</h2>
+<p>那么如何实现滤波呢？卷积（Convolution）就是实现滤波的主要数学工具和底层原理。滤波器的基本原理是
+<strong>响应函数与输入信号进行卷积运算</strong>，因此滤波器也可以称为
+<strong>卷积核</strong>。</p>
+<p>如下所示，是卷积的数学定义，两个函数的 <span
+class="math inline">\(f\)</span> 和 <span
+class="math inline">\(g\)</span> 卷积 <span class="math inline">\(f *
+g(n)\)</span>。</p>
+<span class="math display">\[\begin{aligned}
+连续形式：&amp;
+(f * g)(n) = \int_{-\infty}^{\infty}f(\tau)g(n-\tau)d\tau
+\\
+离散形式：&amp;
+(f * g)(n) = \sum_{-\infty}^{\infty}f(\tau)g(n-\tau)
+
+\end{aligned}\]</span>
+<p>观察 <span class="math inline">\(f(\tau)\)</span> 和 <span
+class="math inline">\(g(n-\tau)\)</span> 的关系，可以发现是对
+<code>g</code> 函数进行了「翻转」，这就是「卷」的来源。同时，对两个函数
+<code>f</code> 和 <code>g</code> 进行积分，这就是「积」的来源。</p>
+<p>卷积本身是一个很难解释的数学定义，如果你想深入理解卷积，这里推荐一篇知乎高赞回答——<a
+href="https://www.zhihu.com/question/22298352/answer/228543288">传送门</a>。简而言之，<strong>两个函数的卷积，会先将一个函数翻转，然后进行滑动叠加</strong>。本质上可以将卷积理解成加权平均。</p>
+<p>下图所示，是对图像进行滤波（卷积）的过程，实现模糊处理。基于傅里叶变换，我们可以实现时域（空间域）与频域之间的相互转换。<strong>时域（空间域）上对两个信号进行卷积，等同于频域上对两个信号的频率进行乘积</strong>。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-18.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="反走样原理">反走样原理</h1>
+<p>在「走样原理」一节中，我们提到了走样的根本原因是
+<strong>采样频率小于信号频率</strong>。在不提高采样频率的前提下，通过
+<strong>先滤波，后采样</strong>
+的方式可以实现反走样，这里的底层逻辑又是什么呢？</p>
+<p>简单的理解就是，<strong>滤波（低通滤波，即模糊处理）会过滤掉信号中大于采样频率的信号分量</strong>。滤波后，剩余的信号分量的频率满足
+<strong>采样频率 &gt;= 信号频率</strong> 的条件，因此实现了反走样。</p>
+<p>实现反走样的方法主要就是围绕两个角度来实现：</p>
+<ul>
+<li>提高采样频率。如：超采样技术（Supersampling）、多重采样抗锯齿（MSAA）、超分辨率</li>
+<li>过滤高频信号。如：先模糊后采样（Pre-Filter）</li>
+</ul>
+<h1 id="遮挡与可见">遮挡与可见</h1>
+<p>上述内容介绍了光栅化一个三角形的场景，以及其会遇到的问题——走样。下面，我们来介绍光栅化多个三角形会遇到的问题——遮挡与可见问题。</p>
+<p>在 3D
+空间中，三角形之间存在着前后遮挡关系，那么三角形绘制的先后顺序应该是什么样的呢？</p>
+<h2 id="画家算法">画家算法</h2>
+<p>对此，我们先介绍一个经常被提到的算法：<strong>画家算法</strong>（Painter's
+Algorithm）。</p>
+<p>画家算法，顾名思义，按照画家绘画时的先后顺序来执行，远的物体先绘制，进的物体后绘制，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-22.png?x-oss-process=image/resize,w_800" /></p>
+<p>虽然画家算法适用于绝大多数场景，但是在某些场景下它仍然无法解决可见性问题。如下图所示，三个相互嵌套的三角形，使用画家算法则无法对三角形进行排序，因此无法准确实现光栅化。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-23.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="深度缓冲算法">深度缓冲算法</h2>
+<p>那么上述问题该如何解决呢？于是出现了
+<strong>深度缓冲算法</strong>（Z-Buffer Algorithm），其基本原理是：</p>
+<ul>
+<li>光栅化采用两个缓冲区
+<ul>
+<li>原有的 <strong>帧缓冲区</strong>（Frame
+Buffer）存储每个像素颜色值</li>
+<li>附加的
+<strong>深度缓冲区</strong>（Z-Buffer）存储每个像素深度值</li>
+</ul></li>
+<li>深度缓冲区存储每个像素当前的
+<strong>最小深度值</strong>（Z-Value）</li>
+</ul>
+<p>如下所示，为深度缓冲算法的伪代码实现。注意：我们会初始化深度值为无穷大。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (each triangle T) &#123;</span><br><span class="line">    <span class="keyword">for</span> (each <span class="built_in">sample</span> (x, y, z) in T) &#123;</span><br><span class="line">        <span class="keyword">if</span> (z &lt; zbuffer[x, y]) &#123;            <span class="comment">// 处理深度更小的采样点</span></span><br><span class="line">            framebuffer[x, y] = rgb;        <span class="comment">// 更新颜色值</span></span><br><span class="line">            zbuffer[x, y] = z;              <span class="comment">// 更新深度值</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下图所示，使用深度缓冲算法光栅化两个三角形的示意图。当光栅化红色三角形时，我们遍历红色三角形的每一个像素的深度值，并与当前深度值进行比较。由于当前深度值均为无穷大，所以红色三角形的每一个像素都可以绘制。当光栅化蓝色三角形时，同样会遍历蓝色三角形每一个像素的深度值，并与当前深度值变换，深度值大于当前深度值，则不绘制；否则，绘制并更新当前深度值。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rasterization-24.png?x-oss-process=image/resize,w_800" /></p>
+<p>注意，这里的深度值比较取决于坐标系是如何建立的。按照我们之前的介绍，相机是沿着
+-Z 轴方向观测，因此深度越大，则 Z 值越小。</p>
+<h1 id="总结">总结</h1>
+<p>本文，我们主要介绍了光栅化技术。首先介绍了光栅化的含义以及栅格设备。其次，我们介绍了光栅化的基本单元——三角形。</p>
+<p>在绘制单个三角形时，我们会遇到走样问题。对此我们介绍了反走样的两种方法：提高采样频率、过滤信号频率。我们着重介绍了后者，先滤波（模糊）后采样，并介绍了其中涉及的原理。</p>
+<p>在绘制多个三角形时，我们会遇到遮挡问题。对此我们介绍了两种算法：画家算法、深度缓冲算法。</p>
+<p>后续，我们还会继续介绍计算机图形学的其他内容，敬请期待吧~</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li>《GAMES 101》</li>
+<li><a
+href="https://www.zhihu.com/question/22298352/answer/228543288">如何通俗易懂地解释卷积</a></li>
+<li><a
+href="https://www.zhihu.com/tardis/zm/art/54946461?source_id=1003">傅里叶变换与图像的频域处理</a></li>
+<li><a
+href="https://dezeming.top/wp-content/uploads/2022/04/%E9%87%87%E6%A0%B7%E5%AE%9A%E7%90%86.pdf">采样定理</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E7%94%BB%E5%AE%B6%E7%AE%97%E6%B3%95/" rel="tag"># 画家算法</a>
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E7%BC%93%E5%86%B2%E7%AE%97%E6%B3%95/" rel="tag"># 深度缓冲算法</a>
+              <a href="/tags/%E9%87%87%E6%A0%B7/" rel="tag"># 采样</a>
+              <a href="/tags/%E8%B5%B0%E6%A0%B7/" rel="tag"># 走样</a>
+              <a href="/tags/%E6%BB%A4%E6%B3%A2/" rel="tag"># 滤波</a>
+              <a href="/tags/%E5%82%85%E9%87%8C%E5%8F%B6%E7%BA%A7%E6%95%B0/" rel="tag"># 傅里叶级数</a>
+              <a href="/tags/%E5%8D%B7%E7%A7%AF/" rel="tag"># 卷积</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/03/23/foundation-of-computer-graphic-03/" rel="prev" title="计算机图形学基础（3）——观测变换">
+                  <i class="fa fa-angle-left"></i> 计算机图形学基础（3）——观测变换
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/04/05/foundation-of-computer-graphic-05/" rel="next" title="计算机图形学基础（5）——着色">
+                  计算机图形学基础（5）——着色 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">true</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2024/03/30/foundation-of-computer-graphic-04/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
+  }
+}
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+<script src="/live2dwlib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dwassets/tororo.model.json"},"display":{"position":"right","width":150,"height":300,"hOffset":-15,"vOffset":-15},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

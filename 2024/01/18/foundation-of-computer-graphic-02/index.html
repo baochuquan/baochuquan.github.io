@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上一篇文章我们介绍了计算机图形学中的线性代数基础，包括：点、向量、矩阵等。本文，我们将介绍向量和矩阵的进一步应用——变换。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机图形学基础（2）——变换">
+<meta property="og:url" content="http://chuquan.me/2024/01/18/foundation-of-computer-graphic-02/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="上一篇文章我们介绍了计算机图形学中的线性代数基础，包括：点、向量、矩阵等。本文，我们将介绍向量和矩阵的进一步应用——变换。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-01-18T13:29:31.000Z">
+<meta property="article:modified_time" content="2024-03-18T01:46:47.645Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="缩放变换">
+<meta property="article:tag" content="平移变换">
+<meta property="article:tag" content="旋转变换">
+<meta property="article:tag" content="切变变换">
+<meta property="article:tag" content="仿射变换">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chuquan.me/2024/01/18/foundation-of-computer-graphic-02/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2024/01/18/foundation-of-computer-graphic-02/","path":"2024/01/18/foundation-of-computer-graphic-02/","title":"计算机图形学基础（2）——变换"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>计算机图形学基础（2）——变换 | 楚权的世界</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
+
+
+
+
+
+
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-rss"><a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#d-%E5%8F%98%E6%8D%A2"><span class="nav-number">2.</span> <span class="nav-text">2D 变换</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%A9%E6%94%BE%E5%8F%98%E6%8D%A2"><span class="nav-number">2.1.</span> <span class="nav-text">缩放变换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AD%89%E6%AF%94%E4%BE%8B%E7%BC%A9%E6%94%BE"><span class="nav-number">2.1.1.</span> <span class="nav-text">等比例缩放</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E7%AD%89%E6%AF%94%E7%BC%A9%E6%94%BE"><span class="nav-number">2.1.2.</span> <span class="nav-text">非等比缩放</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%95%9C%E5%83%8F%E5%8F%98%E6%8D%A2"><span class="nav-number">2.2.</span> <span class="nav-text">镜像变换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%87%E5%8F%98%E5%8F%98%E6%8D%A2"><span class="nav-number">2.3.</span> <span class="nav-text">切变变换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%8B%E8%BD%AC%E5%8F%98%E6%8D%A2"><span class="nav-number">2.4.</span> <span class="nav-text">旋转变换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B3%E7%A7%BB%E5%8F%98%E6%8D%A2"><span class="nav-number">2.5.</span> <span class="nav-text">平移变换</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%BD%90%E6%AC%A1%E5%9D%90%E6%A0%87"><span class="nav-number">3.</span> <span class="nav-text">齐次坐标</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BF%E5%B0%84%E5%8F%98%E6%8D%A2%E4%B8%8E%E7%BA%BF%E6%80%A7%E5%8F%98%E6%8D%A2"><span class="nav-number">3.1.</span> <span class="nav-text">仿射变换与线性变换</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%86%E5%8F%98%E6%8D%A2"><span class="nav-number">4.</span> <span class="nav-text">逆变换</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%84%E5%90%88%E5%8F%98%E6%8D%A2"><span class="nav-number">5.</span> <span class="nav-text">组合变换</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#d-%E5%8F%98%E6%8D%A2-1"><span class="nav-number">6.</span> <span class="nav-text">3D 变换</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%A9%E6%94%BE%E5%8F%98%E6%8D%A2-1"><span class="nav-number">6.1.</span> <span class="nav-text">缩放变换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B3%E7%A7%BB%E5%8F%98%E6%8D%A2-1"><span class="nav-number">6.2.</span> <span class="nav-text">平移变换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%8B%E8%BD%AC%E5%8F%98%E6%8D%A2-1"><span class="nav-number">6.3.</span> <span class="nav-text">旋转变换</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">141</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">342</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2024/01/18/foundation-of-computer-graphic-02/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="计算机图形学基础（2）——变换 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          计算机图形学基础（2）——变换
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-01-18 21:29:31" itemprop="dateCreated datePublished" datetime="2024-01-18T21:29:31+08:00">2024-01-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-03-18 09:46:47" itemprop="dateModified" datetime="2024-03-18T09:46:47+08:00">2024-03-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2024/01/18/foundation-of-computer-graphic-02/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2024/01/18/foundation-of-computer-graphic-02/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上一篇<a
+href="http://chuquan.me/2024/01/15/foundation-of-computer-graphic-01/">文章</a>我们介绍了计算机图形学中的线性代数基础，包括：点、向量、矩阵等。本文，我们将介绍向量和矩阵的进一步应用——变换。</p>
+<span id="more"></span>
+<h1 id="概述">概述</h1>
+<p>计算机图形学中，我们可能会对图形进行各种变换（Transform），如：</p>
+<ul>
+<li>缩放（Scale）</li>
+<li>平移（Transation）</li>
+<li>旋转（Rotation）</li>
+<li>切变（Shear）</li>
+</ul>
+<h1 id="d-变换">2D 变换</h1>
+<p>首先，我们来介绍一下 2D
+变换，以便了解变换是如何通过矩阵变换来实现的。</p>
+<h2 id="缩放变换">缩放变换</h2>
+<p>对于缩放变换，它主要包含两种：等比例缩放、非等比缩放。</p>
+<h3 id="等比例缩放">等比例缩放</h3>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-01.png?x-oss-process=image/resize,w_800" /></p>
+<p>上图所示，为等比例缩放的示意图。根据等比例缩放的规则，我们可以根据缩放前
+<span class="math inline">\(x\)</span> 和 <span
+class="math inline">\(y\)</span> 的值，得到一组关系式，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+x&#39; =&amp; sx \\
+y&#39; =&amp; sy \\
+\end{aligned}\]</span>
+<p>根据此关系式，我们可以进一步推导出缩放矩阵及关系式，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+x&#39; \\
+y&#39;
+\end{matrix}
+\right)
+=
+\left(
+\begin{matrix}
+s &amp; 0 \\
+0 &amp; s \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+x \\
+y
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h3 id="非等比缩放">非等比缩放</h3>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-02.png?x-oss-process=image/resize,w_800" /></p>
+<p>上图所示，为非等比缩放的示意图。根据非比缩放的规则，我们可以根据缩放前
+<span class="math inline">\(x\)</span> 和 <span
+class="math inline">\(y\)</span> 的值，得到另一组关系式，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+x&#39; =&amp; s_xx \\
+y&#39; =&amp; s_yy \\
+\end{aligned}\]</span>
+<p>根据此关系式，我们可以进一步推导出缩放矩阵及关系式，如下所示。对比一下，非等比缩放与等比例缩放的关系式非常相似。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+x&#39; \\
+y&#39; \\
+\end{matrix}
+\right)
+
+=
+
+\left(
+\begin{matrix}
+s_x &amp; 0 \\
+0 &amp; s_y \\
+\end{matrix}
+\right)
+
+\left(
+\begin{matrix}
+x \\
+y \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h2 id="镜像变换">镜像变换</h2>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-03.png?x-oss-process=image/resize,w_800" /></p>
+<p>上图所示，为镜像变换的示意图。我们可以根据原始的 <span
+class="math inline">\(x\)</span> 和 <span
+class="math inline">\(y\)</span> 的值，得到一组关系式，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+x&#39; =&amp; -x \\
+y&#39; =&amp; y \\
+\end{aligned}\]</span>
+<p>根据此关系式，我们可以进一步推导出镜像矩阵及关系式，如下所示。本质上，镜像变换是一种特殊的缩放变换。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+x&#39; \\
+y&#39; \\
+\end{matrix}
+\right)
+
+=
+
+\left(
+\begin{matrix}
+-1 &amp; 0 \\
+0 &amp; 1 \\
+\end{matrix}
+\right)
+
+\left(
+\begin{matrix}
+x \\
+y
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h2 id="切变变换">切变变换</h2>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-04.png?x-oss-process=image/resize,w_800" /></p>
+<p>上图所示，为切变变换的示意图。切变变换相对复杂一点，其 <span
+class="math inline">\(y\)</span> 坐标值与 <span
+class="math inline">\(x\)</span>
+坐标值成一个比例关系。不过，我们仍然可以根据原始的 <span
+class="math inline">\(x\)</span> 和 <span
+class="math inline">\(y\)</span> 的值，得到一组关系式，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+x&#39; =&amp; x + ay \\
+y&#39; =&amp; y \\
+\end{aligned}\]</span>
+<p>根据此关系式，我们可以进一步推导出镜像矩阵及关系式，如下所示。本质上，镜像变换是一种特殊的缩放变换。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+x&#39; \\
+y&#39; \\
+\end{matrix}
+\right)
+
+=
+
+\left(
+\begin{matrix}
+1 &amp; a \\
+0 &amp; 1 \\
+\end{matrix}
+\right)
+
+\left(
+\begin{matrix}
+x \\
+y \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h2 id="旋转变换">旋转变换</h2>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-05.png?x-oss-process=image/resize,w_800" /></p>
+<p>上图所示，为旋转变换的示意图。旋转变换的坐标推导需要借助三角函数，最终可得到如下一组关系式。</p>
+<span class="math display">\[\begin{aligned}
+x&#39; = cos{\theta}x - sin{\theta}y \\
+y&#39; = sin{\theta}x + cos{\theta}y \\
+\end{aligned}\]</span>
+<p>根据此关系式，我们可以进一步推导出旋转矩阵及关系式，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+x&#39; \\
+y&#39; \\
+\end{matrix}
+\right)
+
+=
+
+\left(
+\begin{matrix}
+cos\theta &amp; -sin\theta \\
+sin\theta &amp; cos\theta \\
+\end{matrix}
+\right)
+
+\left(
+\begin{matrix}
+x \\
+y \\
+\end{matrix}
+\right)
+
+\end{aligned}\]</span>
+<h2 id="平移变换">平移变换</h2>
+<p>截止目前位置，所有的的变换都可以通过推导得出一个变换矩阵，以此矩阵乘以任意点（以矩阵表示），都可以得到转换后的点（以矩阵表示），符合线性变换。</p>
+<p>下面，我们来看一下比较特殊的平移变换。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-06.png?x-oss-process=image/resize,w_800" /></p>
+<p>上图所示，为平移变换的示意图，同样，我们也可以可得到如下一组关系式。</p>
+<span class="math display">\[\begin{aligned}
+x&#39; = x + t_x \\
+y&#39; = y + t_y \\
+\end{aligned}\]</span>
+<p>但是，我们进一步推导，得到的关系式与之前的变换不同，它有额外的偏移量，不符合线性变换，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+x&#39; \\
+y&#39; \\
+\end{matrix}
+\right)
+
+=
+
+\left(
+\begin{matrix}
+1 &amp; 0 \\
+0 &amp; 1 \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+x \\
+y \\
+\end{matrix}
+\right)
++
+\left(
+\begin{matrix}
+t_x \\
+t_y \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>我们总是希望能使用一个统一的关系式来描述各种变换，然而，平移变换打破了我们的美好预期。那么该如何解决呢？为此，我们引入了齐次坐标。</p>
+<h1 id="齐次坐标">齐次坐标</h1>
+<p>为了能够统一表示所有变换，我们引入了
+<strong>齐次坐标</strong>（Homogenous
+Coordinates）。这里的核心思想是为每一个点或向量添加一个额外的 <span
+class="math inline">\(w\)</span> 坐标。</p>
+<span class="math display">\[\begin{aligned}
+2D 点的齐次坐标表示：
+\left(
+\begin{matrix}
+x \\
+y \\
+1
+\end{matrix}
+\right)
+\\
+\\
+2D 向量的齐次坐标表示：
+\left(
+\begin{matrix}
+x \\
+y \\
+0 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>此时，我们再来尝试推导平移变换矩阵以及其关系式，可以得到如下所示内容。很显然，原来关系式中的偏移量没有了。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+x&#39; \\
+y&#39; \\
+w&#39; \\
+\end{matrix}
+\right)
+
+=
+
+\left(
+\begin{matrix}
+1 &amp; 0 &amp; t_x \\
+0 &amp; 1 &amp; t_y \\
+0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+x \\
+y \\
+1 \\
+\end{matrix}
+\right)
+
+=
+
+\left(
+\begin{matrix}
+x+t_x \\
+y+t_y \\
+1 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h2 id="仿射变换与线性变换">仿射变换与线性变换</h2>
+<p>我们将线性变换和平移变换的组合，称为
+<strong>仿射变换</strong>（Affine
+Transform），如下所示。在未引入齐次坐标之前，我们推导出来的平移变换就是一种仿射变换。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+x&#39; \\
+y&#39; \\
+\end{matrix}
+\right)
+
+=
+
+\left(
+\begin{matrix}
+a &amp; b \\
+c &amp; d \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+x \\
+y \\
+\end{matrix}
+\right)
++
+\left(
+\begin{matrix}
+t_x \\
+t_y \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>当引入齐次坐标之后，所有的变换都可以统一使用线性变换来表示，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+x&#39; \\
+y&#39; \\
+1 \\
+\end{matrix}
+\right)
+
+=
+
+\left(
+\begin{matrix}
+a &amp; b &amp; t_x \\
+c &amp; d &amp; t_y \\
+0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+x \\
+y \\
+1 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>如下所示，是引入齐次坐标后，缩放变换，旋转变换，平移变换所对应的变换矩阵。</p>
+<span class="math display">\[\begin{aligned}
+缩放变换：&amp;
+S(s_x, s_y) =
+\left(
+\begin{matrix}
+s_x &amp; 0 &amp; 0 \\
+0 &amp; s_y &amp; 0 \\
+0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\\
+\\
+旋转变换：&amp;
+R(\alpha) =
+\left(
+\begin{matrix}
+cos\alpha &amp; -sin\alpha &amp; 0 \\
+sin\alpha &amp; cos\alpha &amp; 0 \\
+0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\\
+\\
+平移变换：&amp;
+T(t_x, t_y) =
+\left(
+\begin{matrix}
+1 &amp; 0 &amp; t_x \\
+0 &amp; 1 &amp; t_y \\
+0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h1 id="逆变换">逆变换</h1>
+<p>我们将所有的反向变换都称为 <strong>逆变换</strong>（Inverse
+Transform），比如：我们将从 A 平移到 B 称为平移变换，那么从 B 平移到 A
+则可称为逆变换，其他的缩放变换、旋转变换同样如此。</p>
+<p>上一节，我们引入了齐次坐标后，所有的变换都可以转换成线性变换，其中以
+<span class="math inline">\(M\)</span>
+为变换矩阵。而这些变换的逆变换，同样可以使用线性变换来表示，并以 <span
+class="math inline">\(M\)</span> 的逆矩阵 <span
+class="math inline">\(M^{-1}\)</span> 为变换矩阵。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-07.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="组合变换">组合变换</h1>
+<p>在真实情况下，我们遇到的变换大多数都是组合变换，也就是同时包含了缩放、旋转、平移等多种变换。</p>
+<p>多种变换组合时，变换的顺序其实是非常重要的，我们以如下一个例子来进行介绍。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-08.png?x-oss-process=image/resize,w_800" /></p>
+<p>对于上面这种变换，如果我们先平移，再旋转，那么最终会变成如下所示的。这里的根本原因在于旋转变换时，仍然是以坐标原点为锚点进行旋转。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-09.png?x-oss-process=image/resize,w_800" /></p>
+<p>对此，正确的顺序应该是先旋转，后平移，这样才能达到预期的效果。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-10.png?x-oss-process=image/resize,w_800" /></p>
+<p>不同的顺序，矩阵变换的结果完全不同。前一篇文章我们提到过矩阵乘法不符合交换律，从这一点其实也能够解释这个现象。</p>
+<p>在实际开发中，遇到这种类似的情况，我们一般都会先将目标平移至原点，然后进行各种其他变换，然后再通过逆变换平移回去。</p>
+<h1 id="d-变换-1">3D 变换</h1>
+<p>关于 3D 变换，本质上与 2D
+变换一样，只不过在矩阵表示上多了一个维度而已。</p>
+<p>当我们引入齐次坐标之后，3D 的点和向量可以采用如下方式表示。</p>
+<span class="math display">\[\begin{aligned}
+3D点的齐次坐标表示：&amp;
+\left(
+\begin{matrix}
+x \\
+y \\
+z \\
+1 \\
+\end{matrix}
+\right)
+\\
+\\
+3D向量的齐次坐标表示：&amp;
+\left(
+\begin{matrix}
+x \\
+y \\
+z \\
+0 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>与此对应，3D 变换的矩阵变换关系式为如下所示。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+x&#39; \\
+y&#39; \\
+z&#39; \\
+1 \\
+\end{matrix}
+\right)
+
+=
+
+\left(
+\begin{matrix}
+a &amp; b &amp; c &amp; t_x \\
+d &amp; e &amp; f &amp; t_y \\
+g &amp; h &amp; i &amp; t_z \\
+0 &amp; 0 &amp; 0 &amp;1 \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+x \\
+y \\
+z \\
+1 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h2 id="缩放变换-1">缩放变换</h2>
+<p>如下所示，为 3D 空间中的缩放变换的变换矩阵的定义。</p>
+<span class="math display">\[\begin{aligned}
+S(s_x, s_y, s_z)
+
+=
+
+\left(
+\begin{matrix}
+s_x &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; s_y &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; s_z &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h2 id="平移变换-1">平移变换</h2>
+<p>如下所示，为 3D 空间中的平移变换的变换矩阵的定义。</p>
+<span class="math display">\[\begin{aligned}
+T(t_x, t_y, t_z)
+
+=
+
+\left(
+\begin{matrix}
+1 &amp; 0 &amp; 0 &amp; t_x \\
+0 &amp; 1 &amp; 0 &amp; t_y \\
+0 &amp; 0 &amp; 1 &amp; t_z \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h2 id="旋转变换-1">旋转变换</h2>
+<p>如下所示，为 3D
+空间中的旋转变换的变换矩阵的定义，沿着不同的轴旋转，变换矩阵的定义也有所不同。</p>
+<span class="math display">\[\begin{aligned}
+R_x(\alpha)
+
+=
+
+\left(
+\begin{matrix}
+1 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; cos\alpha &amp; -sin\alpha &amp; 0 \\
+0 &amp; sin\alpha &amp; cos\alpha &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\\
+\\
+R_y(\alpha)
+
+=
+
+\left(
+\begin{matrix}
+cos\alpha &amp; 0 &amp; sin\alpha &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; 0 \\
+-sin\alpha &amp; 0 &amp; cos\alpha &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\\
+\\
+R_z(\alpha)
+
+=
+
+\left(
+\begin{matrix}
+cos\alpha &amp; -sin\alpha &amp; 0 &amp; 0 \\
+sin\alpha &amp; cos\alpha &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 1 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h1 id="总结">总结</h1>
+<p>本文我们简单梳理了一下缩放、旋转、平移几种变换对应的矩阵关系式。其中，平移变换比较特殊，为了能够统一关系式，我们引入了齐次坐标，在点、向量的矩阵表示中增加了一个维度。然后，我们介绍了一下在组合变换中变换顺序的重要性。最后，我们简单总结了
+3D 变换的矩阵关系式。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li>《GAMES 101》</li>
+<li>《计算机图形学入门：3D渲染指南》</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E7%BC%A9%E6%94%BE%E5%8F%98%E6%8D%A2/" rel="tag"># 缩放变换</a>
+              <a href="/tags/%E5%B9%B3%E7%A7%BB%E5%8F%98%E6%8D%A2/" rel="tag"># 平移变换</a>
+              <a href="/tags/%E6%97%8B%E8%BD%AC%E5%8F%98%E6%8D%A2/" rel="tag"># 旋转变换</a>
+              <a href="/tags/%E5%88%87%E5%8F%98%E5%8F%98%E6%8D%A2/" rel="tag"># 切变变换</a>
+              <a href="/tags/%E4%BB%BF%E5%B0%84%E5%8F%98%E6%8D%A2/" rel="tag"># 仿射变换</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/01/15/foundation-of-computer-graphic-01/" rel="prev" title="计算机图形学基础（1）——线性代数">
+                  <i class="fa fa-angle-left"></i> 计算机图形学基础（1）——线性代数
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/01/18/my-indie-hacker-products/" rel="next" title="我的独立产品集">
+                  我的独立产品集 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">true</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2024/01/18/foundation-of-computer-graphic-02/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
+  }
+}
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+<script src="/live2dwlib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dwassets/tororo.model.json"},"display":{"position":"right","width":150,"height":300,"hOffset":-15,"vOffset":-15},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

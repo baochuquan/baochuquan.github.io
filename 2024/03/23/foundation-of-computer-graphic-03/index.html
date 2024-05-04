@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上一篇文章我们介绍了计算机图形学中的数学基础，包括：2D 变换、3D 变换、齐次坐标等。本文，我们则来介绍将三维模型投影到二维屏幕的数学原理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机图形学基础（3）——观测变换">
+<meta property="og:url" content="http://chuquan.me/2024/03/23/foundation-of-computer-graphic-03/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="上一篇文章我们介绍了计算机图形学中的数学基础，包括：2D 变换、3D 变换、齐次坐标等。本文，我们则来介绍将三维模型投影到二维屏幕的数学原理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-23T09:29:30.000Z">
+<meta property="article:modified_time" content="2024-04-07T14:31:53.927Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="观测变换">
+<meta property="article:tag" content="投影变换">
+<meta property="article:tag" content="正交投影">
+<meta property="article:tag" content="透视投影">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chuquan.me/2024/03/23/foundation-of-computer-graphic-03/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2024/03/23/foundation-of-computer-graphic-03/","path":"2024/03/23/foundation-of-computer-graphic-03/","title":"计算机图形学基础（3）——观测变换"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>计算机图形学基础（3）——观测变换 | 楚权的世界</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
+
+
+
+
+
+
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-rss"><a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%82%E6%B5%8B%E5%8F%98%E6%8D%A2"><span class="nav-number">1.</span> <span class="nav-text">观测变换</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE%E5%8F%98%E6%8D%A2"><span class="nav-number">2.</span> <span class="nav-text">视图变换</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%8F%98%E6%8D%A2"><span class="nav-number">2.1.</span> <span class="nav-text">如何变换？</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E5%8F%98%E6%8D%A2"><span class="nav-number">3.</span> <span class="nav-text">模型变换</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%95%E5%BD%B1%E5%8F%98%E6%8D%A2"><span class="nav-number">4.</span> <span class="nav-text">投影变换</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A3%E4%BA%A4%E6%8A%95%E5%BD%B1"><span class="nav-number">4.1.</span> <span class="nav-text">正交投影</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80"><span class="nav-number">4.1.1.</span> <span class="nav-text">方法一</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C"><span class="nav-number">4.1.2.</span> <span class="nav-text">方法二</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%8F%E8%A7%86%E6%8A%95%E5%BD%B1"><span class="nav-number">4.2.</span> <span class="nav-text">透视投影</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%8B%E7%BC%A9"><span class="nav-number">4.2.1.</span> <span class="nav-text">压缩</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%8F%E5%B9%95%E6%98%A0%E5%B0%84"><span class="nav-number">5.</span> <span class="nav-text">屏幕映射</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A3%81%E5%89%AA"><span class="nav-number">5.1.</span> <span class="nav-text">裁剪</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%86%E5%8F%A3%E5%8F%98%E6%8D%A2"><span class="nav-number">5.2.</span> <span class="nav-text">视口变换</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">141</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">342</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2024/03/23/foundation-of-computer-graphic-03/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="计算机图形学基础（3）——观测变换 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          计算机图形学基础（3）——观测变换
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-03-23 17:29:30" itemprop="dateCreated datePublished" datetime="2024-03-23T17:29:30+08:00">2024-03-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-04-07 22:31:53" itemprop="dateModified" datetime="2024-04-07T22:31:53+08:00">2024-04-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2024/03/23/foundation-of-computer-graphic-03/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2024/03/23/foundation-of-computer-graphic-03/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上一篇文章我们介绍了计算机图形学中的数学基础，包括：2D 变换、3D
+变换、齐次坐标等。本文，我们则来介绍将三维模型投影到二维屏幕的数学原理。</p>
+<span id="more"></span>
+<h1 id="观测变换">观测变换</h1>
+<p>我们将三维模型投影到二维屏幕的过程称之为
+<strong>观测变换</strong>（Viewing Transformation）。</p>
+<p>事实上，观测变换和我们平时拍照一样，总体可以分成三个步骤：</p>
+<ul>
+<li>摆放物体。在图形学中称为 <strong>模型变换</strong>（Model
+Transformation）</li>
+<li>摆放相机。在图形学中称为 <strong>视图变换</strong>（View
+Transformation）</li>
+<li>拍照。在图形学中称为 <strong>投影变换</strong>（Project
+Transformation）</li>
+</ul>
+<p>根据这三个步骤的英文缩写，观测变换也可以称为 <strong>MVP
+变换</strong>。不过在图形学中，并不是严格按照这个顺序来执行的，而是先进行视图变换，再进行模型变换。至于为什么，我们稍后再解释。</p>
+<p>下面，我们来分别介绍这三种变换。</p>
+<h1 id="视图变换">视图变换</h1>
+<p>视图变换也称为相机变换（Camera
+Transformation），视图的内容本质上是由相机的位置决定的，因此这里我们真正要做的是相机变换。</p>
+<p>首先，我们使用如下三个向量来描述相机的
+<strong>原始位置</strong>，从而唯一确定其位置、观测方向、画面方向。</p>
+<ul>
+<li>位置：<span class="math inline">\(\vec{e}\)</span></li>
+<li>观测方向：<span class="math inline">\(\hat{g}\)</span></li>
+<li>向上方向：<span class="math inline">\(\hat{t}\)</span></li>
+</ul>
+<p>为了方便后续的计算，我们将相机放置到空间坐标系的原点，具体如下：</p>
+<ul>
+<li>位置：原点坐标</li>
+<li>观测方向：<code>-Z</code></li>
+<li>向上方向：<code>Y</code></li>
+</ul>
+<p>这里我们将变换后的观测方向设置为
+<code>-Z</code>，而在有些渲染引擎中观测方向为
+<code>Z</code>。这主要取决于空间坐标系的定义，本文我们使用的是右手坐标系。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/projection-01.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="如何变换">如何变换？</h2>
+<p>那么具体我们该如何进行变换呢？一种非常直观的方法，按照四个步骤进行变换：</p>
+<ul>
+<li>将 <span class="math inline">\(\vec{e}\)</span> 平移变换至原点</li>
+<li>将 <span class="math inline">\(\hat{g}\)</span> 旋转变换至
+<code>-Z</code></li>
+<li>将 <span class="math inline">\(\hat{t}\)</span> 旋转变换至
+<code>Y</code></li>
+<li>将 <span class="math inline">\(\hat{g} \times \hat{t}\)</span>
+旋转变换至 <code>X</code></li>
+</ul>
+<p>很显然，变换矩阵为平移变换和旋转变换的组合，即 <span
+class="math inline">\(M_{view} =
+R_{view}T_{view}\)</span>。其中，我们很容易就能求解平移变换的变换矩阵，如下。</p>
+<span class="math display">\[\begin{aligned}
+T_{view}
+=
+\left(
+\begin{matrix}
+1 &amp; 0 &amp; 0 &amp; -x_e \\
+0 &amp; 1 &amp; 0 &amp; -y_e \\
+0 &amp; 0 &amp; 1 &amp; -z_e \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>这里的难点在于求解几个旋转变换的变换矩阵 <span
+class="math inline">\(R_{view}\)</span>。那么，该如何求解呢？这里我们转换一下思路，考虑将位于原点的目标位置逆向转换至原始位置。通过这种方式我们可以得到
+<span class="math inline">\(R_{view}\)</span> 的逆矩阵 <span
+class="math inline">\(R_{view}^{-1}\)</span>。具体求解过程如下所示。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+? &amp; ? &amp; ? &amp; 0 \\
+? &amp; ? &amp; ? &amp; 0 \\
+? &amp; ? &amp; ? &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+1 \\
+0 \\
+0 \\
+0 \\
+\end{matrix}
+\right)
+= &amp;
+\left(
+\begin{matrix}
+x_{\hat{g} \times \hat{t}} \\
+y_{\hat{g} \times \hat{t}} \\
+z_{\hat{g} \times \hat{t}} \\
+0 \\
+\end{matrix}
+\right)
+
+\\
+\\
+
+\left(
+\begin{matrix}
+? &amp; ? &amp; ? &amp; 0 \\
+? &amp; ? &amp; ? &amp; 0 \\
+? &amp; ? &amp; ? &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+0 \\
+1 \\
+0 \\
+0 \\
+\end{matrix}
+\right)
+= &amp;
+\left(
+\begin{matrix}
+x_{t} \\
+y_{t} \\
+z_{t} \\
+0 \\
+\end{matrix}
+\right)
+
+\\
+\\
+
+\left(
+\begin{matrix}
+? &amp; ? &amp; ? &amp; 0 \\
+? &amp; ? &amp; ? &amp; 0 \\
+? &amp; ? &amp; ? &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+0 \\
+0 \\
+1 \\
+0 \\
+\end{matrix}
+\right)
+= &amp;
+\left(
+\begin{matrix}
+x_{-g} \\
+y_{-g} \\
+z_{-g} \\
+0 \\
+\end{matrix}
+\right)
+
+\\
+\\
+解得：
+R_{view}^{-1}
+= &amp;
+\left(
+\begin{matrix}
+x_{\hat{g} \times \hat{t}} &amp; x_{t} &amp; x_{-g} &amp; 0 \\
+y_{\hat{g} \times \hat{t}} &amp; y_{t} &amp; y_{-g} &amp; 0 \\
+z_{\hat{g} \times \hat{t}} &amp; z_{t} &amp; z_{-g} &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>由于旋转矩阵是正交矩阵，所以旋转矩阵的逆矩阵就是它的转置矩阵。由此得到：</p>
+<span class="math display">\[\begin{aligned}
+R_{view}
+=
+\left(
+\begin{matrix}
+x_{\hat{g} \times \hat{t}} &amp; y_{\hat{g} \times \hat{t}} &amp;
+z_{\hat{g} \times \hat{t}} &amp; 0 \\
+x_{t} &amp; y_{t} &amp; z_{t} &amp; 0 \\
+x_{-g} &amp; y_{-g} &amp; z_{-g} &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h1 id="模型变换">模型变换</h1>
+<p>根据相对性原理，相机完成了特定的变换后，我们也需要对模型进行同样的变换，这样通过相机投影得到的画面才会相对不变。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/projection-02.png?x-oss-process=image/resize,w_800" /></p>
+<p>根据上述的相机变换，我们得到了对应的变换矩阵。根据此变换矩阵，我们再对空间中的所有模型进行变换，即完成了模型变换。之后，我们即可进行投影变换。</p>
+<p>由模型和相机要进行相同的变换，因此也将模型变换和视图变换统称为
+<strong>模型视图变换</strong>（ModelView Transformation）。</p>
+<h1 id="投影变换">投影变换</h1>
+<p>投影变换本质上就是将 3D 模型投影到 2D
+画布的过程，具体可以分为两种：</p>
+<ul>
+<li>正交投影（Orthographic
+Projection）：一般用于工程制图软件，不具有近大远小的透视效果。</li>
+<li>透视投影（Perspective
+Projection）：一般用于游戏引擎、渲染引擎，模拟真实的效果。</li>
+</ul>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/projection-03.png?x-oss-process=image/resize,w_800" /></p>
+<p>事实上，正交投影可以认为是一种特殊的透视投影，即相机位于无限远的位置，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/projection-04.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="正交投影">正交投影</h2>
+<p>下面，我们先来介绍一下正交投影的两种方法。</p>
+<h3 id="方法一">方法一</h3>
+<p>方法一非常直观，即丢弃 Z 坐标，直接转换成二维坐标系，然后再将其缩放至
+<span class="math inline">\([-1, 1]^2\)</span>
+的矩形区域，如下所示。为什么要缩放至 <span class="math inline">\([-1,
+1]^2\)</span>
+的矩形区域？事实上，这也是为了方便后续计算，是一种约定俗成的做法。当然，这种方式也存在一个问题，无法直接判断模型之间的远近关系，这个我们后续再讨论。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/projection-05.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="方法二">方法二</h3>
+<p>不过，更普遍的做法是方法二，包括后续的透视投影也采用了这种方法。</p>
+<p>方法二提出了一个 <strong>观测空间</strong>（View
+Volumne）的概念，这一点非常重要。对于正交投影，它的观测空间是一个无限长的长方体，其中以
+2D 画布为近面，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/projection-09.png?x-oss-process=image/resize,w_800" /></p>
+<p>由于 2D
+画布可能是任意比例的矩形，为了方便计算，我们将这个长方体的观测空间转换成成一个规范立方体（Canonical
+Cube），即 <span class="math inline">\([-1, 1]^3\)</span> 的空间。</p>
+<p>在将观测空间转换成规范立方体的过程中，我们会组合平移、缩放等变换，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/projection-06.png?x-oss-process=image/resize,w_800" /></p>
+<p>很显然，要将模型转换成标准立方体，我们必须计算出变换矩阵 <span
+class="math inline">\(M_{ortho}\)</span>。由于投影变换不涉及旋转，因此变换矩阵相对而言比较容易求解，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+M_{ortho}
+=
+S_{ortho}T_{ortho}
+=
+\left(
+\begin{matrix}
+\frac{2}{r-l} &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; \frac{2}{t-b} &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; \frac{2}{n-f} &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+
+\left(
+\begin{matrix}
+1 &amp; 0 &amp; 0 &amp; -\frac{r+l}{2} \\
+0 &amp; 1 &amp; 0 &amp; -\frac{t+b}{2} \\
+0 &amp; 0 &amp; 1  &amp; -\frac{n+f}{2} \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>在将观测空间转换成规范立方体的过程中，我们计算得到了变换矩阵 <span
+class="math inline">\(M_{ortho}\)</span>。根据相对不变性原理，我们要使用
+<span class="math inline">\(M_{ortho}\)</span>
+对空间中所有物体进行同样的变换。这个过程，这里我们不再赘述。</p>
+<h2 id="透视投影">透视投影</h2>
+<p>透视投影则借鉴了正交投影的做法，只不过相对而言，它多了一步压缩过程，也就是说，透视投影
+= 压缩 + 正交投影。</p>
+<p>下面，我们重点介绍一下压缩。</p>
+<h3 id="压缩">压缩</h3>
+<p>透视投影不同于正交投影，它的观测空间是一个无限长的纺锤体，其中以 2D
+画布为近面，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/projection-10.png?x-oss-process=image/resize,w_800" /></p>
+<p>压缩的本质就是将透视投影的观测空间压缩成正交投影的观测空间，即将纺锥体转换成长方体。然后，透视投影就换转化成了正交投影了。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/projection-11.png?x-oss-process=image/resize,w_800" /></p>
+<!--模型压缩本质上并不是真正对模型进行压缩，而是一种透视压缩。如下图所示，透视投影将空间中的一个点投影到一个 2D 的画布上，坐标点 `(x, y, z)` 中 `x` 和 `y` 的值会产生压缩效应，变成 `x'` 和 `y'`。-->
+<!--![](https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/projection-07.png?x-oss-process=image/resize,w_800)-->
+<!--因此，我们可以想像画布上的投影点和空间点构成一个纺椎体，然后对这个纺椎体进行压缩，如下图所示。`(x, y, z)` 经过压缩后会变成 `(x', y', z)`，再经过正交投影后会得到 `(x', y', z')`。-->
+<p>那么，我们该如何求解压缩变换的变换矩阵 <span
+class="math inline">\(M_{persp-&gt;ortho}\)</span> 呢？</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/projection-07.png?x-oss-process=image/resize,w_800" /></p>
+<p>首先，由相似三角形定理，如上图所示，我们可以得出：</p>
+<span class="math display">\[\begin{aligned}
+y^{&#39;}
+=
+\frac{n}{z}y
+;
+x^{&#39;}
+=
+\frac{n}{z}x
+\end{aligned}\]</span>
+<p>然后，我们基于齐次坐标，结合三角形定理，计算得出投影点的坐标：</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+x^{&#39;} \\
+y^{&#39;} \\
+z^{&#39;} \\
+1 \\
+\end{matrix}
+\right)
+=
+\left(
+\begin{matrix}
+nx/z \\
+ny/z \\
+? \\
+1 \\
+\end{matrix}
+\right)
+=
+\left(
+\begin{matrix}
+nx \\
+ny \\
+? \\
+z \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>接下来，我们准备求解变换矩阵 <span
+class="math inline">\(M_{persp-&gt;ortho}^{4 \times
+4}\)</span>，得出一下关系式：</p>
+<span class="math display">\[\begin{aligned}
+M_{persp-&gt;ortho}
+\left(
+\begin{matrix}
+x \\
+y \\
+z \\
+1 \\
+\end{matrix}
+\right)
+= &amp;
+\left(
+\begin{matrix}
+nx \\
+ny \\
+? \\
+z \\
+\end{matrix}
+\right)
+\\
+解得：
+M_{persp-&gt;ortho}
+= &amp;
+\left(
+\begin{matrix}
+n &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; n &amp; 0 &amp; 0 \\
+? &amp; ? &amp; ? &amp; ? \\
+0 &amp; 0 &amp; 1 &amp; 0 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>最后，我们来求解第三行的值。我们基于两个以下两个依据：</p>
+<ul>
+<li>近平面上的点的值不会变化，即 2D 画布上的值不变。</li>
+<li>远平面上的在 Z 轴上的点不会变化。</li>
+</ul>
+<p>根据第一个依据，我们可以得出以下关系式。即将 <code>z</code> 替换成
+<code>n</code>。</p>
+<span class="math display">\[\begin{aligned}
+M_{persp-&gt;ortho}
+\left(
+\begin{matrix}
+x \\
+y \\
+z \\
+1 \\
+\end{matrix}
+\right)
+=
+M_{persp-&gt;ortho}
+\left(
+\begin{matrix}
+x \\
+y \\
+n \\
+1 \\
+\end{matrix}
+\right)
+= &amp;
+\left(
+\begin{matrix}
+x \\
+y \\
+n \\
+1 \\
+\end{matrix}
+\right)
+=
+\left(
+\begin{matrix}
+nx \\
+ny \\
+n^2 \\
+n \\
+\end{matrix}
+\right)
+\\
+推导：
+\left(
+\begin{matrix}
+? &amp; ? &amp; ? &amp; ? \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+x \\
+y \\
+n \\
+1 \\
+\end{matrix}
+\right)
+= &amp;
+n^2
+\\
+解得：
+\left(
+\begin{matrix}
+? &amp; ? &amp; ? &amp; ? \\
+\end{matrix}
+\right)
+= &amp;
+\left(
+\begin{matrix}
+0 &amp; 0 &amp; ? &amp; ? \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>我们使用 <code>(0, 0, A, B)</code> 抽象表示
+<code>(0, 0, ?, ?)</code>。根据两条依据，我们可以得到一个二元一次方程组，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+0 &amp; 0 &amp; A &amp; B \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+x \\
+y \\
+n \\
+1 \\
+\end{matrix}
+\right)
+= &amp;
+n^2
+=&gt; &amp;
+An + B = n^2
+
+\\
+
+\left(
+\begin{matrix}
+0 &amp; 0 &amp; A &amp; B \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+0 \\
+0 \\
+f \\
+1 \\
+\end{matrix}
+\right)
+= &amp;
+\left(
+\begin{matrix}
+0 \\
+0 \\
+f^2 \\
+f \\
+\end{matrix}
+\right)
+=&gt; &amp;
+Af + B = f^2
+
+\\
+解得：
+A
+= &amp;
+n + f
+\\
+B
+= &amp;
+-nf
+\end{aligned}\]</span>
+<p>综上述，求解得出压缩变换的变换矩阵如下所示，其中 f
+是一个动态值，即空间点 <code>(x, y, z)</code> 的 <code>z</code> 值。</p>
+<span class="math display">\[\begin{aligned}
+M_{persp-&gt;ortho}
+=
+\left(
+\begin{matrix}
+n &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; n &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; n+f &amp; -nf \\
+0 &amp; 0 &amp; 1 &amp; 0 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>对于透视投影，我们首先求解观测空间的压缩变换的变换矩阵 <span
+class="math inline">\(M_{persp-&gt;ortho}\)</span>，然后再利用在将转换后的长方体观测空间转换成规范立方体，即上文正交投影中求解的
+<span class="math inline">\(M_{ortho}\)</span>。</p>
+<p>当然，根据相对不变性原理，我们还要将这两个变换矩阵应用到空间中所有的物体上，对它们进行变换。</p>
+<h1 id="屏幕映射">屏幕映射</h1>
+<p>当 MVP 变换完成之后，我们则要开始将投影内容绘制到 2D
+画布中，其中包含了裁剪和视口变换两个步骤。</p>
+<h2 id="裁剪">裁剪</h2>
+<p>无论是正交投影还是透视投影，我们都将观测空间转换成了一个规范立方体，同时将转换矩阵应用到空间中的所有物体中。</p>
+<p>之后，我们就可以通过规范立方体对空间进行裁剪，只保留规范立方体内的物体，如下所示。很显然，只有在规范立方体中的部分才是我们可以看见的部分。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/projection-12.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="视口变换">视口变换</h2>
+<p>视口（Viewport）本质上就是我们所说的 2D
+画布，即屏幕。我们知道屏幕有各种各样的分辨率，宽高比。为了处理这种情况，我们将
+2D 画布抽象成一个 <span class="math inline">\([-1, 1]^2\)</span>
+的规范平面。然后通过视口变换将它映射到真正的视口中。</p>
+<p>假设真实视口的宽度是 <span
+class="math inline">\(width\)</span>，高度是 <span
+class="math inline">\(height\)</span>，那么视口变换就是将 <span
+class="math inline">\([-1, 1]^2\)</span> 的平面转换成 <span
+class="math inline">\([0, width] \times [0, height]\)</span>
+的平面。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/projection-13.png?x-oss-process=image/resize,w_800" /></p>
+<p>对此，我们很容易求解变换矩阵，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+M_{viewport}
+=
+\left(
+\begin{matrix}
+\frac{width}{2} &amp; 0 &amp; 0 &amp; \frac{width}{2} \\
+0 &amp; \frac{height}{2} &amp; 0 &amp; \frac{height}{2} \\
+0 &amp; 0 &amp; 1 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h1 id="总结">总结</h1>
+<p>本文，我们主要介绍了观测变换的几个重点内容，包括视图变换、投影变换。其中，我们重点介绍了投影变换中的两种：正交投影和透视投影。</p>
+<p>投影变换中提到了一个重要概念——观测空间。我们会将观测空间转换成一个规范立方体，根据相对不变性原理，对空间中所有物体做同样的变换。其中透视投影稍有复杂一点，我们会将纺锤体的观测空间转换成长方体的观测空间。</p>
+<p>最后，我们将规范立方体以外的内容进行裁剪，并采用视口变换将内容映射到具体的屏幕上。</p>
+<p>后面，我们将基于本章的内容继续介绍计算机图形学的相关基础。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li>《GAMES 101》</li>
+<li>Image Processing and Computer Graphics——Rendering Pipeline, Matthias
+Teschner.</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%A7%82%E6%B5%8B%E5%8F%98%E6%8D%A2/" rel="tag"># 观测变换</a>
+              <a href="/tags/%E6%8A%95%E5%BD%B1%E5%8F%98%E6%8D%A2/" rel="tag"># 投影变换</a>
+              <a href="/tags/%E6%AD%A3%E4%BA%A4%E6%8A%95%E5%BD%B1/" rel="tag"># 正交投影</a>
+              <a href="/tags/%E9%80%8F%E8%A7%86%E6%8A%95%E5%BD%B1/" rel="tag"># 透视投影</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/01/18/my-indie-hacker-products/" rel="prev" title="我的独立产品集">
+                  <i class="fa fa-angle-left"></i> 我的独立产品集
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/03/30/foundation-of-computer-graphic-04/" rel="next" title="计算机图形学基础（4）——光栅化">
+                  计算机图形学基础（4）——光栅化 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">true</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2024/03/23/foundation-of-computer-graphic-03/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
+  }
+}
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+<script src="/live2dwlib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dwassets/tororo.model.json"},"display":{"position":"right","width":150,"height":300,"hOffset":-15,"vOffset":-15},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

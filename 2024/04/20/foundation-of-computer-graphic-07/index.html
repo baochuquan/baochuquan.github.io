@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在介绍光线追踪之前，我们先来学习一下其所涉及的重要内容——辐射度量学。由于该内容相对独立，这里单开一篇文章来进行介绍。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机图形学基础（7）——辐射度量学">
+<meta property="og:url" content="http://chuquan.me/2024/04/20/foundation-of-computer-graphic-07/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="在介绍光线追踪之前，我们先来学习一下其所涉及的重要内容——辐射度量学。由于该内容相对独立，这里单开一篇文章来进行介绍。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-04-20T14:11:09.000Z">
+<meta property="article:modified_time" content="2024-04-20T14:13:37.201Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="Radiance">
+<meta property="article:tag" content="Irradiance">
+<meta property="article:tag" content="Intensity">
+<meta property="article:tag" content="立体角">
+<meta property="article:tag" content="微分立体角">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chuquan.me/2024/04/20/foundation-of-computer-graphic-07/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2024/04/20/foundation-of-computer-graphic-07/","path":"2024/04/20/foundation-of-computer-graphic-07/","title":"计算机图形学基础（7）——辐射度量学"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>计算机图形学基础（7）——辐射度量学 | 楚权的世界</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
+
+
+
+
+
+
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-rss"><a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%A0%E4%BD%95"><span class="nav-number">2.</span> <span class="nav-text">几何</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%92"><span class="nav-number">2.1.</span> <span class="nav-text">角</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AB%8B%E4%BD%93%E8%A7%92"><span class="nav-number">2.2.</span> <span class="nav-text">立体角</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BE%AE%E5%88%86%E7%AB%8B%E4%BD%93%E8%A7%92"><span class="nav-number">2.3.</span> <span class="nav-text">微分立体角</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%89%E5%AD%A6%E7%89%A9%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">光学物理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%90%E5%B0%84%E8%83%BD%E9%87%8F"><span class="nav-number">3.1.</span> <span class="nav-text">辐射能量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%90%E5%B0%84%E9%80%9A%E9%87%8F"><span class="nav-number">3.2.</span> <span class="nav-text">辐射通量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%90%E5%B0%84%E5%BC%BA%E5%BA%A6"><span class="nav-number">3.3.</span> <span class="nav-text">辐射强度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%90%E5%B0%84%E7%85%A7%E5%BA%A6"><span class="nav-number">3.4.</span> <span class="nav-text">辐射照度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%90%E5%B0%84%E4%BA%AE%E5%BA%A6"><span class="nav-number">3.5.</span> <span class="nav-text">辐射亮度</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A5%E5%B0%84%E8%BE%90%E5%B0%84%E4%BA%AE%E5%BA%A6"><span class="nav-number">3.5.1.</span> <span class="nav-text">入射辐射亮度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BA%E5%B0%84%E8%BE%90%E5%B0%84%E4%BA%AE%E5%BA%A6"><span class="nav-number">3.5.2.</span> <span class="nav-text">出射辐射亮度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%90%E5%B0%84%E7%85%A7%E5%BA%A6-vs.-%E8%BE%90%E5%B0%84%E4%BA%AE%E5%BA%A6"><span class="nav-number">3.6.</span> <span class="nav-text">辐射照度 vs. 辐射亮度</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%8C%E5%8F%8D%E5%B0%84%E5%88%86%E5%B8%83%E5%87%BD%E6%95%B0"><span class="nav-number">4.1.</span> <span class="nav-text">双反射分布函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%8D%E5%B0%84%E6%96%B9%E7%A8%8B"><span class="nav-number">4.2.</span> <span class="nav-text">反射方程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%B2%E6%9F%93%E6%96%B9%E7%A8%8B"><span class="nav-number">4.3.</span> <span class="nav-text">渲染方程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">141</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">342</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2024/04/20/foundation-of-computer-graphic-07/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="计算机图形学基础（7）——辐射度量学 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          计算机图形学基础（7）——辐射度量学
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2024-04-20 22:11:09 / 修改时间：22:13:37" itemprop="dateCreated datePublished" datetime="2024-04-20T22:11:09+08:00">2024-04-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2024/04/20/foundation-of-computer-graphic-07/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2024/04/20/foundation-of-computer-graphic-07/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在介绍光线追踪之前，我们先来学习一下其所涉及的重要内容——辐射度量学。由于该内容相对独立，这里单开一篇文章来进行介绍。</p>
+<span id="more"></span>
+<h1 id="概述">概述</h1>
+<p>本质上，辐射度量学是在物理层面准确定义光照的方法。在 <a
+href="http://chuquan.me/2024/04/05/foundation-of-computer-graphic-05/">《计算机图形学基础（5）——着色》</a>
+一文中我们提到了光照强度，我们将半径为 <span
+class="math inline">\(r\)</span> 时，对应的球面的一个点的光照强度为
+<span
+class="math inline">\(I\)</span>，那么具体它的单位是什么呢？在了解辐射度量学之后，这个疑问就能得到解答。</p>
+<p>在辐射度量学中涉及了很多相关术语，这里我将它们分为两部分进行介绍。</p>
+<h1 id="几何">几何</h1>
+<p>首先我们来看几何的相关术语，主要包含以下几个：</p>
+<ul>
+<li><strong>角（Angles）</strong></li>
+<li><strong>立体角（Solid Angles）</strong></li>
+<li><strong>微分立体角（Differential Solid Angles）</strong></li>
+</ul>
+<h2 id="角">角</h2>
+<p>在平面几何中，角的定义是弧长与半径的比值，其中 <span
+class="math inline">\(\theta\)</span> 表示角，<span
+class="math inline">\(l\)</span> 表示弧长，<span
+class="math inline">\(r\)</span> 表示圆的半径，如下所示。圆自身的角度为
+<span class="math inline">\(2\pi\)</span>。</p>
+<span class="math display">\[\begin{aligned}
+\theta = \frac{l}{r}
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-01.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="立体角">立体角</h2>
+<p>在立体几何中，立体角的定义则是弧面积与半径平方的比值，其中 <span
+class="math inline">\(\Omega\)</span> 表示立体角，<span
+class="math inline">\(A\)</span> 表示弧面积，<span
+class="math inline">\(r\)</span>
+表示球的半径，如下所示。球自身的立体角为 <span
+class="math inline">\(4\pi\)</span>。立体角主要用于描述空间中的一个锥体的张开角度。</p>
+<span class="math display">\[\begin{aligned}
+\Omega = \frac{A}{r^2}
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-02.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="微分立体角">微分立体角</h2>
+<p>微分立体角通过两个角度来定义球面上的一个唯一的方向，如下所示。其中，两个角度分别是：</p>
+<ul>
+<li>与 <span class="math inline">\(z\)</span> 轴形成的夹角 <span
+class="math inline">\(\theta\)</span></li>
+<li>绕 <span class="math inline">\(z\)</span> 轴形成的夹角 <span
+class="math inline">\(\phi\)</span></li>
+</ul>
+<p>计算微分立体角，我们首先两个角度在球面所形成方向所占据的单位面积
+<span
+class="math inline">\(dA\)</span>。按照微分的思想，我们认为该面积等同于矩形的面积，因此我们要计算它的长和宽，分别为
+<span class="math inline">\(rsin{\theta}d\phi\)</span> 和 <span
+class="math inline">\(rd\theta\)</span>，由此可以计算该单位面积。从而进一步求解微分立体角
+<span class="math inline">\(d\omega\)</span>，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+dA = &amp;
+(r d\theta)(r sin{\theta} d\phi) = r^2 sin\theta d\theta d\phi
+\\
+d\omega = &amp;
+\frac{dA}{r^2} = sin\theta d\theta d\phi
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-03.png?x-oss-process=image/resize,w_800" /></p>
+<p>在辐射度量学中，我们通常用 <span
+class="math inline">\(\omega\)</span>
+来表示三维空间中的一个方向。我们可以使用 <span
+class="math inline">\(\theta\)</span> 和 <span
+class="math inline">\(\phi\)</span> 来确定其方向，并且还可以结合 <span
+class="math inline">\(d\theta\)</span> 和 <span
+class="math inline">\(d\phi\)</span> 来计算其微分立体角。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-04.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="光学物理">光学物理</h1>
+<p>在辐射度量学中，主要涉及以下几个光学物理相关术语。</p>
+<ul>
+<li><strong>辐射能量（Radiant Energy）</strong></li>
+<li><strong>辐射通量（Radiant Flux）</strong></li>
+<li><strong>辐射强度（Radiant Intensity）</strong></li>
+<li><strong>辐射照度（Irradiance）</strong></li>
+<li><strong>辐射亮度（Radiance）</strong></li>
+</ul>
+<h2 id="辐射能量">辐射能量</h2>
+<p>辐射能量（Radiant Energy）表示电磁辐射的能量，用符号 <span
+class="math inline">\(Q\)</span> 表示，以 <strong>焦耳</strong>（J =
+Joule）为单位。</p>
+<span class="math display">\[\begin{aligned}
+Q
+\\
+unit: [J = Joule]
+\end{aligned}\]</span>
+<h2 id="辐射通量">辐射通量</h2>
+<p>辐射通量（Radiant
+Flux）表示单位时间内流通（发射、反射、传输、接收）的能量，用符号 <span
+class="math inline">\(\Phi\)</span> 表示，以 <strong>瓦特</strong>（W =
+Watt）或 <strong>流明</strong>（lm =
+lumen）为单位。<strong>在实际应用中，我们经常将辐射通量称为能量，本质上是因为辐射通量可以结合时间快速计算出辐射能量</strong>。</p>
+<span class="math display">\[\begin{aligned}
+\Phi = \frac{dQ}{dt}
+\\
+unit: [W = Watt]/[lm = lumen]
+\end{aligned}\]</span>
+<p>在光学物理中，我们也将辐射通量定义为
+<strong>单位时间辐射出光子的数量</strong>。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-05.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="辐射强度">辐射强度</h2>
+<p>辐射强度（Radiant Intensity）表示
+<strong>单位立体角的辐射通量</strong>。其中 <span
+class="math inline">\(\Phi\)</span> 表示辐射通量，<span
+class="math inline">\(\omega\)</span>
+表示立体角。我们可以用辐射强度描述一束光线，即形成一个锥体角度的光线，在单位时间内流通的能量。</p>
+<span class="math display">\[\begin{aligned}
+I(\omega) = \frac{d\Phi}{d\omega}
+\\
+unit:
+[\frac{W}{sr}][\frac{lm}{sr} = cd = candela]
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-06.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="辐射照度">辐射照度</h2>
+<p>辐射照度（Irradiance）表示
+<strong>单位（正交）面积的辐射通量</strong>。注意，这里计算的辐射通量必须与面垂直，如果光照不垂直于面，则计算其垂直分量。其中
+<span class="math inline">\(\Phi\)</span> 表示辐射通量，<span
+class="math inline">\(A\)</span> 表示正交面积，$$ 表示位置。</p>
+<span class="math display">\[\begin{aligned}
+E(p) = \frac{d\Phi(p)}{dA}
+\\
+unit: [\frac{W}{m^2}][\frac{lm}{m^2} = lux]
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-07.png?x-oss-process=image/resize,w_800" /></p>
+<p>此时，我们回顾 <a
+href="http://chuquan.me/2024/04/05/foundation-of-computer-graphic-05/">《计算机图形学基础（5）——着色》</a>
+文中的兰伯特余弦定理，可以计算辐射照度，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-08.png?x-oss-process=image/resize,w_800" /></p>
+<p>同样，我们还可以计算空间中一个点光源在空间中辐射的衰减到底是什么？如下所示，其实我们可以发现辐射照度随着半径增加而指数级衰减，辐射强度并没有发生变化。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-09.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="辐射亮度">辐射亮度</h2>
+<p>辐射亮度（Radiance）表示
+<strong>单位立体角、单位（正交）面积的辐射通量</strong>。辐射亮度一般用于描述光线在传输过程中的属性。我们可以用辐射亮度来描述某个面光源在某个（锥形）方向的辐射通量。</p>
+<p>从定义上看，辐射亮度在立体角、正交面积两个维度做了两次微分。其中，<span
+class="math inline">\(cos\theta\)</span>
+表示光线在单位面积垂直方向上的角度分量，<span
+class="math inline">\(p\)</span> 表示位置，<span
+class="math inline">\(\omega\)</span> 表示立体角。</p>
+<span class="math display">\[\begin{aligned}
+L(p, \omega) = \frac{d^2\Phi(p, \omega)}{d{\omega}dA cos\theta}
+\\
+unit: [\frac{W}{sr m^2}][\frac{cd}{m^2} = \frac{lm}{sr m^2} = nit]
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-10.png?x-oss-process=image/resize,w_800" /></p>
+<p>下面，我们回顾一下辐射强度和辐射照度的定义。</p>
+<ul>
+<li>辐射强度：单位立体角的辐射通量。</li>
+<li>辐射照度：单位（正交）面积的辐射通量</li>
+</ul>
+<p>结合辐射强度和辐射照度的定义，我们可以将辐射亮度的定义进行转换，<strong>单位立体角的辐射照度</strong>
+或
+<strong>单位（正交）面积的辐射强度</strong>。这两种定义正好可以应用到两种不同方向的辐射亮度，分别是
+<strong>入射辐射亮度</strong> 和 <strong>出射辐射亮度</strong>。</p>
+<h3 id="入射辐射亮度">入射辐射亮度</h3>
+<p>入射辐射亮度（Incident
+Radiance）即单位立体角的辐射照度。我们可以理解从某个方向向一个面进行辐射，该面所接收的辐射照度，如下图所示。如果我们进一步考虑来自四面八方的辐射，比如环境光，那么可以计算得到这个面所接收的全部辐射照度。</p>
+<span class="math display">\[\begin{aligned}
+L(p, \omega) = \frac{dE{p}}{d{\omega} cos\theta}
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-11.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="出射辐射亮度">出射辐射亮度</h3>
+<p>出射辐射亮度（Exiting
+Radiance）即单位（正交）面积的辐射强度。我们可以理解一个面向某个方向进行辐射，该方向所发射的辐射强度，如下所示。如果我们进一步考虑一个面向四面八方的辐射，那么可以计算得到这个面所发射的全部辐射强度。</p>
+<span class="math display">\[\begin{aligned}
+L(p, \omega) = \frac{dI(p, \omega)}{dA cos\theta}
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-10.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="辐射照度-vs.-辐射亮度">辐射照度 vs. 辐射亮度</h2>
+<p>在图形学中，辐射照度（Irradiance）和辐射亮度（Radiance）用的非常多。在下图所示的场景中，辐射照度表示
+<span class="math inline">\(dA\)</span> 接收的所有能量；辐射亮度表示
+<span class="math inline">\(dA\)</span>
+从某个方向接收的能量。相比而言，辐射亮度是一个更细粒度的分析属性。这样，我们就把辐射照度和辐射亮度联系起来了。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-12.png?x-oss-process=image/resize,w_800" /></p>
+<p>对于上图所示的场景，我们可以计算得到某个位置的辐射照度，如下所示，其中
+<span class="math inline">\(H^2\)</span> 表示单位半球面积。</p>
+<span class="math display">\[\begin{aligned}
+dE(p, \omega) = &amp;
+L_{i}(p, \omega) cos\theta d\omega
+\\
+E(p) = &amp;
+\int_{H^2} L_{i}(p, \omega) cos\theta d{\omega}
+\end{aligned}\]</span>
+<h1 id="应用">应用</h1>
+<h2 id="双反射分布函数">双反射分布函数</h2>
+<p>已知入射光线的能量和角度，当辐射到物体表面后，光线会向各个角度反射，且各个角度反射的能量是不同的。双反射分布函数（Bidirectional
+Reflectance Distribution
+Function，BRDF）就是用于计算这种场景下各个角度的反射能量。</p>
+<p>如下所示，是一个入射和反射的场景，我们从辐射度量学的角度分别进行分析。</p>
+<ul>
+<li>入射阶段：当入射光线从 <span
+class="math inline">\({\omega}_i\)</span>
+角度辐射到物体表面的一个位置时，可以认为该位置吸收了所有的光线能量，用辐射照度来表示，即
+<span class="math inline">\(dE({\omega}_i)\)</span>。</li>
+<li>反射阶段：可以认为该位置将光线能量向各个方向进行辐射。对于方向 <span
+class="math inline">\({\omega}_i\)</span>
+的光线能量，用辐射亮度来表示，即 <span class="math inline">\(dL_r(x,
+{\omega}_r)\)</span>。</li>
+</ul>
+<span class="math display">\[\begin{aligned}
+dE({\omega}_i) = &amp;
+L({\omega}_i) cos{\theta}_i d{\omega}_i
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-13.png?x-oss-process=image/resize,w_800" /></p>
+<p>本质上，BRDF 就是表示由入射方向 <span
+class="math inline">\({\omega}_i\)</span> 向反射方向 <span
+class="math inline">\({\omega}_r\)</span> 辐射能量的比例函数 <span
+class="math inline">\(fr({\omega}_i \rightarrow
+{\omega}_r)\)</span>，其定义如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+BRDF: f_r({\omega}_i \rightarrow {\omega}_r) =
+\frac{dL_r({\omega}_r)}{dE_i({\omega}_i)} =
+\frac{dL_r({\omega}_r)}{L_i({\omega}_i) cos{\theta}_i d{\omega}_i}
+
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-14.png?x-oss-process=image/resize,w_800" /></p>
+<p>在实际应用中，对于镜面反射，BRDF
+定义反射方向包含所有能量，其他方向均为 0；对于漫反射，BRDF
+定义所有方向的能量分布相同。事实上，BRDF
+就是描述了光线和物体表面的作用，也就是决定了物体的材质。</p>
+<h2 id="反射方程">反射方程</h2>
+<p>基于 BRDF，我们可以进一步推导出 <strong>反射方程</strong>（The
+Reflection Equation）。</p>
+<p>由于 BRDF 定义了一个入射方向 <span
+class="math inline">\({\omega}_i\)</span> 向一个反射方向 <span
+class="math inline">\({\omega}_r\)</span>
+反射时的能量比例。那么，我们可以通过积分计算所有方向对一个反射方向 <span
+class="math inline">\({\omega}_r\)</span>
+的能量聚合。因此，我们可以推导得出如下所示的反射方程。</p>
+<span class="math display">\[\begin{aligned}
+
+L_r(p, {\omega}_r) = \int_{H^2}f_r(p, {\omega}_i \rightarrow {\omega}_r)
+L_i(p, {\omega}_i) cos{\theta}_i d{\omega}_i
+
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/radiometry-14.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="渲染方程">渲染方程</h2>
+<p>基于反射方程，我们还可以进一步推导出 <strong>渲染方程</strong>（The
+Rendering Equation）。</p>
+<p>这里我们只需要额外考虑物体本身会发光的情况，于是增加一个发光项即可得到渲染方程，如下所示。其中，<span
+class="math inline">\(cos{\theta}_i\)</span>
+转换成了法向量和入射方向的点积 <span class="math inline">\(n \cdot
+{\omega}_i\)</span>。现代图形学中，所有基于表面反射的渲染都是基于该渲染方程实现的。</p>
+<span class="math display">\[\begin{aligned}
+
+L_r(p, {\omega}_r) = L_e(p, {\omega}_r) + \int_{H^2} L_i(p, {\omega}_i)
+f_r(p, {\omega}_i, {\omega}_r)(n \cdot {\omega}_i) d{\omega}_i
+
+\end{aligned}\]</span>
+<h1 id="总结">总结</h1>
+<p>本文我们主要介绍了辐射度量学中的几个概念：辐射能量、辐射通量、辐射强度、辐射照度、辐射亮度等。基于这些概念，我们引入了
+BRDF 的定义。然后依次推导出反射方程和渲染方程。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li>《GAMES 101》</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Radiance/" rel="tag"># Radiance</a>
+              <a href="/tags/Irradiance/" rel="tag"># Irradiance</a>
+              <a href="/tags/Intensity/" rel="tag"># Intensity</a>
+              <a href="/tags/%E7%AB%8B%E4%BD%93%E8%A7%92/" rel="tag"># 立体角</a>
+              <a href="/tags/%E5%BE%AE%E5%88%86%E7%AB%8B%E4%BD%93%E8%A7%92/" rel="tag"># 微分立体角</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/04/10/foundation-of-computer-graphic-06/" rel="prev" title="计算机图形学基础（6）——几何">
+                  <i class="fa fa-angle-left"></i> 计算机图形学基础（6）——几何
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/04/27/foundation-of-computer-graphic-08/" rel="next" title="计算机图形学基础（8）——光线追踪">
+                  计算机图形学基础（8）——光线追踪 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">true</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2024/04/20/foundation-of-computer-graphic-07/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
+  }
+}
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+<script src="/live2dwlib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dwassets/tororo.model.json"},"display":{"position":"right","width":150,"height":300,"hOffset":-15,"vOffset":-15},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

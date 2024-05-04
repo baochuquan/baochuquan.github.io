@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="最近对计算机图形学比较感兴趣，刷了一遍《计算机图形学入门：3D渲染指南》，看了一遍《GAMES 101》。本文对计算机图形学的线性代数相关基础进行了梳理和总结，以便后续进行复习和回顾。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机图形学基础（1）——线性代数">
+<meta property="og:url" content="http://chuquan.me/2024/01/15/foundation-of-computer-graphic-01/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="最近对计算机图形学比较感兴趣，刷了一遍《计算机图形学入门：3D渲染指南》，看了一遍《GAMES 101》。本文对计算机图形学的线性代数相关基础进行了梳理和总结，以便后续进行复习和回顾。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-01-15T12:09:48.000Z">
+<meta property="article:modified_time" content="2024-03-18T01:23:03.865Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="向量">
+<meta property="article:tag" content="矩阵">
+<meta property="article:tag" content="点积">
+<meta property="article:tag" content="叉积">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chuquan.me/2024/01/15/foundation-of-computer-graphic-01/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2024/01/15/foundation-of-computer-graphic-01/","path":"2024/01/15/foundation-of-computer-graphic-01/","title":"计算机图形学基础（1）——线性代数"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>计算机图形学基础（1）——线性代数 | 楚权的世界</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
+
+
+
+
+
+
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-rss"><a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%91%E9%87%8F"><span class="nav-number">2.</span> <span class="nav-text">向量</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E7%9A%84%E5%8A%A0%E5%87%8F%E8%BF%90%E7%AE%97"><span class="nav-number">2.1.</span> <span class="nav-text">向量的加减运算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E7%9A%84%E4%B9%98%E6%B3%95%E8%BF%90%E7%AE%97"><span class="nav-number">2.2.</span> <span class="nav-text">向量的乘法运算</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%82%B9%E7%A7%AF"><span class="nav-number">2.2.1.</span> <span class="nav-text">点积</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%89%E7%A7%AF"><span class="nav-number">2.2.2.</span> <span class="nav-text">叉积</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5"><span class="nav-number">3.</span> <span class="nav-text">矩阵</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%E7%9A%84%E4%B9%98%E6%B3%95%E8%BF%90%E7%AE%97"><span class="nav-number">3.1.</span> <span class="nav-text">矩阵的乘法运算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%E7%9A%84%E8%BD%AC%E7%BD%AE%E8%BF%90%E7%AE%97"><span class="nav-number">3.2.</span> <span class="nav-text">矩阵的转置运算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.3.</span> <span class="nav-text">矩阵的类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E8%A7%92%E7%9F%A9%E9%98%B5"><span class="nav-number">3.3.1.</span> <span class="nav-text">对角矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E4%BD%8D%E7%9F%A9%E9%98%B5"><span class="nav-number">3.3.2.</span> <span class="nav-text">单位矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%86%E7%9F%A9%E9%98%B5"><span class="nav-number">3.3.3.</span> <span class="nav-text">逆矩阵</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">3.4.</span> <span class="nav-text">矩阵的应用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">141</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">342</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2024/01/15/foundation-of-computer-graphic-01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="计算机图形学基础（1）——线性代数 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          计算机图形学基础（1）——线性代数
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-01-15 20:09:48" itemprop="dateCreated datePublished" datetime="2024-01-15T20:09:48+08:00">2024-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-03-18 09:23:03" itemprop="dateModified" datetime="2024-03-18T09:23:03+08:00">2024-03-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2024/01/15/foundation-of-computer-graphic-01/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2024/01/15/foundation-of-computer-graphic-01/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>最近对计算机图形学比较感兴趣，刷了一遍《计算机图形学入门：3D渲染指南》，看了一遍《GAMES
+101》。本文对计算机图形学的线性代数相关基础进行了梳理和总结，以便后续进行复习和回顾。</p>
+<span id="more"></span>
+<h1 id="点">点</h1>
+<p><strong>点</strong>（Point）表示坐标系中的一个特定位置，其具体表示和抽象表示分别如下。</p>
+<ul>
+<li>使用 <strong>大写字母</strong> 的方式来抽象表示一个点，如：<span
+class="math inline">\(P\)</span>。</li>
+<li>使用 <strong>圆括号 + 数字序列</strong>
+的方式来具体表示一个点，如：<span class="math inline">\((4,
+3)\)</span>。</li>
+</ul>
+<p>在具体表示中，数字序列的顺序很重要。按照惯例，在 2D 平面中依次表示
+<span class="math inline">\(x\)</span>、<span
+class="math inline">\(y\)</span> 轴的值；在 3D 空间中依次表示 <span
+class="math inline">\(x\)</span>、<span
+class="math inline">\(y\)</span>、<span class="math inline">\(z\)</span>
+轴的值。对此，我们也可以结合两种方式来表示一个抽象的点，比如：<span
+class="math inline">\((P_x, P_y)\)</span>。</p>
+<h1 id="向量">向量</h1>
+<p><strong>向量</strong>（Vector）表示两个点所构成线段的长度和方向，其具体表示和抽象表示分别如下。</p>
+<ul>
+<li>向量的抽象表示一般有三种，分别是：
+<ul>
+<li>使用 <strong>小写字母 + 箭头上标</strong> 的方式，如：<span
+class="math inline">\(\vec{a}\)</span>。</li>
+<li>使用 <strong>加粗小写字母</strong> 的方式，如：<span
+class="math inline">\(\textbf{a}\)</span>。</li>
+<li>使用 <strong>两个点 + 箭头上标</strong> 的方式，如：<span
+class="math inline">\(\overrightarrow{AB} = B -
+A\)</span>。注：大写字母表示点。</li>
+</ul></li>
+<li>向量的具体表示中，默认以坐标原点作为起点，因此只需要描述终点即可。向量一般使用矩阵来表示，包含两种方式，分别是：</li>
+</ul>
+<span class="math display">\[\begin{aligned}
+列向量表示法：&amp;
+\left(
+\begin{matrix}
+x \\
+y
+\end{matrix}
+\right)
+\\
+行向量表示法：&amp;
+\left(
+\begin{matrix}
+x &amp; y
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>在定义中我们提到向量包含了两个点之间的长度和方向两种信息。对此，我们可以各自使用一种方式来表示这两种信息。</p>
+<ul>
+<li>使用 <strong>小写字母 + <code>^</code> 上标</strong> 的方式表示
+<strong>单位向量</strong>（Unit Vector），即长度等于 1 的向量，如：<span
+class="math inline">\(\widehat{a}\)</span>。一般用来表示方向。</li>
+<li>使用 <strong>向量 + 双竖线</strong> 的方式表示
+<strong>向量长度</strong>（Vector Length），如：<span
+class="math inline">\(|\vec{a}|\)</span>。</li>
+</ul>
+<p>单位向量可以通过向量除以向量长度的方式计算得到，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+\widehat{a} = \vec{a} / |\vec{a}|
+\end{aligned}\]</span>
+<p>在计算机图形学中，单位向量的应用非常多，比如：法线向量。在计算光线的折射和反射时，法线必不可少。</p>
+<h2 id="向量的加减运算">向量的加减运算</h2>
+<p>向量的加减运算可以使用 <strong>平行四边形法则</strong> 或
+<strong>三角形法则</strong> 进行计算，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/vector-01.png?x-oss-process=image/resize,w_800" /></p>
+<p>向量的加减运算非常简单，只需要把两个向量的对应坐标的值进行加减运算即可，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+\vec{a} + \vec{b}
+=
+\left(
+\begin{matrix}
+a_x &amp; a_y
+\end{matrix}
+\right)
++
+\left(
+\begin{matrix}
+b_x &amp; b_y
+\end{matrix}
+\right)
+=
+\left(
+\begin{matrix}
+a_x + b_x &amp; a_y + b_y
+\end{matrix}
+\right)
+\\
+\vec{a} - \vec{b}
+=
+\left(
+\begin{matrix}
+a_x &amp; a_y
+\end{matrix}
+\right)
+-
+\left(
+\begin{matrix}
+b_x &amp; b_y
+\end{matrix}
+\right)
+=
+\left(
+\begin{matrix}
+a_x - b_x &amp; a_y - b_y
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h2 id="向量的乘法运算">向量的乘法运算</h2>
+<p>向量的乘法运算比较特殊，它有两种乘法运算，分别是：</p>
+<ul>
+<li><strong>点积</strong>（Dot Product），或称
+<strong>点乘</strong></li>
+<li><strong>叉积</strong>（Cross Product），或称
+<strong>叉乘</strong></li>
+</ul>
+<h3 id="点积">点积</h3>
+<p>两个向量之间的点积是一个数值，一般使用 <strong>点运算符</strong>
+表示。</p>
+<p>点积的运算非常简单，只要将每个向量对应的坐标值相乘并求和即可，如下所示为一个点积的示例。</p>
+<span class="math display">\[\begin{aligned}
+\vec{a} \cdot \vec{b}
+=
+\left(
+\begin{matrix}
+a_x &amp; a_y &amp; a_z
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+b_x \\
+b_y \\
+b_z \\
+\end{matrix}
+\right)
+=
+a_x \cdot b_x + a_y \cdot b_y + a_z \cdot b_z
+\end{aligned}\]</span>
+<p>向量点积的特性</p>
+<ul>
+<li>符合交换律，即 <span class="math inline">\(\vec{a} \cdot \vec{b} =
+\vec{b} \cdot \vec{a}\)</span></li>
+<li>符合分配律，即 <span class="math inline">\(\vec{a} \cdot (\vec{b} +
+\vec{c}) = \vec{a} \cdot \vec{b} + \vec{a} \cdot \vec{c}\)</span></li>
+<li>不符合结合律。点乘的结果是一个标量，不是向量，因此无法与另一个向量继续进行点乘运算。</li>
+</ul>
+<p>在计算机图形学中，点积的应用非常广泛，主要包括：</p>
+<ul>
+<li><strong>计算两个向量之间的夹角</strong></li>
+<li><strong>计算一个向量在另一个向量上的投影</strong></li>
+<li><strong>计算一个向量正交分解后的两个向量</strong></li>
+<li><strong>判断一个向量相对于另一个向量是正向还是反向</strong></li>
+</ul>
+<p>下面，我们来看一下这几种应用是如果通过计算实现的。</p>
+<p>首先，如何计算两个向量之间的夹角？在几何上，两个向量的点积与它们的长度以及它们之间的夹角
+<span class="math inline">\(a\)</span>
+有关，确切的公式巧妙地将线性代数和三角函数联系在了一起，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/vector-02.png?x-oss-process=image/resize,w_800" /></p>
+<span class="math display">\[\begin{aligned}
+\vec{a} \cdot \vec{b} =&amp; |\vec{a}| \cdot |\vec{b}| \cdot cos\theta
+\\
+cos\theta =&amp; \frac{\vec{a} \cdot \vec{b}}{|\vec{a}| \cdot |\vec{b}|}
+\\
+cos\theta =&amp; \widehat{a} \cdot \widehat{b}
+\end{aligned}\]</span>
+<p>其次，如何计算一个向量在另一个向量上的投影？如下所示，求向量 <span
+class="math inline">\(\vec{b}\)</span> 在向量 <span
+class="math inline">\(\vec{a}\)</span> 上的投影 <span
+class="math inline">\(\vec{b}_\bot\)</span>，很显然，<span
+class="math inline">\(\vec{b}_\bot\)</span> 与 <span
+class="math inline">\(\vec{a}\)</span>
+的方向是一致的，只是长度可能不同。因此，我们可以通过前面提到的方式计算两者之间的夹角，然后计算投影长度，并使用该长度乘以单位向量
+<span class="math inline">\(\widehat{a}\)</span> 即可。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/vector-03.png?x-oss-process=image/resize,w_800" /></p>
+<span class="math display">\[\begin{aligned}
+\vec{b}_\bot =&amp; k \cdot \widehat{a}
+\\
+k =&amp; |\vec{b_\bot}| = |\vec{b}| \cdot cos\theta = |\vec{b}| \cdot
+\widehat{a} \cdot \widehat{b}
+\\
+\end{aligned}\]</span>
+<p>接着，如何计算一个向量正交分解后的两个向量？上面我们在计算一个向量在另一个向量上的投影时，已经计算得到了一个方向的分解向量，另一个方向的分解向量我们只需通过向量减法即可得到，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/vector-04.png?x-oss-process=image/resize,w_800" /></p>
+<p>最后，如何判断一个向量相对于另一个向量是正向还是反向？判断两个向量的方向关系，本质上是看两者之间的夹角，如果是锐角，则认为是正向，如果是钝角，则认为是反向，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/vector-05.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="叉积">叉积</h3>
+<p>两个向量之间的叉积是一个向量，一般使用 <strong>叉乘符号</strong>
+表示。</p>
+<p>叉积是一个垂直于两个向量的向量，其方向可以通过
+<strong>右手螺旋定则</strong> 确定。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/vector-06.png?x-oss-process=image/resize,w_800" /></p>
+<span class="math display">\[\begin{aligned}
+\vec{c}
+= &amp;
+\vec{a} \times \vec{b}
+\\
+= &amp;
+\left(
+\begin{matrix}
+a_x &amp; a_y &amp; a_z
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+b_x \\
+b_y \\
+b_z \\
+\end{matrix}
+\right)
+\\
+= &amp;
+\left(
+\begin{matrix}
+a_y \cdot b_z - a_z \cdot b_y \\
+a_z \cdot b_x - a_x \cdot b_z \\
+a_x \cdot b_y - a_y \cdot b_x \\
+\end{matrix}
+\right)
+\\
+即：
+\\
+c_x =&amp; a_y \cdot b_z - a_z \cdot b_y
+\\
+c_y =&amp; a_z \cdot b_x - a_x \cdot b_z
+\\
+c_z =&amp; a_x \cdot b_y - a_y \cdot b_x
+\end{aligned}\]</span>
+<p>向量叉积的特性</p>
+<ul>
+<li>符合分配律，即 <span class="math inline">\(\vec{a} \times (\vec{b} +
+\vec{c}) = \vec{a} \times \vec{b} + \vec{a} \times \vec{c}\)</span></li>
+<li>不符合结合律，即 <span class="math inline">\((\vec{a} \times
+\vec{b}) \times \vec{c} \neq \vec{a} \times (\vec{b} \times
+\vec{c})\)</span></li>
+<li>不符合交换律，即 <span class="math inline">\(\vec{a} \times \vec{b}
+\neq \vec{b} \times \vec{a}\)</span></li>
+</ul>
+<p>在计算机图形学中，乘积的应用主要包括一下这些：</p>
+<ul>
+<li><strong>判断一个向量相对于另一个向量的左右关系</strong></li>
+<li><strong>判断一个向量相对于一个三角形的内外关系</strong></li>
+</ul>
+<p>那么，如何判断一个向量相对于另一个向量的左右关系？可以直接判断两个向量叉积的正负值。如下所示，在一个
+3D 坐标中，<span class="math inline">\(\vec{a}\)</span> 和 <span
+class="math inline">\(\vec{b}\)</span>
+的叉乘符合右手螺旋定则的方向（图中与 Y 轴方向相同），则表示 <span
+class="math inline">\(\vec{A}\)</span> 在 <span
+class="math inline">\(\vec{B}\)</span> 的右边，反之则表示 <span
+class="math inline">\(\vec{A}\)</span> 在 <span
+class="math inline">\(\vec{B}\)</span> 的左边。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/vector-07.png?x-oss-process=image/resize,w_800" /></p>
+<p>以及，如何判断一个向量相对于一个三角形的内外关系？事实上，我们可以利用上面这种左右关系判断的方法来组合判断。如下所示，我们可以分别判断
+<span class="math inline">\(\overrightarrow{AP}\)</span> 和 <span
+class="math inline">\(\overrightarrow{AB}\)</span> 的左右关系，<span
+class="math inline">\(\overrightarrow{BP}\)</span> 和 <span
+class="math inline">\(\overrightarrow{BC}\)</span> 的左右关系，<span
+class="math inline">\(\overrightarrow{CP}\)</span> 和 <span
+class="math inline">\(\overrightarrow{CA}\)</span>
+的左右关系，如果前者都在后者的一边（左边或右边），那么 <span
+class="math inline">\(P\)</span> 就在三角形内；否则，在三角形外。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/vector-08.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="矩阵">矩阵</h1>
+<p>矩阵是一个 <span class="math inline">\(m\)</span> 行 <span
+class="math inline">\(n\)</span> 列的数字阵列，通常我们使用一个
+<strong>加粗的大写字母</strong>
+抽象表示一个矩阵。在计算机图形学中，它被广泛应用于各种变换计算中，比如：平移、旋转、缩放等。</p>
+<h2 id="矩阵的乘法运算">矩阵的乘法运算</h2>
+<p>矩阵的乘法必须满足一个前提：矩阵 <span
+class="math inline">\(A\)</span> 的列数等于矩阵 <span
+class="math inline">\(B\)</span> 的行数，即
+<code>(M x N)(N x P) = (M x P)</code>。</p>
+<p>矩阵 <span class="math inline">\(A\)</span> 乘以矩阵 <span
+class="math inline">\(B\)</span> 得到矩阵 <span
+class="math inline">\(C\)</span>，其中矩阵 <span
+class="math inline">\(C\)</span> 中的任意元素 <code>(i, j)</code>
+的值等于 <span class="math inline">\(A\)</span> 中第 <code>i</code> 行与
+<span class="math inline">\(B\)</span> 中第 <code>j</code>
+列的点积，如下所示是一个矩阵乘法的示例。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+1 &amp; 3 \\
+5 &amp; 2 \\
+0 &amp; 4 \\
+\end{matrix}
+\right)
+
+\left(
+\begin{matrix}
+3 &amp; 6 &amp; 9 &amp; 4 \\
+2 &amp; 7 &amp; 8 &amp; 3 \\
+\end{matrix}
+\right)
+
+=
+
+\left(
+\begin{matrix}
+9 &amp; 27 &amp; 33 &amp; 13 \\
+19 &amp; 44 &amp; 61 &amp; 26 \\
+8 &amp; 28 &amp; 32 &amp; 12 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>矩阵乘法的特性</p>
+<ul>
+<li>不符合交换律，即 <span class="math inline">\(AB \neq
+BA\)</span></li>
+<li>符合分配律，即 <span class="math inline">\(A(B + C) = AB +
+BA\)</span></li>
+<li>符合结合律，即 <span class="math inline">\((AB)C =
+A(BC)\)</span></li>
+</ul>
+<p>在计算机图形学中，向量也会使用矩阵（行矩阵或列矩阵）来表示，向量之间的乘法以及向量与矩阵的乘法都符合矩阵乘法的基本规则。</p>
+<h2 id="矩阵的转置运算">矩阵的转置运算</h2>
+<p>矩阵的转置本质上就是沿着主对角线（从左上角至右下角）的对角线将 i x j
+的矩阵翻转成 j x i 的矩阵。一般我们使用一个 <strong>上标 T</strong>
+表示一个矩阵的转置，如：<span class="math inline">\(A^T\)</span>。</p>
+<p>如下所示，是一个矩阵转置运算的示例。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+1 &amp; 2 \\
+3 &amp; 4 \\
+5 &amp; 6 \\
+\end{matrix}
+\right)^T
+
+=
+
+\left(
+\begin{matrix}
+1 &amp; 3 &amp; 5 \\
+2 &amp; 4 &amp; 6 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>矩阵转置的特性</p>
+<ul>
+<li><span class="math inline">\((AB)^T = B^TA^T\)</span></li>
+</ul>
+<h2 id="矩阵的类型">矩阵的类型</h2>
+<p>下面，我们来介绍各种不同类型的矩阵。</p>
+<h3 id="对角矩阵">对角矩阵</h3>
+<p>对角矩阵，其主对角线（从左上角到右下角）上的元素都是非
+0，其他元素都为 0。</p>
+<h3 id="单位矩阵">单位矩阵</h3>
+<p>单位矩阵，其主对角线（从左上角到右下角）上的元素都为 1，其余元素都为
+0，一般使用大写字母 <span class="math inline">\(I\)</span>
+来表示。单位矩阵是一个特殊的对角矩阵。如下所示，是一个单位矩阵实例。</p>
+<span class="math display">\[\begin{aligned}
+I_{3 \times 3}
+=
+\left(
+\begin{matrix}
+1 &amp; 0 &amp; 0 \\
+0 &amp; 1 &amp; 0 \\
+0 &amp; 0 &amp; 1 \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h3 id="逆矩阵">逆矩阵</h3>
+<p>给定一个矩阵 <span
+class="math inline">\(A\)</span>，如果存在一个与之维度相同的矩阵，使得这两个矩阵相乘的结果是一个单位矩阵，那么我们称这个矩阵为矩阵
+<span class="math inline">\(A\)</span> 的逆矩阵，使用 <span
+class="math inline">\(A^{-1}\)</span>
+表示。如下所示，为逆矩阵的示例。</p>
+<span class="math display">\[\begin{aligned}
+A A^{-1} =&amp; A^{-1}A = I
+\\
+(AB)^{-1} =&amp; B^{-1}A^{-1}
+\end{aligned}\]</span>
+<h2 id="矩阵的应用">矩阵的应用</h2>
+<p>上述我们介绍的向量的两种运算，其实完全可以使用矩阵的乘法来实现。</p>
+<p>关于向量的点积，我们可以使用如下矩阵乘法来表示。</p>
+<span class="math display">\[\begin{aligned}
+\vec{a} \cdot \vec{b}
+=
+\vec{a}^T \cdot \vec{b}
+=
+\left(
+\begin{matrix}
+a_x &amp; a_y &amp; a_z
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+b_x \\
+b_y \\
+b_z \\
+\end{matrix}
+\right)
+=
+a_x \cdot b_x + a_y \cdot b_y + a_z \cdot b_z
+\end{aligned}\]</span>
+<p>关于向量的叉积，我们可以使用如下矩阵乘法来表示，如下所示。其中 <span
+class="math inline">\(A^*\)</span> 为矩阵 <span
+class="math inline">\(A\)</span> 的对偶矩阵。</p>
+<span class="math display">\[\begin{aligned}
+\vec{a} \times \vec{b}
+=
+A^* b
+=
+\left(
+\begin{matrix}
+0    &amp; -a_z &amp; a_y \\
+a_z  &amp; 0    &amp; -a_x \\
+-a_y &amp; a_x  &amp; 0 \\
+\end{matrix}
+\right)
+
+\left(
+\begin{matrix}
+b_x \\
+b_y \\
+b_z \\
+\end{matrix}
+\right)
+
+=
+
+\left(
+\begin{matrix}
+a_y \cdot b_z - a_z \cdot b_y \\
+a_z \cdot b_x - a_x \cdot b_z \\
+a_x \cdot b_y - a_y \cdot b_x \\
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<h1 id="总结">总结</h1>
+<p>本文介绍了点、向量、矩阵的基本定义和运算方法。向量的乘法包含两种：点积和叉积，两者被广泛应用在了在计算机图形学中。</p>
+<p>点积和叉积的具体运算可以通过矩阵运算来实现，这也是为什么我们常说计算机图形学中包含了大量矩阵运算。</p>
+<p>下文，我们将探讨矩阵在图形的变换中的应用，敬请期待吧~</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li>《GAMES 101》</li>
+<li>《计算机图形学入门：3D渲染指南》</li>
+<li><a
+href="https://blog.csdn.net/weixin_42782150/article/details/104878759">史上最全Markdown公式、符号总结</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E5%90%91%E9%87%8F/" rel="tag"># 向量</a>
+              <a href="/tags/%E7%9F%A9%E9%98%B5/" rel="tag"># 矩阵</a>
+              <a href="/tags/%E7%82%B9%E7%A7%AF/" rel="tag"># 点积</a>
+              <a href="/tags/%E5%8F%89%E7%A7%AF/" rel="tag"># 叉积</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/01/05/2023-summary/" rel="prev" title="2023，31岁客三消从业者的年度回顾">
+                  <i class="fa fa-angle-left"></i> 2023，31岁客三消从业者的年度回顾
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/01/18/foundation-of-computer-graphic-02/" rel="next" title="计算机图形学基础（2）——变换">
+                  计算机图形学基础（2）——变换 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">true</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2024/01/15/foundation-of-computer-graphic-01/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
+  }
+}
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+<script src="/live2dwlib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dwassets/tororo.model.json"},"display":{"position":"right","width":150,"height":300,"hOffset":-15,"vOffset":-15},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

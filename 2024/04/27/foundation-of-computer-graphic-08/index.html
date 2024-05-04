@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="之前我们介绍了在游戏领域中广泛使用的实时渲染技术——光栅化，本文我们来介绍一下在特效领域中广泛使用的离线渲染技术——光线追踪。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机图形学基础（8）——光线追踪">
+<meta property="og:url" content="http://chuquan.me/2024/04/27/foundation-of-computer-graphic-08/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="之前我们介绍了在游戏领域中广泛使用的实时渲染技术——光栅化，本文我们来介绍一下在特效领域中广泛使用的离线渲染技术——光线追踪。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-04-27T03:13:09.000Z">
+<meta property="article:modified_time" content="2024-04-27T03:17:47.121Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="Whitted-Stype Ray Tracing">
+<meta property="article:tag" content="交点判定">
+<meta property="article:tag" content="交点渲染">
+<meta property="article:tag" content="包围盒">
+<meta property="article:tag" content="轴对齐包围盒">
+<meta property="article:tag" content="KD-Tree">
+<meta property="article:tag" content="BVH">
+<meta property="article:tag" content="蒙特卡洛积分">
+<meta property="article:tag" content="路径追踪">
+<meta property="article:tag" content="光线追踪">
+<meta property="article:tag" content="俄罗斯轮盘赌">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chuquan.me/2024/04/27/foundation-of-computer-graphic-08/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2024/04/27/foundation-of-computer-graphic-08/","path":"2024/04/27/foundation-of-computer-graphic-08/","title":"计算机图形学基础（8）——光线追踪"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>计算机图形学基础（8）——光线追踪 | 楚权的世界</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
+
+
+
+
+
+
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-rss"><a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%95%E5%B1%82%E4%BE%9D%E6%8D%AE"><span class="nav-number">2.</span> <span class="nav-text">底层依据</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">基本原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA"><span class="nav-number">4.</span> <span class="nav-text">光线追踪</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E7%BB%86%E8%8A%82"><span class="nav-number">5.</span> <span class="nav-text">技术细节</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A4%E7%82%B9%E5%88%A4%E5%AE%9A%E5%8E%9F%E7%90%86"><span class="nav-number">5.1.</span> <span class="nav-text">交点判定原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9A%90%E5%BC%8F%E5%87%A0%E4%BD%95%E7%9A%84%E4%BA%A4%E7%82%B9"><span class="nav-number">5.1.1.</span> <span class="nav-text">隐式几何的交点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%98%BE%E5%BC%8F%E5%87%A0%E4%BD%95%E7%9A%84%E4%BA%A4%E7%82%B9"><span class="nav-number">5.1.2.</span> <span class="nav-text">显式几何的交点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%B3%E9%9D%A2%E4%BA%A4%E7%82%B9%E5%88%A4%E5%AE%9A"><span class="nav-number">5.1.2.1.</span> <span class="nav-text">平面交点判定</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E8%A7%92%E5%BD%A2%E4%BA%A4%E7%82%B9%E5%88%A4%E5%AE%9A"><span class="nav-number">5.1.2.2.</span> <span class="nav-text">三角形交点判定</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A4%E7%82%B9%E5%88%A4%E5%AE%9A%E5%8A%A0%E9%80%9F"><span class="nav-number">5.2.</span> <span class="nav-text">交点判定加速</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8C%85%E5%9B%B4%E7%9B%92"><span class="nav-number">5.2.1.</span> <span class="nav-text">包围盒</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%B4%E5%AF%B9%E9%BD%90%E5%8C%85%E5%9B%B4%E7%9B%92"><span class="nav-number">5.2.1.1.</span> <span class="nav-text">轴对齐包围盒</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%A4%E7%82%B9%E5%88%A4%E5%AE%9A"><span class="nav-number">5.2.1.2.</span> <span class="nav-text">交点判定</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%9F%E4%B8%80%E7%BD%91%E6%A0%BC"><span class="nav-number">5.2.2.</span> <span class="nav-text">统一网格</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E5%88%92%E5%88%86"><span class="nav-number">5.2.3.</span> <span class="nav-text">空间划分</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#kd-tree"><span class="nav-number">5.2.3.1.</span> <span class="nav-text">KD-Tree</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%A9%E4%BD%93%E5%88%92%E5%88%86"><span class="nav-number">5.2.4.</span> <span class="nav-text">物体划分</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#bvh"><span class="nav-number">5.2.4.1.</span> <span class="nav-text">BVH</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A4%E7%82%B9%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86"><span class="nav-number">5.3.</span> <span class="nav-text">交点渲染原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">5.3.1.</span> <span class="nav-text">光线追踪的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%B2%E6%9F%93%E6%96%B9%E7%A8%8B%E5%AE%9A%E4%B9%89"><span class="nav-number">5.3.2.</span> <span class="nav-text">渲染方程定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%B2%E6%9F%93%E6%96%B9%E7%A8%8B%E5%B1%95%E5%BC%80"><span class="nav-number">5.3.3.</span> <span class="nav-text">渲染方程展开</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B1%82%E8%A7%A3%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80"><span class="nav-number">5.3.4.</span> <span class="nav-text">求解理论基础</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A6%82%E7%8E%87%E8%AE%BA%E5%9F%BA%E7%A1%80"><span class="nav-number">5.3.4.1.</span> <span class="nav-text">概率论基础</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%92%99%E7%89%B9%E5%8D%A1%E6%B4%9B%E7%A7%AF%E5%88%86"><span class="nav-number">5.3.4.2.</span> <span class="nav-text">蒙特卡洛积分</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%B2%E6%9F%93%E6%96%B9%E7%A8%8B%E6%B1%82%E8%A7%A3"><span class="nav-number">5.3.5.</span> <span class="nav-text">渲染方程求解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B1%82%E8%A7%A3%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90"><span class="nav-number">5.3.5.1.</span> <span class="nav-text">求解过程分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E6%B2%BB%E7%88%86%E7%82%B8%E9%97%AE%E9%A2%98"><span class="nav-number">5.3.5.2.</span> <span class="nav-text">分治爆炸问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%A0%E9%99%90%E9%80%92%E5%BD%92%E9%97%AE%E9%A2%98"><span class="nav-number">5.3.5.3.</span> <span class="nav-text">无限递归问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%89%E6%BA%90%E9%87%87%E6%A0%B7%E9%97%AE%E9%A2%98"><span class="nav-number">5.3.5.4.</span> <span class="nav-text">光源采样问题</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">141</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">342</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/baochuquan" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2024/04/27/foundation-of-computer-graphic-08/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="计算机图形学基础（8）——光线追踪 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          计算机图形学基础（8）——光线追踪
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2024-04-27 11:13:09 / 修改时间：11:17:47" itemprop="dateCreated datePublished" datetime="2024-04-27T11:13:09+08:00">2024-04-27</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2024/04/27/foundation-of-computer-graphic-08/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2024/04/27/foundation-of-computer-graphic-08/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>之前我们介绍了在游戏领域中广泛使用的实时渲染技术——光栅化，本文我们来介绍一下在特效领域中广泛使用的离线渲染技术——光线追踪。</p>
+<span id="more"></span>
+<h1 id="概述">概述</h1>
+<p>那么有了光栅化渲染技术，为什么还要用光线追踪呢？根本原因在于光栅化的着色局部性，使得它无法解决很多全局效果，比如：</p>
+<ul>
+<li><strong>软阴影</strong>（Soft shadows）</li>
+<li><strong>光泽反射</strong>（Glossy reflection）</li>
+<li><strong>间接光照</strong>（Indirect illumination）</li>
+</ul>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-01.png?x-oss-process=image/resize,w_800" /></p>
+<p>软阴影的产生是由于光源的大小和距离。一个面积较大的光源照射一个物体，可以从多个角度投射光线到物体上。当光线从不同角度照射时，阴影边缘的重叠区域会因光线部分遮挡而出现阴影的渐变效果。</p>
+<p>光泽反射是一种既不完全镜面反射也不完全漫反射的光反射现象。光泽度高、粗糙度低的表面产生的反射相对清晰，接近镜面反射；而光泽度低、粗糙度高的表面，反射图像就会更加模糊，趋向漫反射。</p>
+<p>间接光照是一个场景中光线经过一次或多次反射后照射到物体表面的光照效果。在真实世界中，一个房间只通过一扇窗投过光照，但是房间里没有一个地方是完全黑色的，这就是光的多次反射造成的。</p>
+<h1 id="底层依据">底层依据</h1>
+<p>光线追踪依赖以下几个基本的底层依据，分别是：</p>
+<ul>
+<li><strong>光线沿直线传播</strong>：在微观角度，光是沿着波形传播；在宏观角度，光是沿着直线传播。</li>
+<li><strong>光线相互不碰撞</strong>：当光线的传播路径发生交叠时，我们认为光线的传播互不干扰。</li>
+<li><strong>光线具有可逆性</strong>：真实世界中，视觉成像是因为物体发射或反射光线，进入视网膜；在图形学中，屏幕成像是因为从相机向像素建立了反向的光线传播路径，采集路径上的所有着色信息。</li>
+</ul>
+<h1 id="基本原理">基本原理</h1>
+<p>光线追踪的基本原理非常简单，其采用了
+<strong>针孔相机模型</strong>（Pinhole Camera Model），分为
+<strong>视线生成</strong> 和 <strong>像素着色</strong> 两个阶段。</p>
+<p>对于视线生成，以相机为起点，以像素为锚点，利用光的可逆性，建立一条视觉射线，如下所示。此时，我们需要找到视线与空间中的物体所产生的最近的交点。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-02.png?x-oss-process=image/resize,w_800" /></p>
+<p>对于像素着色，当我们找到视线与物体之间的最近交点时，随即建立交点与光源的连线，判断交点是否在阴影之中，并根据结果来计算着色，写回像素结果。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-03.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="光线追踪">光线追踪</h1>
+<p>上述基本原理只考虑了光源的直接影响，没有考虑间接影响。在实际情况中，光线会经过空间中物体的多次弹射，汇聚至交点上，从而对着色产生间接影响。</p>
+<p>对此，<strong>经典光线追踪</strong>，也称
+<strong>惠特式光线追踪</strong>（Whitted-Style Ray Tracing）或
+<strong>递归光线追踪</strong>（Recursive Ray
+Tracing），引入了间接光照的处理。</p>
+<p>在视线生成之后，我们找到最近的交点，然后根据光线的可逆性，找到反射光线（Reflected
+Ray）与折射光线（Refracted Ray）所产生的交点，依次类推，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-08.png?x-oss-process=image/resize,w_800" /></p>
+<p>之后，我们将所有交点分别与光源进行连线，判断这些交点是否在阴影之中，并根据结果计算着色，写回像素结果。当然，在反射和折射过程中会存在能量折损，因此，在计算着色时也会考虑光线折损的影响。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-09.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="技术细节">技术细节</h1>
+<p>光线追踪的整体原理非常简单，下面，我们来考虑其中所涉及到的一些技术细节。</p>
+<h2 id="交点判定原理">交点判定原理</h2>
+<p>光线追踪中最重要的技术是交点判定，其中包含光线表示和几何表示两部分。</p>
+<p>对于光线表示，我们只需要使用原点、方向向量即可进行表示，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+\vec{r}(t) = \vec{o} + t\vec{d}
+
+\end{aligned}\]</span>
+<p>对于几何表示，在 <a
+href="http://chuquan.me/2024/04/10/foundation-of-computer-graphic-06/">《计算机图形学基础（6）——几何》</a>
+中，我们提到隐式几何表示和显式几何表示两种。</p>
+<h3 id="隐式几何的交点">隐式几何的交点</h3>
+<p>隐式几何使用数学关系式表示，因此我们可以结合光线表示来求解方程组，即可计算得到交点，如下所示。其中，<span
+class="math inline">\(f\)</span>
+为隐式几何的数学关系式，将光线表示作为参数代入，求解 <span
+class="math inline">\(t\)</span> 即可得到交点。</p>
+<span class="math display">\[\begin{aligned}
+
+f(\vec{o} + t\vec{d}) = 0
+
+\end{aligned}\]</span>
+<h3 id="显式几何的交点">显式几何的交点</h3>
+<p>显式几何直接或间接（通过参数映射的方式）定义点、线、面等元素集合，基本上最终都会转换成多边形网格来表示。这里，我们介绍平面和三角形两种情况下的交点判定技术。</p>
+<h4 id="平面交点判定">平面交点判定</h4>
+<p>对于任意一个平面，我们可以使用一个向量和一个点来定义。其中，向量是法向量，平面上任意一个点与
+<span class="math inline">\(\vec{p&#39;}\)</span>
+所构成的向量都与法向量垂直，两者的点积为
+0，因此得到如下所示的平面定义。</p>
+<span class="math display">\[\begin{aligned}
+
+(\vec{p} - \vec{p&#39;}) \cdot \vec{N} = 0
+
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-10.png?x-oss-process=image/resize,w_800" /></p>
+<p>此时，我们再结合平面定义和光线表示得到如下所示的方程组，进而解得
+<span class="math inline">\(t\)</span> 的值，即交点。</p>
+<span class="math display">\[\begin{aligned}
+
+(\vec{o} + t \vec{d} - \vec{p&#39;}) \cdot \vec{N} = 0
+
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-11.png?x-oss-process=image/resize,w_800" /></p>
+<h4 id="三角形交点判定">三角形交点判定</h4>
+<p>对于三角形交点，我们可以通过 Moller Trumbore Algorithm
+快速求解。算法利用重心坐标定义三角形内的一个点，以此得到如下关系式。</p>
+<span class="math display">\[\begin{aligned}
+
+\vec{o} + t \vec{d} = (1 - b_1 - b_2)\vec{P_0} + b_1\vec{P_1} +
+b_2\vec{P_2}
+
+\end{aligned}\]</span>
+<p>根据重心坐标的特性，当 <span class="math inline">\(1- b_1 - b_2 =
+0\)</span> 时，点在三角形内，因此关系式中存在三个变量 <span
+class="math inline">\(t\)</span>、<span
+class="math inline">\(b_1\)</span>、<span
+class="math inline">\(b_2\)</span>。由于关系式中的向量都是三维空间中的向量，因此每个向量都由三个坐标值构成，可以进一步得到三个线性方程组，从而求解各个变量。</p>
+<h2 id="交点判定加速">交点判定加速</h2>
+<p>在实际应用中，三维空间可能包含非常多的物体，每个物体可能包含非常多的三角形。假如，我们要判断光线与一个物体的交点，那么需要遍历物体的每一个三角形，如下所示。很显然，这是一个非常耗时的操作，尤其是场景中物体非常多的情况下。对此，图形学中也有一些针对交点判定加速的优化方法。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-12.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="包围盒">包围盒</h3>
+<p><strong>包围盒</strong>（Bounding
+Box）的原理是使用一个简单的几何体包围一个复杂的物体，如果光线与包围盒没有交点，那么必然与内部物体没有交点，从而达到交点判定加速的目的。</p>
+<h4 id="轴对齐包围盒">轴对齐包围盒</h4>
+<p>包围盒通常是长方体。对于长方体，我们将它理解成
+<strong>三对不同的平行面形成的交集</strong>，在实际应用中，我们会使用一种特殊的长方体，即三对面各自与坐标系的轴对齐，因此称为
+<strong>轴对齐包围盒</strong>（Axis-Aligned Bounding Box，AABB）。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-13.png?x-oss-process=image/resize,w_800" /></p>
+<h4 id="交点判定">交点判定</h4>
+<p>很显然，接下来的问题就是如何判断光线是否与轴对齐包围盒相交。这里，我们首先考虑
+2D 情况下的交点判定，然后进一步延伸至 3D 情况下的交点判定。</p>
+<p>对于 2D 的情况，如下所示，分为三个步骤：</p>
+<ul>
+<li>考虑光线与 <span class="math inline">\(x_0\)</span>、<span
+class="math inline">\(x_1\)</span>
+两个面的交点，根据方程组可以计算出一组 <span
+class="math inline">\(t_{min}\)</span> 和 <span
+class="math inline">\(t_{max}\)</span>。</li>
+<li>考虑光线与 <span class="math inline">\(y_0\)</span>、<span
+class="math inline">\(y_1\)</span>
+两个面的交点，根据方程组又可以计算出一组 <span
+class="math inline">\(t_{min}\)</span> 和 <span
+class="math inline">\(t_{max}\)</span>。</li>
+<li>对于两组 <span class="math inline">\(t_{min}\)</span> 和 <span
+class="math inline">\(t_{max}\)</span>，我们必须保证 <span
+class="math inline">\(t_{min}\)</span> 大于
+0，否则表示交点在光源的背后，没有实际意义。两组 <span
+class="math inline">\(t_{min}\)</span> 和 <span
+class="math inline">\(t_{max}\)</span>
+各自构成一个线段，我们只需要计算两者的交集，即可得到光线在长方形内的传播路径，而传播路径的两个端点正是光线与长方形的两个交点。</li>
+</ul>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-14.png?x-oss-process=image/resize,w_800" /></p>
+<p>对于 3D 的情况，我们只需要额外延伸一步即可。</p>
+<ul>
+<li>考虑光线与 <span class="math inline">\(z_0\)</span>、<span
+class="math inline">\(z_1\)</span>
+两个面的交点，根据方程组又可以计算出一组 <span
+class="math inline">\(t_{min}\)</span> 和 <span
+class="math inline">\(t_{max}\)</span>。</li>
+<li>求解三组 <span class="math inline">\(t_{min}\)</span> 和 <span
+class="math inline">\(t_{max}\)</span>
+各自构成的线段，求线段的交集即可得到光线在包围盒内的传播路径，传播路径的两个端点正是光线与包围盒的两个交点。</li>
+</ul>
+<p>最终求解得到的 <span class="math inline">\(t_{enter}\)</span> 和
+<span class="math inline">\(t_{exit}\)</span>
+的值可能存在一下几种情况：</p>
+<ul>
+<li>当 <span class="math inline">\(t_{exit}\)</span> &lt; 0
+时，表示包围盒在光源的背后，没有交点。</li>
+<li>当 <span class="math inline">\(t_{enter}\)</span> &lt; 0 且 <span
+class="math inline">\(t_{exit}\)</span> &gt;= 0
+时，表示光线在包围盒的内部。</li>
+<li>当且仅当 <span class="math inline">\(t_{enter}\)</span> &lt; <span
+class="math inline">\(t_{exit}\)</span>，<span
+class="math inline">\(t_{exit}\)</span> &gt;= 0
+时，光线和包围盒存在交点。</li>
+</ul>
+<h3 id="统一网格">统一网格</h3>
+<p>统一网格（Uniform
+grids）是包围盒技术的延伸，它对包围盒内部的空间进行预处理。</p>
+<ul>
+<li>将包围盒拆分成统一的立体网格</li>
+<li>将与物体发生重叠的网格进行标识</li>
+</ul>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-15.png?x-oss-process=image/resize,w_800" /></p>
+<p>在判断光线与包围盒内部物体的交点时，会先遍历所有网格。当网格与光线有交点时，会继续判断网格内的物体是否与光线有交点。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-16.png?x-oss-process=image/resize,w_800" /></p>
+<p>关于网格的划分，不同的划分方法，加速效果存在差异。</p>
+<ul>
+<li>当只有一个网格时，没有加速效果。</li>
+<li>当网格划分非常密集时，计算交点时遍历网格的开销会增大，甚至会出现性能降低的情况。</li>
+</ul>
+<p>相对而言，一个加速效果良好的网格划分经验是：网格的数量等于物体的数量乘以一个常数（经验值是
+27）。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-17.png?x-oss-process=image/resize,w_800" /></p>
+<p>然而，统一网格划分并不是万能的，它只适用于一些物体分布均匀的场景。如下所示的场景中，在餐桌上方存在大量没有物体的空间，此时使用统一网格划分的效果并不好。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-18.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="空间划分">空间划分</h3>
+<p>空间划分（Spatial
+partitions）主要是为了解决空间中物体分布不均匀的问题，其主要有
+<strong>Oct-Tree</strong>、<strong>KD-Tree</strong>、<strong>BSP-Tree</strong>
+等几种技术。</p>
+<p>Oct-Tree，又称八叉树，其基本原理是把立方体分割成八等份，递归进行分割，直到格子为空或者物体足够少。</p>
+<p>KD-Tree，与 Oct-Tree
+类似，区别在于每次只将格子一分为二，总是沿着有个轴进行分割。相比于
+Oct-Tree，其节点数量的复杂度不会随着维度而指数型增长。</p>
+<p>BSP-Tree，对空间一分为二，每次选择一个方向进行分割。相比于
+KD-Tree，其切割的方向并不一定与轴平行。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-19.png?x-oss-process=image/resize,w_800" /></p>
+<h4 id="kd-tree">KD-Tree</h4>
+<p>这里我们着重介绍一下 KD-Tree 的工作原理。</p>
+<p>首先，KD-Tree
+会对包围盒空间进行预处理，对包围盒空间进行二分，同时构建二叉树，如下所示。其中，非叶子节点表示二分之前的整体空间，它不会存储物体；叶子节点表示存储物体的真实空间。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-20.png?x-oss-process=image/resize,w_800" /></p>
+<p>在进行交点判定时，本质上就是对二叉树进行先序遍历。对于上图中的例子，我们判定光线是否与整体的空间
+A 有交点。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-22.png?x-oss-process=image/resize,w_800" /></p>
+<p>显然，上述例子中光线与空间 A 存在交点，那么它会节点 A 的两个叶子节点
+1 和 B
+分别进行交点判定，如下所示。如果交点存在则进一步判断内部物体是否与光线有交点。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-23.png?x-oss-process=image/resize,w_800" /></p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-28.png?x-oss-process=image/resize,w_800" /></p>
+<p>下图所示，当与空间 B 存在交点时，则进一步遍历空间 B 的子节点。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-24.png?x-oss-process=image/resize,w_800" /></p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-25.png?x-oss-process=image/resize,w_800" /></p>
+<p>以此类推，空间 C
+与光线仍然存在交点，则继续遍历二叉树，直到判定光线与物体之间存在交点或不存在交点。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-26.png?x-oss-process=image/resize,w_800" /></p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-27.png?x-oss-process=image/resize,w_800" /></p>
+<p>直观而言，KD-Tree 确实能够有效加速交点判定。但是 KD-Tree
+也存在一些无法解决的问题，比如：</p>
+<ul>
+<li>存在无法判定的例子，比如：三角形反包围了包围盒。</li>
+<li>同一物体被划分在多个包围盒中，会有重复判断的问题。</li>
+</ul>
+<h3 id="物体划分">物体划分</h3>
+<p>针对空间划分无法解决的问题，图形学采用物体划分来解决。下面，我们来介绍物体划分的典型技术——BVH。</p>
+<h4 id="bvh">BVH</h4>
+<p>BVH（Bounding Volume Hierarchy）的整体原理与 KD-Tree
+类似，唯一的区别在于对于空间划分的方式不同。KD-Tree
+是对空间进行划分，BVH 是对物体进行划分。</p>
+<p>如下所示，空间中的物体彼此之间非常靠近。如果我们采用 KD-Tree
+的划分方式，那么一个物体可能会包含在多个空间中，进而存在重复判定的情况。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-29.png?x-oss-process=image/resize,w_800" /></p>
+<p>对此，BVH
+对物体进行划分，并重新计算包围盒，形成根节点的子节点。以此类推，最终在所有叶子节点存储物体列表。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-30.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="交点渲染原理">交点渲染原理</h2>
+<p>当我们获取到光线直射、反射至物体表面的交点之后，我们可以进一步计算这些交点的着色，从而完成渲染。</p>
+<h3 id="光线追踪的问题">光线追踪的问题</h3>
+<p>关于经典光线追踪，即 Whitted-Style Ray
+Tracing，对光线作出了如下假设。</p>
+<ul>
+<li><strong>光线只进行镜面反射和折射</strong></li>
+<li><strong>光线在漫反射面停止弹射</strong></li>
+</ul>
+<p>对于第一种情况，经典光线追踪只能渲染镜面反射，无法渲染磨砂反射，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-33.png?x-oss-process=image/resize,w_800" /></p>
+<p>对于第二种情况，对于漫反射物体，光线转播至表面时会停止弹射，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-34.png?x-oss-process=image/resize,w_800" /></p>
+<p>既然经典光线追踪是存在问题的，那么我们该如何对交点进行渲染呢？答案是渲染方程。</p>
+<h3 id="渲染方程定义">渲染方程定义</h3>
+<p>关于渲染，我们在 <a
+href="http://chuquan.me/2024/04/20/foundation-of-computer-graphic-07/">上一篇文章</a>
+中介绍了辐射度量学，文中我们提到了渲染方程，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+L_r(p, {\omega}_r) = L_e(p, {\omega}_r) + \int_{H^2}L_i(p, {\omega}_i)
+f_r(p, {\omega}_i, {\omega}_r) (n \cdot {\omega}_i) d{\omega}_i
+\end{aligned}\]</span>
+<h3 id="渲染方程展开">渲染方程展开</h3>
+<p>渲染方程经过一系列变换可以简化成如下表达式。</p>
+<span class="math display">\[\begin{aligned}
+
+l(u) = e(u) + \int l(v) K(u, v) dv
+
+\end{aligned}\]</span>
+<p>我们将 <span class="math inline">\(K\)</span>
+作为反射操作符，可以进一步将简化为如下表达式，<span
+class="math inline">\(L\)</span> 是一个递归项。</p>
+<span class="math display">\[\begin{aligned}
+
+L = E + KL
+
+\end{aligned}\]</span>
+<p>我们的目的是求解 <span class="math inline">\(L\)</span>，前面说 <span
+class="math inline">\(K\)</span>
+是一个反射操作符，其实我们也可以将其理解为反射次数，反射次数越多，展开项越多，比如：<span
+class="math inline">\(K^2\)</span> 表示光在空间中弹射两次。</p>
+<span class="math display">\[\begin{aligned}
+
+L = &amp; E + KL
+\\
+IL - KL = &amp; E
+\\
+(I - K)L = &amp; E
+\\
+L = &amp; (I - K)^{-1}E
+\\
+L = &amp; (I + K + K^2 + K^3 + ...)E
+\\
+L = &amp; E + KE + K^{2}E + K^{3}E + ...
+\\
+
+\end{aligned}\]</span>
+<p>我们可以非常容易地理解展开后的渲染方程中的各个项，如下所示。全局光照由
+<strong>光源</strong>、<strong>直接光照</strong>、<strong>间接光照</strong>
+组合而成，其中光栅化只包含了光源和直接光照两部分，难以实现间接光照；光线追踪则包含了全局光照。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-31.png?x-oss-process=image/resize,w_800" /></p>
+<p>下图所示，展示了全局光照包含不同数量的光照项的渲染对比效果。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-32.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="求解理论基础">求解理论基础</h3>
+<p>关于如何求解渲染方程，我们首先介绍两部分与之相关的内容。</p>
+<ul>
+<li>概率论基础</li>
+<li>蒙特卡洛积分</li>
+</ul>
+<h4 id="概率论基础">概率论基础</h4>
+<p>这里我们主要介绍概率、概率分布函数、期望等几个概念。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-35.png?x-oss-process=image/resize,w_800" /></p>
+<p>上图所示是一个的连续的概率分布曲线 <span class="math inline">\(X \sim
+p(x)\)</span>，横坐标表示目标值 <span
+class="math inline">\(x\)</span>，纵坐标表示目标值为 <span
+class="math inline">\(x\)</span> 的概率 <span
+class="math inline">\(p(x)\)</span>，即
+<strong>概率分布函数</strong>（Probability Distribution
+Function，PDF），那么我们可以得到如下两个关系式：</p>
+<ul>
+<li>所有取值的概率之和为 <span class="math inline">\(1\)</span></li>
+<li>期望为概率与目标值乘积的积分 <span
+class="math inline">\(E[X]\)</span></li>
+</ul>
+<span class="math display">\[\begin{aligned}
+
+\int p(x) dx = &amp; 1; &amp;&amp;  p(x) \geq 0
+\\
+E[X] = &amp; \int x p(x) dx
+
+\end{aligned}\]</span>
+<h4 id="蒙特卡洛积分">蒙特卡洛积分</h4>
+<p>假设我们希望求解如下所示的不定积分，那么该如何求解？答案是蒙特卡洛积分。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-36.png?x-oss-process=image/resize,w_800" /></p>
+<p>蒙特卡洛积分（Monte Carlo
+Integration）的基本思想是：在积分域内不断采样 <span
+class="math inline">\(f(x)\)</span>，不断地与 <span
+class="math inline">\(ab\)</span>
+构成一个个长方形，然后对所有的长方形的面积之和求平均值。由此我们可以得到离散形式的蒙特卡洛方程，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+F_N = \frac{1}{N} \sum^{1}_{i=1} \frac{f(x_i)}{p(x_i)}
+
+\end{aligned}\]</span>
+<p>我们将其进一步表示为更加通用的连续形式的蒙特卡洛方程，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+\int_{a}^{b} f(x) dx = \frac{1}{N} \sum_{i=1}^{N} \frac{f(x_i)}{p(x_i)}
+
+\end{aligned}\]</span>
+<p>对于蒙特卡洛积分，当 <span class="math inline">\(N\)</span>
+越大，求解的结果越精准。</p>
+<h3 id="渲染方程求解">渲染方程求解</h3>
+<p>在了解了概率论基础和蒙特卡洛积分之后，我们来正式求解渲染方程。</p>
+<h4 id="求解过程分析">求解过程分析</h4>
+<p>假设，我们只考虑一个像素点的着色过程，如下图所示。其中，<span
+class="math inline">\({\omega}_o\)</span>
+为观测方向，即从着色点到观测点的方向；<span
+class="math inline">\({\omega}_i\)</span>
+为光线入射方向，即从光源到着色点的方向。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-37.png?x-oss-process=image/resize,w_800" /></p>
+<p>同时，我们先忽略着色点本身的发光项，那么可以得到一个简化的渲染方程，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+L_o(p, {\omega}_o) = \int_{H^2} L_i(p, {\omega}_i) f_r(p, {\omega}_i,
+{\omega}_o) (n \cdot {\omega}_i) d{\omega}_i
+
+\end{aligned}\]</span>
+<p>我们将渲染等价为在半球面上进行采样。因此，任意一点的采样概率 <span
+class="math inline">\(p({\omega}_i)\)</span> 为 <span
+class="math inline">\(1/2\pi\)</span>，即概率分布函数（PDF）。对应，采样值
+<span class="math inline">\(f({\omega}_i)\)</span> 为 <span
+class="math inline">\(L_i(p, {\omega}_i) f_r(p, {\omega}_i, {\omega}_o)
+(n \cdot
+{\omega}_i)\)</span>。由此可以用蒙特卡洛积分来求解渲染方程，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+L_o(p, {\omega}_o) = &amp;
+\int_{H^2}L_i(p, {\omega}_i) f_r(p, {\omega}_i, {\omega}_o) (n \cdot
+{\omega}_i) d{\omega}_i
+\\
+\approx &amp;
+\frac{1}{N} \sum_{i=1}^{N} \frac{f({\omega}_i)}{p({\omega}_i)}
+\\
+\approx &amp;
+\frac{1}{N} \sum_{i=1}^{N} \frac{L_i(p, {\omega}_i) f_r(p, {\omega}_i,
+{\omega}_o) (n \cdot {\omega}_i) }{p({\omega}_i)}
+
+\end{aligned}\]</span>
+<p>根据上述的渲染方程的求解关系式，我们可以实现对应的伪代码，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-38.png?x-oss-process=image/resize,w_800" /></p>
+<p>上述，我们只处理了光的一次弹射，而全局光照还包括二次弹射、三次弹射...我们该如何处理呢？</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-39.png?x-oss-process=image/resize,w_800" /></p>
+<p>上图所示，我们希望计算 Q 点反射到 P
+点的光线。对此，我们可以转换一下思路：Q 点反射到 P 点的光线，不就等于从
+P 点观测 Q 点，Q
+点的着色吗？于是全局光照就转换成了一个递归着色的过程。如下所示，我们加入了处理全局光照的递归着色。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-40.png?x-oss-process=image/resize,w_800" /></p>
+<p>至此，着色算法的整体框架已经实现了，但是还存在两个问题：</p>
+<ul>
+<li>分治爆炸问题</li>
+<li>无限递归问题</li>
+</ul>
+<h4 id="分治爆炸问题">分治爆炸问题</h4>
+<p>在上述算法实现中，对于每一个点的着色，我们都会采样各个方向，而每一个方向所经过的反射点又会采样各个方向。如果我们对于每个点采样
+100 个方向，那么在下一次递归中将会采样 10000
+个方向，依次类推，产生分治爆炸问题。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-41.png?x-oss-process=image/resize,w_800" /></p>
+<p>那么如何解决这个问题？很显然，只有当采样数量为 1
+时，递归时才不会出现分治爆炸问题。在计算机图形学中，对于每个着色点，只通过一条射线进行光线追踪的方式被称为
+<strong>路径追踪</strong>（Path Tracing）。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-42.png?x-oss-process=image/resize,w_800" /></p>
+<p>如下所示，为解决了分支爆炸问题的着色算法。我们不再采样各个方向，而是随机采样一个方向，进而计算着色。然而，我们知道在蒙特卡洛积分中，采样数越小，准确性越低。算法中将采样数降至
+1，很显然，会出现很大的噪声。那么这又该如何解决呢？</p>
+<p>对此，有一种方法另辟蹊径：<strong>每个像素生成多条光线，进行多次路径追踪，并求解平均值</strong>。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-43.png?x-oss-process=image/resize,w_800" /></p>
+<p>如下所示，我们定义了一个 <code>ray_generation</code>
+方法，它以相机位置和像素点作为参数，内部对这个像素点进行多次路径追踪，即调用
+<code>shade</code> 方法，最终求解平均值。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-44.png?x-oss-process=image/resize,w_800" /></p>
+<h4 id="无限递归问题">无限递归问题</h4>
+<p>对于无限递归问题，很显然，我们必须要找到一个停止递归的策略。对此，图形学借鉴了
+<strong>俄罗斯轮盘赌</strong>（Russion Roulette，RR）的思想。</p>
+<p>俄罗斯轮盘赌的基本原理是设定一个概率值 <span class="math inline">\(0
+&lt; P &lt; 1\)</span>。</p>
+<ul>
+<li>射出光线的概率为 <span
+class="math inline">\(P\)</span>，由此返回的着色结果为 <span
+class="math inline">\(L_0/P\)</span></li>
+<li>不射出光线的概率为 <span
+class="math inline">\(1-P\)</span>，由此返回的着色结果为 <span
+class="math inline">\(0\)</span></li>
+</ul>
+<p>使用这种方式，我们仍然可以期望得到 <span
+class="math inline">\(L_0\)</span>，如下所示为俄罗斯轮盘赌的期望公式.</p>
+<span class="math display">\[\begin{aligned}
+E = P * (L_0 / P) + (1 - P) * 0 = L_0
+\end{aligned}\]</span>
+<p>于是，我们可以进一步优化着色算法，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-45.png?x-oss-process=image/resize,w_800" /></p>
+<h4 id="光源采样问题">光源采样问题</h4>
+<p>经过上述改进，着色算法是正确了，但是它并不高效。如下所示，像素采样必须达到一定阈值才能得到相对高质量的结果。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-46.png?x-oss-process=image/resize,w_800" /></p>
+<p>这里的根本原因在于均匀采样，其中只有极少数方向能够打到光源，大多数方向则浪费掉了。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-47.png?x-oss-process=image/resize,w_800" /></p>
+<p>对此，我们可以考虑直接对光源进行采样。考虑到我们在求解蒙特卡洛积分时是在立体角进行采样，因此我们将空间中的面光源投影到球面上，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-48.png?x-oss-process=image/resize,w_800" /></p>
+<p>我们得到立体角和光源微分面积的关系如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+d\omega = \frac{dA cos{\theta}&#39;}{||x&#39; - x||^2}
+
+\end{aligned}\]</span>
+<p>然后，我们微分立体角代入渲染方程，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+L_o(p, {\omega}_o) = &amp;
+\int_{H^2}L_i(p, {\omega}_i) f_r(p, {\omega}_i, {\omega}_o) cos\theta
+d{\omega}_i
+\\
+= &amp;
+\int_{H^2} L_i(p, {\omega}_i) f_r(p, {\omega}_i, {\omega}_o)
+\frac{cos\theta cos{\theta}&#39;}{||x&#39; - x||^2} dA
+
+\end{aligned}\]</span>
+<p>现在，我们认为着色结果来源于两部分：</p>
+<ul>
+<li>光源的直接作用：直接采样光源，无需俄罗斯轮盘赌</li>
+<li>光源的间接作用：反射、漫反射，需要俄罗斯轮盘赌</li>
+</ul>
+<p>由此，我们结合两部分得到如下所示的优化算法。当然，对于光源的直接作用，我们需要判断光源与着色点之间是否存在遮挡，这一点一定要注意。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray-tracing-49.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="总结">总结</h1>
+<p>本文我们主要介绍了光线追踪的原理。首先，我们我们介绍了光线追踪的基本原理，其主要包括：视线生成和像素着色两个阶段。</p>
+<p>然后，我们介绍了经典光线追踪技术，也称为 Whitted-Style
+光线追踪，其引入了间接光照的处理。</p>
+<p>在光线追踪中，主要设计两个关键技术，分别是交点判定和交点渲染。对于交点判定，我们介绍了包围盒原理、统一网格、空间划分、物体划分等技术；对于交点渲染，我们在经典光线追踪的基础上引入了漫反射的处理，整体围绕渲染方程进行展开，使用蒙特卡洛积分进行求解。</p>
+<p>在实现渲染方程算法的过程中，我们遇到了分治爆炸、无限递归、光源采样等问题，对此我们也依次进行了处理。最终实现了一个完整的着色算法。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li>《GAMES 101》</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Whitted-Stype-Ray-Tracing/" rel="tag"># Whitted-Stype Ray Tracing</a>
+              <a href="/tags/%E4%BA%A4%E7%82%B9%E5%88%A4%E5%AE%9A/" rel="tag"># 交点判定</a>
+              <a href="/tags/%E4%BA%A4%E7%82%B9%E6%B8%B2%E6%9F%93/" rel="tag"># 交点渲染</a>
+              <a href="/tags/%E5%8C%85%E5%9B%B4%E7%9B%92/" rel="tag"># 包围盒</a>
+              <a href="/tags/%E8%BD%B4%E5%AF%B9%E9%BD%90%E5%8C%85%E5%9B%B4%E7%9B%92/" rel="tag"># 轴对齐包围盒</a>
+              <a href="/tags/KD-Tree/" rel="tag"># KD-Tree</a>
+              <a href="/tags/BVH/" rel="tag"># BVH</a>
+              <a href="/tags/%E8%92%99%E7%89%B9%E5%8D%A1%E6%B4%9B%E7%A7%AF%E5%88%86/" rel="tag"># 蒙特卡洛积分</a>
+              <a href="/tags/%E8%B7%AF%E5%BE%84%E8%BF%BD%E8%B8%AA/" rel="tag"># 路径追踪</a>
+              <a href="/tags/%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA/" rel="tag"># 光线追踪</a>
+              <a href="/tags/%E4%BF%84%E7%BD%97%E6%96%AF%E8%BD%AE%E7%9B%98%E8%B5%8C/" rel="tag"># 俄罗斯轮盘赌</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/04/20/foundation-of-computer-graphic-07/" rel="prev" title="计算机图形学基础（7）——辐射度量学">
+                  <i class="fa fa-angle-left"></i> 计算机图形学基础（7）——辐射度量学
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">true</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2024/04/27/foundation-of-computer-graphic-08/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
+  }
+}
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+<script src="/live2dwlib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dwassets/tororo.model.json"},"display":{"position":"right","width":150,"height":300,"hOffset":-15,"vOffset":-15},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>
