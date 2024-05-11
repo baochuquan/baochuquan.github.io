@@ -32459,7 +32459,7 @@ href="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/morph-clock/Morp
     <title>如何找到最合适的代码审查者？</title>
     <url>/2024/05/11/git-reviewer/</url>
     <content><![CDATA[<p><img
-src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-reviewer-01.png" /></p>
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-reviewer-01.png?x-oss-process=image/resize,w_800" /></p>
 <span id="more"></span>
 <p>我的日常工作中有相当一部分时间会用于审查团队成员所提交的代码，即 Code
 Review。然而，由我来审查所有代码并不合适，毕竟很多时候我并不了解代码改动的上下文。如果让我重新熟悉别人写的原始逻辑，然后再审查代码改动，很显然是一件费时费力的事情。对此，最好的办法是，针对一次代码提交，合理地找出其最合适的代码审查者。</p>
@@ -32470,7 +32470,7 @@ href="https://github.com/baochuquan/git-reviewer">Git Reviewer</a>。</p>
 <p>我们知道 Git
 使用新增和删除两种操作来表示代码改动。事实上，我们还可以从新增和删除两种操作的排列关系中得出第三种操作——编辑。当删除操作和新增操作相互紧邻，那么我们可以将其归为编辑操作。如下所示的代码差异中包含了新增、编辑、删除三种操作。</p>
 <p><img
-src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-reviewer-03.png" /></p>
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-reviewer-03.png?x-oss-process=image/resize,w_800" /></p>
 <p>Git Reviewer 正是基于这三种操作进行了分析：</p>
 <ul>
 <li><p>对于删除类型，Git Reviewer
@@ -32540,6 +32540,9 @@ Reviewer 建议以代码行占比为依据，对审查者进行排序。</p>
 <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ git reviewer --target=main --reviewer</span><br><span class="line"></span><br><span class="line">$ git reviewer --target=main --author</span><br></pre></td></tr></table></figure>
 <p>为了查看更多分析信息，我们可以加上 --verbose 选项。</p>
 <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ git reviewer --target=main --verbose</span><br></pre></td></tr></table></figure>
+<h1 id="后续">后续</h1>
+<p>目前，Git Reviewer
+仅仅经历了我自己的自测，未来我会在项目上进行实践。如果遇到问题也会逐步进行修复。当然，在使用过程中还会遇到不足之处或者新的痛点，因此会逐步进行完善和迭代。</p>
 ]]></content>
       <categories>
         <category>作品集</category>
