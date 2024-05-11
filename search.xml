@@ -10186,12 +10186,15 @@ gem，这里生成的是 <code>BeverageMaker-0.1.0.gem</code>，并存放在
 <p>在构建生成 gem 后，我们可以对它进行安装，安装命令如下：
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">rake install</span></span><br></pre></td></tr></table></figure></p>
 <p>安装命令默认将 gem 安装在当前使用的 ruby 版本的目录下，我当前的 ruby
-版本是 <code>2.6.5</code>。对此，安装结果如下。 - 可执行文件
-<code>beverage-maker</code> 安装在
-<code>~/.rvm/gems/ruby-2.6.5/bin/</code> 目录下 - BeverageMaker gem
-包安装在 <code>~/.rvm/gems/ruby-2.6.5/gems/</code> 目录下 -
-BeverageMaker 的 gemspec 安装在
-<code>~/.rvm/gems/ruby-2.6.5/specifications/</code> 目录下。</p>
+版本是 <code>2.6.5</code>。对此，安装结果如下。</p>
+<ul>
+<li>可执行文件 <code>beverage-maker</code> 安装在
+<code>~/.rvm/gems/ruby-2.6.5/bin/</code> 目录下</li>
+<li>BeverageMaker gem 包安装在 <code>~/.rvm/gems/ruby-2.6.5/gems/</code>
+目录下</li>
+<li>BeverageMaker 的 gemspec 安装在
+<code>~/.rvm/gems/ruby-2.6.5/specifications/</code> 目录下。</li>
+</ul>
 <blockquote>
 <p>注：也可以使用 <code>gem install pkg/BeverageMaker-0.1.0.gem</code>
 命令进行安装。</p>
@@ -10203,9 +10206,13 @@ src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/bev
 <h1 id="发布">发布</h1>
 <p>一切就绪后，我们可以对 gem 进行发布，发布命令如下：
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">rake release</span></span><br></pre></td></tr></table></figure></p>
-<p><code>rake release</code> 发布命令包含几个步骤： - 构建 gem，并存放至
-<code>pkg</code> 目录下，准备推送至 Rubygems.org。 - 在当前的 commit
-上打上 tag，指定为当前版本号。 - 将代码推送至远程的 git 仓库。</p>
+<p><code>rake release</code> 发布命令包含几个步骤：</p>
+<ul>
+<li>构建 gem，并存放至 <code>pkg</code> 目录下，准备推送至
+Rubygems.org。</li>
+<li>在当前的 commit 上打上 tag，指定为当前版本号。</li>
+<li>将代码推送至远程的 git 仓库。</li>
+</ul>
 <p>执行结果如下所示： <img
 src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/beverage-maker-08.png?x-oss-process=image/resize,w_800" /></p>
 <blockquote>
@@ -20449,12 +20456,14 @@ Inheritance）：少数面向对象编程语言使用基于原型的继承，一
 <p>下图所示，为基于类的继承实现示意图。每个类都有一个类似
 <code>superclass</code> 的指针指向其父类。每个对象都有一个类似
 <code>isa</code> 的指针指向其所属的类。</p>
-<p>此外，每个类都存储了一系列方法，可用于其实例进行查找和共享。关于方法存储方式，不同语言的实现有所不同。
-- 对于 C++
-等语言，每个类会保存所有祖先类的方法地址。因此，在方法查找时，无需沿着继承链进行查找
-- 对于 Ruby、Objective-C
+<p>此外，每个类都存储了一系列方法，可用于其实例进行查找和共享。关于方法存储方式，不同语言的实现有所不同。</p>
+<ul>
+<li>对于 C++
+等语言，每个类会保存所有祖先类的方法地址。因此，在方法查找时，无需沿着继承链进行查找</li>
+<li>对于 Ruby、Objective-C
 等语言，每个类只会保存其所定义的方法地址，而不保存祖先类的方法地址。因此，在方法查找时，会沿着继承链进行查找，这种模式也被称为
-<strong>消息传递</strong>（Message Passing）。</p>
+<strong>消息传递</strong>（Message Passing）。</li>
+</ul>
 <p><img
 src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/prototype-chain-03.png?x-oss-process=image/resize,w_800" /></p>
 <p>在基于原型继承的语言中，没有类的概念，对象可以直接从另一对象继承。中间省略了通过模板创建对象的过程。</p>
@@ -32444,6 +32453,100 @@ href="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/morph-clock/Morp
       </categories>
       <tags>
         <tag>Indie Hacker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>如何找到最合适的代码审查者？</title>
+    <url>/2024/05/11/git-reviewer/</url>
+    <content><![CDATA[<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-reviewer-01.png" /></p>
+<span id="more"></span>
+<p>我的日常工作中有相当一部分时间会用于审查团队成员所提交的代码，即 Code
+Review。然而，由我来审查所有代码并不合适，毕竟很多时候我并不了解代码改动的上下文。如果让我重新熟悉别人写的原始逻辑，然后再审查代码改动，很显然是一件费时费力的事情。对此，最好的办法是，针对一次代码提交，合理地找出其最合适的代码审查者。</p>
+<p>为了解决这个问题，我开发了一个 Git 插件——<a
+href="https://github.com/baochuquan/git-reviewer">Git Reviewer</a>。</p>
+<h1 id="功能">功能</h1>
+<h2 id="核心功能">核心功能</h2>
+<p>我们知道 Git
+使用新增和删除两种操作来表示代码改动。事实上，我们还可以从新增和删除两种操作的排列关系中得出第三种操作——编辑。当删除操作和新增操作相互紧邻，那么我们可以将其归为编辑操作。如下所示的代码差异中包含了新增、编辑、删除三种操作。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/git-reviewer-03.png" /></p>
+<p>Git Reviewer 正是基于这三种操作进行了分析：</p>
+<ul>
+<li><p>对于删除类型，Git Reviewer
+认为删除行的原始作者应该作为每一行的审查者。</p></li>
+<li><p>对于编辑类型，Git Reviewer
+认为此部分中的新增内容应该全部由紧邻的最后删除行的原始作者作为审查者。注意，为什么是最后删除行？因为
+Git 所采用的 Myers
+差分算法默认差分内容优先展示删除操作，其次才是新增操作。因此，从最后的删除行开始，展示的是新增的内容。</p></li>
+<li><p>对于新增类型，Git Reviewer 的策略是基于
+<code>.gitreviewer.yml</code>
+配置文件进行分析。<code>.gitreviewer.yml</code> 文件定义了项目所有者
+<code>project owner</code>、目录所有者
+<code>folder owner</code>、文件所有者 <code>file owner</code>。此时，Git
+Reviewer 会对新增行的文件与 <code>.gitreviewer.yml</code>
+所定义的内容进行匹配。</p>
+<ul>
+<li>如果该文件匹配到了文件所有者，那么相关新增类型优先由文件所有者审查。</li>
+<li>如果该文件匹配到了目录所有者，那么相关新增类型其次由目录所有者审查。</li>
+<li>如果前两者均没有匹配该文件，那么将由项目所有者来进行审查。</li>
+</ul></li>
+</ul>
+<p>基于对上述三种操作类型进行分析，Git Reviewer
+最终将生成一个分析表格，其中罗列了审查者、文件数量、文件占比、代码行数量、代码行占比等信息。Git
+Reviewer 建议以代码行占比为依据，对审查者进行排序。</p>
+<p>如下所示，为核心功能的分析结果示例。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">+------------------------------------------------------------------------+</span><br><span class="line">|                 Suggested reviewers <span class="keyword">for</span> code changes                   |</span><br><span class="line">+--------------------+------------+------------+------------+------------+</span><br><span class="line">| Suggested Reviewer | File Count | File Ratio | Line Count | Line Ratio |</span><br><span class="line">+--------------------+------------+------------+------------+------------+</span><br><span class="line">| developerA         | 5          | 50.0%      | 1000       | 50.0%      |</span><br><span class="line">+--------------------+------------+------------+------------+------------+</span><br><span class="line">| developerB         | 3          | 30.0%      | 500        | 25.0%      |</span><br><span class="line">+--------------------+------------+------------+------------+------------+</span><br><span class="line">| developerC         | 2          | 20.0%      | 500        | 25.0%      |</span><br><span class="line">+--------------------+------------+------------+------------+------------+</span><br></pre></td></tr></table></figure>
+<h2 id="附加功能">附加功能</h2>
+<p>Git Reviewer
+还提供了分析代码改动的所涉及的作者分布的功能。此功能相对简单，其分析了所有删除行的原始作者和新增行的现有作者，并同样以表格的形式呈现，罗列作者、文件数量、文件占比、代码行数量、代码行占比等信息，以供用户进行评估和参考。</p>
+<p>如下所示，为附加功能的分析结果示例。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">+--------------------------------------------------------------------+</span><br><span class="line">|             Relevant authors involved <span class="keyword">in</span> code changes              |</span><br><span class="line">+----------------+------------+------------+------------+------------+</span><br><span class="line">| Related Author | File Count | File Ratio | Line Count | Line Ratio |</span><br><span class="line">+----------------+------------+------------+------------+------------+</span><br><span class="line">| developerA     | 5          | 50.0%      | 2000       | 66.6%      |</span><br><span class="line">+----------------+------------+------------+------------+------------+</span><br><span class="line">| developerB     | 3          | 30.0%      | 500        | 16.7%      |</span><br><span class="line">+----------------+------------+------------+------------+------------+</span><br><span class="line">| developerC     | 2          | 30.0%      | 500        | 16.7%      |</span><br><span class="line">+----------------+------------+------------+------------+------------+</span><br></pre></td></tr></table></figure>
+<h1 id="安装">安装</h1>
+<p>Git Reviewer 支持通过 Homebrew
+进行安装，命令如下所示。当然，这也是建议的安装方式。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ brew install baochuquan/tap/git-reviewer</span><br></pre></td></tr></table></figure>
+<p>或者，也可以通过 Ruby Gem 进行安装，命令如下所示。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ gem install git-reviewer</span><br></pre></td></tr></table></figure>
+<h1 id="使用">使用</h1>
+<p>对于任意 Git 项目，在使用 Git Reviewer
+之前应该先在根目录下执行初始化命令，如下所示。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ git reviewer --init</span><br></pre></td></tr></table></figure>
+<p>该命令会自动创建一个 <code>.gitreviewer.yml</code> 文件，内部定义了
+<code>project_owner</code>，<code>folder_owner</code>，<code>file_owner</code>
+等字段，其中后两者是数组类型，我们可以定义多个
+<code>path</code>、<code>owner</code>
+字段，从而对项目进行更精准的划分。</p>
+<p>此外，<code>.gitreviewer.yml</code> 文件还包含
+<code>ignore_folders</code>、<code>ignore_files</code>
+字段，它们可以定义一系列目录或文件，以避免加入分析，从而影响分析结果。</p>
+<p>如下所示，是一个 <code>.gitreviewer.yml</code>
+的示例，我们可以编辑相关字段，从而实现更精准的分析。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">---</span><br><span class="line">project_owner: admin,</span><br><span class="line">folder_owner:</span><br><span class="line">- owner: developerA,</span><br><span class="line">  path: /path/to/folderA</span><br><span class="line">- owner: developerB</span><br><span class="line">  path: /path/to/folderB</span><br><span class="line"> </span><br><span class="line">file_owner:</span><br><span class="line">- owner: developerC</span><br><span class="line">  path: /path/to/fileC</span><br><span class="line">- owner: developerD</span><br><span class="line">  path: /path/to/fileD</span><br><span class="line"> </span><br><span class="line">ignore_files:</span><br><span class="line">- path/to/file1</span><br><span class="line">- path/to/file2</span><br><span class="line"> </span><br><span class="line">ignore_review_folders:</span><br><span class="line">- path/to/folder1</span><br><span class="line">- path/to/folder2</span><br></pre></td></tr></table></figure>
+<h2 id="分析">分析</h2>
+<p>Git Reviewer 基于两个 Git 分支进行分析，分别是源分支和目标分支。</p>
+<p>源分支，即代码修改所在的分支。默认情况下，Git Reviewer
+自动获取当前所在分支作为源分支。当然，也可以使用选项来指定源分支
+<code>--source=&lt;source-branch&gt;</code>。除了分支名，Git Reviewer
+也支持 Commit ID。</p>
+<p>目标分支，即准备合入的目标分支。对此，Git Reviewer 提供了相关选项
+<code>--target=&lt;target-branch&gt;</code>。</p>
+<p>如下所示是使用 Git Reviewer 进行分析的命令示例。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ git reviewer --target=main</span><br></pre></td></tr></table></figure>
+<p>默认情况下，Git Reviewer
+会同时展示核心功能和附加功能的分析结果。如果我们只希望查看核心功能的结果，可以指定选项
+<code>--reviewer</code>；如果我们只希望查看附加功能的结果，可以指定选项
+<code>--author</code>。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ git reviewer --target=main --reviewer</span><br><span class="line"></span><br><span class="line">$ git reviewer --target=main --author</span><br></pre></td></tr></table></figure>
+<p>为了查看更多分析信息，我们可以加上 --verbose 选项。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ git reviewer --target=main --verbose</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>作品集</category>
+      </categories>
+      <tags>
+        <tag>Myers</tag>
+        <tag>git-reviewer</tag>
       </tags>
   </entry>
 </search>
