@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta property="og:type" content="article">
+<meta property="og:title" content="基于 Threejs 实现 3D 魔方">
+<meta property="og:url" content="http://chuquan.me/2024/06/01/rubiks-cube-01/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-06-01T09:54:33.000Z">
+<meta property="article:modified_time" content="2024-06-01T11:26:13.014Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="Threejs">
+<meta property="article:tag" content="vue">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chuquan.me/2024/06/01/rubiks-cube-01/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2024/06/01/rubiks-cube-01/","path":"2024/06/01/rubiks-cube-01/","title":"基于 Threejs 实现 3D 魔方"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>基于 Threejs 实现 3D 魔方 | 楚权的世界</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
+
+
+
+
+
+
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-rss"><a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%AD%94%E6%96%B9%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">魔方的定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E5%B8%83%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">场景布置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%AD%94%E6%96%B9%E5%BB%BA%E6%A8%A1"><span class="nav-number">3.</span> <span class="nav-text">魔方建模</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%AD%94%E6%96%B9%E6%8E%A7%E5%88%B6"><span class="nav-number">4.</span> <span class="nav-text">魔方控制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%91%E5%90%AC%E9%BC%A0%E6%A0%87%E4%BA%8B%E4%BB%B6"><span class="nav-number">4.1.</span> <span class="nav-text">监听鼠标事件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A1%AE%E5%AE%9A%E8%A7%A6%E7%82%B9%E6%96%B9%E5%9D%97%E4%B8%8E%E5%B9%B3%E9%9D%A2%E6%B3%95%E5%90%91%E9%87%8F"><span class="nav-number">4.2.</span> <span class="nav-text">确定触点方块与平面法向量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A1%AE%E5%AE%9A%E6%97%8B%E8%BD%AC%E6%96%B9%E5%90%91"><span class="nav-number">4.3.</span> <span class="nav-text">确定旋转方向</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A1%AE%E5%AE%9A%E6%97%8B%E8%BD%AC%E5%B9%B3%E9%9D%A2"><span class="nav-number">4.4.</span> <span class="nav-text">确定旋转平面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%97%8B%E8%BD%AC%E5%8A%A8%E7%94%BB"><span class="nav-number">4.5.</span> <span class="nav-text">实现旋转动画</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">145</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">349</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/Baochuquan" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;Baochuquan" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2024/06/01/rubiks-cube-01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="基于 Threejs 实现 3D 魔方 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于 Threejs 实现 3D 魔方
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2024-06-01 17:54:33 / 修改时间：19:26:13" itemprop="dateCreated datePublished" datetime="2024-06-01T17:54:33+08:00">2024-06-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Threejs/" itemprop="url" rel="index"><span itemprop="name">Threejs</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2024/06/01/rubiks-cube-01/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2024/06/01/rubiks-cube-01/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rubiks-cube-12.png?x-oss-process=image/resize,w_800" /></p>
+<span id="more"></span>
+<p>最近这段时间学习了计算机图形学和
+Threejs，为了巩固一下学习效果，同时也希望给<a
+href="https://apps.apple.com/cn/app/%E8%8E%AB%E8%B4%9F%E4%BC%91%E6%81%AF-%E4%BC%91%E6%81%AF%E6%8F%90%E9%86%92/id6474056217?mt=12">「莫负休息」</a>新增主题，于是基于
+Threejs 实现了一个魔方程序。当然，基于 Threejs
+的魔方程序其实早就已经有了，我只不过是站在前人的成果上做了一次实践和总结而已。</p>
+<p>源码传送门——<a
+href="https://github.com/baochuquan/rubiks-cube">Rubiks Cube</a>，Demo
+传送门——<a href="http://rubiks.chuquan.me">rubiks.chuquan.me</a>。</p>
+<h1 id="魔方的定义">魔方的定义</h1>
+<p>魔方（Rubik's Cube），是匈牙利建筑学教授和雕塑鲁比克·埃尔内，于 1974
+年发明的机械益智玩具。</p>
+<p>魔方是一个正立方体，一共 6 个面，对应 6
+种颜色。魔方的官方配色是：白色、红色、橙色、黄色、绿色、蓝色，其中黄白相对，红橙相对，蓝绿相对，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rubiks-cube-01.png?x-oss-process=image/resize,w_800" /></p>
+<p>一个三阶魔方由 3 x 3 x 3 共 27 个方块组成，根据方块的位置，可以分为 3
+种类型，分别是：</p>
+<ul>
+<li>中心块：中心块有 6
+个，位于魔方每面的正中心，只有一种颜色。中心块彼此之间的相对位置不会变化。</li>
+<li>棱块：棱块有 12
+个，位于魔方每个魔方中心块的上下左右，有两种颜色。</li>
+<li>角块：角块有 8 个，位于魔方每个魔方中心块的斜对角，有三种颜色。</li>
+</ul>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rubiks-cube-02.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="场景布置">场景布置</h1>
+<p>对于任意 3D
+场景，我们都需要先对场景中的基本元素进行设置，主要包括：相机、灯光、渲染器。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rubiks-cube-03.png?x-oss-process=image/resize,w_800" /></p>
+<p>首先初始化一个场景
+<code>Scene</code>，后续所有相关元素都将添加至这个场景中，并设置位置坐标。</p>
+<p>然后，我们初始化相机，Threejs
+中有两种相机：正交相机、透视相机。透视相机成像的画面具有近大远小的效果，所以我们这里使用透视相机。当然，相机的位置确立之后，我们还需要确定它的观测方向，这里使用
+<code>lookAt</code> 方法。此外，我们还可以设置相机的视场（Field of
+View），它表示相机的可视角度值，决定了屏幕画面的可视范围。</p>
+<p>对于灯光，这里我只设置了一个环境光，因此无需设置坐标。当然，Threejs
+中有很多光源，比如：点光源、面光源、射线光源等。</p>
+<p>相关的代码实现如下所示。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> scene, camera, renderer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">setupScene</span>(<span class="params"></span>) &#123;</span><br><span class="line">  scene = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Scene</span>();</span><br><span class="line">  scene.<span class="property">background</span> = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Color</span>(<span class="number">0xFFFFFF</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">setupCamera</span>(<span class="params"></span>) &#123;</span><br><span class="line">  camera = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">PerspectiveCamera</span>(</span><br><span class="line">    <span class="number">45</span>,</span><br><span class="line">    <span class="variable language_">window</span>.<span class="property">innerWidth</span> / <span class="variable language_">window</span>.<span class="property">innerHeight</span>,</span><br><span class="line">    <span class="number">0.1</span>, </span><br><span class="line">    <span class="number">1000</span></span><br><span class="line">  );</span><br><span class="line">  camera.<span class="property">position</span>.<span class="title function_">set</span>(<span class="number">10</span>, <span class="number">12</span>, <span class="number">10</span>);</span><br><span class="line">  camera.<span class="title function_">lookAt</span>(<span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>);</span><br><span class="line">  camera.<span class="property">fov</span> = <span class="number">45</span></span><br><span class="line">  camera.<span class="title function_">updateProjectionMatrix</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">setupLights</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> ambientLight = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">AmbientLight</span>(<span class="number">0xFFFFFF</span>);</span><br><span class="line">  scene.<span class="title function_">add</span>(ambientLight);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后，我们还需要定义一个渲染器。通过渲染器我们才能够将 3D
+场景的渲染结果并绑定至 2D
+平面，相关代码如下所示。在具体实现中，我们将渲染器的 DOM 元素绑定至
+<code>body</code> 中，这样我们才能在 2D 网页中看到渲染效果。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">setupRenderer</span>(<span class="params"></span>) &#123;</span><br><span class="line">  renderer = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">WebGLRenderer</span>(&#123;</span><br><span class="line">    <span class="attr">antialias</span>: <span class="literal">true</span></span><br><span class="line">  &#125;);</span><br><span class="line">  renderer.<span class="title function_">setSize</span>(<span class="variable language_">window</span>.<span class="property">innerWidth</span>, <span class="variable language_">window</span>.<span class="property">innerHeight</span>);</span><br><span class="line">  <span class="variable language_">document</span>.<span class="property">body</span>.<span class="title function_">appendChild</span>(renderer.<span class="property">domElement</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>另外，为了方便查看空间效果，一般我们会创建一个轨道控制器。基于轨道控制器，我们可以通过鼠标旋转整个空间坐标系，从而可以在不同角度进行观测，相关代码如下所示。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> controller;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">setupControls</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="comment">// 初始化控制器</span></span><br><span class="line">  controller = <span class="keyword">new</span> <span class="title class_">OrbitControls</span>(camera, renderer.<span class="property">domElement</span>);</span><br><span class="line">  controller.<span class="property">enableDamping</span> = <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="魔方建模">魔方建模</h1>
+<p>完成了场景布置之后，我们将在空间中对魔方进行建模。建模的过程非常简单，只需创建
+3 x 3 x 3 共 27
+个立方体即可，每个立方体的表面使用贴图作为材质。为了便于后续旋转魔方时获取同一平面中的
+9 个立方体，我们在建模时会对每个立方体设置编号索引，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rubiks-cube-04.png?x-oss-process=image/resize,w_800" /></p>
+<p>魔方建模的实现代码如下所示。 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建立方体，并加入场景</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">setupCubes</span>(<span class="params"></span>) &#123;</span><br><span class="line">  cubes = <span class="title function_">createCube</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; cubes.<span class="property">length</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">var</span> cube = cubes[i];</span><br><span class="line">    scene.<span class="title function_">add</span>(cube);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建立方体，设置空间左边，使用贴图作为材质</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">createCube</span>(<span class="params">x, y, z, num, len</span>) &#123;</span><br><span class="line">  <span class="comment">// 魔方左上角坐标</span></span><br><span class="line">  <span class="keyword">var</span> leftUpX = x - num / <span class="number">2</span> * len;</span><br><span class="line">  <span class="keyword">var</span> leftUpY = y + num / <span class="number">2</span> * len;</span><br><span class="line">  <span class="keyword">var</span> leftUpZ = z + num / <span class="number">2</span> * len;</span><br><span class="line">  <span class="comment">// 根据颜色生成材质</span></span><br><span class="line">  <span class="keyword">const</span> loader = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">TextureLoader</span>();</span><br><span class="line">  <span class="keyword">const</span> textures = [</span><br><span class="line">    loader.<span class="title function_">load</span>(<span class="string">&quot;./img/blue.png&quot;</span>),</span><br><span class="line">    loader.<span class="title function_">load</span>(<span class="string">&quot;./img/green.png&quot;</span>),</span><br><span class="line">    loader.<span class="title function_">load</span>(<span class="string">&quot;./img/yellow.png&quot;</span>),</span><br><span class="line">    loader.<span class="title function_">load</span>(<span class="string">&quot;./img/white.png&quot;</span>),</span><br><span class="line">    loader.<span class="title function_">load</span>(<span class="string">&quot;./img/orange.png&quot;</span>),</span><br><span class="line">    loader.<span class="title function_">load</span>(<span class="string">&quot;./img/red.png&quot;</span>),</span><br><span class="line">  ];</span><br><span class="line">  <span class="keyword">const</span> materials = textures.<span class="title function_">map</span>(<span class="function"><span class="params">texture</span> =&gt;</span> <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">MeshBasicMaterial</span>(&#123; <span class="attr">map</span>: texture &#125;));</span><br><span class="line">  <span class="comment">// 生成小方块</span></span><br><span class="line">  <span class="keyword">var</span> cubes = [];</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; num; i++) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> j = <span class="number">0</span>; j &lt; num * num; j++) &#123;</span><br><span class="line">      <span class="keyword">var</span> box = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">BoxGeometry</span>(len, len, len);</span><br><span class="line">      <span class="keyword">var</span> mesh = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Mesh</span>(box, materials);</span><br><span class="line">      <span class="comment">// 依次计算各个小方块中心点坐标</span></span><br><span class="line">      mesh.<span class="property">position</span>.<span class="property">x</span> = (leftUpX + len / <span class="number">2</span>) + (j % num) * len;</span><br><span class="line">      mesh.<span class="property">position</span>.<span class="property">y</span> = (leftUpY - len / <span class="number">2</span>) - <span class="built_in">parseInt</span>(j / num) * len;</span><br><span class="line">      mesh.<span class="property">position</span>.<span class="property">z</span> = (leftUpZ - len / <span class="number">2</span>) - i * len;</span><br><span class="line">      mesh.<span class="property">tag</span> = i * <span class="number">9</span> + j;</span><br><span class="line">      cubes.<span class="title function_">push</span>(mesh);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> cubes;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>至此，魔方建模实现完成，完整的代码可以参考 <a
+href="https://github.com/baochuquan/rubiks-cube/blob/main/src/components/RubiksCube01.vue">RubiksCube01.vue</a>
+文件。</p>
+<h1 id="魔方控制">魔方控制</h1>
+<p>魔方控制是基于鼠标实现的，核心思想分为以下几个步骤：</p>
+<ul>
+<li>首先，通过鼠标触点确定触点目标方块和触点平面法向量</li>
+<li>其次，根据鼠标移动方向和触点平面法向量确定旋转方向</li>
+<li>然后，通过旋转方向和触点目标方块获取整个旋转平面</li>
+<li>最后，对整个旋转平面中的所有方块执行旋转动画</li>
+</ul>
+<h2 id="监听鼠标事件">监听鼠标事件</h2>
+<p>鼠标事件是控制魔方的基础，因此我们需要实现鼠标事件的监听。相关实现如下所示，我们同时处理了鼠标控制和触摸控制两种情况。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">setupEvents</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;mousedown&#x27;</span>, startMouse);</span><br><span class="line">  <span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;mousemove&#x27;</span>, moveMouse);</span><br><span class="line">  <span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;mouseup&#x27;</span>, stopMouse);</span><br><span class="line">  <span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;touchstart&#x27;</span>, startMouse);</span><br><span class="line">  <span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;touchmove&#x27;</span>, moveMouse);</span><br><span class="line">  <span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;touchend&#x27;</span>, stopMouse);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="确定触点方块与平面法向量">确定触点方块与平面法向量</h2>
+<p>对于确定目标触点方块和平面法向量，这里有两个问题：</p>
+<ul>
+<li>如何通过二维平面中的鼠标位置确定三维空间中的位置呢？</li>
+<li>立方体的位置不固定，那么该如何确定触点平面的方向呢？</li>
+</ul>
+<p>对于第一个问题，解决方法是
+<strong>射线</strong>（Raycaster），其基本原理是：通过相机位置和鼠标位置确定三维空间中的一根射线，延伸射线，找到三维空间中与射线相交的物体，根据自定义规则（比如：第一个）来找到目标物体。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rubiks-cube-05.png?x-oss-process=image/resize,w_800" /></p>
+<p>对于第二个问题，我们首先需要了解一下 Threejs 中的坐标系统： -
+全局坐标系：也称世界坐标系，是整个 3D 场景的坐标系。 -
+局部坐标系：也称物体坐标系。在 iOS/Android 中存在视图层级树，在 Threejs
+中同样存在场景层级树，整个 3D
+场景是根场景，空间中的物体可以作为子场景，子场景又可以继续添加场景。每个场景有自己的坐标系，当对一个场景进行仿射变换，那么它的子场景也会发生仿射变换，这就是物体坐标系的作用。</p>
+<p>由于魔方旋转过程中，每个立方体自身的也在不停的旋转和移动，此时每个物体的局部坐标系也会发生变换，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rubiks-cube-06.png?x-oss-process=image/resize,w_800" /></p>
+<p>此时，如果基于目标立方体获取其表面法向量，那么获取到的法向量是基于局部坐标系的，不具备全局意义。因此，我们必须要将基于
+<strong>局部坐标系</strong> 的表面法向量转换成基于
+<strong>全局坐标系</strong> 的表面法向量。</p>
+<p>对此，有两种解决方法：</p>
+<ul>
+<li>对基于局部坐标系的法向量通过矩阵变换，转换成基于全局坐标系。</li>
+<li>增加一个固定不变的透明物体，通过射线获取其表面法向量，以代表立方体的表面法向量。</li>
+</ul>
+<p>对于前者，我们需要记录立方体从原始位置到当前位置的所有变换操作，再对基于局部坐标系的法向量做逆变换。这种方案实现难度且计算量都很大。</p>
+<p>对于后者，其实现难度显然更低。我们只需创建一个透明的立方体，其大小与魔方整体相同，如下图所示。当判断表面法向量时，通过该透明立方体获取即可，由此得到的是基于全局坐标系的法向量。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rubiks-cube-07.png?x-oss-process=image/resize,w_800" /></p>
+<p>如下所示为确定触点方块与平面法向量的核心代码逻辑。 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">setupRubiks</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="comment">// 透明正方体</span></span><br><span class="line">  <span class="keyword">let</span> box = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">BoxGeometry</span>(<span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>);</span><br><span class="line">  <span class="keyword">let</span> mesh = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">MeshBasicMaterial</span>(&#123;<span class="attr">vertexColors</span>: <span class="variable constant_">THREE</span>.<span class="property">FaceColors</span>, <span class="attr">opacity</span>: <span class="number">0</span>, <span class="attr">transparent</span>: <span class="literal">true</span>&#125;);</span><br><span class="line">  rubiks = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Mesh</span>(box, mesh);</span><br><span class="line">  rubiks.<span class="property">cubeType</span> = <span class="string">&#x27;coverCube&#x27;</span>;</span><br><span class="line">  scene.<span class="title function_">add</span>(rubiks);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 获取操作焦点以及该焦点所在平面的法向量 </span></span><br><span class="line"><span class="comment"> * */</span> </span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getIntersectAndNormalize</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> mouse = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Vector2</span>();</span><br><span class="line">  <span class="keyword">if</span> (event.<span class="property">touches</span>) &#123;</span><br><span class="line">    <span class="comment">// 触摸事件</span></span><br><span class="line">    <span class="keyword">var</span> touch = event.<span class="property">touches</span>[<span class="number">0</span>];</span><br><span class="line">    mouse.<span class="property">x</span> = (touch.<span class="property">clientX</span> / <span class="variable language_">window</span>.<span class="property">innerWidth</span>) * <span class="number">2</span> - <span class="number">1</span>;</span><br><span class="line">    mouse.<span class="property">y</span> = -(touch.<span class="property">clientY</span> / <span class="variable language_">window</span>.<span class="property">innerHeight</span>) * <span class="number">2</span> + <span class="number">1</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 鼠标事件</span></span><br><span class="line">    mouse.<span class="property">x</span> = (event.<span class="property">clientX</span> / <span class="variable language_">window</span>.<span class="property">innerWidth</span>) * <span class="number">2</span> - <span class="number">1</span>;</span><br><span class="line">    mouse.<span class="property">y</span> = -(event.<span class="property">clientY</span> / <span class="variable language_">window</span>.<span class="property">innerHeight</span>) * <span class="number">2</span> + <span class="number">1</span>;</span><br><span class="line">  &#125; </span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> raycaster = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Raycaster</span>();</span><br><span class="line">  raycaster.<span class="title function_">setFromCamera</span>(mouse, camera);</span><br><span class="line">  <span class="comment">// Raycaster方式定位选取元素，可能会选取多个，以第一个为准</span></span><br><span class="line">  <span class="keyword">var</span> intersects = raycaster.<span class="title function_">intersectObjects</span>(scene.<span class="property">children</span>);</span><br><span class="line">  <span class="keyword">var</span> intersect, normalize;</span><br><span class="line">  <span class="keyword">if</span> (intersects.<span class="property">length</span>) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (intersects[<span class="number">0</span>].<span class="property">object</span>.<span class="property">cubeType</span> === <span class="string">&#x27;coverCube&#x27;</span>) &#123;</span><br><span class="line">        intersect = intersects[<span class="number">1</span>];</span><br><span class="line">        normalize = intersects[<span class="number">0</span>].<span class="property">face</span>.<span class="property">normal</span>;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        intersect = intersects[<span class="number">0</span>];</span><br><span class="line">        normalize = intersects[<span class="number">1</span>].<span class="property">face</span>.<span class="property">normal</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span>(err) &#123;</span><br><span class="line">      <span class="comment">//nothing</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> &#123;<span class="attr">intersect</span>: intersect, <span class="attr">normalize</span>: normalize&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="确定旋转方向">确定旋转方向</h2>
+<p>下面，我们基于触点目标方块、表面法向量，再结合鼠标移动方向，计算旋转方向。具体实现原理主要包括以下几个步骤：</p>
+<ul>
+<li>计算鼠标的平移向量</li>
+<li>判断平移向量与全局坐标系 6 个方向之间的夹角，选择夹角最小的方向</li>
+<li>结合表面法向量，确定旋转方向</li>
+</ul>
+<p>为什么要结合表面法向量来确定旋转方向？因为同一平移向量时，表面法向量不同，则魔方的旋转方向也不同。如下所示，当鼠标平移方向接近
+<code>x</code> 轴方向，如果表面法向量与 <code>z</code>
+轴方向相同，那么魔方将环绕 <code>y</code>
+轴进行逆时针旋转；如果表面法向量与 <code>y</code>
+轴方向相同，那么魔方将环绕 <code>z</code> 轴进行顺时针旋转。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rubiks-cube-08.png?x-oss-process=image/resize,w_800" /></p>
+<p>如下所示，为判断魔方旋转方向的代码逻辑。我们根据不同的拖拽方向分情况讨论，最终确定魔方的
+6 种旋转方向。 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 魔方转动的六个方向</span></span><br><span class="line"><span class="keyword">const</span> xLine = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Vector3</span>( <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span> );     <span class="comment">// X轴正方向</span></span><br><span class="line"><span class="keyword">const</span> xLineAd = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Vector3</span>( -<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span> );  <span class="comment">// X轴负方向</span></span><br><span class="line"><span class="keyword">const</span> yLine = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Vector3</span>( <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span> );     <span class="comment">// Y轴正方向</span></span><br><span class="line"><span class="keyword">const</span> yLineAd = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Vector3</span>( <span class="number">0</span>, -<span class="number">1</span>, <span class="number">0</span> );  <span class="comment">// Y轴负方向</span></span><br><span class="line"><span class="keyword">const</span> zLine = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Vector3</span>( <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span> );     <span class="comment">// Z轴正方向</span></span><br><span class="line"><span class="keyword">const</span> zLineAd = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Vector3</span>( <span class="number">0</span>, <span class="number">0</span>, -<span class="number">1</span> );  <span class="comment">// Z轴负方向</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 获得旋转方向</span></span><br><span class="line"><span class="comment"> * vector3: 鼠标滑动的方向</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getDirection</span>(<span class="params">vector3</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> direction;</span><br><span class="line">  <span class="comment">// 判断差向量和 x、y、z 轴的夹角</span></span><br><span class="line">  <span class="keyword">var</span> xAngle = vector3.<span class="title function_">angleTo</span>(xLine);</span><br><span class="line">  <span class="keyword">var</span> xAngleAd = vector3.<span class="title function_">angleTo</span>(xLineAd);</span><br><span class="line">  <span class="keyword">var</span> yAngle = vector3.<span class="title function_">angleTo</span>(yLine);</span><br><span class="line">  <span class="keyword">var</span> yAngleAd = vector3.<span class="title function_">angleTo</span>(yLineAd);</span><br><span class="line">  <span class="keyword">var</span> zAngle = vector3.<span class="title function_">angleTo</span>(zLine);</span><br><span class="line">  <span class="keyword">var</span> zAngleAd = vector3.<span class="title function_">angleTo</span>(zLineAd);</span><br><span class="line">  <span class="keyword">var</span> minAngle = <span class="title class_">Math</span>.<span class="title function_">min</span>(...[xAngle, xAngleAd, yAngle, yAngleAd, zAngle, zAngleAd]);  <span class="comment">// 最小夹角</span></span><br><span class="line">  <span class="keyword">switch</span>(minAngle)&#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="attr">xAngle</span>:</span><br><span class="line">      direction = <span class="number">10</span>;  <span class="comment">// 向x轴正方向旋转90度（还要区分是绕z轴还是绕y轴）</span></span><br><span class="line">      <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(yLine)) &#123;</span><br><span class="line">        direction = direction + <span class="number">5</span>;  <span class="comment">// 绕z轴顺时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(yLineAd)) &#123;</span><br><span class="line">        direction = direction + <span class="number">6</span>;  <span class="comment">// 绕z轴逆时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(zLine)) &#123;</span><br><span class="line">        direction = direction + <span class="number">4</span>;  <span class="comment">// 绕y轴逆时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(zLineAd)) &#123;</span><br><span class="line">        direction = direction + <span class="number">3</span>;  <span class="comment">// 绕y轴顺时针</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="attr">xAngleAd</span>:</span><br><span class="line">      direction = <span class="number">20</span>;  <span class="comment">// 向x轴反方向旋转90度</span></span><br><span class="line">      <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(yLine)) &#123;</span><br><span class="line">        direction = direction + <span class="number">6</span>;  <span class="comment">// 绕z轴逆时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(yLineAd)) &#123;</span><br><span class="line">        direction = direction + <span class="number">5</span>;  <span class="comment">// 绕z轴顺时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(zLine)) &#123;</span><br><span class="line">        direction = direction + <span class="number">3</span>;  <span class="comment">// 绕y轴顺时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(zLineAd)) &#123;</span><br><span class="line">        direction = direction + <span class="number">4</span>;  <span class="comment">// 绕y轴逆时针</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="attr">yAngle</span>:</span><br><span class="line">      direction = <span class="number">30</span>;  <span class="comment">// 向y轴正方向旋转90度</span></span><br><span class="line">      <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(zLine)) &#123;</span><br><span class="line">        direction = direction + <span class="number">1</span>;  <span class="comment">// 绕x轴顺时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(zLineAd)) &#123;</span><br><span class="line">        direction = direction + <span class="number">2</span>;  <span class="comment">// 绕x轴逆时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(xLine)) &#123;</span><br><span class="line">        direction = direction + <span class="number">6</span>;  <span class="comment">// 绕z轴逆时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        direction = direction + <span class="number">5</span>;  <span class="comment">// 绕z轴顺时针</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="attr">yAngleAd</span>:</span><br><span class="line">      direction = <span class="number">40</span>;  <span class="comment">// 向y轴反方向旋转90度</span></span><br><span class="line">      <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(zLine)) &#123;</span><br><span class="line">        direction = direction + <span class="number">2</span>;  <span class="comment">// 绕x轴逆时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(zLineAd)) &#123;</span><br><span class="line">        direction = direction + <span class="number">1</span>;  <span class="comment">// 绕x轴顺时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(xLine)) &#123;</span><br><span class="line">        direction = direction + <span class="number">5</span>;  <span class="comment">// 绕z轴顺时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        direction = direction + <span class="number">6</span>;  <span class="comment">// 绕z轴逆时针</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="attr">zAngle</span>:</span><br><span class="line">      direction = <span class="number">50</span>;  <span class="comment">// 向z轴正方向旋转90度</span></span><br><span class="line">      <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(yLine)) &#123;</span><br><span class="line">        direction = direction + <span class="number">2</span>;  <span class="comment">// 绕x轴逆时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(yLineAd)) &#123;</span><br><span class="line">        direction = direction + <span class="number">1</span>;  <span class="comment">// 绕x轴顺时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(xLine)) &#123;</span><br><span class="line">        direction = direction + <span class="number">3</span>;  <span class="comment">// 绕y轴顺时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(xLineAd)) &#123;</span><br><span class="line">        direction = direction + <span class="number">4</span>;  <span class="comment">// 绕y轴逆时针</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="attr">zAngleAd</span>:</span><br><span class="line">      direction = <span class="number">60</span>;  <span class="comment">// 向z轴反方向旋转90度</span></span><br><span class="line">      <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(yLine)) &#123;</span><br><span class="line">        direction = direction + <span class="number">1</span>;  <span class="comment">// 绕x轴顺时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(yLineAd)) &#123;</span><br><span class="line">        direction = direction + <span class="number">2</span>;  <span class="comment">// 绕x轴逆时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(xLine)) &#123;</span><br><span class="line">        direction = direction + <span class="number">4</span>;  <span class="comment">// 绕y轴逆时针</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (normalize.<span class="title function_">equals</span>(xLineAd)) &#123;</span><br><span class="line">        direction = direction + <span class="number">3</span>;  <span class="comment">// 绕y轴顺时针</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="attr">default</span>:</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> direction;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="确定旋转平面">确定旋转平面</h2>
+<p>随后，我们可以根据触点目标方块的位置，结合旋转方向，找到与它同一旋转平面的立方体。比如，对于绕
+<code>x</code> 轴旋转时，我们只需要找到所有与触点目标方块的
+<code>x</code> 坐标相同的立方体即可。相关实现如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rubiks-cube-11.png?x-oss-process=image/resize,w_800" /></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 根据立方体和旋转方向，找到同一平面上的所有立方体</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getPlaneCubes</span>(<span class="params">cube, direction</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> results = [];</span><br><span class="line">  <span class="keyword">let</span> orientation = direction % <span class="number">10</span>;</span><br><span class="line">  <span class="keyword">let</span> radians = (orientation % <span class="number">2</span> == <span class="number">1</span>) ? <span class="number">90</span> : -<span class="number">90</span>;</span><br><span class="line">  <span class="keyword">switch</span> (orientation) &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">      <span class="comment">// 绕x轴</span></span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; cubes.<span class="property">length</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">let</span> curr = cubes[i];</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(curr.<span class="property">position</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="title class_">Math</span>.<span class="title function_">abs</span>(curr.<span class="property">position</span>.<span class="property">x</span> - cube.<span class="property">position</span>.<span class="property">x</span>) &lt; <span class="number">0.2</span>) &#123;</span><br><span class="line">          results.<span class="title function_">push</span>(curr);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">    <span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">      <span class="comment">// 绕y轴</span></span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; cubes.<span class="property">length</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">let</span> curr = cubes[i];</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(curr.<span class="property">position</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="title class_">Math</span>.<span class="title function_">abs</span>(curr.<span class="property">position</span>.<span class="property">y</span> - cube.<span class="property">position</span>.<span class="property">y</span>) &lt; <span class="number">0.2</span>) &#123;</span><br><span class="line">          results.<span class="title function_">push</span>(curr);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">5</span>:</span><br><span class="line">    <span class="keyword">case</span> <span class="number">6</span>:</span><br><span class="line">      <span class="comment">// 绕z轴</span></span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; cubes.<span class="property">length</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">let</span> curr = cubes[i];</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(curr.<span class="property">position</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="title class_">Math</span>.<span class="title function_">abs</span>(curr.<span class="property">position</span>.<span class="property">z</span> - cube.<span class="property">position</span>.<span class="property">z</span>) &lt; <span class="number">0.2</span>) &#123;</span><br><span class="line">          results.<span class="title function_">push</span>(curr);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> results;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="实现旋转动画">实现旋转动画</h2>
+<p>最后，我们需要实现旋转动画。对此，我们首先定义动画时长，根据当前时长与动画时长的比例，计算当前旋转角度的比例，并更新位置，从而实现旋转效果。关于旋转变换，我们在
+<a
+href="https://chuquan.me/2024/01/18/foundation-of-computer-graphic-02/#%E6%97%8B%E8%BD%AC%E5%8F%98%E6%8D%A2">《计算机图形学基础（2）——变换》</a>
+一文中也介绍过。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rubiks-cube-09.png?x-oss-process=image/resize,w_800" /></p>
+<p>我们以 2D
+平面中的物体旋转来推导旋转矩阵。上图所示，我们将左边的图片进行旋转得到右边的图片，那么我们必须求解如下所示的矩阵运算公式，其中
+<span class="math inline">\(A\)</span>、<span
+class="math inline">\(B\)</span>、<span
+class="math inline">\(C\)</span>、<span class="math inline">\(D\)</span>
+为待求解的变量。</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+x&#39; \\
+y&#39;
+\end{matrix}
+\right)
+=
+\left(
+\begin{matrix}
+A &amp; B \\
+C &amp; D \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+x \\
+y
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rubiks-cube-10.png?x-oss-process=image/resize,w_800" /></p>
+<p>为了求解 <span class="math inline">\(A\)</span>、<span
+class="math inline">\(B\)</span>、<span
+class="math inline">\(C\)</span>、<span class="math inline">\(D\)</span>
+四个变量，我们将以 <span class="math inline">\((0, 1)\)</span> 和 <span
+class="math inline">\((1, 0)\)</span> 两个点的旋转为例求解方程。</p>
+<p>对于 <span class="math inline">\((0, 1)\)</span>
+点的旋转，我们可以得到如下方程：</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+-sin \theta
+\\
+cos \theta
+\end{matrix}
+\right)
+=
+\left(
+\begin{matrix}
+A &amp; B \\
+C &amp; D \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+0 \\
+1
+\end{matrix}
+\right)
+
+\\
+-sin \theta = A * 0 + B * 1 = B
+\\
+cos \theta = C * 0 + D * 1 = D
+\end{aligned}\]</span>
+<p>对于 <span class="math inline">\((1, 0)\)</span>
+点的旋转，我们可以得到如下方程：</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+cos \theta
+\\
+sin \theta
+\end{matrix}
+\right)
+=
+\left(
+\begin{matrix}
+A &amp; B \\
+C &amp; D \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+1 \\
+0
+\end{matrix}
+\right)
+
+\\
+cos \theta = A * 1 + B * 0 = A
+\\
+sin \theta = C * 1 + D * 0 = C
+\end{aligned}\]</span>
+<p>至此 <span class="math inline">\(A\)</span>、<span
+class="math inline">\(B\)</span>、<span
+class="math inline">\(C\)</span>、<span class="math inline">\(D\)</span>
+四个变量均已求解，由此得到旋转矩阵如下：</p>
+<span class="math display">\[\begin{aligned}
+\left(
+\begin{matrix}
+x&#39;
+\\
+y&#39;
+\end{matrix}
+\right)
+=
+\left(
+\begin{matrix}
+cos\theta &amp; -sin\theta \\
+sin\theta &amp; cos\theta \\
+\end{matrix}
+\right)
+\left(
+\begin{matrix}
+1 \\
+0
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p>进而得到 <span class="math inline">\(x&#39;\)</span> 和 <span
+class="math inline">\(y&#39;\)</span> 的计算公式如下：</p>
+<span class="math display">\[\begin{aligned}
+x&#39; = cos\theta x - sin\theta y
+\\
+y&#39; = sin\theta x + cos\theta y
+\end{aligned}\]</span>
+<p>由于魔方的旋转都是沿着一个轴进行旋转，所以我们可以将它看成三种情况的
+2D 平面旋转，由此得到如下 3 个旋转方法。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">rotateAroundWorldX</span>(<span class="params">cube, rad</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> y0 = cube.<span class="property">position</span>.<span class="property">y</span>;</span><br><span class="line">    <span class="keyword">var</span> z0 = cube.<span class="property">position</span>.<span class="property">z</span>;</span><br><span class="line">    <span class="keyword">var</span> q = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Quaternion</span>(); </span><br><span class="line">    q.<span class="title function_">setFromAxisAngle</span>(<span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Vector3</span>( <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span> ), rad);</span><br><span class="line">    cube.<span class="property">quaternion</span>.<span class="title function_">premultiply</span>(q);</span><br><span class="line">    cube.<span class="property">position</span>.<span class="property">y</span> = <span class="title class_">Math</span>.<span class="title function_">cos</span>(rad) * y0 - <span class="title class_">Math</span>.<span class="title function_">sin</span>(rad) * z0;</span><br><span class="line">    cube.<span class="property">position</span>.<span class="property">z</span> = <span class="title class_">Math</span>.<span class="title function_">cos</span>(rad) * z0 + <span class="title class_">Math</span>.<span class="title function_">sin</span>(rad) * y0;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">rotateAroundWorldY</span>(<span class="params">cube, rad</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> x0 = cube.<span class="property">position</span>.<span class="property">x</span>;</span><br><span class="line">    <span class="keyword">var</span> z0 = cube.<span class="property">position</span>.<span class="property">z</span>;</span><br><span class="line">    <span class="keyword">var</span> q = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Quaternion</span>(); </span><br><span class="line">    q.<span class="title function_">setFromAxisAngle</span>(<span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Vector3</span>( <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span> ), rad);</span><br><span class="line">    cube.<span class="property">quaternion</span>.<span class="title function_">premultiply</span>( q );</span><br><span class="line">    cube.<span class="property">position</span>.<span class="property">x</span> = <span class="title class_">Math</span>.<span class="title function_">cos</span>(rad) * x0 + <span class="title class_">Math</span>.<span class="title function_">sin</span>(rad) * z0;</span><br><span class="line">    cube.<span class="property">position</span>.<span class="property">z</span> = <span class="title class_">Math</span>.<span class="title function_">cos</span>(rad) * z0 - <span class="title class_">Math</span>.<span class="title function_">sin</span>(rad) * x0;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">rotateAroundWorldZ</span>(<span class="params">cube, rad</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> x0 = cube.<span class="property">position</span>.<span class="property">x</span>;</span><br><span class="line">    <span class="keyword">var</span> y0 = cube.<span class="property">position</span>.<span class="property">y</span>;</span><br><span class="line">    <span class="keyword">var</span> q = <span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Quaternion</span>(); </span><br><span class="line">    q.<span class="title function_">setFromAxisAngle</span>(<span class="keyword">new</span> <span class="variable constant_">THREE</span>.<span class="title class_">Vector3</span>( <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span> ), rad);</span><br><span class="line">    cube.<span class="property">quaternion</span>.<span class="title function_">premultiply</span>( q );</span><br><span class="line">    cube.<span class="property">position</span>.<span class="property">x</span> = <span class="title class_">Math</span>.<span class="title function_">cos</span>(rad) * x0 - <span class="title class_">Math</span>.<span class="title function_">sin</span>(rad) * y0;</span><br><span class="line">    cube.<span class="property">position</span>.<span class="property">y</span> = <span class="title class_">Math</span>.<span class="title function_">cos</span>(rad) * y0 + <span class="title class_">Math</span>.<span class="title function_">sin</span>(rad) * x0;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>由于这几个方法仅仅旋转物体、更新坐标，实际上我们需要在一段时间内连续进行调用，从而实现一个完整的旋转动画，具体的调用实现如下所示。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">rotateAnimation</span>(<span class="params">cubes, direction, currentstamp, startstamp, laststamp</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span>(startstamp === <span class="number">0</span>)&#123;</span><br><span class="line">        startstamp = currentstamp;</span><br><span class="line">        laststamp = currentstamp;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(currentstamp - startstamp &gt;= rotateDuration)&#123;</span><br><span class="line">      currentstamp = startstamp + rotateDuration;</span><br><span class="line">      isRotating = <span class="literal">false</span>;</span><br><span class="line">      startPoint = <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> orientation = direction % <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">let</span> radians = (orientation % <span class="number">2</span> == <span class="number">1</span>) ? -<span class="number">90</span> : <span class="number">90</span>;</span><br><span class="line">    <span class="keyword">switch</span> (orientation) &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">      <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; cubes.<span class="property">length</span>; i++) &#123;</span><br><span class="line">          <span class="title function_">rotateAroundWorldX</span>(cubes[i], radians * <span class="title class_">Math</span>.<span class="property">PI</span> / <span class="number">180</span> * (currentstamp - laststamp) / rotateDuration);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">      <span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; cubes.<span class="property">length</span>; i++) &#123;</span><br><span class="line">          <span class="title function_">rotateAroundWorldY</span>(cubes[i], radians * <span class="title class_">Math</span>.<span class="property">PI</span> / <span class="number">180</span> * (currentstamp - laststamp) / rotateDuration);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">5</span>:</span><br><span class="line">      <span class="keyword">case</span> <span class="number">6</span>:</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; cubes.<span class="property">length</span>; i++) &#123;</span><br><span class="line">          <span class="title function_">rotateAroundWorldZ</span>(cubes[i], radians * <span class="title class_">Math</span>.<span class="property">PI</span> / <span class="number">180</span> * (currentstamp - laststamp) / rotateDuration);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(currentstamp - startstamp &lt; rotateDuration)&#123;</span><br><span class="line">      <span class="title function_">requestAnimationFrame</span>(<span class="function">(<span class="params">timestamp</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="title function_">rotateAnimation</span>(cubes, direction, timestamp, startstamp, currentstamp);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>至此，我们实现了通过鼠标控制魔方的旋转，完整的代码可以参考 <a
+href="https://github.com/baochuquan/rubiks-cube/blob/main/src/components/RubiksCube02.vue">RubiksCube02.vue</a>
+文件。</p>
+<h1 id="总结">总结</h1>
+<p>本文我们基于 Threejs 实现了一个 3D
+魔方，并支持了通过鼠标控制魔方旋转的功能。后续，我们将进一步介绍如何实现魔方的自动还原算法。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li><a
+href="https://mofang.1or9.com/mofangdingyi.shtml">魔方基本定义</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Threejs/" rel="tag"># Threejs</a>
+              <a href="/tags/vue/" rel="tag"># vue</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/05/16/my-twitter-account/" rel="prev" title="欢迎关注我的 Twitter 账号！">
+                  <i class="fa fa-angle-left"></i> 欢迎关注我的 Twitter 账号！
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/07/21/neural-network-introduce/" rel="next" title="初识人工神经网络工作原理">
+                  初识人工神经网络工作原理 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">true</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2024/06/01/rubiks-cube-01/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
+  }
+}
+</script>
+
+<script src="/live2dwlib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dwassets/tororo.model.json"},"display":{"position":"right","width":150,"height":300,"hOffset":-15,"vOffset":-15},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>
