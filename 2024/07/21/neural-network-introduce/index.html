@@ -27,7 +27,7 @@
 <meta property="og:description" content="最近看了《Python 神经网络编程》一书之后，对于神经网络的工作原理有了一个初步的理解，于是产出此篇文章作为系统性的梳理和总结。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-07-21T05:30:55.000Z">
-<meta property="article:modified_time" content="2024-07-21T05:35:55.915Z">
+<meta property="article:modified_time" content="2024-07-28T03:06:22.166Z">
 <meta property="article:author" content="Bao Chuquan">
 <meta property="article:tag" content="神经网络">
 <meta property="article:tag" content="激活函数">
@@ -244,9 +244,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2024-07-21 13:30:55 / 修改时间：13:35:55" itemprop="dateCreated datePublished" datetime="2024-07-21T13:30:55+08:00">2024-07-21</time>
+      <time title="创建时间：2024-07-21 13:30:55" itemprop="dateCreated datePublished" datetime="2024-07-21T13:30:55+08:00">2024-07-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-07-28 11:06:22" itemprop="dateModified" datetime="2024-07-28T11:06:22+08:00">2024-07-28</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -679,7 +685,7 @@ src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neu
 class="math inline">\([-1/\sqrt{100}, 1/\sqrt{100}]\)</span> 之间，即
 <span class="math inline">\([-0.1, 0.1]\)</span> 之间。</p>
 <p>从直觉上讲，这种方案是有意义的。一个节点的输入连接越多，就会有越多的信号叠加在一起。因此，如果连接更多，那么减小权重的范围是有道理的。</p>
-<p>当然，这种优化方案还定义了权重初始值应该遵循正泰分布，下图总结了这种基于正态分布的权重初始化方案。</p>
+<p>当然，这种优化方案还定义了权重初始值应该遵循正态分布，下图总结了这种基于正态分布的权重初始化方案。</p>
 <p><img
 src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-24.png?x-oss-process=image/resize,w_800" /></p>
 <h2 id="误差分割">误差分割</h2>
@@ -804,7 +810,7 @@ src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neu
 <h3 id="误差函数">误差函数</h3>
 <p>神经网络具有非常多的节点和连接，那么我们该如何使用误差函数来描述这么多的连接权重并实现权重更新呢？这里我们针对每一个层都会使用一个误差函数来批量描述连接权重与误差的关系。</p>
 <h4 id="误差项表示">误差项表示</h4>
-<p>当进行批量处理时，需要对输出层各个节点的误差进行聚合。此时需要考虑批量处理时该如何表示总体误差，对此下面列出了针对
+<p>由于每一个层都包含多个节点，我们需要对每个节点的误差进行聚合。此时需要考虑多个误差值的情况下如何表示总体误差，对此下面列出了针对
 3 个输出节点的神经网络的几种误差项表示方法。</p>
 <p><img
 src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-35.png?x-oss-process=image/resize,w_800" /></p>
@@ -1075,7 +1081,7 @@ if (window.darkmode && !window.darkmode.isActivated()) {
     }
   }
 }
-</script>
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
-<script src="/live2dwlib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dwassets/tororo.model.json"},"display":{"position":"right","width":150,"height":300,"hOffset":-15,"vOffset":-15},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+<script src="/live2dwlib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dwassets/tororo.model.json"},"display":{"position":"right","width":150,"height":300,"hOffset":-15,"vOffset":-15},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
 </html>
