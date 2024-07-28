@@ -33266,9 +33266,9 @@ src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neu
 src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-34.png?x-oss-process=image/resize,w_800" /></p>
 <h3 id="误差函数">误差函数</h3>
 <p>神经网络具有非常多的节点和连接，那么我们该如何使用误差函数来描述这么多的连接权重并实现权重更新呢？这里我们针对每一个层都会使用一个误差函数来批量描述连接权重与误差的关系。</p>
-<h4 id="误差项表示">误差项表示</h4>
+<h4 id="误差表示">误差表示</h4>
 <p>由于每一个层都包含多个节点，我们需要对每个节点的误差进行聚合。此时需要考虑多个误差值的情况下如何表示总体误差，对此下面列出了针对
-3 个输出节点的神经网络的几种误差项表示方法。</p>
+3 个输出节点的神经网络的几种误差表示方法。</p>
 <p><img
 src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-35.png?x-oss-process=image/resize,w_800" /></p>
 <p>方案一：误差 = 目标值 -
@@ -33281,7 +33281,7 @@ src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neu
 src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-36.png?x-oss-process=image/resize,w_800" /></p>
 <p>方案三：误差 = (目标值 -
 实际值)。这种方案即解决了多节点的误差聚合可能为 0
-的问题，也解决了斜率跳变的问题。因此，我们采用这种方案作为误差项的计算方式。</p>
+的问题，也解决了斜率跳变的问题。因此，我们采用这种方案作为误差的计算方式。</p>
 <h4 id="斜率推导">斜率推导</h4>
 <p>要使用梯度下降法，我们必须要计算出误差函数相对权重的斜率，这里涉及到微积分的知识。这里如果你对微积分不太熟悉也没关系，我们只要知道最后推导出来的公式即可。</p>
 <p>下图所示分别展示了包含一个权重和两个权重的误差函数及其斜率的示意图。当误差函数中每增加一个权重变量时，函数就会增加一个维度。</p>
