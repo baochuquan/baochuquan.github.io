@@ -20933,23 +20933,26 @@ href="https://github.com/baochuquan/implementing-neural-network">传送门</a>�
 <li>输入层与隐藏层之间的连接权重矩阵：<span
 class="math inline">\(W_{input\_hidden}\)</span>，其大小为 <span
 class="math inline">\(hidden\_nodes \times input\_nodes\)</span>。</li>
-<li>隐藏层与输出层之间的连接权重矩阵：<code>$W_&#123;hidden\_output&#125;$</code>，其大小为
-<code>$hidden\_nodes \times output\_nodes$</code>。</li>
+<li>隐藏层与输出层之间的连接权重矩阵：<span
+class="math inline">\(W_{hidden\_output}\)</span>，其大小为 <span
+class="math inline">\(hidden\_nodes \times output\_nodes\)</span>。</li>
 </ul>
 <p><img
 src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-15.png?x-oss-process=image/resize,w_800" /></p>
 <p>在 Python 中，我们使用经典的数学库 <code>numpy</code>
-来实现矩阵的表示和运算，通过如下的方式我们可以定义一个
-<code>$rows \times columns$</code> 的数组，数组元素是 0 ~ 1
-的随机值。</p>
+来实现矩阵的表示和运算，通过如下的方式我们可以定义一个 <span
+class="math inline">\(rows \times columns\)</span> 的数组，数组元素是 0
+~ 1 的随机值。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">numpy.random.rand(rows, columns)</span><br></pre></td></tr></table></figure>
-<p>在前一篇文章中，我们介绍过权重的范围在 <code>$[-1. 1]$</code>
+<p>在前一篇文章中，我们介绍过权重的范围在 <span
+class="math inline">\([-1. 1]\)</span>
 之间。这里我们可以通过上述方式生成随机数之后再减去
-0.5，从而使数组元素变成 <code>$[-0.5, 0.5]$</code>
+0.5，从而使数组元素变成 <span class="math inline">\([-0.5, 0.5]\)</span>
 之间的随机值，如下所示。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">self.wih = (numpy.random.rand(self.hnodes, self.inodes) - <span class="number">0.5</span>)</span><br><span class="line">self.who = (numpy.random.rand(self.onodes, self.hnodes) - <span class="number">0.5</span>)</span><br></pre></td></tr></table></figure>
 <p>我们之前还提到过一种优化的权重初始化方案：<strong>在一个节点传入连接数量平方根倒数的范围内进行正态分布采样</strong>，即权重范围是
-<code>$[1/\sqrt&#123;传入连接数&#125;, -1/\sqrt&#123;传入连接数&#125;]$</code>，相关代码实现如下所示。其中
+<span class="math inline">\([1/\sqrt{传入连接数},
+-1/\sqrt{传入连接数}]\)</span>，相关代码实现如下所示。其中
 <code>numpy.random.normal()</code>
 函数用于实现正态分布采样，传入的三个参数分别是：正态分布值的中心、标准方差、数组大小。<code>pow(self.hnodes, -0.5)</code>
 相当于节点数量的 -0.5 次方。</p>
@@ -20967,9 +20970,11 @@ O_{hidden} = &amp; sigmoid(X_{hidden})
 <p>对于求和函数，我们可以通过 numpy
 库中的矩阵点乘函数来实现，如下所示。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">hidden_inputs = numpy.dot(self.wih, inputs)</span><br></pre></td></tr></table></figure>
-<p>对于激活函数，我们使用 <code>$sigmoid$</code> 激活函数，它的表达式是
-<code>$\frac&#123;1&#125;&#123;1+e^&#123;-x&#125;&#125;$</code>。对此，SciPy Python 库中的
-<code>expit()</code> 函数实现了 <code>$sigmoid$</code>
+<p>对于激活函数，我们使用 <span class="math inline">\(sigmoid\)</span>
+激活函数，它的表达式是 <span
+class="math inline">\(\frac{1}{1+e^{-x}}\)</span>。对此，SciPy Python
+库中的 <code>expit()</code> 函数实现了 <span
+class="math inline">\(sigmoid\)</span>
 函数。我们可以在初始化方法中加入一下这段代码。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">self.activation_function = <span class="keyword">lambda</span> x: scipy.special.expit(x)</span><br></pre></td></tr></table></figure>
 <p>然后，我们将上述求和函数结果输入至激活函数中，即可得到隐藏层的输出，如下所示。</p>
@@ -20999,7 +21004,7 @@ error_{hidden} = W^T_{hidden\_output} \cdot error_{output}
 <p>由此，我们可以得到如下所示的误差计算代码。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># error is the (target - actual)</span></span><br><span class="line">output_errors = targets - final_outputs</span><br><span class="line"></span><br><span class="line"><span class="comment"># hidden layer error is the output_errors, split by weights, recombined at hidden nodes</span></span><br><span class="line">hidden_errors = numpy.dot(self.who.T, output_errors)</span><br></pre></td></tr></table></figure>
 <p>然后，我们根据上一篇文章中推导的权重更新公式来实现相关代码，其公式如下所示。其中
-<code>$\alpha$</code>
+<span class="math inline">\(\alpha\)</span>
 是学习率。基于此，我们可以分别实现隐藏层与输出层的权重更新、输入层与隐藏层的权重更新。</p>
 <p><img
 src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-42.png?x-oss-process=image/resize,w_800" /></p>
@@ -21025,7 +21030,8 @@ href="https://yann.lecun.com/exdb/mnist/">MNIST</a>
 中的每一行代表一个样本数据，每个样本数据由 785
 个数字组成，由逗号进行分隔。其中第 1 个数字是样本的预期目标值；其余 784
 个数字素是样本的输入数据，本质上是一个打平的 28 x 28
-的二维矩阵，每个数字表示一个颜色值，范围在 <code>$[0, 255]$</code>
+的二维矩阵，每个数字表示一个颜色值，范围在 <span
+class="math inline">\([0, 255]\)</span>
 之间。如下所示，是一个样本数据的示例。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,18,18,18,126,136,175,26,166,255,247,127,0,0,0,0,0,0,0,0,0,0,0,0,30,36,94,154,170,253,253,253,253,253,225,172,253,242,195,64,0,0,0,0,0,0,0,0,0,0,0,49,238,253,253,253,253,253,253,253,253,251,93,82,82,56,39,0,0,0,0,0,0,0,0,0,0,0,0,18,219,253,253,253,253,253,198,182,247,241,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,80,156,107,253,253,205,11,0,43,154,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14,1,154,253,90,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,139,253,190,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,190,253,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,35,241,225,160,108,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,240,253,253,119,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,45,186,253,253,150,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,93,252,253,187,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,249,253,249,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,46,130,183,253,253,207,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,39,148,229,253,253,253,250,182,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,24,114,221,253,253,253,253,201,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,23,66,213,253,253,253,253,198,81,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,171,219,253,253,253,253,195,80,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,55,172,226,253,253,253,253,244,133,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,136,253,253,253,212,135,132,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</span><br></pre></td></tr></table></figure>
 <p>将此样本数据转换成图像，可以得到如下所示的手写数字图像，通过肉眼判断手写数字与预期目标值
@@ -21043,10 +21049,12 @@ src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neu
 0.3。</p>
 <p>如下所示，是网络构建的相关代码实现。 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># number of input, hidden and output nodes</span></span><br><span class="line">input_nodes = <span class="number">784</span></span><br><span class="line">hidden_nodes = <span class="number">100</span></span><br><span class="line">output_nodes = <span class="number">10</span></span><br><span class="line">    </span><br><span class="line"><span class="comment"># learning rate is 0.3</span></span><br><span class="line">learning_rate = <span class="number">0.3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># create instance of neural network</span></span><br><span class="line">n = neuralNetwork(input_nodes,hidden_nodes,output_nodes, learning_rate)</span><br></pre></td></tr></table></figure></p>
 <h2 id="样本数据预处理">样本数据预处理</h2>
-<p>在上一篇文章中我们提到输入值的范围应该是
-<code>$(0, 1]$</code>，而当前的样本输入值的范围是
-<code>$[0, 255]$</code>。因此我们需要进行样本数据处理，可以考虑将其缩小至
-<code>$[0.01, 1.0]$</code> 的范围之中，相关的处理代码如下所示。</p>
+<p>在上一篇文章中我们提到输入值的范围应该是 <span
+class="math inline">\((0, 1]\)</span>，而当前的样本输入值的范围是 <span
+class="math inline">\([0,
+255]\)</span>。因此我们需要进行样本数据处理，可以考虑将其缩小至 <span
+class="math inline">\([0.01, 1.0]\)</span>
+的范围之中，相关的处理代码如下所示。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">inputs = (numpy.asfarray(all_values[<span class="number">1</span>:]) / <span class="number">255.0</span> * <span class="number">0.99</span>) + <span class="number">0.01</span></span><br></pre></td></tr></table></figure>
 <p>除了样本输出值，我们还需要处理样本目标值。当前输出层具有 10
 个节点，输出值最大的节点的索引就是手写数字的识别结果，如下所示。对此，理想情况是定义一个数组，只有一个元素为
