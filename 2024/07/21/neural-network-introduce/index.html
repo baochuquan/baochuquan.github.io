@@ -19,15 +19,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="最近看了《Python 神经网络编程》一书之后，对于神经网络的工作原理有了一个初步的理解，于是产出此篇文章作为系统性的梳理和总结。">
+    <meta name="description" content="最近看了《Python 神经网络编程》一书之后，对于神经网络的基本原理有了一个初步的理解，于是产出此篇文章作为系统性的梳理和总结。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="初识人工神经网络工作原理">
+<meta property="og:title" content="初识人工神经网络（1）——基本原理">
 <meta property="og:url" content="http://chuquan.me/2024/07/21/neural-network-introduce/index.html">
 <meta property="og:site_name" content="楚权的世界">
-<meta property="og:description" content="最近看了《Python 神经网络编程》一书之后，对于神经网络的工作原理有了一个初步的理解，于是产出此篇文章作为系统性的梳理和总结。">
+<meta property="og:description" content="最近看了《Python 神经网络编程》一书之后，对于神经网络的基本原理有了一个初步的理解，于是产出此篇文章作为系统性的梳理和总结。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-07-21T05:30:55.000Z">
-<meta property="article:modified_time" content="2024-07-28T11:50:01.926Z">
+<meta property="article:modified_time" content="2024-07-31T15:20:26.250Z">
 <meta property="article:author" content="Bao Chuquan">
 <meta property="article:tag" content="神经网络">
 <meta property="article:tag" content="激活函数">
@@ -39,10 +39,10 @@
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2024/07/21/neural-network-introduce/","path":"2024/07/21/neural-network-introduce/","title":"初识人工神经网络工作原理"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2024/07/21/neural-network-introduce/","path":"2024/07/21/neural-network-introduce/","title":"初识人工神经网络（1）——基本原理"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>初识人工神经网络工作原理 | 楚权的世界</title>
+<title>初识人工神经网络（1）——基本原理 | 楚权的世界</title>
   
 
   <script src="/js/third-party/analytics/baidu-analytics.js"></script>
@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">145</span>
+          <span class="site-state-item-count">146</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -175,7 +175,7 @@
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">349</span>
+        <span class="site-state-item-count">352</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -229,12 +229,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="初识人工神经网络工作原理 | 楚权的世界">
+      <meta itemprop="name" content="初识人工神经网络（1）——基本原理 | 楚权的世界">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          初识人工神经网络工作原理
+          初识人工神经网络（1）——基本原理
         </h1>
 
         <div class="post-meta-container">
@@ -252,7 +252,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2024-07-28 19:50:01" itemprop="dateModified" datetime="2024-07-28T19:50:01+08:00">2024-07-28</time>
+      <time title="修改时间：2024-07-31 23:20:26" itemprop="dateModified" datetime="2024-07-31T23:20:26+08:00">2024-07-31</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -288,7 +288,7 @@
     
     
     <div class="post-body" itemprop="articleBody"><p>最近看了《Python
-神经网络编程》一书之后，对于神经网络的工作原理有了一个初步的理解，于是产出此篇文章作为系统性的梳理和总结。</p>
+神经网络编程》一书之后，对于神经网络的基本原理有了一个初步的理解，于是产出此篇文章作为系统性的梳理和总结。</p>
 <span id="more"></span>
 <h1 id="概述">概述</h1>
 <p>计算机设计的初衷是为了解决大量的数学运算，因此适用于解决具有固定模式或计算步骤的问题。对于不具备固定模式或计算步骤的问题，比如图像识别、语音识别等，传统的计算机程序很难有效地予以解决。</p>
@@ -729,10 +729,10 @@ class="math inline">\(w_{2,2}\)</span>
 class="math inline">\(e_1\)</span>、<span
 class="math inline">\(e_2\)</span>。</p>
 <p><img
-src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-28.png?x-oss-process=image/resize,w_800" /></p>
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-29.png?x-oss-process=image/resize,w_800" /></p>
 <p>由此方法继续计算，可以进一步得出隐层层前置连接各自的误差分量，如下所示。</p>
 <p><img
-src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-29.png?x-oss-process=image/resize,w_800" /></p>
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-28.png?x-oss-process=image/resize,w_800" /></p>
 <h3 id="矩阵运算">矩阵运算</h3>
 <p>对于各个层的误差值的计算，我们同样可以使用矩阵来表示。我们使用 <span
 class="math inline">\(error_{output}\)</span> 来表示输出层误差，使用
@@ -752,6 +752,30 @@ e_2
 error_{hidden} = &amp;
 \left(
 \begin{matrix}
+\frac{w_{1,1}}{w_{1,1} + w_{2,1}} &amp; \frac{w_{1,2}}{w_{1,2} +
+w_{2,2}}
+\\
+\frac{w_{2,1}}{w_{2,1} + w_{1,1}} &amp; \frac{w_{2,2}}{w_{2,2} +
+w_{1,2}}
+\end{matrix}
+\right)
+\cdot
+\left(
+\begin{matrix}
+e_1
+\\
+e_2
+\end{matrix}
+\right)
+\end{aligned}\]</span>
+<p><span class="math inline">\(error_{hidden}\)</span>
+的矩阵定义比较复杂，有没有办法进行简化呢？我们观察到，最终要的是输出误差与链接权重
+<span class="math inline">\(w_{i,j}\)</span>
+的乘法。更大的权重意味着更多的输出误差给隐藏层。这里的分母只是一种归一化因此，如果我们忽略这个因子，那么我们仅仅时区了误差的大小，但是能够换来更加简单的矩阵表示，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+error_{hidden} = &amp;
+\left(
+\begin{matrix}
 w_{1,1} &amp; w_{1,2}
 \\
 w_{2,1} &amp; w_{2,2}
@@ -765,14 +789,13 @@ e_1
 e_2
 \end{matrix}
 \right)
-
 \end{aligned}\]</span>
 <p>对比之前的权重矩阵 <span
-class="math inline">\(W_{hidden_output}\)</span>，可以发现这里的矩阵其实就是
-<span class="math inline">\(W_{hidden_output}\)</span>
+class="math inline">\(W_{hidden\_output}\)</span>，可以发现这里的矩阵其实就是
+<span class="math inline">\(W_{hidden\_output}\)</span>
 的转置矩阵，因此我们可以将表示式进一步转换成如下所示。</p>
 <span class="math display">\[\begin{aligned}
-error_{hidden} = W^T_{hidden_output} \cdot error_{output}
+error_{hidden} = W^T_{hidden\_output} \cdot error_{output}
 \end{aligned}\]</span>
 <h2 id="权重更新">权重更新</h2>
 <p>了解了误差分割与传播后，我们再来看看神经网络是如何通过误差来对权重进行更新，从而达到学习的目的。</p>
@@ -816,14 +839,14 @@ src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neu
 src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-35.png?x-oss-process=image/resize,w_800" /></p>
 <p>方案一：误差 = 目标值 -
 实际值。这种方案描述误差的方法非常直观，但是在处理多节点的误差聚合时，会出现总和为
-0 的情况，这会导致神经网络得到很好的训练。</p>
+0 的情况，这会导致神经网络无法得到很好的训练。</p>
 <p>方案二：误差 = |目标值 -
 实际值|。这种方案解决了多节点的误差聚合可能为 0
 的问题。但是它的斜率（或称梯度），在最小值附近会出现跳变，从而导致梯度下降法无法很好地发挥作用。下图所示对应的函数及其导数。</p>
 <p><img
 src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-36.png?x-oss-process=image/resize,w_800" /></p>
 <p>方案三：误差 = (目标值 -
-实际值)。这种方案即解决了多节点的误差聚合可能为 0
+实际值)^2。这种方案即解决了多节点的误差聚合可能为 0
 的问题，也解决了斜率跳变的问题。因此，我们采用这种方案作为误差的计算方式。</p>
 <h4 id="斜率推导">斜率推导</h4>
 <p>要使用梯度下降法，我们必须要计算出误差函数相对权重的斜率，这里涉及到微积分的知识。这里如果你对微积分不太熟悉也没关系，我们只要知道最后推导出来的公式即可。</p>
@@ -971,6 +994,9 @@ src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neu
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2024/07/31/neural-network-implement/" rel="next" title="初识人工神经网络（2）——代码实现">
+                  初识人工神经网络（2）——代码实现 <i class="fa fa-angle-right"></i>
+                </a>
             </div>
           </div>
     </footer>
