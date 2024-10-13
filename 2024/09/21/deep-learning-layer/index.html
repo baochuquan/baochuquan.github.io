@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在深度学习中，为了便于组合任意结构、任意层次的神经网络，通常会对神经网络进行分层设计，这也是一种模块化的设计思想。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="神经网络的分层设计原理">
+<meta property="og:url" content="http://chuquan.me/2024/09/21/deep-learning-layer/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="在深度学习中，为了便于组合任意结构、任意层次的神经网络，通常会对神经网络进行分层设计，这也是一种模块化的设计思想。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-09-21T12:13:04.000Z">
+<meta property="article:modified_time" content="2024-09-21T12:18:21.985Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="计算图">
+<meta property="article:tag" content="Sigmoid">
+<meta property="article:tag" content="Affine">
+<meta property="article:tag" content="Softmax">
+<meta property="article:tag" content="Softmax-with-Loss">
+<meta property="article:tag" content="ReLU">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chuquan.me/2024/09/21/deep-learning-layer/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2024/09/21/deep-learning-layer/","path":"2024/09/21/deep-learning-layer/","title":"神经网络的分层设计原理"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>神经网络的分层设计原理 | 楚权的世界</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
+
+
+
+
+
+
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-rss"><a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E5%9B%BE"><span class="nav-number">1.</span> <span class="nav-text">计算图</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A3%E5%90%91%E4%BC%A0%E6%92%AD"><span class="nav-number">1.1.</span> <span class="nav-text">正向传播</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD"><span class="nav-number">1.2.</span> <span class="nav-text">反向传播</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0"><span class="nav-number">1.2.1.</span> <span class="nav-text">损失函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9D%87%E6%96%B9%E8%AF%AF%E5%B7%AE"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">均方误差</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%A4%E5%8F%89%E7%86%B5%E8%AF%AF%E5%B7%AE"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">交叉熵误差</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%93%BE%E5%BC%8F%E6%B3%95%E5%88%99"><span class="nav-number">1.2.2.</span> <span class="nav-text">链式法则</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E7%AE%97%E8%8A%82%E7%82%B9"><span class="nav-number">1.3.</span> <span class="nav-text">运算节点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E6%B3%95%E8%8A%82%E7%82%B9"><span class="nav-number">1.3.1.</span> <span class="nav-text">加法节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B9%98%E6%B3%95%E8%8A%82%E7%82%B9"><span class="nav-number">1.3.2.</span> <span class="nav-text">乘法节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%94%AF%E8%8A%82%E7%82%B9"><span class="nav-number">1.3.3.</span> <span class="nav-text">分支节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#repeat-%E8%8A%82%E7%82%B9"><span class="nav-number">1.3.4.</span> <span class="nav-text">Repeat 节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sum-%E8%8A%82%E7%82%B9"><span class="nav-number">1.3.5.</span> <span class="nav-text">Sum 节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#matmul-%E8%8A%82%E7%82%B9"><span class="nav-number">1.3.6.</span> <span class="nav-text">MatMul 节点</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E5%B1%82%E8%AE%BE%E8%AE%A1"><span class="nav-number">2.</span> <span class="nav-text">分层设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#affine"><span class="nav-number">2.1.</span> <span class="nav-text">Affine</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E5%9B%BE-1"><span class="nav-number">2.1.1.</span> <span class="nav-text">计算图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.1.2.</span> <span class="nav-text">代码实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sigmoid"><span class="nav-number">2.2.</span> <span class="nav-text">Sigmoid</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E5%9B%BE-2"><span class="nav-number">2.2.1.</span> <span class="nav-text">计算图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">代码实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#relu"><span class="nav-number">2.3.</span> <span class="nav-text">ReLU</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E5%9B%BE-3"><span class="nav-number">2.3.1.</span> <span class="nav-text">计算图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0-2"><span class="nav-number">2.3.2.</span> <span class="nav-text">代码实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#softmax-with-loss"><span class="nav-number">2.4.</span> <span class="nav-text">Softmax-with-Loss</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E5%9B%BE-4"><span class="nav-number">2.4.1.</span> <span class="nav-text">计算图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0-3"><span class="nav-number">2.4.2.</span> <span class="nav-text">代码实现</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">148</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">362</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/Baochuquan" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;Baochuquan" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2024/09/21/deep-learning-layer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="神经网络的分层设计原理 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          神经网络的分层设计原理
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2024-09-21 20:13:04 / 修改时间：20:18:21" itemprop="dateCreated datePublished" datetime="2024-09-21T20:13:04+08:00">2024-09-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2024/09/21/deep-learning-layer/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2024/09/21/deep-learning-layer/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在深度学习中，为了便于组合任意结构、任意层次的神经网络，通常会对神经网络进行分层设计，这也是一种模块化的设计思想。</p>
+<span id="more"></span>
+<p>我们知道，神经网络的核心功能是 <strong>推理</strong> 和
+<strong>学习</strong>，也称为 <strong>正向传播</strong>（Forward
+Propagation） 和 <strong>反向传播</strong>（Backward
+Propagation）。为了实现结构化的分层设计，在局部层面，每个分层都必须同样具备对应的能力。</p>
+<h1 id="计算图">计算图</h1>
+<p>为了理解神经网络各个分层的工作原理，我们将使用
+<strong>计算图</strong>（Computational
+Graphic）的方式来分析推理和学习的过程。</p>
+<p>下面，我们尝试计算图使用来分析一个简单的问题：</p>
+<blockquote>
+<p>张三在超市买了 2 个西瓜，其中西瓜每个 100 元，消费税为
+10%。对此，请计算两个问题： 1. 本次消费的总金额是多少？ 2.
+西瓜价格的上涨会在多大程度上影响最终的支付金额？即“支付金额关于西瓜价格的导数”是什么？</p>
+</blockquote>
+<h2 id="正向传播">正向传播</h2>
+<p>对于第一个问题，我们可以得到如下所示的计算图的正向传播路径。其中，每个节点是一个数学函数，对其输入进行计算，得到对应的输出，并正向传播至下一个节点。</p>
+<p>计算图可以将一个复杂的整体运算拆分成多个简单的局部运算。同时，将各个局部运算的结果不断地传递至其他计算节点，进而可以得到整体结果。最终可得：本次消费的总金额为
+220 元。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-01.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="反向传播">反向传播</h2>
+<p>对于第二个问题，我们可以进一步得到计算图的反向传播路径。这里从右向左依次传递导数，1，1.1，2.2。最终可得：支付金额关于西瓜的价格的导数为
+2.2，即西瓜价格每上涨 1 元，最终支付价格会增加 2.2 元。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-02.png?x-oss-process=image/resize,w_800" /></p>
+<p>这里为什么使用反向传播计算导数呢？因为神经网络的学习过程就是基于损失函数的导数（更准确地说，是梯度）来进行的，所以列举了一个类似的问题。</p>
+<h3 id="损失函数">损失函数</h3>
+<p>神经网络的反向传播是围绕 <strong>损失函数</strong>（Loss
+Function，或称误差函数）完成的，其表示神经网络的性能，即当前神经网络的推理结果对比监督数据的正确值在多大程度上不拟合。</p>
+<p>神经网络的学习过程的核心思想就是
+<strong>通过损失函数计算其梯度，并结合梯度下降法，根据梯度的正负值来更新权重</strong>。如果梯度值为负，通过调整权重参数向正方向改变，可以减小损失函数的值；如果梯度值为正，通过调整权重参数向负方向改变，可以减小损失函数的值。</p>
+<p>下面，我们来介绍两个最常见的损失函数。</p>
+<h4 id="均方误差">均方误差</h4>
+<p><strong>均方误差</strong>（Mean Squared
+Error）的计算公式如下所示：</p>
+<span class="math display">\[\begin{aligned}
+
+E = \frac{1}{2} \sum_k (y_k - t_k)^2
+
+\end{aligned}\]</span>
+<p>其中，<span class="math inline">\(y_k\)</span>
+表示神经网络的输出，<span class="math inline">\(t_k\)</span>
+表示监督数据的正确值，<span class="math inline">\(k\)</span>
+表示数据的维度。</p>
+<p>均方误差会计算神经网络的输出和监督数据的各个元素之差的平方，再求总和。我们在
+<a
+href="https://chuquan.me/2024/07/21/neural-network-introduce/">《初识人工神经网络（1）——基本原理》</a>
+中介绍的损失函数就是均方误差。</p>
+<p>根据定义，我们可以完成均方误差的代码实现，如下所示。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">mean_squared_error</span>(<span class="params">y, t</span>): </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0.5</span> * np.<span class="built_in">sum</span>((y-t)**<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="交叉熵误差">交叉熵误差</h4>
+<p><strong>交叉熵误差</strong>（Cross Entropy
+Error）的计算公式如下所示：</p>
+<span class="math display">\[\begin{aligned}
+
+E = - \sum_k t_k log y_k
+
+\end{aligned}\]</span>
+<p>其中，<span class="math inline">\(log\)</span> 表示以 <span
+class="math inline">\(e\)</span> 为底数的自然对数 <span
+class="math inline">\(log_e\)</span>，<span
+class="math inline">\(y_k\)</span> 表示神经网络的输出，<span
+class="math inline">\(t_k\)</span> 为监督数据的正确值。</p>
+<p>这里采用 one-hot 表示法，即 <span class="math inline">\(t_k\)</span>
+中只有正确值的位置的值为 1，其他均为
+0。因此，交叉熵误差实际上只计算对应正确值标签的输出的自然对数。比如：当正确值标签的索引是
+2，如果对应的神经网络的输出是 0.6，那么交叉熵误差为 <span
+class="math inline">\(-log0.6 =
+0.51\)</span>；如果对应的神经网络的输出是 0.1，那么交叉熵误差为 <span
+class="math inline">\(-log0.1 =
+2.30\)</span>。由此可以看出，在正确值的位置的输出值越接近
+1，则误差越小。</p>
+<p>根据定义，我们可以完成交叉熵误差的代码实现，如下所示。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">cross_entropy_error</span>(<span class="params">y, t</span>): </span><br><span class="line">    delta = <span class="number">1e-7</span></span><br><span class="line">    <span class="keyword">return</span> -np.<span class="built_in">sum</span>(t * np.log(y + delta))</span><br></pre></td></tr></table></figure>
+<h3 id="链式法则">链式法则</h3>
+<p>神经网络的学习过程是基于损失函数的导数（梯度）来完成的，由于反向传播的路径中包含了多个分层，以及大量的权重参数，因此我们需要考虑如何对损失函数的导数进行拆分，以便在计算图中的路径中进行传播。</p>
+<p>很幸运，<strong>链式法则</strong>（Chain
+Rule）可以完美地解决这个问题。什么是链式法则？链式法则是关于复合函数的导数的性质，其定义如下：</p>
+<blockquote>
+<p>如果某个函数由复合函数表示，则该复合函数的导数可以用构成复合函数的各个函数的导数的乘积表示。</p>
+</blockquote>
+<p>举个例子，有一个函数定义为 <span class="math inline">\(z = (x +
+y)^2\)</span>，此时我们可以将它拆解成两个函数，分别是：</p>
+<span class="math display">\[\begin{aligned}
+
+z =&amp; t^2
+\\
+t =&amp; x + y
+
+\end{aligned}\]</span>
+<p>对此，我们可以基于链式法则对复合函数 <span
+class="math inline">\(z\)</span> 关于 <span
+class="math inline">\(x\)</span> 到导数 <span
+class="math inline">\(\frac{\partial z}{\partial x}\)</span>
+进行求解，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial z}{\partial x} = &amp;
+\frac{\partial z}{\partial t} \frac{\partial t}{\partial x}
+\\
+= &amp;
+2t \cdot 1
+\\
+= &amp;
+2(x + y)
+
+\end{aligned}\]</span>
+<p>使用计算图进行拆解，可以得到如下所示的反向传播的计算路径。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-03.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="运算节点">运算节点</h2>
+<p>在计算图中，节点是决定正向传播和反向传播的关键。下面，我们来看几种典型的运算节点。</p>
+<h3 id="加法节点">加法节点</h3>
+<p>加法节点用于处理加法运算，比如：<span class="math inline">\(z = x +
+y\)</span>。<span class="math inline">\(z\)</span> 关于 <span
+class="math inline">\(x\)</span> 和 <span
+class="math inline">\(y\)</span> 的导数都是常量 <span
+class="math inline">\(1\)</span>，其正向传播和反向传播的计算图如下所示。反向传播的导数仍然保持“上游传来的梯度”不变。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-14.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="乘法节点">乘法节点</h3>
+<p>乘法节点用于处理乘法运算，比如：<span class="math inline">\(z = x
+\times y\)</span>。此时，我们可以分别求出 <span
+class="math inline">\(z\)</span> 关于 <span
+class="math inline">\(x\)</span> 和 <span
+class="math inline">\(y\)</span> 的导数，分别是：</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial z}{\partial x} = y
+\\
+\frac{\partial z}{\partial y} = x
+
+\end{aligned}\]</span>
+<p>乘法节点的正向传播和反向传播如下所示，其中反向传播会将“上游传来的梯度”乘以“将正向传播时的输入替换后的值”。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-04.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="分支节点">分支节点</h3>
+<p>下图所示，分支节点是有分支的节点，本质上就是相同的值被复制并分叉，其反向传播是上游传来的梯度之和。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-05.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="repeat-节点">Repeat 节点</h3>
+<p>分支节点有两个分支，Repeat 节点则有 N
+个分支。与分支节点类似，其反向传播也是通过 N 个梯度的总和求出。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-06.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="sum-节点">Sum 节点</h3>
+<p>Sum 节点是通用的加法节点。Sum
+节点的反向传播将上游传来的梯度复制并分配至所有分支。我们可以发现，Sum
+节点和 Repeat 存在一种逆向关系，即 Sum 节点的正向传播相当于 Repeat
+节点的反向传播；Sum 节点的反向传播相当于 Repeat 节点的正向传播。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-07.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="matmul-节点">MatMul 节点</h3>
+<p>MatMul 节点，即矩阵乘积（Matrix
+Multiply）节点。我们考虑一个矩阵乘法的例子 <span class="math inline">\(y
+= xW\)</span>。其中，<span class="math inline">\(x\)</span>、<span
+class="math inline">\(W\)</span>、<span class="math inline">\(y\)</span>
+的形状分别是 <span class="math inline">\(1 \times D\)</span>、<span
+class="math inline">\(D \times H\)</span>、<span class="math inline">\(1
+\times H\)</span>。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-08.png?x-oss-process=image/resize,w_800" /></p>
+<p>此时，我们可以通过如下方式求解关于 <span
+class="math inline">\(x\)</span> 的第 <span
+class="math inline">\(i\)</span> 个元素的导数 <span
+class="math inline">\(\frac{\partial L}{\partial x_i}\)</span>。<span
+class="math inline">\(\frac{\partial L}{\partial x_i}\)</span>
+表示变化程度，当 <span class="math inline">\(x_i\)</span>
+发生微小变化时，<span class="math inline">\(L\)</span>
+会有多大程度的变化。如果此时改变 <span
+class="math inline">\(x_i\)</span>，则向量 <span
+class="math inline">\(y\)</span> 的所有元素都会发生变化。由于 <span
+class="math inline">\(y\)</span> 的各个元素发生变化，最终 <span
+class="math inline">\(L\)</span> 也会发生变化。因此，<span
+class="math inline">\(x_i\)</span> 到 <span
+class="math inline">\(L\)</span> 的链式法则路径存在多个，它们的和是
+<span class="math inline">\(\frac{\partial L}{\partial
+x_i}\)</span>。</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial L}{\partial x_i} = &amp;
+\sum_j \frac{\partial L}{\partial y_j} \frac{\partial y_j}{\partial x_i}
+\\
+= &amp;
+\sum_j \frac{\partial L}{\partial y_j} W_{ij}
+
+\end{aligned}\]</span>
+<p>由上式可知，<span class="math inline">\(\frac{\partial L}{\partial
+x_i}\)</span> 由向量 <span class="math inline">\(\frac{\partial
+L}{\partial y}\)</span> 和 <span class="math inline">\(W\)</span> 的第
+<span class="math inline">\(i\)</span>
+行向量的内积求得，进而推导得到：</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial L}{\partial x} = \frac{\partial L}{\partial y} W^T
+
+\end{aligned}\]</span>
+<p><span class="math inline">\(\frac{\partial L}{\partial x}\)</span>
+可由矩阵乘积一次求得，其中 <span class="math inline">\(W^T\)</span>
+表示矩阵 <span class="math inline">\(W\)</span> 的转置矩阵。</p>
+<p>当我们考虑 mini-batch 处理的情况，即 <span
+class="math inline">\(x\)</span> 中保存了 <span
+class="math inline">\(N\)</span> 份数据。此时，<span
+class="math inline">\(x\)</span>、<span
+class="math inline">\(W\)</span>、<span class="math inline">\(y\)</span>
+的形状分别是 <span class="math inline">\(N \times D\)</span>、<span
+class="math inline">\(D \times H\)</span>、<span class="math inline">\(N
+\times H\)</span>，其计算图如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-09.png?x-oss-process=image/resize,w_800" /></p>
+<p>从 <span class="math inline">\(\frac{\partial L}{\partial x}\)</span>
+的关系式，我们发现矩阵乘积的反向传播与乘法的反向传播类似，同样可以总结出“上游传来的梯度”乘以“将正向传播时的输入替换后的值”。最后，我们进一步通过确认矩阵的形状，可以推导出矩阵乘法的反向传播的数学式，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-10.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="分层设计">分层设计</h1>
+<p>在 <a
+href="https://chuquan.me/2024/07/21/neural-network-introduce/">《初识人工神经网络（1）——基本原理》</a>
+中我们介绍了一个数字识别的神经网络，其结构如下所示，隐藏层的节点具备两个处理函数，分别是求和函数、激活函数。对此，为了实现分层设计，我们将进一步拆分成仿射层、激活函数层。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-14.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="affine">Affine</h2>
+<p>求和函数本质上对各个输入进行加权求和，通过矩阵点乘实现。此时，我们再引入一个偏置，用于控制神经元被激活的容易程度。由于神经网络的加权求和运算与加偏置运算，正好对应仿射变换的一次线性变换和一次平移，因此将其称为仿射层，或
+Affine 层。如下所示是 Affine 计算图的正向传播路径。其中，<span
+class="math inline">\(X\)</span> 表示输入矩阵，<span
+class="math inline">\(W\)</span> 表示权重矩阵，<span
+class="math inline">\(B\)</span> 表示偏置矩阵。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-11.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="计算图-1">计算图</h3>
+<p>通过上述计算图，我们可以发现 Affine 层是由一个 MatMul
+节点和一个加法节点组成。由此，我们可以得到其计算图的反向传播路径，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-12.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="代码实现">代码实现</h3>
+<p>根据计算图，我们可以很容易得到 Affine 层的代码实现，如下所示。
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Affine</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, W, b</span>):</span><br><span class="line">        self.W = W </span><br><span class="line">        self.b = b </span><br><span class="line">        self.x = <span class="literal">None</span> </span><br><span class="line">        self.dW = <span class="literal">None</span> </span><br><span class="line">        self.db = <span class="literal">None</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>): </span><br><span class="line">        self.x = x</span><br><span class="line">        out = np.dot(x, self.W) + self.b</span><br><span class="line">        <span class="keyword">return</span> out</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">backward</span>(<span class="params">self, dout</span>):</span><br><span class="line">        dx = np.dot(dout, self.W.T) </span><br><span class="line">        self.dW = np.dot(self.x.T, dout) </span><br><span class="line">        self.db = np.<span class="built_in">sum</span>(dout, axis=<span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> dx</span><br></pre></td></tr></table></figure></p>
+<h2 id="sigmoid">Sigmoid</h2>
+<p>Sigmoid 是激活函数的一种，其数学定义如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+y = &amp;
+\frac{1}{1 + exp(-x)}
+\\
+= &amp;
+\frac{1}{1 + e^{-x}}
+
+\end{aligned}\]</span>
+<p>根据其数学定义，我们对其运算步骤进行节点拆解，可以得到如下所示计算图的正向传播路径。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-13.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="计算图-2">计算图</h3>
+<p>在 sigmoid 计算图中，我们注意到有两个没有介绍过的节点，分别是：<span
+class="math inline">\(exp\)</span> 节和除法节点。</p>
+<p>对于 <span class="math inline">\(exp\)</span> 节点，其数学表示为
+<span class="math inline">\(y = exp(x)\)</span>，其导数由下式表示。</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial y}{\partial x}
+=&amp; log_e e \cdot e^x
+\\
+=&amp; e^x
+\\
+=&amp; exp(x)
+
+\end{aligned}\]</span>
+<p>对于除法节点，其数学表示为 <span class="math inline">\(y =
+\frac{1}{x}\)</span>，其导数由下式表示。</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial y}{\partial x}
+=&amp; -\frac{1}{x^2}
+\\
+=&amp; -y^2
+
+\end{aligned}\]</span>
+<p>然后，我们根据链式法则可以推导出如下所示的反向传播路径。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-15.png?x-oss-process=image/resize,w_800" /></p>
+<p>接下来，我们对 sigmoid 反向输出的导数进行简化，推导如下。</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial L}{\partial y} y^2 exp(-x)
+=&amp; \frac{\partial L}{\partial y} \frac{1}{(1 + exp(-x))^2} exp(-x)
+\\
+=&amp; \frac{\partial L}{\partial y} \frac{1}{1 + exp(-x)}
+\frac{exp(-x)}{1 + exp(-x)} \\
+=&amp; \frac{\partial L}{\partial y} y (1 - y)
+
+\end{aligned}\]</span>
+<p>然后，我们再隐藏计算图过程中节点，合并成一个 sigmoid
+节点，可以得到如下所示的计算图。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-16.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="代码实现-1">代码实现</h3>
+<p>根据计算图，我们可以很容易得到 Sigmoid 层的代码实现，如下所示。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Sigmoid</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.out = <span class="literal">None</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        out = <span class="number">1</span> / (<span class="number">1</span> + np.exp(-x)) </span><br><span class="line">        self.out = out</span><br><span class="line">        <span class="keyword">return</span> out</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">backward</span>(<span class="params">self, dout</span>):</span><br><span class="line">        dx = dout * (<span class="number">1.0</span> - self.out) * self.out</span><br><span class="line">        <span class="keyword">return</span> dx</span><br></pre></td></tr></table></figure>
+<h2 id="relu">ReLU</h2>
+<p>ReLU 是另一种常用的激活函数，其数学表达式非常简单，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+y = \begin{cases}
+x &amp; (x &gt; 0)
+\\
+0 &amp; (x \leq 0)
+\end{cases}
+
+\end{aligned}\]</span>
+<h3 id="计算图-3">计算图</h3>
+<p>根据 ReLU 的数学定义，我们可以求解 <span
+class="math inline">\(y\)</span> 关于 <span
+class="math inline">\(x\)</span> 的导数，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial y}{\partial x} = \begin{cases}
+1 &amp; (x &gt; 0)
+\\
+0 &amp; (x \leq 0)
+\end{cases}
+
+\end{aligned}\]</span>
+<p>下图所示为 ReLU 的计算图。当正向传播时的输入 <span
+class="math inline">\(x\)</span> 大于
+0，则反向传播会将上游的值直接传递至下游；当正向传播时的输入 <span
+class="math inline">\(x\)</span> 小于等于 0，则导数传递停止。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-17.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="代码实现-2">代码实现</h3>
+<p>根据计算图，我们可以得到 ReLU 层的代码实现，如下所示。其中，变量
+<code>mask</code> 是由 True/False 构成的 NumPy 数
+组，它会把正向传播时的输入 <code>x</code> 的元素中小于等于 0
+的地方保存为 True，其他地方(大于 0 的元素)保存为 False。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Relu</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.mask = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>): </span><br><span class="line">        self.mask = (x &lt;= <span class="number">0</span>) </span><br><span class="line">        out = x.copy() </span><br><span class="line">        out[self.mask] = <span class="number">0</span></span><br><span class="line">        <span class="keyword">return</span> out</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">backward</span>(<span class="params">self, dout</span>): </span><br><span class="line">        dout[self.mask] = <span class="number">0</span> </span><br><span class="line">        dx = dout</span><br><span class="line">        <span class="keyword">return</span> dx</span><br></pre></td></tr></table></figure>
+<h2 id="softmax-with-loss">Softmax-with-Loss</h2>
+<p>对于分类问题，尤其是多元分类问题，一般使用 Softmax
+函数作为计算输出。Softmax 函数的数学定义如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+y_k = &amp;
+\frac{exp(a_k)}{\sum\limits_{i=1}\limits^n exp(a_i)}
+
+\end{aligned}\]</span>
+<p>其中，<span class="math inline">\(exp(x)\)</span> 表示 <span
+class="math inline">\(e^x\)</span> 的指数函数。如果输出层有 <span
+class="math inline">\(n\)</span> 个神经元，<span
+class="math inline">\(y_k\)</span> 表示第 <span
+class="math inline">\(k\)</span> 个神经元的输出值。Softmax
+函数中的分子是输入信号 <span class="math inline">\(a_k\)</span>
+的指数函数，分母是所有输入信号的指数函数之和。Softmax 函数的输出是 0.0
+到 1.0 之间的实数，且 Softmax 函数的输出值总和为 1。因此，我们将 Softmax
+函数的输出解释为“概率”。</p>
+<p>神经网络包含 <strong>推理</strong> 和 <strong>学习</strong>
+两个阶段。在推理阶段通常不使用 Softmax 层，因为 Softmax
+只是对前一层的数据进行了归一化处理。推理阶段只需要用最后的 Affine
+层输出的最大值即可。不过，在学习阶段则需要 Softmax
+层。为了配合监督数据的正确值进行学习，通常会使用 Softmax
+结合交叉熵误差（Cross Entropy Error）损失函数，构成一个
+<strong>Softmax-with-Loss</strong> 层。</p>
+<p>上文，我们介绍过交叉熵误差，这里我们再简单回顾一下它的数学定义，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+L = - \sum\limits_k t_k log y_k
+\end{aligned}\]</span>
+<h3 id="计算图-4">计算图</h3>
+<p>下图所示是 Softmax-with-Loss
+层的计算图的整体示意图。计算图内部可以分为 Softmax 和 Cross Entropy
+Error
+两个层，其各自则是由多个基本运算节点构成。注意，在计算图中，我们将指数之和简写为
+<span class="math inline">\(S\)</span>，最终的输出计为 <span
+class="math inline">\((y_1, y_2, y_3)\)</span>。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-18.png?x-oss-process=image/resize,w_800" /></p>
+<p>这里，我们重点看一下反向传播。</p>
+<p>首先是 Cross Entropy Error 层的反向传播，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-19.png?x-oss-process=image/resize,w_800" /></p>
+<p>其主要注意以下几个要点：</p>
+<ul>
+<li>反向传播初始值为 1。因为 <span class="math inline">\(\frac{\partial
+L}{\partial L} = 1\)</span>。</li>
+<li>乘法节点的反向传播是将正向传播时的输入值进行翻转，乘以上游传来的导数后，传递至下游。</li>
+<li>加法节点的反向传播是将上游传来的导数继续进行传递。</li>
+<li>对数节点中对数的导数是 <span class="math inline">\(\frac{\partial
+y}{\partial x} =
+\frac{1}{x}\)</span>，其反向传播则根据链式法则，使用上游传来的导数乘以自身的导数，并将结果传递至下游。</li>
+</ul>
+<p>其次，我们来看 Softmax 层的反向传播，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-20.png?x-oss-process=image/resize,w_800" /></p>
+<p>对于乘法节点，其反向传播将正向传播时的输入值进行翻转，乘以上游传来的导数。其包含两个反向传播分支，具体计算如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+- \frac{t_1}{y_1} exp(a_1) =&amp; - t_1 \frac{S}{exp(a_1)} exp(a_1) = -
+t_1 S
+
+\\
+
+- \frac{t_1}{y_1} \frac{1}{S} =&amp; -\frac{t_1}{exp(a_1)}
+
+\end{aligned}\]</span>
+<p>接下来是一个 Repeat 节点和除法节点的组合。对于 Repeat
+节点，其反向传播时会将上游节点的导数进行求和，得到 <span
+class="math inline">\(-S(t_1 + t_2 +
+t_3)\)</span>；对于除法节点，其反向传播可以进一步得到 <span
+class="math inline">\(\frac{1}{S}(t_1 + t_2 + t_3)\)</span>。由于 <span
+class="math inline">\((t_1, t_2, t_3)\)</span> 采用 one-hot
+表示法，其和为 1，因此进一步得到反向传播的值为 <span
+class="math inline">\(\frac{1}{S}\)</span>。</p>
+<p>然后是加法节点，其反向传播将上游传来的导数继续进行传递。</p>
+<p>最后是 exp 节点，从计算图看，它其实包含了一个 exp 节点和一个 Repeat
+节点。对于 Repeat 节点，其反向传播会将上游节点的导数进行求和；对于 exp
+节点，其导数为 <span class="math inline">\(\frac{\partial y}{\partial x}
+= exp(x)\)</span>。反向传播推导如下：</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial y}{\partial y} = (\frac{1}{S} - \frac{t_1}{exp(a_1)})
+exp(a_1) = y_1 - t_1
+
+\end{aligned}\]</span>
+<h3 id="代码实现-3">代码实现</h3>
+<p>最后，我们根据计算图进行代码实现，结果如下所示。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cross_entropy_error</span>(<span class="params">y, t</span>): </span><br><span class="line">    delta = <span class="number">1e-7</span></span><br><span class="line">    <span class="keyword">return</span> -np.<span class="built_in">sum</span>(t * np.log(y + delta))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">softmax</span>(<span class="params">a</span>):</span><br><span class="line">    c = np.<span class="built_in">max</span>(a)</span><br><span class="line">    exp_a = np.exp(a - c) <span class="comment"># 溢出对策 sum_exp_a = np.sum(exp_a)</span></span><br><span class="line">    y = exp_a / sum_exp_a</span><br><span class="line">    <span class="keyword">return</span> y</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SoftmaxWithLoss</span>: </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.loss = <span class="literal">None</span> <span class="comment"># 损失</span></span><br><span class="line">        self.y = <span class="literal">None</span> <span class="comment"># softmax的输出</span></span><br><span class="line">        self.t = <span class="literal">None</span> <span class="comment"># 监督数据(one-hot vector)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x, t</span>): self.t = t</span><br><span class="line">        self.y = softmax(x)</span><br><span class="line">        self.loss = cross_entropy_error(self.y, self.t)</span><br><span class="line">        <span class="keyword">return</span> self.loss</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">backward</span>(<span class="params">self, dout=<span class="number">1</span></span>):</span><br><span class="line">        batch_size = self.t.shape[<span class="number">0</span>]</span><br><span class="line">        dx = (self.y - self.t) / batch_size</span><br><span class="line">        <span class="keyword">return</span> dx</span><br></pre></td></tr></table></figure>
+<h1 id="总结">总结</h1>
+<p>在实践中，分层设计有利于快速调整和实现各种各样的神经网络。我们经常听说的深度学习，本质上就是一个神经网络层级比较多的结构。</p>
+<p>为了介绍神经网络中的分层设计原理，本文以计算图作为出发点，作为分析每个分层正向传播和反向传播的依据。这里，我们还介绍了一个用于反向传播的关键法则——链式法则。最后，我们介绍了神经网络中几种常见的分层，如：Affine、Sigmoid、ReLU、Softmax-with-Loss
+等。</p>
+<p>本文，我们大致了解了神经网络的分层设计，这种思想是研究复杂神经网络的基础。后续有时间，我们将继续探索神经网络的各种应用，敬请期待吧！</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%A1%E7%AE%97%E5%9B%BE/" rel="tag"># 计算图</a>
+              <a href="/tags/Sigmoid/" rel="tag"># Sigmoid</a>
+              <a href="/tags/Affine/" rel="tag"># Affine</a>
+              <a href="/tags/Softmax/" rel="tag"># Softmax</a>
+              <a href="/tags/Softmax-with-Loss/" rel="tag"># Softmax-with-Loss</a>
+              <a href="/tags/ReLU/" rel="tag"># ReLU</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/07/31/neural-network-implement/" rel="prev" title="初识人工神经网络（2）——代码实现">
+                  <i class="fa fa-angle-left"></i> 初识人工神经网络（2）——代码实现
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/09/28/cnn-introduction/" rel="next" title="卷积神经网络">
+                  卷积神经网络 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">true</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2024/09/21/deep-learning-layer/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
+  }
+}
+</script>
+
+<script src="/live2dwlib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dwassets/tororo.model.json"},"display":{"position":"right","width":150,"height":300,"hOffset":-15,"vOffset":-15},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

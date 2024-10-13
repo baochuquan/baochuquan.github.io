@@ -10842,6 +10842,9 @@ src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/ray
 <li>《GAMES 101》</li>
 </ol>
 ]]></content>
+      <categories>
+        <category>图形学</category>
+      </categories>
       <tags>
         <tag>Whitted-Stype Ray Tracing</tag>
         <tag>交点判定</tag>
@@ -33728,6 +33731,644 @@ href="http://zsh.sourceforge.net/Doc/Release/Completion-System.html#Completion-S
       <tags>
         <tag>zsh</tag>
         <tag>自动补全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>神经网络的分层设计原理</title>
+    <url>/2024/09/21/deep-learning-layer/</url>
+    <content><![CDATA[<p>在深度学习中，为了便于组合任意结构、任意层次的神经网络，通常会对神经网络进行分层设计，这也是一种模块化的设计思想。</p>
+<span id="more"></span>
+<p>我们知道，神经网络的核心功能是 <strong>推理</strong> 和
+<strong>学习</strong>，也称为 <strong>正向传播</strong>（Forward
+Propagation） 和 <strong>反向传播</strong>（Backward
+Propagation）。为了实现结构化的分层设计，在局部层面，每个分层都必须同样具备对应的能力。</p>
+<h1 id="计算图">计算图</h1>
+<p>为了理解神经网络各个分层的工作原理，我们将使用
+<strong>计算图</strong>（Computational
+Graphic）的方式来分析推理和学习的过程。</p>
+<p>下面，我们尝试计算图使用来分析一个简单的问题：</p>
+<blockquote>
+<p>张三在超市买了 2 个西瓜，其中西瓜每个 100 元，消费税为
+10%。对此，请计算两个问题： 1. 本次消费的总金额是多少？ 2.
+西瓜价格的上涨会在多大程度上影响最终的支付金额？即“支付金额关于西瓜价格的导数”是什么？</p>
+</blockquote>
+<h2 id="正向传播">正向传播</h2>
+<p>对于第一个问题，我们可以得到如下所示的计算图的正向传播路径。其中，每个节点是一个数学函数，对其输入进行计算，得到对应的输出，并正向传播至下一个节点。</p>
+<p>计算图可以将一个复杂的整体运算拆分成多个简单的局部运算。同时，将各个局部运算的结果不断地传递至其他计算节点，进而可以得到整体结果。最终可得：本次消费的总金额为
+220 元。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-01.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="反向传播">反向传播</h2>
+<p>对于第二个问题，我们可以进一步得到计算图的反向传播路径。这里从右向左依次传递导数，1，1.1，2.2。最终可得：支付金额关于西瓜的价格的导数为
+2.2，即西瓜价格每上涨 1 元，最终支付价格会增加 2.2 元。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-02.png?x-oss-process=image/resize,w_800" /></p>
+<p>这里为什么使用反向传播计算导数呢？因为神经网络的学习过程就是基于损失函数的导数（更准确地说，是梯度）来进行的，所以列举了一个类似的问题。</p>
+<h3 id="损失函数">损失函数</h3>
+<p>神经网络的反向传播是围绕 <strong>损失函数</strong>（Loss
+Function，或称误差函数）完成的，其表示神经网络的性能，即当前神经网络的推理结果对比监督数据的正确值在多大程度上不拟合。</p>
+<p>神经网络的学习过程的核心思想就是
+<strong>通过损失函数计算其梯度，并结合梯度下降法，根据梯度的正负值来更新权重</strong>。如果梯度值为负，通过调整权重参数向正方向改变，可以减小损失函数的值；如果梯度值为正，通过调整权重参数向负方向改变，可以减小损失函数的值。</p>
+<p>下面，我们来介绍两个最常见的损失函数。</p>
+<h4 id="均方误差">均方误差</h4>
+<p><strong>均方误差</strong>（Mean Squared
+Error）的计算公式如下所示：</p>
+<span class="math display">\[\begin{aligned}
+
+E = \frac{1}{2} \sum_k (y_k - t_k)^2
+
+\end{aligned}\]</span>
+<p>其中，<span class="math inline">\(y_k\)</span>
+表示神经网络的输出，<span class="math inline">\(t_k\)</span>
+表示监督数据的正确值，<span class="math inline">\(k\)</span>
+表示数据的维度。</p>
+<p>均方误差会计算神经网络的输出和监督数据的各个元素之差的平方，再求总和。我们在
+<a
+href="https://chuquan.me/2024/07/21/neural-network-introduce/">《初识人工神经网络（1）——基本原理》</a>
+中介绍的损失函数就是均方误差。</p>
+<p>根据定义，我们可以完成均方误差的代码实现，如下所示。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">mean_squared_error</span>(<span class="params">y, t</span>): </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0.5</span> * np.<span class="built_in">sum</span>((y-t)**<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="交叉熵误差">交叉熵误差</h4>
+<p><strong>交叉熵误差</strong>（Cross Entropy
+Error）的计算公式如下所示：</p>
+<span class="math display">\[\begin{aligned}
+
+E = - \sum_k t_k log y_k
+
+\end{aligned}\]</span>
+<p>其中，<span class="math inline">\(log\)</span> 表示以 <span
+class="math inline">\(e\)</span> 为底数的自然对数 <span
+class="math inline">\(log_e\)</span>，<span
+class="math inline">\(y_k\)</span> 表示神经网络的输出，<span
+class="math inline">\(t_k\)</span> 为监督数据的正确值。</p>
+<p>这里采用 one-hot 表示法，即 <span class="math inline">\(t_k\)</span>
+中只有正确值的位置的值为 1，其他均为
+0。因此，交叉熵误差实际上只计算对应正确值标签的输出的自然对数。比如：当正确值标签的索引是
+2，如果对应的神经网络的输出是 0.6，那么交叉熵误差为 <span
+class="math inline">\(-log0.6 =
+0.51\)</span>；如果对应的神经网络的输出是 0.1，那么交叉熵误差为 <span
+class="math inline">\(-log0.1 =
+2.30\)</span>。由此可以看出，在正确值的位置的输出值越接近
+1，则误差越小。</p>
+<p>根据定义，我们可以完成交叉熵误差的代码实现，如下所示。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">cross_entropy_error</span>(<span class="params">y, t</span>): </span><br><span class="line">    delta = <span class="number">1e-7</span></span><br><span class="line">    <span class="keyword">return</span> -np.<span class="built_in">sum</span>(t * np.log(y + delta))</span><br></pre></td></tr></table></figure>
+<h3 id="链式法则">链式法则</h3>
+<p>神经网络的学习过程是基于损失函数的导数（梯度）来完成的，由于反向传播的路径中包含了多个分层，以及大量的权重参数，因此我们需要考虑如何对损失函数的导数进行拆分，以便在计算图中的路径中进行传播。</p>
+<p>很幸运，<strong>链式法则</strong>（Chain
+Rule）可以完美地解决这个问题。什么是链式法则？链式法则是关于复合函数的导数的性质，其定义如下：</p>
+<blockquote>
+<p>如果某个函数由复合函数表示，则该复合函数的导数可以用构成复合函数的各个函数的导数的乘积表示。</p>
+</blockquote>
+<p>举个例子，有一个函数定义为 <span class="math inline">\(z = (x +
+y)^2\)</span>，此时我们可以将它拆解成两个函数，分别是：</p>
+<span class="math display">\[\begin{aligned}
+
+z =&amp; t^2
+\\
+t =&amp; x + y
+
+\end{aligned}\]</span>
+<p>对此，我们可以基于链式法则对复合函数 <span
+class="math inline">\(z\)</span> 关于 <span
+class="math inline">\(x\)</span> 到导数 <span
+class="math inline">\(\frac{\partial z}{\partial x}\)</span>
+进行求解，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial z}{\partial x} = &amp;
+\frac{\partial z}{\partial t} \frac{\partial t}{\partial x}
+\\
+= &amp;
+2t \cdot 1
+\\
+= &amp;
+2(x + y)
+
+\end{aligned}\]</span>
+<p>使用计算图进行拆解，可以得到如下所示的反向传播的计算路径。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-03.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="运算节点">运算节点</h2>
+<p>在计算图中，节点是决定正向传播和反向传播的关键。下面，我们来看几种典型的运算节点。</p>
+<h3 id="加法节点">加法节点</h3>
+<p>加法节点用于处理加法运算，比如：<span class="math inline">\(z = x +
+y\)</span>。<span class="math inline">\(z\)</span> 关于 <span
+class="math inline">\(x\)</span> 和 <span
+class="math inline">\(y\)</span> 的导数都是常量 <span
+class="math inline">\(1\)</span>，其正向传播和反向传播的计算图如下所示。反向传播的导数仍然保持“上游传来的梯度”不变。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-14.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="乘法节点">乘法节点</h3>
+<p>乘法节点用于处理乘法运算，比如：<span class="math inline">\(z = x
+\times y\)</span>。此时，我们可以分别求出 <span
+class="math inline">\(z\)</span> 关于 <span
+class="math inline">\(x\)</span> 和 <span
+class="math inline">\(y\)</span> 的导数，分别是：</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial z}{\partial x} = y
+\\
+\frac{\partial z}{\partial y} = x
+
+\end{aligned}\]</span>
+<p>乘法节点的正向传播和反向传播如下所示，其中反向传播会将“上游传来的梯度”乘以“将正向传播时的输入替换后的值”。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-04.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="分支节点">分支节点</h3>
+<p>下图所示，分支节点是有分支的节点，本质上就是相同的值被复制并分叉，其反向传播是上游传来的梯度之和。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-05.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="repeat-节点">Repeat 节点</h3>
+<p>分支节点有两个分支，Repeat 节点则有 N
+个分支。与分支节点类似，其反向传播也是通过 N 个梯度的总和求出。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-06.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="sum-节点">Sum 节点</h3>
+<p>Sum 节点是通用的加法节点。Sum
+节点的反向传播将上游传来的梯度复制并分配至所有分支。我们可以发现，Sum
+节点和 Repeat 存在一种逆向关系，即 Sum 节点的正向传播相当于 Repeat
+节点的反向传播；Sum 节点的反向传播相当于 Repeat 节点的正向传播。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-07.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="matmul-节点">MatMul 节点</h3>
+<p>MatMul 节点，即矩阵乘积（Matrix
+Multiply）节点。我们考虑一个矩阵乘法的例子 <span class="math inline">\(y
+= xW\)</span>。其中，<span class="math inline">\(x\)</span>、<span
+class="math inline">\(W\)</span>、<span class="math inline">\(y\)</span>
+的形状分别是 <span class="math inline">\(1 \times D\)</span>、<span
+class="math inline">\(D \times H\)</span>、<span class="math inline">\(1
+\times H\)</span>。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-08.png?x-oss-process=image/resize,w_800" /></p>
+<p>此时，我们可以通过如下方式求解关于 <span
+class="math inline">\(x\)</span> 的第 <span
+class="math inline">\(i\)</span> 个元素的导数 <span
+class="math inline">\(\frac{\partial L}{\partial x_i}\)</span>。<span
+class="math inline">\(\frac{\partial L}{\partial x_i}\)</span>
+表示变化程度，当 <span class="math inline">\(x_i\)</span>
+发生微小变化时，<span class="math inline">\(L\)</span>
+会有多大程度的变化。如果此时改变 <span
+class="math inline">\(x_i\)</span>，则向量 <span
+class="math inline">\(y\)</span> 的所有元素都会发生变化。由于 <span
+class="math inline">\(y\)</span> 的各个元素发生变化，最终 <span
+class="math inline">\(L\)</span> 也会发生变化。因此，<span
+class="math inline">\(x_i\)</span> 到 <span
+class="math inline">\(L\)</span> 的链式法则路径存在多个，它们的和是
+<span class="math inline">\(\frac{\partial L}{\partial
+x_i}\)</span>。</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial L}{\partial x_i} = &amp;
+\sum_j \frac{\partial L}{\partial y_j} \frac{\partial y_j}{\partial x_i}
+\\
+= &amp;
+\sum_j \frac{\partial L}{\partial y_j} W_{ij}
+
+\end{aligned}\]</span>
+<p>由上式可知，<span class="math inline">\(\frac{\partial L}{\partial
+x_i}\)</span> 由向量 <span class="math inline">\(\frac{\partial
+L}{\partial y}\)</span> 和 <span class="math inline">\(W\)</span> 的第
+<span class="math inline">\(i\)</span>
+行向量的内积求得，进而推导得到：</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial L}{\partial x} = \frac{\partial L}{\partial y} W^T
+
+\end{aligned}\]</span>
+<p><span class="math inline">\(\frac{\partial L}{\partial x}\)</span>
+可由矩阵乘积一次求得，其中 <span class="math inline">\(W^T\)</span>
+表示矩阵 <span class="math inline">\(W\)</span> 的转置矩阵。</p>
+<p>当我们考虑 mini-batch 处理的情况，即 <span
+class="math inline">\(x\)</span> 中保存了 <span
+class="math inline">\(N\)</span> 份数据。此时，<span
+class="math inline">\(x\)</span>、<span
+class="math inline">\(W\)</span>、<span class="math inline">\(y\)</span>
+的形状分别是 <span class="math inline">\(N \times D\)</span>、<span
+class="math inline">\(D \times H\)</span>、<span class="math inline">\(N
+\times H\)</span>，其计算图如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-09.png?x-oss-process=image/resize,w_800" /></p>
+<p>从 <span class="math inline">\(\frac{\partial L}{\partial x}\)</span>
+的关系式，我们发现矩阵乘积的反向传播与乘法的反向传播类似，同样可以总结出“上游传来的梯度”乘以“将正向传播时的输入替换后的值”。最后，我们进一步通过确认矩阵的形状，可以推导出矩阵乘法的反向传播的数学式，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-10.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="分层设计">分层设计</h1>
+<p>在 <a
+href="https://chuquan.me/2024/07/21/neural-network-introduce/">《初识人工神经网络（1）——基本原理》</a>
+中我们介绍了一个数字识别的神经网络，其结构如下所示，隐藏层的节点具备两个处理函数，分别是求和函数、激活函数。对此，为了实现分层设计，我们将进一步拆分成仿射层、激活函数层。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/neural-network-intro-14.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="affine">Affine</h2>
+<p>求和函数本质上对各个输入进行加权求和，通过矩阵点乘实现。此时，我们再引入一个偏置，用于控制神经元被激活的容易程度。由于神经网络的加权求和运算与加偏置运算，正好对应仿射变换的一次线性变换和一次平移，因此将其称为仿射层，或
+Affine 层。如下所示是 Affine 计算图的正向传播路径。其中，<span
+class="math inline">\(X\)</span> 表示输入矩阵，<span
+class="math inline">\(W\)</span> 表示权重矩阵，<span
+class="math inline">\(B\)</span> 表示偏置矩阵。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-11.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="计算图-1">计算图</h3>
+<p>通过上述计算图，我们可以发现 Affine 层是由一个 MatMul
+节点和一个加法节点组成。由此，我们可以得到其计算图的反向传播路径，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-12.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="代码实现">代码实现</h3>
+<p>根据计算图，我们可以很容易得到 Affine 层的代码实现，如下所示。
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Affine</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, W, b</span>):</span><br><span class="line">        self.W = W </span><br><span class="line">        self.b = b </span><br><span class="line">        self.x = <span class="literal">None</span> </span><br><span class="line">        self.dW = <span class="literal">None</span> </span><br><span class="line">        self.db = <span class="literal">None</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>): </span><br><span class="line">        self.x = x</span><br><span class="line">        out = np.dot(x, self.W) + self.b</span><br><span class="line">        <span class="keyword">return</span> out</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">backward</span>(<span class="params">self, dout</span>):</span><br><span class="line">        dx = np.dot(dout, self.W.T) </span><br><span class="line">        self.dW = np.dot(self.x.T, dout) </span><br><span class="line">        self.db = np.<span class="built_in">sum</span>(dout, axis=<span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> dx</span><br></pre></td></tr></table></figure></p>
+<h2 id="sigmoid">Sigmoid</h2>
+<p>Sigmoid 是激活函数的一种，其数学定义如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+y = &amp;
+\frac{1}{1 + exp(-x)}
+\\
+= &amp;
+\frac{1}{1 + e^{-x}}
+
+\end{aligned}\]</span>
+<p>根据其数学定义，我们对其运算步骤进行节点拆解，可以得到如下所示计算图的正向传播路径。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-13.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="计算图-2">计算图</h3>
+<p>在 sigmoid 计算图中，我们注意到有两个没有介绍过的节点，分别是：<span
+class="math inline">\(exp\)</span> 节和除法节点。</p>
+<p>对于 <span class="math inline">\(exp\)</span> 节点，其数学表示为
+<span class="math inline">\(y = exp(x)\)</span>，其导数由下式表示。</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial y}{\partial x}
+=&amp; log_e e \cdot e^x
+\\
+=&amp; e^x
+\\
+=&amp; exp(x)
+
+\end{aligned}\]</span>
+<p>对于除法节点，其数学表示为 <span class="math inline">\(y =
+\frac{1}{x}\)</span>，其导数由下式表示。</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial y}{\partial x}
+=&amp; -\frac{1}{x^2}
+\\
+=&amp; -y^2
+
+\end{aligned}\]</span>
+<p>然后，我们根据链式法则可以推导出如下所示的反向传播路径。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-15.png?x-oss-process=image/resize,w_800" /></p>
+<p>接下来，我们对 sigmoid 反向输出的导数进行简化，推导如下。</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial L}{\partial y} y^2 exp(-x)
+=&amp; \frac{\partial L}{\partial y} \frac{1}{(1 + exp(-x))^2} exp(-x)
+\\
+=&amp; \frac{\partial L}{\partial y} \frac{1}{1 + exp(-x)}
+\frac{exp(-x)}{1 + exp(-x)} \\
+=&amp; \frac{\partial L}{\partial y} y (1 - y)
+
+\end{aligned}\]</span>
+<p>然后，我们再隐藏计算图过程中节点，合并成一个 sigmoid
+节点，可以得到如下所示的计算图。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-16.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="代码实现-1">代码实现</h3>
+<p>根据计算图，我们可以很容易得到 Sigmoid 层的代码实现，如下所示。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Sigmoid</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.out = <span class="literal">None</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        out = <span class="number">1</span> / (<span class="number">1</span> + np.exp(-x)) </span><br><span class="line">        self.out = out</span><br><span class="line">        <span class="keyword">return</span> out</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">backward</span>(<span class="params">self, dout</span>):</span><br><span class="line">        dx = dout * (<span class="number">1.0</span> - self.out) * self.out</span><br><span class="line">        <span class="keyword">return</span> dx</span><br></pre></td></tr></table></figure>
+<h2 id="relu">ReLU</h2>
+<p>ReLU 是另一种常用的激活函数，其数学表达式非常简单，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+y = \begin{cases}
+x &amp; (x &gt; 0)
+\\
+0 &amp; (x \leq 0)
+\end{cases}
+
+\end{aligned}\]</span>
+<h3 id="计算图-3">计算图</h3>
+<p>根据 ReLU 的数学定义，我们可以求解 <span
+class="math inline">\(y\)</span> 关于 <span
+class="math inline">\(x\)</span> 的导数，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial y}{\partial x} = \begin{cases}
+1 &amp; (x &gt; 0)
+\\
+0 &amp; (x \leq 0)
+\end{cases}
+
+\end{aligned}\]</span>
+<p>下图所示为 ReLU 的计算图。当正向传播时的输入 <span
+class="math inline">\(x\)</span> 大于
+0，则反向传播会将上游的值直接传递至下游；当正向传播时的输入 <span
+class="math inline">\(x\)</span> 小于等于 0，则导数传递停止。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-17.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="代码实现-2">代码实现</h3>
+<p>根据计算图，我们可以得到 ReLU 层的代码实现，如下所示。其中，变量
+<code>mask</code> 是由 True/False 构成的 NumPy 数
+组，它会把正向传播时的输入 <code>x</code> 的元素中小于等于 0
+的地方保存为 True，其他地方(大于 0 的元素)保存为 False。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Relu</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.mask = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>): </span><br><span class="line">        self.mask = (x &lt;= <span class="number">0</span>) </span><br><span class="line">        out = x.copy() </span><br><span class="line">        out[self.mask] = <span class="number">0</span></span><br><span class="line">        <span class="keyword">return</span> out</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">backward</span>(<span class="params">self, dout</span>): </span><br><span class="line">        dout[self.mask] = <span class="number">0</span> </span><br><span class="line">        dx = dout</span><br><span class="line">        <span class="keyword">return</span> dx</span><br></pre></td></tr></table></figure>
+<h2 id="softmax-with-loss">Softmax-with-Loss</h2>
+<p>对于分类问题，尤其是多元分类问题，一般使用 Softmax
+函数作为计算输出。Softmax 函数的数学定义如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+y_k = &amp;
+\frac{exp(a_k)}{\sum\limits_{i=1}\limits^n exp(a_i)}
+
+\end{aligned}\]</span>
+<p>其中，<span class="math inline">\(exp(x)\)</span> 表示 <span
+class="math inline">\(e^x\)</span> 的指数函数。如果输出层有 <span
+class="math inline">\(n\)</span> 个神经元，<span
+class="math inline">\(y_k\)</span> 表示第 <span
+class="math inline">\(k\)</span> 个神经元的输出值。Softmax
+函数中的分子是输入信号 <span class="math inline">\(a_k\)</span>
+的指数函数，分母是所有输入信号的指数函数之和。Softmax 函数的输出是 0.0
+到 1.0 之间的实数，且 Softmax 函数的输出值总和为 1。因此，我们将 Softmax
+函数的输出解释为“概率”。</p>
+<p>神经网络包含 <strong>推理</strong> 和 <strong>学习</strong>
+两个阶段。在推理阶段通常不使用 Softmax 层，因为 Softmax
+只是对前一层的数据进行了归一化处理。推理阶段只需要用最后的 Affine
+层输出的最大值即可。不过，在学习阶段则需要 Softmax
+层。为了配合监督数据的正确值进行学习，通常会使用 Softmax
+结合交叉熵误差（Cross Entropy Error）损失函数，构成一个
+<strong>Softmax-with-Loss</strong> 层。</p>
+<p>上文，我们介绍过交叉熵误差，这里我们再简单回顾一下它的数学定义，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+L = - \sum\limits_k t_k log y_k
+\end{aligned}\]</span>
+<h3 id="计算图-4">计算图</h3>
+<p>下图所示是 Softmax-with-Loss
+层的计算图的整体示意图。计算图内部可以分为 Softmax 和 Cross Entropy
+Error
+两个层，其各自则是由多个基本运算节点构成。注意，在计算图中，我们将指数之和简写为
+<span class="math inline">\(S\)</span>，最终的输出计为 <span
+class="math inline">\((y_1, y_2, y_3)\)</span>。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-18.png?x-oss-process=image/resize,w_800" /></p>
+<p>这里，我们重点看一下反向传播。</p>
+<p>首先是 Cross Entropy Error 层的反向传播，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-19.png?x-oss-process=image/resize,w_800" /></p>
+<p>其主要注意以下几个要点：</p>
+<ul>
+<li>反向传播初始值为 1。因为 <span class="math inline">\(\frac{\partial
+L}{\partial L} = 1\)</span>。</li>
+<li>乘法节点的反向传播是将正向传播时的输入值进行翻转，乘以上游传来的导数后，传递至下游。</li>
+<li>加法节点的反向传播是将上游传来的导数继续进行传递。</li>
+<li>对数节点中对数的导数是 <span class="math inline">\(\frac{\partial
+y}{\partial x} =
+\frac{1}{x}\)</span>，其反向传播则根据链式法则，使用上游传来的导数乘以自身的导数，并将结果传递至下游。</li>
+</ul>
+<p>其次，我们来看 Softmax 层的反向传播，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/deep-learning-layer-20.png?x-oss-process=image/resize,w_800" /></p>
+<p>对于乘法节点，其反向传播将正向传播时的输入值进行翻转，乘以上游传来的导数。其包含两个反向传播分支，具体计算如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+- \frac{t_1}{y_1} exp(a_1) =&amp; - t_1 \frac{S}{exp(a_1)} exp(a_1) = -
+t_1 S
+
+\\
+
+- \frac{t_1}{y_1} \frac{1}{S} =&amp; -\frac{t_1}{exp(a_1)}
+
+\end{aligned}\]</span>
+<p>接下来是一个 Repeat 节点和除法节点的组合。对于 Repeat
+节点，其反向传播时会将上游节点的导数进行求和，得到 <span
+class="math inline">\(-S(t_1 + t_2 +
+t_3)\)</span>；对于除法节点，其反向传播可以进一步得到 <span
+class="math inline">\(\frac{1}{S}(t_1 + t_2 + t_3)\)</span>。由于 <span
+class="math inline">\((t_1, t_2, t_3)\)</span> 采用 one-hot
+表示法，其和为 1，因此进一步得到反向传播的值为 <span
+class="math inline">\(\frac{1}{S}\)</span>。</p>
+<p>然后是加法节点，其反向传播将上游传来的导数继续进行传递。</p>
+<p>最后是 exp 节点，从计算图看，它其实包含了一个 exp 节点和一个 Repeat
+节点。对于 Repeat 节点，其反向传播会将上游节点的导数进行求和；对于 exp
+节点，其导数为 <span class="math inline">\(\frac{\partial y}{\partial x}
+= exp(x)\)</span>。反向传播推导如下：</p>
+<span class="math display">\[\begin{aligned}
+
+\frac{\partial y}{\partial y} = (\frac{1}{S} - \frac{t_1}{exp(a_1)})
+exp(a_1) = y_1 - t_1
+
+\end{aligned}\]</span>
+<h3 id="代码实现-3">代码实现</h3>
+<p>最后，我们根据计算图进行代码实现，结果如下所示。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cross_entropy_error</span>(<span class="params">y, t</span>): </span><br><span class="line">    delta = <span class="number">1e-7</span></span><br><span class="line">    <span class="keyword">return</span> -np.<span class="built_in">sum</span>(t * np.log(y + delta))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">softmax</span>(<span class="params">a</span>):</span><br><span class="line">    c = np.<span class="built_in">max</span>(a)</span><br><span class="line">    exp_a = np.exp(a - c) <span class="comment"># 溢出对策 sum_exp_a = np.sum(exp_a)</span></span><br><span class="line">    y = exp_a / sum_exp_a</span><br><span class="line">    <span class="keyword">return</span> y</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SoftmaxWithLoss</span>: </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.loss = <span class="literal">None</span> <span class="comment"># 损失</span></span><br><span class="line">        self.y = <span class="literal">None</span> <span class="comment"># softmax的输出</span></span><br><span class="line">        self.t = <span class="literal">None</span> <span class="comment"># 监督数据(one-hot vector)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x, t</span>): self.t = t</span><br><span class="line">        self.y = softmax(x)</span><br><span class="line">        self.loss = cross_entropy_error(self.y, self.t)</span><br><span class="line">        <span class="keyword">return</span> self.loss</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">backward</span>(<span class="params">self, dout=<span class="number">1</span></span>):</span><br><span class="line">        batch_size = self.t.shape[<span class="number">0</span>]</span><br><span class="line">        dx = (self.y - self.t) / batch_size</span><br><span class="line">        <span class="keyword">return</span> dx</span><br></pre></td></tr></table></figure>
+<h1 id="总结">总结</h1>
+<p>在实践中，分层设计有利于快速调整和实现各种各样的神经网络。我们经常听说的深度学习，本质上就是一个神经网络层级比较多的结构。</p>
+<p>为了介绍神经网络中的分层设计原理，本文以计算图作为出发点，作为分析每个分层正向传播和反向传播的依据。这里，我们还介绍了一个用于反向传播的关键法则——链式法则。最后，我们介绍了神经网络中几种常见的分层，如：Affine、Sigmoid、ReLU、Softmax-with-Loss
+等。</p>
+<p>本文，我们大致了解了神经网络的分层设计，这种思想是研究复杂神经网络的基础。后续有时间，我们将继续探索神经网络的各种应用，敬请期待吧！</p>
+]]></content>
+      <categories>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>计算图</tag>
+        <tag>Sigmoid</tag>
+        <tag>Affine</tag>
+        <tag>Softmax</tag>
+        <tag>Softmax-with-Loss</tag>
+        <tag>ReLU</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>卷积神经网络</title>
+    <url>/2024/09/28/cnn-introduction/</url>
+    <content><![CDATA[<p>通过前面几篇文章，我们对神经网络有了一个基本的认识。本文，我们来介绍一下神经网络在图像与视觉领域的应用——<strong>卷积神经网络</strong>（Conventional
+Neural Network，简称 CNN）。</p>
+<span id="more"></span>
+<h1 id="视觉认知原理">视觉认知原理</h1>
+<p>在深度学习的发展过程中，广泛应用了大脑认知原理，尤其是视觉认知原理，这里我们来简单了解一下视觉认知原理。</p>
+<p>1981 年的诺贝尔医学奖，颁发给了 David Hubel 和 TorstenWiesel，以及
+Roger
+Sperry。前两位的主要贡献，是发现了视觉系统的信息处理，可视皮层是分级的。整体而言，人类的视觉认知原理大体分为以下几个步骤：</p>
+<ul>
+<li>通过瞳孔摄入原始的像素信号</li>
+<li>通过大脑皮层的细胞发现边缘和方向</li>
+<li>对边缘和方向进行组合，从而完成形状判定</li>
+<li>对形状进行高级视觉抽象，从而完成分类认知</li>
+</ul>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-01.png?x-oss-process=image/resize,w_800" /></p>
+<p>人类视觉认知是一个分层递进的过程：提取边缘特征，抽象高级特征，组合整体图像，最终完成分类。下图所示是对于不同物体的视觉认知过程。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-02.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="全连接层的局限性">全连接层的局限性</h1>
+<p>理论上，我们可以使用一个由全连接层组成的神经网络来进行图像识别，事实上，在
+<a
+href="https://chuquan.me/2024/07/31/neural-network-implement/">初识人工神经网络（2）——代码实现</a>
+一文中，我们也是这么做的。</p>
+<p>然而，对于复杂图像，全连接神经网络的表现并不好，根本原因在于
+<strong>全连接层忽略了数据的形状</strong>。图像是 3 维形状（宽、高、RGB
+通道），空间上邻近的像素会有相似的值，RGB
+各通道之间也有关联性。而全连接层会忽略形状，将数据作为一维数据进行处理，因此无法利用数据的空间关联信息。</p>
+<p>因此，为了提取图像数据的空间关联信息，于是诞生了卷积神经网络。</p>
+<h1 id="卷积神经网络">卷积神经网络</h1>
+<p>我们首先来看一下全连接神经网络和卷积神经网络的整体结构，如下所示。两者的主要区别在于：<strong>在输入端，CNN
+络使用「卷积层 + ReLU + 池化层」的结构代替了「全连接层 +
+ReLU」的结构</strong>。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-08.png?x-oss-process=image/resize,w_800" /></p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-09.png?x-oss-process=image/resize,w_800" /></p>
+<p>整体而言，卷积神经网络的工作流程主要分为三个阶段，分别是：</p>
+<ul>
+<li>通过 <strong>卷积层</strong>（Convolution
+Layer）对图像进行特征提取，得到特征图；</li>
+<li>通过 <strong>池化层</strong>（Pooling
+Layer）对特征图进行降采样，压缩数据量；</li>
+<li>通过 <strong>全连接层</strong>（Affine
+Layer）对特征图进行分类，得到识别结果。</li>
+</ul>
+<p>下面，我们分别介绍一下卷积层和池化层。</p>
+<h1 id="卷积层">卷积层</h1>
+<p>在 <a
+href="https://chuquan.me/2024/03/30/foundation-of-computer-graphic-04/">《计算机图形学基础（4）——光栅化》</a>
+一文中，我们提到过卷积（Convolution）是实现滤波的主要数学工具和底层原理。滤波器的基本原理是
+<strong>响应函数与输入信号进行卷积运算</strong>，因此滤波器也可以称为
+<strong>卷积核</strong>。</p>
+<p>卷积神经网络的核心在于卷积层，卷积层则包含了大量滤波器，这些滤波器通过监督学习，自适应调整内部权重参数，从而能够更加准确地提取特征值。下图所示是一个图片应用不同滤波器的示例。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-05.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="卷积运算">卷积运算</h2>
+<p>了解了滤波器的作用后，我们再来看一下滤波器的内部原理——卷积运算。如下所示，是一个卷积运算的例子。其中，输入大小是
+<span class="math inline">\((4, 4)\)</span>，滤波器大小是 <span
+class="math inline">\((3, 3)\)</span>，输出大小是 <span
+class="math inline">\((2, 2)\)</span>。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-06.png?x-oss-process=image/resize,w_800" /></p>
+<p>下图所示展示了卷积运算的执行顺序。对于输入数据，卷积运算以一定步幅滑动滤波器的窗口，同时将滤
+波器元素和对应的输入元素相乘并求和，最终保存至对应的输出位置，即可得到卷积运算结果。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-07.png?x-oss-process=image/resize,w_800" /></p>
+<p>全连接神经网络中，除了权重参数，还存在偏置。同样，在 CNN
+中，也存在偏置，下图所示展示了包含偏置的卷积运算。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-10.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="填充">填充</h2>
+<p>前面，我们介绍了一个卷积运算的例子，其输入大小是 <span
+class="math inline">\((4, 4)\)</span>，滤波器大小是 <span
+class="math inline">\((3, 3)\)</span>，输出大小是 <span
+class="math inline">\((2,
+2)\)</span>。此时可以会发现输出结果的大小已经小于滤波器的大小，将无法继续执行卷积运算，那么该如何解决呢？我们可以使用
+<strong>填充</strong>（Padding）来解决。</p>
+<p>如下所示，我们对输入数据进行了幅度为 1 的填充，输入大小从 <span
+class="math inline">\((4, 4)\)</span> 变成了 <span
+class="math inline">\((6, 6)\)</span>，输出大小从 <span
+class="math inline">\((2, 2)\)</span> 变成了 <span
+class="math inline">\((6,
+6)\)</span>。由此可见，填充可以调整卷积运算的输出大小，填充增大，输出大小增大。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-11.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="步幅">步幅</h2>
+<p>除了填充，我们还可以通过
+<strong>步幅</strong>（Stride）来控制输出大小。下图所示，我们设置步幅为
+2，滤波器每次滑动的间隔则为 2。整体而言，步幅增大，输出大小减小。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-12.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="滤波器通道">滤波器通道</h2>
+<p>上述例子中的输入是 2 维数据，但是图像是 3 维数据（宽、高、RGB
+通道），对此，我们也可以为滤波器增加一个维度——通道。</p>
+<p>下图所示，纵深方向为通道方向，输入数据的通道数为
+3，与此对应，滤波器的通道数也为
+3。每个通道的输入数据与对应通道的滤波器进行卷积运算，最后对所有通道的输出进行求和，从而得到输出结果。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-13.png?x-oss-process=image/resize,w_800" /></p>
+<p>此时，我们可以将输入数据抽象为 3 个维度，分别是通道数 <span
+class="math inline">\(C\)</span>、高度 <span
+class="math inline">\(H\)</span>，宽度 <span
+class="math inline">\(W\)</span>，整体使用 <span
+class="math inline">\((C, H, W)\)</span> 表示；滤波器也样，高度 <span
+class="math inline">\(FH\)</span>（Filter Height）、宽度 <span
+class="math inline">\(W\)</span>（Filter Width），通道数为 <span
+class="math inline">\(C\)</span>，整体使用 <span
+class="math inline">\((C, FH, FW)\)</span> 表示；输出大小为 <span
+class="math inline">\((1, OH, OW)\)</span>。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-14.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="滤波器数量">滤波器数量</h2>
+<p>上述卷积运算一次只能输出一张特征图（Feature
+Map），如果希望一次输出多张特征图，我们可以增加滤波器的数量，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-15.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="池化层">池化层</h1>
+<p>如果卷积层的输入数据非常大，那么输出特征图的数据量也会非常大。为了降低后续处理的数据量，以及提高鲁棒性、防止过拟合，卷积神经网络会在卷积层之后增加一个池化层。</p>
+<p>池化的本质是对输出特征图进行局部采样，也称降采样（Downsampling）。下图所示，是对一个输出特征图进行池化运算的示意图，其中使用的池化层为
+Max 池化层，即计算局部区域中的最大值。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-16.png?x-oss-process=image/resize,w_800" /></p>
+<p>对于多通道的场景，池化层将同时处理多个通道的数据，并进行池化运算，如下所示展示的是多通道池化运算顺序。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-17.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="全连接层">全连接层</h1>
+<p>经过多层「卷积 + ReLU +
+池化」的运算，神经网络能够提炼出经过高度简化、高度抽象的特征，这些特征总结了图像的空间信息。最后，为了对图像进行分类识别，我们需要使用全连接层来进行处理。</p>
+<p>如下图所示，全连接层会将池化层的输出结果进行降维输入，在监督学习的过程中，除了调整卷积层中的滤波器权重参数，也会调整全连接的权重参数，最终输出准确的分类结果。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-18.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="经典-cnn">经典 CNN</h1>
+<p>时至今日，业界已经出现了各种卷积神经网络。这里，我们介绍其中两个经典的网络，一个是
+1998 年首次被提出的 CNN——LeNet；另一个是在深度学习受到关注的 2012
+年提出的 AlextNet。</p>
+<h2 id="lenet">LeNet</h2>
+<p>LeNet 在 1998
+年提出时是用于解决手写数字识别的问题。如下所示，它包含连续的卷积层和子采样层，最后通过全连接层输出结果。与现在的
+CNN 相比，LeNet 有几个不同点：</p>
+<ul>
+<li>LeNet 使用 sigmoid 函数作为激活函数，而现在的 CNN 主要使用 ReLU
+函数作为激活函数</li>
+<li>Lext 采用子采样（Subsampling）进行数据压缩，而现在的 CNN
+主要使用池化层（Max 池化）进行数据压缩</li>
+</ul>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-19.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="alexnet">AlexNet</h2>
+<p>AlexNet 是图领奖获得者 Geoffrey Hinton 和他的学生 Alex Krizhevsky 在
+2012 年提出的，AlexNet 提出后引发了深度学习的浪潮，不过它的网络结构和
+LeNet 并没有本质的区别。</p>
+<p>AlexNet 和 LeNet 之间的主要区别在于：</p>
+<ul>
+<li>AlexNet 采用了 ReLU 作为激活函数</li>
+<li>AlexNet 采用了局部正规化的 LRN（Local Response
+Normalization）层</li>
+<li>AlexNet 采用了 Drouput，可以有效抑制过拟合</li>
+</ul>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/cnn-intro-20.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="总结">总结</h1>
+<p>本文我们主要介绍了卷积神经网络的基本概念及其工作原理，相比于全连接神经网络，卷积神经网络主要增加了卷积层和池化层，其中卷积层用于提取图像数据的空间特征，池化层用于压缩数据，提高鲁棒性，最后使用全连接层进行分类结果的计算和输出。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li>《深度学习入门：基于Python的理论与实现》</li>
+<li><a
+href="https://cs231n.github.io/convolutional-networks/">Convolutional
+Neural Networks (CNNs / ConvNets)</a></li>
+<li><a
+href="https://www.zhihu.com/question/29366638/answer/3383464185">卷积神经网络和深度神经网络的区别是什么？</a></li>
+<li><a
+href="https://easyai.tech/ai-definition/cnn/#google_vignette">卷积神经网络-CNN</a></li>
+<li><a
+href="https://towardsdatascience.com/convolutional-neural-network-1368ee2998d3">Convolutional
+Neural Network</a></li>
+<li><a href="https://mlnotebook.github.io/post/CNN1/">Convolutional
+Neural Networks - Basics</a></li>
+<li><a
+href="https://chuquan.me/2024/03/30/foundation-of-computer-graphic-04/#%E5%8D%B7%E7%A7%AF">卷积</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>卷积层</tag>
+        <tag>池化层</tag>
+        <tag>AlextNet</tag>
+        <tag>LeNet</tag>
       </tags>
   </entry>
 </search>
