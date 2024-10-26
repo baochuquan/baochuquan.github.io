@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="我们日常使用的语言，如中文、英文，称为 自然语言（natural language）。 自然语言处理（Natural Language Processing，NLP）则是一种让计算机理解人类语言的技术。现在很多知名的工具，比如：搜索引擎、机器翻译、ChatGPT 等，都是基于自然语言处理技术的应用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自然语言处理中的单词含义表示">
+<meta property="og:url" content="http://chuquan.me/2024/10/15/nlp-word-representation/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="我们日常使用的语言，如中文、英文，称为 自然语言（natural language）。 自然语言处理（Natural Language Processing，NLP）则是一种让计算机理解人类语言的技术。现在很多知名的工具，比如：搜索引擎、机器翻译、ChatGPT 等，都是基于自然语言处理技术的应用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-10-15T01:31:01.000Z">
+<meta property="article:modified_time" content="2024-10-15T01:34:17.411Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="词典法">
+<meta property="article:tag" content="计数法">
+<meta property="article:tag" content="推理法">
+<meta property="article:tag" content="word2vec">
+<meta property="article:tag" content="CBOW">
+<meta property="article:tag" content="skip-gram">
+<meta property="article:tag" content="SVD">
+<meta property="article:tag" content="负采样">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chuquan.me/2024/10/15/nlp-word-representation/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2024/10/15/nlp-word-representation/","path":"2024/10/15/nlp-word-representation/","title":"自然语言处理中的单词含义表示"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>自然语言处理中的单词含义表示 | 楚权的世界</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
+
+
+
+
+
+
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-rss"><a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%87%E6%9C%AC%E5%88%86%E8%AF%8D"><span class="nav-number">1.</span> <span class="nav-text">文本分词</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%95%E8%AF%8D%E5%90%AB%E4%B9%89"><span class="nav-number">2.</span> <span class="nav-text">单词含义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%8C%E4%B9%89%E8%AF%8D%E8%AF%8D%E5%85%B8%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">同义词词典法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%BA%E9%99%B7"><span class="nav-number">3.1.</span> <span class="nav-text">缺陷</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E6%95%B0%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">计数法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E6%96%99%E5%BA%93%E9%A2%84%E5%A4%84%E7%90%86"><span class="nav-number">4.1.</span> <span class="nav-text">语料库预处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E8%A1%A8%E7%A4%BA"><span class="nav-number">4.2.</span> <span class="nav-text">分布式表示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%81%87%E8%AE%BE"><span class="nav-number">4.3.</span> <span class="nav-text">分布式假设</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E5%B5%8C%E5%85%A5"><span class="nav-number">4.4.</span> <span class="nav-text">词嵌入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E5%8C%96"><span class="nav-number">4.5.</span> <span class="nav-text">优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AB%98%E9%A2%91%E8%AF%8D%E6%B1%87%E9%97%AE%E9%A2%98"><span class="nav-number">4.5.1.</span> <span class="nav-text">高频词汇问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E7%BB%B4%E5%BA%A6%E9%97%AE%E9%A2%98"><span class="nav-number">4.5.2.</span> <span class="nav-text">向量维度问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A8%E7%90%86%E6%B3%95"><span class="nav-number">5.</span> <span class="nav-text">推理法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E6%96%99%E5%BA%93%E9%A2%84%E5%A4%84%E7%90%86-1"><span class="nav-number">5.1.</span> <span class="nav-text">语料库预处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E8%A1%A8%E7%A4%BA-1"><span class="nav-number">5.2.</span> <span class="nav-text">分布式表示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E5%B5%8C%E5%85%A5-1"><span class="nav-number">5.3.</span> <span class="nav-text">词嵌入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#cbow-%E6%A8%A1%E5%9E%8B"><span class="nav-number">5.3.1.</span> <span class="nav-text">CBOW 模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#skip-gram-%E6%A8%A1%E5%9E%8B"><span class="nav-number">5.3.2.</span> <span class="nav-text">Skip-gram 模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cbow-vs-skip-gram"><span class="nav-number">5.3.3.</span> <span class="nav-text">CBOW vs skip-gram</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E5%8C%96-1"><span class="nav-number">5.4.</span> <span class="nav-text">优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%B1%82%E7%BB%B4%E5%BA%A6%E9%97%AE%E9%A2%98"><span class="nav-number">5.4.1.</span> <span class="nav-text">输入层维度问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%93%E5%87%BA%E5%B1%82%E7%BB%B4%E5%BA%A6%E9%97%AE%E9%A2%98"><span class="nav-number">5.4.2.</span> <span class="nav-text">输出层维度问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B4%9F%E9%87%87%E6%A0%B7%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%AD%A6%E4%B9%A0"><span class="nav-number">5.4.2.1.</span> <span class="nav-text">负采样的样本学习</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E6%B3%95-vs-%E6%8E%A8%E7%90%86%E6%B3%95"><span class="nav-number">6.</span> <span class="nav-text">计算法 vs 推理法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">150</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">36</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">377</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/Baochuquan" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;Baochuquan" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2024/10/15/nlp-word-representation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="自然语言处理中的单词含义表示 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          自然语言处理中的单词含义表示
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2024-10-15 09:31:01 / 修改时间：09:34:17" itemprop="dateCreated datePublished" datetime="2024-10-15T09:31:01+08:00">2024-10-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">自然语言处理</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2024/10/15/nlp-word-representation/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2024/10/15/nlp-word-representation/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>我们日常使用的语言，如中文、英文，称为
+<strong>自然语言</strong>（natural language）。
+<strong>自然语言处理</strong>（Natural Language
+Processing，NLP）则是一种让计算机理解人类语言的技术。现在很多知名的工具，比如：搜索引擎、机器翻译、ChatGPT
+等，都是基于自然语言处理技术的应用。</p>
+<span id="more"></span>
+<h1 id="文本分词">文本分词</h1>
+<p>大多数情况下，NLP
+处理的是由大量单词组成的文本。因此，这里面临的第一个问题是如何进行分词。</p>
+<p>英文的分词比较简单，每个单词都是独立的，可以通过空、标点符号、正则表达式等进行分词。相比而言，中文的分词会显得比较复杂。对此，研究人员针对不同语言开发了各种不同的分词工具，比如：</p>
+<ul>
+<li>英文分词可以使用 NLTK、spaCy 等工具</li>
+<li>中文分词可以使用 jieba、THULAC 等工具</li>
+</ul>
+<p>一些知名的预训练模型 BERT 和 GPT
+各自拥有专属的分词器（Tokenizer），比如：WordPiece、Byte Pair
+Encoding（BPE）等。</p>
+<h1 id="单词含义">单词含义</h1>
+<p>自然语言的灵活性非常强，同一个单词在不同的语境下，不同的上下文中具有不同的含义，这与编程语言截然不同。因此，理解单词的含义成为了
+NLP 的核心问题之一，也是本文将重点讨论的话题。</p>
+<p>在 NLP 技术的发展过程中，单词含义的表示方法主要经历了一下几种：</p>
+<ul>
+<li>基于同义词词典的方法</li>
+<li>基于计数的方法</li>
+<li>基于推理的方法</li>
+</ul>
+<p>下面，我们分别来介绍这几种单词含义的表示方法。</p>
+<h1 id="同义词词典法">同义词词典法</h1>
+<p>基于 <strong>同义词词典</strong>（Thesaurus）的方法的核心思路是：</p>
+<ul>
+<li>将含义相同或含义类似的单词归类到同一个组中</li>
+<li>同时定义单词之间细粒度的层级关系，比如：上位与下位的关系，整体与局部的关系。</li>
+</ul>
+<p>如下所示的例子是一个含义组别中，各个单词之间的关系，使用图进行表示。其中，motor
+vehicle 和 car 是上位和下位的关系。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-01.png?x-oss-process=image/resize,w_800" /></p>
+<p>在 NLP 领域中，最著名的同义词词典是普林斯顿大学开发的 <a
+href="https://wordnet.princeton.edu/">WordNet</a>，其至今被应用于各种自然语言处理应用中。</p>
+<h2 id="缺陷">缺陷</h2>
+<p>首先，同义词词典是一个人工标记的词典，制作词典会耗费巨大的人力成本。</p>
+<p>其次，同义词必须要随着语言的发展而更新。一方面，语言会出现新的单词，比如：团购、众筹等；另一方面，语言的含义也会发生变化，比如：卧龙凤雏，其含义从往年的褒义词变成了如今的贬义词。</p>
+<p>然而最致命的缺陷还是同义词词典
+<strong>无法表示单词含义的微妙差异</strong>。各种语言中都存在单词含义相同，但是用法不同的情况，而这种细微的差别在同义词词典中是无法表示出来的。</p>
+<h1 id="计数法">计数法</h1>
+<p>计数法，也称为统计法，其核心思想是
+<strong>基于语料库（Corpus）中的大量文本数据，自动且高效地提取单词的本质信息</strong>。</p>
+<h2 id="语料库预处理">语料库预处理</h2>
+<p>语料库本质上就是文本数据而已，比如：Wikipedia、Google
+News、文学作品集等。</p>
+<p>在使用语料库之前，必须先进行预处理，预处理主要有以下几个步骤：</p>
+<ul>
+<li>对文本进行分词</li>
+<li>为每个单词创建唯一的 ID</li>
+<li>基于语料库创建（ID，单词）和（单词，ID）的映射表，便于后续进行查找</li>
+</ul>
+<p>如下所示，我们对一个简单的语料库进行预处理，分别得到
+<code>id_to_word</code> 和 <code>word_to_id</code> 两个映射表。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>text</span><br><span class="line"><span class="string">&#x27;you say goodbye and i say hello .&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>words</span><br><span class="line">[<span class="string">&#x27;you&#x27;</span>, <span class="string">&#x27;say&#x27;</span>, <span class="string">&#x27;goodbye&#x27;</span>, <span class="string">&#x27;and&#x27;</span>, <span class="string">&#x27;i&#x27;</span>, <span class="string">&#x27;say&#x27;</span>, <span class="string">&#x27;hello&#x27;</span>, <span class="string">&#x27;.&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>id_to_word</span><br><span class="line">&#123;<span class="number">0</span>: <span class="string">&#x27;you&#x27;</span>, <span class="number">1</span>: <span class="string">&#x27;say&#x27;</span>, <span class="number">2</span>: <span class="string">&#x27;goodbye&#x27;</span>, <span class="number">3</span>: <span class="string">&#x27;and&#x27;</span>, <span class="number">4</span>: <span class="string">&#x27;i&#x27;</span>, <span class="number">5</span>: <span class="string">&#x27;hello&#x27;</span>, <span class="number">6</span>:<span class="string">&#x27;.&#x27;</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>word_to_id</span><br><span class="line">&#123;<span class="string">&#x27;you&#x27;</span>: <span class="number">0</span>, <span class="string">&#x27;say&#x27;</span>: <span class="number">1</span>, <span class="string">&#x27;goodbye&#x27;</span>: <span class="number">2</span>, <span class="string">&#x27;and&#x27;</span>: <span class="number">3</span>, <span class="string">&#x27;i&#x27;</span>: <span class="number">4</span>, <span class="string">&#x27;hello&#x27;</span>: <span class="number">5</span>, <span class="string">&#x27;.&#x27;</span>: <span class="number">6</span>&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="分布式表示">分布式表示</h2>
+<p>在 NLP 中，广泛使用 <strong>分布式表示</strong>（Distributed
+Representation）来表示单词含义。分布式表示将单词表示为
+<strong>固定长度的向量</strong>，其采用密集向量表示，即向量的大多数元素是由非
+0 实数表示的。比如，一个三维分布式表示
+<code>[0.21, -0.45, 0.83]</code>。</p>
+<p>为什么使用向量来表示？因为对于向量，我们可以使用
+<strong>余弦相似度</strong>（Cosine
+Similarity）来计算两个向量之间的夹角余弦值，余弦值越接近
+1，表示向量夹角越小，说明相似度越高。使用向量表示单词，那么就可以计算不同单词含义之间的相似度。</p>
+<p>假设，有两个向量 <span class="math inline">\(x = (x_1, x_2, x_3, ...,
+x_n)\)</span> 和 <span class="math inline">\(y = (y_1, y_2, y_3, ...,
+y_n)\)</span>，那么余弦相似度的定义如下。为了避免分母为
+0，一般会给分母加上一个微小值 eps，默认其值为 0.00000001。</p>
+<span class="math display">\[\begin{aligned}
+similarity(x, y) = \frac{x \cdot y}{ ||x|| \space ||y|| }
+=  \frac{x_1 y_1 + ... + x_n y_n}{\sqrt{x_1^2 + ... + x_n^2} \sqrt{y_1^2
++ ... + y_n^2}}
+\end{aligned}\]</span>
+<h2 id="分布式假设">分布式假设</h2>
+<p>在 NLP 中，很多研究都是基于
+<strong>分布式假设</strong>（Distributional
+Hypothesis）完成的。分布式假设认为，<strong>一个单词的含义是由其周围的单词形成的</strong>。单词本身没有含义，其含义是由上下文（语境）形成的。相同的单词经常出现在相同的语境中，比如："I
+drink beer." 和 "I drink wine."，drink 附近经常会出现饮料，beer 和 wine
+则是含义相似的单词。</p>
+<p>这里提到的“上下文”，指的是某个单词周围的单词。我们将上下文的大小称为
+<strong>窗口大小</strong>（Window Size）。假如，窗口大小为
+2，则表示上下文包含了目标单词前后各两个单词。如下所示，是一个窗口大小为
+2 的示例。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-02.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="词嵌入">词嵌入</h2>
+<p><strong>词嵌入</strong>（Word Embedding）表示
+<strong>将单词映射到向量中间的过程或方法</strong>，也可以认为是
+<strong>基于分布式假设将单词转换成分布式表示的过程或方法</strong>。</p>
+<p>计数法的词嵌入，可以分为以下几个步骤：</p>
+<ul>
+<li>首先，进行语料库预处理，得到每个单词的 ID 以及两个映射表</li>
+<li>其次，定义每个单词的向量维度为语料库中不同单词的数量</li>
+<li>然后，定义上下文大小，即窗口大小</li>
+<li>最后，根据窗口大小，为每个单词统计其上下文的单词数量，并记录在向量中指定位置（各个单词
+ID 指定的位置）</li>
+</ul>
+<p>假设，我们以 “you say goodby and i say hello.”
+作为语料库，定义窗口大小为 1。由于语料库中总共有 7
+个不同的单词，包括句号，因此单词的向量维度等于 7。</p>
+<p>首先，我们来看 "you" 的向量表示，其上下文只有一个单词
+"say"，那么我们可以将单词 "say" 的 ID 对应在向量中的位置进行计数，值为
+1，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-03.png?x-oss-process=image/resize,w_800" /></p>
+<p>然后，我们来看 “say” 的向量表示。语料库中 “say”
+出现了两次，因此我们需要分别统计这两个 “say”
+的上下文，并在向量对应的位置进行计数，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-04.png?x-oss-process=image/resize,w_800" /></p>
+<p>当对语料库中所有单词进行了词嵌入的处理后，我们可以得到所有的单词的向量表示，它们共同构成了一个矩阵，我们称之为
+<strong>共现矩阵</strong>（Co-ocurrence Matrix），如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-05.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="优化">优化</h2>
+<h3 id="高频词汇问题">高频词汇问题</h3>
+<p>共现矩阵的元素表示每个单词与其上下文的单词共同出现的次数。这种表示方法对于高频词汇可能会出现问题。比如：the
+和 car 的共现次数会非常大，甚至要远远大于 car 和 drive
+的共现次数。对于这种情况，实际上我们不应该认为 the 和 car
+具有很强的相关性，因为 the 仅仅是一个常用词。</p>
+<p>为了解决这个问题，我们可以使用 <strong>点互信息</strong>（Pointwise
+Mutual Information，PMI）指标，其定义如下所示。</p>
+<span class="math display">\[\begin{aligned}
+PMI(x, y) = log_2 \frac{P(x, y)}{P(x) P(y)}
+\end{aligned}\]</span>
+<p>其中，<span class="math inline">\(P(x)\)</span> 表示 x
+发生的概率，<span class="math inline">\(P(y)\)</span> 表示 y
+发生的概率，<span class="math inline">\(P(x, y)\)</span> 表示 x 和 y
+同时发生的概率。PMI 的值越高，表明相关性越强。</p>
+<p>假设语料库的单词数量为 10000，the 出现 100 次，car 出现 20 次，drive
+出现 10 次，the 和 car 共出现 10 次，car 和 drive 共出现 5
+次。那么，我们可以计算一下 PMI 值，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+PMI(the, car) = &amp; log_2 \frac{10 \cdot 10000}{1000 \cdot 20} \approx
+2.32
+\\
+PMI(car, drive) = &amp; log_2 \frac{5 \cdot 10000}{20 \cdot 10} \approx
+7.97
+\end{aligned}\]</span>
+<p>通过
+PMI，我们可以解决高频词汇在共现矩阵中对于单词关联性的影响。不过，PMI也有一个问题，即当两个单词共现次数为
+0 时，<span class="math inline">\(log_2 0 =
+-\infty\)</span>。为了解决这问题，在实际中使用
+<strong>正的点互信息</strong>（Positive
+PMI，PPMI）来处理，其本质就是使用最小值 0
+来进行兜底，其定义如下所示。</p>
+<span class="math display">\[\begin{aligned}
+PPMI(x, y) = max(0, PMI(x, y))
+\end{aligned}\]</span>
+<p>经过 PPMI 的处理，我们可以将共现矩阵转换成 PPMI 矩阵，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-06.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="向量维度问题">向量维度问题</h3>
+<p>计数法还存在一个问题，那就是随着语料库词汇量的增加，各个单词向量的维数也会增加。如果语料库的词汇量达到
+10 万，那么单词向量的维度也会达到 10
+万。维度过高会导致处理计算量极大增加，而且向量中绝大多数元素都是
+0，会造成存储空间浪费。对此，我们要对向量进行
+<strong>降维</strong>（Dimensionality Reduction）。</p>
+<p>降维的核心思想是
+<strong>从稀疏矩阵中找到重要的轴，用更少的维度重新表示</strong>。比如下图所示，我们发现二维向量的分布具有某种特点，而这种特点可以使用一维向量来表示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-07.png?x-oss-process=image/resize,w_800" /></p>
+<p>具体而言，我们可以使用 <strong>奇异值分解</strong>（Singular Value
+Decomposition，SVD）来进行降维。关于 SVD
+的工作原理，要解释明白的话，涉及的篇幅会很大，这里不作具体阐述，有兴趣的朋友可以自行去了解。</p>
+<h1 id="推理法">推理法</h1>
+<p>基于推理的方法，其本质上是基于神经网络来学习单词的内在含义，最终使用权重来表示单词的含义。推理法使用部分学习数据逐步进行学习；计数法则使用整个语料库进行数据统计，一次性处理得到单词的分布式表示。两者之间的差异如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-08.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="语料库预处理-1">语料库预处理</h2>
+<p>类似于计数法，推理法也会对语料库进行预处理，主要有以下几个步骤：</p>
+<ul>
+<li>对文本进行分词</li>
+<li>为每个单词创建唯一的 ID</li>
+<li>为每个单词定义 one-hot 表示</li>
+</ul>
+<p>什么是 one-hot 表示？one-hot
+表示会定义一个固定长度的向量，该向量的长度等于语料库中词汇的数量。每个单词的
+one-hot 表示中，只有其 ID 对应的元素为 1，其余元素均为 0。如下所示为
+one-hot 表示的示意图。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-09.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="分布式表示-1">分布式表示</h2>
+<p>推理法中单词的分布式表示是通过神经网络的权重来表示的。如下所示，输入层和中间层会构建一个全连接层，其中输入层的神经元数量等于
+one-hot 表示的长度，也就是语料库的词汇数量，比如
+7；中间层的神经元数量可以自定义，比如 3。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-10.png?x-oss-process=image/resize,w_800" /></p>
+<p>通过学习，我们最终可以得到一个 7 x 3
+的权重矩阵。我们使用任意一个单词的 one-hot
+表示与权重矩阵进行乘积，即可提取到对应单词的分布式表示，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-11.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="词嵌入-1">词嵌入</h2>
+<p>推理法的词嵌入方法很多，本质而言，这些方法都是基于不同的神经网络模型实现的，通常我们会直接用神经网络模型表示不同的方法，比如：word2vec、gloVe
+等。这里我们主要介绍 word2vec 模型，其主要有两种架构，分别是：</p>
+<ul>
+<li>CBOW（Continuous Bag of
+Words）模型：根据上下文的多个单词预测中间的单词</li>
+<li>skip-gram 模型：根据中间的单词预测上下文的单词</li>
+</ul>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-12.png?x-oss-process=image/resize,w_800" /></p>
+<p>下面，我们分别来介绍这两种结构。</p>
+<h3 id="cbow-模型">CBOW 模型</h3>
+<p>CBOW
+模型，也称为连续词袋模型，其工作原理是通过上下文的多个单词来预测中间的单词。</p>
+<p>CBOW 模型包含了输入层、中间层、输出层。输入层接收单词的 one-hot
+表示，中间层通过权重矩阵将输入转换成低维度的密集向量，输出层则使用
+softmax 函数预测目标词的概率分布，如下所示。输出层的各个神经元经过
+softmax 的计算可以得到各自的概率值，概率值最大的值转换成 1，其余转换成
+0，由此得到的 one-hot 表示可以对应一个单词。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-13.png?x-oss-process=image/resize,w_800" /></p>
+<p>CBOW 模型基于 softmax 函数和交叉熵误差进行学习，两者可以构建一个
+Softmax with Loss 层，学习阶段时完备的神经网络结构如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-14.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="skip-gram-模型">Skip-gram 模型</h3>
+<p>Skip-gram 模型，其工作原理是通过中间的单词预测上下文的单词。</p>
+<p>Skip-gram
+模型同样包含了输入层、中间层、输出。区别在于输出层只接收中间单词的
+one-hot
+编码，中间层同样通过权重矩阵转换成密集向量，输出层则为上下文中的每个单词分配概率，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-15.png?x-oss-process=image/resize,w_800" /></p>
+<p>Skip-gram 模型的输出层数量与上下文单词的个数相同。因此需要通过
+Softmax with Loss 层分别求出各个输出层的损失并求和。具体而言，skip-gram
+模型的函数可以表示如下所示的函数。</p>
+<span class="math display">\[\begin{aligned}
+L = - \frac{1}{T} \sum_{t=1}^{T} (logP(w_{t-1}|w_t) + logP(w_{t+1}|w_t))
+\end{aligned}\]</span>
+<p>其中，<span class="math inline">\(P(w_{t-1}|w_t)\)</span> 表示给定
+<span class="math inline">\(w_t\)</span> 时，<span
+class="math inline">\(w_{t-1}\)</span> 发生的概率；<span
+class="math inline">\(P(w_{t+1}|w_t)\)</span> 表示给定 <span
+class="math inline">\(w_t\)</span> 时，<span
+class="math inline">\(w_{t+1}\)</span> 发生的概率。</p>
+<h3 id="cbow-vs-skip-gram">CBOW vs skip-gram</h3>
+<p>关于 CBOW 和 skip-gram
+的对比，从单词的分布式表示的准确度而言，skip-gram
+的表现更好。从学习速度而言，CBOW 的表现更快。</p>
+<p>在实际应用中，更多会选择
+skip-gram。因为一旦生成了单词的分布式表示后，我们可以重复应用到各种场景中。因此可以无需考虑学习速度，更应该注重准确度。</p>
+<h2 id="优化-1">优化</h2>
+<p>推理法存在一个问题，即 one-hot 表示的维度问题。由于 one-hot
+表示的维度等于语料库的词汇量数量，如果语料库的词汇量为 100
+万，那么神经网络中各个层之间的矩阵运算的数据量将非常大，极其影响性能。</p>
+<p>我们假设语料库词汇量有 100 万个，中间层神经元有 100 个，CBOW
+模型如下所示。下面，我们将以 word2vec 的 CBOW 模型为例，进行优化。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-16.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="输入层维度问题">输入层维度问题</h3>
+<p>首先，我们考虑 one-hot 表示对于输入层维度的影响。我们使用 one-hot
+表示作为输入，one-hot 表示和权重矩阵 <span
+class="math inline">\(W_{in}\)</span>
+的乘积显然会耗费巨大的计算资源，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-17.png?x-oss-process=image/resize,w_800" /></p>
+<p>从图中可以看出，矩阵乘法的目的是为了取出单词的 ID 在权重矩阵 <span
+class="math inline">\(W_{in}\)</span>
+中对应行的向量，即单词对应的向量表示。对此，我们可以创建一个层，专门用于从权重参数中提取
+<strong>单词 ID 对应行（向量）</strong>，称之为 <strong>Embedding
+层</strong>。</p>
+<p>Embedding 层以单词 ID
+作为输入，输出单词的向量表示。在反向传播时，权重只会更新单词 ID
+对应行的权重，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-18.png?x-oss-process=image/resize,w_800" /></p>
+<p>当引入 Embedding 层之后，我们可以得到 CBOW
+模型的全貌图，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-20.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="输出层维度问题">输出层维度问题</h3>
+<p>其次，我们考虑 one-hot 表示对于输出层维度的影响。</p>
+<p>首先，权重矩阵 <span class="math inline">\(W_{out}\)</span> 的大小是
+100 x 1000000，中间层的单词向量为 100。很显然，单词向量与权重矩阵 <span
+class="math inline">\(W_{out}\)</span>
+的乘积页会耗费巨大的计算资源。</p>
+<p>其次，基于如下所示的 softmax 公式，我们可以看出 softmax
+也存在计算量过大的问题。</p>
+<span class="math display">\[\begin{aligned}
+y_k = \frac{exp(s_k)}{\sum_{i=1}^{1000000} \space exp(s_i)}
+\end{aligned}\]</span>
+<p>对此，我们使用 <strong>负采样</strong>（Negative
+Sampling）来进行优化。负采样的核心思想是
+<strong>使用二分类拟合多分类</strong>。举个例子，在未优化的实现中，我们使用
+softmax 计算出所有单词的概率值，由此构建一个 one-hot
+结果，来与正确值进行对比。而负采样的实现中，我们给定一个单词，神经网络计算这个单词的概率，判断它是否是正确值。这样就能将计算复杂度从
+O(N) 降低至 O(1)，其示意图如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-19.png?x-oss-process=image/resize,w_800" /></p>
+<p>另一方面，<strong>在多分类的情况下，输出层使用 softmax
+函数将得分转化为概率，损失函数使用交叉熵误差。在二分类的情况下，输出层使用
+sigmoid 函数，损失函数也使用交叉熵误差</strong>。因此，我们可以进一步将
+Softmax-with-Loss 替换成
+Sigmoid-with-Loss，得到如下所示的二分类神经网络。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-21.png?x-oss-process=image/resize,w_800" /></p>
+<p>至此，我们已经将多分类问题转换成了二分类问题，神经网络结构也进行了优化。下面，我们来看看二分类情况下如何进行学习。</p>
+<h4 id="负采样的样本学习">负采样的样本学习</h4>
+<p>负采样的样本学习，核心思想是使用一个正例、采样选择若干个负例，对这些数据的损失求和，基于此来进行学习，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/nlp-word-presentation-22.png?x-oss-process=image/resize,w_800" /></p>
+<p>关于负例的选择，负采样的做法是：基于语料库中单词使用频率，计算出各个单词的概率分布，然后基于概率分布对单词进行采样。这样可以尽可能保证单词的出现概率与真实的情况类似。此外，为了避免稀有单词出现的概率过低，这里还会对概率分布进行调整，如下所示。</p>
+<span class="math display">\[\begin{aligned}
+
+P&#39;(w_i) = \frac{P(w_i)^{0.75}}{\sum_j^n P(w_j)^{0.75}}
+
+\end{aligned}\]</span>
+<h1 id="计算法-vs-推理法">计算法 vs 推理法</h1>
+<p>最后，我们来简单对比一下计数法和推理法。</p>
+<p>首先，两种方法在学习机制上存在差异。计数法通过对整个语料库的统计数据进行一次学习来获得单词的分布式表示；推理法则反复基于语料库的部分数据进行学习。每当语料库新增词汇时，计数法需要重新计算，完成共现矩阵生成、SVD
+等一系列操作。推理法则可以允许参数的增量学习，可以将之前学习到的权重作为下一次学习的初始值。</p>
+<p>其次，两种方法在单词的分布式表示的性质上存在差异。计数法主要是编码单词的相似性。推理法除了单词的相似性之外，还能理解单词之间更复杂的模式，比如能够求解
+"king - man + woman = queen" 这样的类推问题。</p>
+<p>当然，如果只评判单词的相似性，两种方法则不相上下。</p>
+<h1 id="总结">总结</h1>
+<p>本文我们主要介绍了自然语言处理中的核心问题之一——单词含义的表示。由此，我们介绍了三种方法，分别是词典法、计数法、推理法。</p>
+<p>词典法的核心思想是
+<strong>将含义相同或含义类似的单词归类到同一个组中，同时定义单词之间细粒度的层级关系，比如：上位与下位的关系，整体与局部的关系</strong>。</p>
+<p>计数法的核心思想是
+<strong>基于语料库（Corpus），根据上下文的窗口大小，统计目标词周围的单词的频率</strong>，这种方法的依据是
+<strong>分布式假设</strong>，即一个单词的含义是由其周围的单词形成。</p>
+<p>推理法则是采用了神经网络的方式，学习样本数据，更新权重，以权重作为单词含义的表示。文中，我们介绍了
+word2vec 模型的两种架构，分别是 CBOW 和 skip-gram。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li>《深度学习：自然语言处理》</li>
+<li>《图解GPT》</li>
+<li><a
+href="https://www.53ai.com/news/qianyanjishu/2024070628415.html">一文彻底搞懂Transformer
+- Word Embedding（词嵌入）</a></li>
+<li>Pennington, Jeffrey, Richard Socher, Christopher D. Manning.Glove:
+Global Vectors for Word Representation[J]. EMNLP. Vol.14. 2014.</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%AF%8D%E5%85%B8%E6%B3%95/" rel="tag"># 词典法</a>
+              <a href="/tags/%E8%AE%A1%E6%95%B0%E6%B3%95/" rel="tag"># 计数法</a>
+              <a href="/tags/%E6%8E%A8%E7%90%86%E6%B3%95/" rel="tag"># 推理法</a>
+              <a href="/tags/word2vec/" rel="tag"># word2vec</a>
+              <a href="/tags/CBOW/" rel="tag"># CBOW</a>
+              <a href="/tags/skip-gram/" rel="tag"># skip-gram</a>
+              <a href="/tags/SVD/" rel="tag"># SVD</a>
+              <a href="/tags/%E8%B4%9F%E9%87%87%E6%A0%B7/" rel="tag"># 负采样</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/09/28/cnn-introduction/" rel="prev" title="卷积神经网络">
+                  <i class="fa fa-angle-left"></i> 卷积神经网络
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/10/26/rnn-introduction/" rel="next" title="循环神经网络">
+                  循环神经网络 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">true</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2024/10/15/nlp-word-representation/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
+  }
+}
+</script>
+
+<script src="/live2dwlib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dwassets/tororo.model.json"},"display":{"position":"right","width":150,"height":300,"hOffset":-15,"vOffset":-15},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>
