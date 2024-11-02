@@ -35091,4 +35091,231 @@ Gate RNN 的两种结构：LSTM 和 GRU。</p>
         <tag>Truncated BPTT</tag>
       </tags>
   </entry>
+  <entry>
+    <title>语言模型中的注意力机制</title>
+    <url>/2024/11/02/attention-introduction/</url>
+    <content><![CDATA[<p>前一篇文章 <a
+href="https://chuquan.me/2024/10/26/rnn-introduction/">循环神经网络</a>
+中我们介绍了 RNN、LSTM、GRU
+等。本文，我们将以此为基础，进一步介绍大名鼎鼎的
+<strong>注意力机制</strong>。</p>
+<span id="more"></span>
+<h1 id="语言模型">语言模型</h1>
+<p>我们首先介绍一下 <strong>语言模型</strong>（Language
+Model）。语言模型是一种通过学习大量文本数据来理解和生成语言的计算模型，其主要功能包括：</p>
+<ul>
+<li><strong>文本生成</strong>：根据给定的上下文生成连贯的文本</li>
+<li><strong>语言理解</strong>：识别和理解句子的结构和含义</li>
+<li><strong>预测下一个词</strong>：基于前面的词预测接下来的词</li>
+</ul>
+<p>语言模型通常使用深度学习中的神经网络来训练，可以应用于各种自然语言处理任务，如：翻译、情感分析、问答系统等。</p>
+<p>2010 年，托马斯·米科洛夫提出了基于 RNN 的语言模型。由于简单 RNN
+存在梯度消失和梯度爆炸问题，实际应用中更多会使用 LSTM、GRU 等 Gated
+RNN。</p>
+<p>下图所示，是一个基于 LSTM
+的简单语言模型，其根据输入单词输出下一个出现的单词的概率分布，并概率性地选择下一个单词。然后，将输出单词继续作为下一个输入单词，自回归地进行输出，从而实现文本自动生成。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-02.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="seq2seq-模型">seq2seq 模型</h1>
+<p>除了上述普通的语言模型，我们考虑将一种时序数据转换成另一种时序数据的模型，比如：机器翻译、语音识别等场景，这里我们引入一种基于两个
+RNN 的模型——seq2seq模型。</p>
+<p>seq2seq 模型，也称为 <strong>Encoder-Decoder</strong> 模型，其中
+Enoder（编码器）对输入数据进行编码，解码器对已编码的数据进行解码。中间的编码数据本质上就是神经网络的隐藏状态。下图所示，是一个
+seq2seq 模型的示意图。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-01.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="编码器">编码器</h2>
+<p>seq2seq 模型的编码器是一个基于 RNN
+的简单模型，其层结构如下所示。编码器利用 RNN 将时序数据转换成隐藏状态
+<span class="math inline">\(h\)</span>。这里的 RNN 是
+LSTM，不过也可以使用简单 RNN 或 GRU 等。</p>
+<p>编码器的输出向量 <span class="math inline">\(h\)</span> 是 LSTM
+层最后一个的隐藏状态，其中编码了输入文本的关键信息。这里的重点是，LSTM
+的隐藏状态 <span class="math inline">\(h\)</span> 是一个
+<strong>固定长度</strong>
+的向量。本质而言，编码就是将任意长度的文本转换成一个固定长度的向量。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-03.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="解码器">解码器</h2>
+<p>seq2seq 面模型的解码器也是一个基于 RNN
+的简单模型，如下图所示，其与上一节介绍简单语言模型的神经网络完全相同。唯一的区别在于，LSTM
+层会接收隐藏向量 <span
+class="math inline">\(h\)</span>。正是这个区别使得普通语言模型变成可以完成翻译功能的解码器。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-04.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="应用">应用</h2>
+<p>seq2seq
+可以将一个时序数据转换成另一个时序数据，这种时序数据转换可以应用在各种任务中，比如：</p>
+<ul>
+<li>机器翻译：将 “一种语言的文本” 转换成 “另一种语言的文本”</li>
+<li>自动摘要：将 “一个长文本” 转换成 “短摘要”</li>
+<li>问答系统：将 “问题” 转换成 “答案”</li>
+<li>自动回复：将 “接收文本” 转换成 “回复文本”</li>
+</ul>
+<p>除了文本之外，seq2seq 还可以处理图像、语音等类型的数据。下图所示是
+seq2seq 在 <strong>自动图像描述</strong>（Image
+Captioning）中的应用，可以将 “图像” 转换成
+“文本”。其神经网络结构与上面介绍的 seq2seq 模型的区别在于，编码器从 LSTM
+转换成 CNN，解码器仍然保持不变。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-05.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="问题">问题</h2>
+<p>当然，seq2seq
+也存在一个很大的问题。编码器输出的是固定长度的向量，这意味着无论输入语句多长，都会被转换成长度固定的向量，如下图所示。很显然，如果文本的信息特别多，固定长度的向量显然是无法承载全部的信息的，如同一个衣柜无法塞下过多的衣服一样。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-06.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="注意力机制">注意力机制</h1>
+<p>为了解决 seq2seq 的问题，我们将介绍进一步强化 seq2seq 的
+<strong>注意力机制</strong>（Attention Machanism，简称
+Attention）。那么到底什么是注意力机制呢？其核心思想是让模型在处理输入数据时，能够“关注”特定的部分，从而更加有效地捕捉上下文信息。</p>
+<h2 id="编码器优化">编码器优化</h2>
+<p>针对 seq2seq
+输出的固定长度向量表现力不足的问题，最直观的解决思路就是将编码器 RNN
+各个时刻输出的隐藏状态 <span class="math inline">\(hs\)</span>
+全部传递给解码器，从而摆脱一个固定长度向量的表现约束，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-07.png?x-oss-process=image/resize,w_800" /></p>
+<p>当然，隐藏状态 <span class="math inline">\(hs\)</span>
+中的每个向量都包含了各个时刻之前的所有信息。在实际使用中，考虑到各个向量的平衡性，编码器使用从两个方向处理时序数据的
+<strong>双向 RNN</strong> 或 <strong>双向
+LSTM</strong>，在向量的平衡性上会更加有效。</p>
+<h2 id="解码器优化">解码器优化</h2>
+<p>编码器输出了全部隐藏状态 <span
+class="math inline">\(hs\)</span>，对此，解码器必须要从全部隐藏状态
+<span class="math inline">\(hs\)</span> 中 “关注”
+到关键信息，这就是注意力机制的核心目标。</p>
+<p>整体而言，解码器的层结构如下图所示，“某种计算”
+就是注意力机制的实现层，其接收解码器各个时刻的隐藏层状态和编码器的全部隐藏状态
+<span class="math inline">\(hs\)</span>，最终输出至 Affine 层。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-08.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="实现原理">实现原理</h3>
+<p>从具体实现而言，注意力机制的目标是从编码器隐藏状态 <span
+class="math inline">\(hs\)</span>
+中提取出与各个输出的单词有对应关系的单词向量。对此，其实现原理也比较简单，<strong>基于编码器的全部隐藏状态
+<span class="math inline">\(hs\)</span>，结合一个注意力权重 <span
+class="math inline">\(a\)</span>，进行加权求和，得到一个上下文向量 <span
+class="math inline">\(c\)</span></strong>，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-09.png?x-oss-process=image/resize,w_800" /></p>
+<h4 id="注意力权重">注意力权重</h4>
+<p>首先，我们考虑如何得到注意力权重 <span
+class="math inline">\(c\)</span>。我们的目标是基于解码器的 LSTM
+层的隐藏状态向量 <span
+class="math inline">\(h\)</span>，判断其与编码器的全部隐藏向量 <span
+class="math inline">\(hs\)</span>
+中各个单词向量的相似性，从而构建注意力权重矩阵。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-10.png?x-oss-process=image/resize,w_800" /></p>
+<p>计算向量之间的相似度，这里使用向量内积来表示，下图中使用 dot
+节点表示。关于内积运算，假如向量 <span class="math inline">\(a = (a_1,
+a_2, ..., a_n)\)</span> 和向量 <span class="math inline">\(b = (b_1,
+b_2, ..., b_n)\)</span> 的进行内积运算，其结果如下所示。</p>
+<span class="math display">\[\begin{aligned}
+a \cdot b = a_1 b_1 + a_2 b_2 + ... + a_n b_n
+\end{aligned}\]</span>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-11.png?x-oss-process=image/resize,w_800" /></p>
+<p>为了方便一次性计算全部隐藏状态 <span
+class="math inline">\(hs\)</span> 的各个向量与 <span
+class="math inline">\(h\)</span> 之间的相似度，这里会对 <span
+class="math inline">\(h\)</span>
+进行广播，从而得到两个形状完全相同的矩阵。然后通过阿达玛乘积实现两个矩阵各自位置元素进行乘积。最后通过求和运算，对各个向量的阿达玛乘积结果进行求和。本质上就是实现上述的内积运算。下图所示，就是广播后进行阿达玛乘积的过程。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-15.png?x-oss-process=image/resize,w_800" /></p>
+<p>计算得到初始的注意力权重后，我们还需要对它进行归一化处理，归一化处理一般则都是使用
+softmax 函数进行处理，如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-12.png?x-oss-process=image/resize,w_800" /></p>
+<p>最后，关于注意力权重的计算，我们可以得到如下所示的计算图。其中包含了阿达玛乘积节点和
+Sum 节点。Repeat
+节点主要是为了对矩阵进行广播，以符合矩阵运算的基本要求。注意，计算图中标注的
+<code>N</code> 是 mini-batch 批量处理的数量。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-13.png?x-oss-process=image/resize,w_800" /></p>
+<h4 id="加权求和">加权求和</h4>
+<p>然后，我们考虑如何使用注意力权重，结合编码器的全部隐藏状态进行加权求和。这一步运算过程本质上注意力权重计算一样，只不过少了归一化处理。下图所示是基于全部隐藏状态
+<span class="math inline">\(hs\)</span> 和注意力矩阵 <span
+class="math inline">\(a\)</span> 进行加权求和的计算图。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-14.png?x-oss-process=image/resize,w_800" /></p>
+<h3 id="整体架构">整体架构</h3>
+<p>我们可以将注意力权重、加权求和两个部分整体转换成如下所示的计算图。两者分别对应
+Attention Weight 层和 Weight Sum 层，对外可以整体表示为 Attention
+层。Attention 层以编码器的全部隐藏状态 <span
+class="math inline">\(hs\)</span> 和解码器当前时刻的 LSTM 输出 <span
+class="math inline">\(h\)</span> 作为输入，最终输出上下文向量 <span
+class="math inline">\(c\)</span>。这就是注意力机制的技术核心。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-16.png?x-oss-process=image/resize,w_800" /></p>
+<p>我们将 Attention
+层重新加入解码器的层结构，可以得到如下所所示的层结构图。这里要注意的是，我们不仅将
+Attention 层的输出的上下文向量输入至 Affine 层，还将 LSTM
+层的隐藏状态也输入至 Affine 层。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-17.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="注意力机制的应用">注意力机制的应用</h1>
+<p>在了解了注意力机制之后，我们再来看看 Attention 的相关应用。</p>
+<h2 id="基于-attention-的-seq2seq">基于 Attention 的 seq2seq</h2>
+<p>首先，我们可以对 seq2seq 模型进行优化。基于 Attention
+的优化主要集中在解码器部分，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-18.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="gnmt">GNMT</h2>
+<p>在机器翻译领域，经历过 <strong>基于规则的翻译</strong> 到
+<strong>基于用例的翻译</strong>，再到
+<strong>基于统计的翻译</strong>，以及如今的
+<strong>神经机器翻译</strong>（Neural Machine Translation）。</p>
+<p>谷歌翻译，全称谷歌神经机器翻译系统（Google，Neural Machine
+Translation，GNMT）正是一种基于 Attention 的 seq2seq
+模型，其由编码器、解码器、Attention
+构成。当然，与我们介绍的简单模型不同，其为了提供精度做了更多的优化，比如：LSTM
+层的多层化、双向 LSTM、skip connection 等，以及为了提高学习速度，支持多
+GPU 的分布式学习，其层结构如下所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-19.png?x-oss-process=image/resize,w_800" /></p>
+<h2 id="transformer">Transformer</h2>
+<p>最后，我们来介绍一下著名的 Transformer。</p>
+<p>由于 RNN
+必须基于上一时刻的计算结果进行迭代，因此难以在时间方向上进行并行计算。对此，在使用了
+GPU
+的并行计算环境下具有严重的性能瓶颈。于是，研究者提出了一个著名的模型——Transformer。Transformer
+不用 RNN，而用 Attention 进行处理，其中使用了
+<strong>自注意力</strong>（Self-Attention）技术。</p>
+<p>自注意力机制是一种特殊的注意力机制，主要用于同一序列内的元素之间的关系建模，其允许模型在处理一个序列时，动态地关注该序列的其他部分。在结构上，自注意力的特点是两个输入都是同一个时序数据，如下图所示。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-20.png?x-oss-process=image/resize,w_800" /></p>
+<p>下面，我们再来看下 Transformer 的简化层结构，如下图所示。Transformer
+中使用 Attention 代替了 RNN，并且编码器和解码器都使用了
+Self-Attention。图中 Feed Forward
+层便是前馈神经网络，具体而言是具有一个隐藏层、激活函数为 ReLU
+的全连接神经网络。<span class="math inline">\(N_x\)</span>
+表示灰色背景包围的元素被堆叠了 N 次。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/attention-introduction-21.png?x-oss-process=image/resize,w_800" /></p>
+<h1 id="总结">总结</h1>
+<p>本文我们主要介绍了 seq2seq
+模型，其主要由编码器和解码器两部分构成，内部使用了 RNN
+层结构。但是，seq2seq
+存在一个问题，即编码器输出固定长度的向量存在一定的局限性。当输入时序数据过长时，固定长度的向量无法承载全部信息。</p>
+<p>为了解决 seq2seq
+的问题，我们自然而言地想出使用编码器全部隐藏状态作为解码器的输入。为了让解码器能从全部隐藏状态中关注到关键信息，我们引出了注意力机制。注意力机制的核心思想是基于编码器的全部隐藏状态，结合注意力权重，进行加权求和，得到一个上下文向量。</p>
+<p>最后，我们介绍了注意力机制的几种应用，分别是：基于 Attention 的
+seq2seq、GMNT、Transformer。在 Transformer
+中，其应用了注意力机制的一种特殊实现——自注意力。</p>
+<h1 id="参考">参考</h1>
+<ol type="1">
+<li>《深度学习进阶：自然语言处理》</li>
+</ol>
+]]></content>
+      <categories>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>seq2seq</tag>
+        <tag>Attention</tag>
+        <tag>Self-Attention</tag>
+        <tag>Transformer</tag>
+      </tags>
+  </entry>
 </search>
