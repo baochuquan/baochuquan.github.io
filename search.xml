@@ -35485,6 +35485,16 @@ AutoReleasePool 可以被多个 AutoReleasePool
 的设计方案。</p>
 <p>通过正向设计，我们可以深刻理解 AutoReleasePool
 的设计思想及其设计原因。</p>
+<p>最后，我们再来回顾文章开头的两个问题，想必你已经有答案了。</p>
+<ul>
+<li>问：为什么 AutoReleasePool 底层是双向链表结构？</li>
+<li>答：AutoReleasePool
+的本质是通过栈来管理对象，而双向链表是应用层实现栈的一种效率最高的数据结构。</li>
+<li>问：为什么 AutoReleasePool 采用基于 AutoReleasePoolPage
+的分页机制？</li>
+<li>答：基于双向链表结构的设计中，必须要设计一个固定结构的链表节点，AutoReleasePoolPage
+正是链表节点的设计。</li>
+</ul>
 <h1 id="参考">参考</h1>
 <ol type="1">
 <li><a
