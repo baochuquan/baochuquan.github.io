@@ -35371,9 +35371,12 @@ src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/aut
 <ul>
 <li>当 AutoReleasePool
 中实例化一个对象时，我们根据链表的尾指针，正向遍历，查看末端的
-AutoReleasePoolPage 是否未满。如果未满，则将对象指针存入
-AutoReleasePoolPage 中；否则，链表尾部新增一个 AutoReleasePoolPage
+AutoReleasePoolPage 是否未满。
+<ul>
+<li>如果未满，则将对象指针存入 AutoReleasePoolPage 中；</li>
+<li>否则，链表尾部新增一个 AutoReleasePoolPage
 后，再将对象指针存入其中。</li>
+</ul></li>
 <li>当 AutoReleasePool
 要释放全部对象时，我们根据链表的尾指针，反向遍历，找到最近的哨兵对象，并把中间部分的
 AutoReleasePoolPage 、对象指针、哨兵对象全部释放。</li>
