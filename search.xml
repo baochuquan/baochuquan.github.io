@@ -35519,4 +35519,312 @@ href="https://www.cnblogs.com/zlcxbb/p/5759776.html">函数调用过程栈帧变
         <tag>AutoReleasePool</tag>
       </tags>
   </entry>
+  <entry>
+    <title>2024 年度总结</title>
+    <url>/2025/01/02/2024-summary/</url>
+    <content><![CDATA[<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2168.jpg?x-oss-process=image/resize,w_600" /></p>
+<span id="more"></span>
+<p>按照惯例，每年做一次回顾总结，让未来的自己能够记得来时走过的路。</p>
+<h1 id="工作第七年">工作第七年</h1>
+<h2 id="项目流水账">项目流水账</h2>
+<p>先说说今年经历的几个大项目吧。</p>
+<p>上半年的一个大项目是直播自建项目，说是自建，其实底层的基础直播能力用的还是中台的
+SDK。我们做的主要是对 SDK
+进行封装，包括接口分装、消息的编解码、消息分发、引擎初始化等。当然，最大的工作量仍然是围绕直播搭建上层业务。组内两位同学
+<span class="citation" data-cites="月龙">@月龙</span> 和 <span
+class="citation" data-cites="马嘉">@马嘉</span> 各自负责搭建 Android/iOS
+的学生端，我负责搭建 iPad 老师端。</p>
+<p>第二季度同时进行了另一个大项目——播放器重构。Android 端基于 Redux
+架构进行重构优化，使用 ViewModel 管理状态，通过 flow 实现状态绑定。iOS
+端基于依赖注入的思想进行模块化改造。项目整体持续了三个月，拆分成三个里程碑分阶段完成。最终的播放器支持服务端下发配置，实现业务功能插件化配置。</p>
+<p>六七八三个月，整个研发团队主要在做小学语文项目，其核心就是利用 AI
+能力实现辅助教学。六月，我开始调研相关的技术，包括：基于大模型的语音对话的流程和优化的分析，全开麦场景下的
+VAD 技术等。关于 VAD，我们最终采用了一个开源的预训练的神经网络模型
+Silero。对于 Android，已经有了对应的封装库，而 iOS
+并没有。所以我这边要做的就是使用 ONNX 来运行模型，并提供接口实现 VAD
+检测。年底的时候，我也写了一个 demo，详见 <a
+href="https://github.com/baochuquan/ios-vad">ios-vad</a>，后期计划将它封装成
+pod 库。</p>
+<p>另外，鸿蒙适配也是今年的一个重点非公开项目。为什么是非公开项目呢？因为上层始终保持着不重视、不投入的态度，一切以业务为优先，所以我只能以研发团队的身份低调、非公开推进。我最早在四五月份开始与华为方面进行接触，来来回回沟通了很多次，但是没有公司的支持，很多事情无法顺利开展，比如：驻场协助、适配计划等。以至于后期华为团队多次了解适配进度，我们甚至都不知道该如何答复。</p>
+<p>本身我们也就是一个 10 人的客户端团队，而且清明前离职了一位 iOS
+同事（后面也没有入职新人），根本没有多余人力完全投入到鸿蒙适配中，所以一直都是一个断断续续的适配状态。早期，只有我能偶尔抽出一点时间来做鸿蒙基建，比如：技术调研、项目配置、工程结构、数据库、网络库、Cookie管理、登录注册等。直到十一之后，客户端团队才迎来了大约两个多月略微空闲的时间，才能够把大部分时间投入到鸿蒙适配之中。整体来说，我们取得的速度还是挺快的，支持了
+3 个 Tab
+页及相关落地页（包括播放器），未适配的主要就是学习环节的多个详情页。我在前期支持了一些基本功能，团队可以直接上手进行适配，减少了一些阻碍。因为团队同学的快速学习和通力协作，我们才取得如此不错的成就。当然，鸿蒙
+App 还未上架，明年仍需努力。</p>
+<p>最后一个大项目是圣诞 Demo
+课。这个项目十一月初才评审产品稿，当时还没有设计稿，以至于前期还无法投入开发，时间非常紧急。为了能够按时交付，Android/iOS
+各自投入了 3 人，并让年轻同学 <span class="citation"
+data-cites="静远">@静远</span>、<span class="citation"
+data-cites="马嘉">@马嘉</span>
+设计架构并主导研发。我这边负责项目整体进度，每周和各个团队追踪进度、评估风险。整体而言，项目在一个可控的程度内有序进行。不过，项目最后因为邀请的用户时间有冲突，所以项目延期至元旦之后交付。</p>
+<h2 id="黑客马拉松">黑客马拉松</h2>
+<p>今年有幸参加了一次公司举办的黑客马拉松，主题是
+AI。我们团队三人，职能分贝是服务端 <span class="citation"
+data-cites="梦林">@梦林</span>、客户端和产品经理 <span class="citation"
+data-cites="王珊">@王珊</span>，分工协作完成了一个项目——AI旅伴。比赛日只有两天，由于工作量比较大，我们不得不提前一周开始做。比赛过程比较煎熬，prompt
+调试的进度不是很顺利，直到路演前才调试完。不过好在结果还不错，AI
+旅伴项目获得了「最具潜力奖」，没有陪跑。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2182.jpg?x-oss-process=image/resize,w_480" /></p>
+<h2 id="人事变动">人事变动</h2>
+<p>所谓「铁打的营盘，流水的兵」，公司里的人事变动在所难免。年初是部门负责人有变动，年中是产品团队大变动。九月份我直属领导也发生了变化，七年老同事+领导+球友
+<span class="citation" data-cites="碧峰">@碧峰</span> 离职创业，同时
+<span class="citation" data-cites="潜哥">@潜哥</span>
+也换了业务线。所幸，我的新领导、课程体验负责人 <span class="citation"
+data-cites="栋哥">@栋哥</span>
+人很不错，经验丰富，技术过硬，合作起来非常愉快。产研负责人 <span
+class="citation" data-cites="宝明">@宝明</span>
+也很不错，虽然工作上直接接触并不多，但是能感受到为人非常坦诚。</p>
+<p>关于裁员，公司各个业务线也是存在的。大环境不好，我们个体能做的也只能是调整好心态，做好自己，以应对一切可能会发生的事情吧。</p>
+<h1 id="业余整点乐子">业余整点乐子</h1>
+<p>曾经的猿辅导是小而美的典范，双减之后虽然大不如前，但是好歹保留了「不加班」的优良传统。Work
+Life Balance
+是一种幸福的状态，很可惜，这样的公司在国内互联网圈子中太少见了。因为不加班，每天回家还能有时间干点自己想干的事，发展自己的爱好，比如看看书、写写博客、做做项目之类的。</p>
+<h2 id="side-project">Side Project</h2>
+<p>今年业余时间，做的项目不多。去年年底做了个 <a
+href="https://apps.apple.com/us/app/morph-rest-break-reminder/id6474056217">莫负休息</a>
+App，今年上半年更新了几个主题，比如：代码雨、魔方之类的，很可惜下半年闲置了。一年下来收入也就几十美元，没达到
+99 美元的目标，不过在应用商店收获了 50 多个好评，也挺满意了。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/rubiks-cube-12.png?x-oss-process=image/resize,w_800" /></p>
+<p>四五月份的时候，我写了一个小工具——<a
+href="https://github.com/baochuquan/git-reviewer">git-reviewer</a>。git-reviewer
+是一个 git 插件，支持 homebrew 安装，可以用来分析一个 Merge Request
+应该让哪些人来做 Code Review。这个工具底层使用了 <a
+href="https://chuquan.me/2023/09/13/myers-difference-algorithm/">Myers
+差分算法</a>，也算是对我之前学的东西做了一次实践吧。</p>
+<p>十一月份的时候，我用 SwiftUI 写了一个小项目——<a
+href="https://github.com/baochuquan/ios-vad">ios-vad</a>。一方面是对我之前调研的
+VAD 技术做一个总结，另一方面也算是实践一下 SwiftUI
+吧。项目还有很多要完善的地方，比如抽取 pod 库，希望明年能把它完成。</p>
+<h2 id="写博客">写博客</h2>
+<p>2024 年写了 21
+篇博客，技术上主要集中在两个领域：图形学、深度学习。</p>
+<p>上半年前几个月主要在看闫令琪老师的《Games
+101》课程，因为内容非常多，所以我反复看了好多遍。后面，结合自己的理解，针对图形学的相关技术写了一系列博客进行总结。</p>
+<ul>
+<li><a
+href="https://chuquan.me/2024/01/15/foundation-of-computer-graphic-01/">计算机图形学基础（1）——线性代数</a></li>
+<li><a
+href="https://chuquan.me/2024/01/18/foundation-of-computer-graphic-02/">计算机图形学基础（2）——变换</a></li>
+<li><a
+href="https://chuquan.me/2024/03/23/foundation-of-computer-graphic-03/">计算机图形学基础（3）——观测变换</a></li>
+<li><a
+href="https://chuquan.me/2024/03/30/foundation-of-computer-graphic-04/">计算机图形学基础（4）——光栅化</a></li>
+<li><a
+href="https://chuquan.me/2024/04/05/foundation-of-computer-graphic-05/">计算机图形学基础（5）——着色</a></li>
+<li><a
+href="https://chuquan.me/2024/04/10/foundation-of-computer-graphic-06/">计算机图形学基础（6）——几何</a></li>
+<li><a
+href="https://chuquan.me/2024/04/20/foundation-of-computer-graphic-07/">计算机图形学基础（7）——辐射度量学</a></li>
+<li><a
+href="https://chuquan.me/2024/04/27/foundation-of-computer-graphic-08/">计算机图形学基础（8）——光线追踪</a></li>
+</ul>
+<p>学了图形学之后，尝试用 Threejs 做了个魔方，并把它融合进了莫负休息 App
+中。与此同时，整理了一篇博客——<a
+href="https://chuquan.me/2024/06/01/rubiks-cube-01/">基于 Threejs 实现
+3D 魔方</a>。</p>
+<p>七至十月，我主要在学习深度学习的一些基础理论，看了好几本书，其中有几本看了两遍，也写了几篇总结性的文章。</p>
+<ul>
+<li><a
+href="https://chuquan.me/2024/07/21/neural-network-introduce/">初识人工神经网络（1）——基本原理</a></li>
+<li><a
+href="https://chuquan.me/2024/07/31/neural-network-implement/">初识人工神经网络（2）——代码实现</a></li>
+<li><a
+href="https://chuquan.me/2024/09/21/deep-learning-layer/">神经网络的分层设计原理</a></li>
+<li><a
+href="https://chuquan.me/2024/09/28/cnn-introduction/">卷积神经网络</a></li>
+<li><a
+href="https://chuquan.me/2024/10/15/nlp-word-representation/">自然语言处理中的单词含义表示</a></li>
+<li><a
+href="https://chuquan.me/2024/10/26/rnn-introduction/">循环神经网络</a></li>
+<li><a
+href="https://chuquan.me/2024/11/02/attention-introduction/">语言模型中的注意力机制</a></li>
+</ul>
+<h2 id="黑神话悟空">黑神话·悟空</h2>
+<p>今年最火爆的游戏莫过于《黑神话·悟空》了。我从四年前游戏科学发布的第一个
+PV 开始，一直在关注这款游戏，我预感游戏要火，所以在 618 赶紧买了
+PS5，担心游戏出来再 PS5 买会涨价。虽然我玩的游戏品类不多，而且只玩 PFS
+游戏。我的评价是黑神话真的太上头了，游戏的实际体验比预期还要好非常多，难怪火出圈了。游戏发售后的一个月，我基本上就是每天早早下班，洗完澡后玩到睡觉。如果你还没玩过，真的非常建议你玩一下，战斗系统、音乐、动画、剧情、场景、美术、角色设计、动作设计都是顶级的存在。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2173.jpg?x-oss-process=image/resize,w_800" /></p>
+<h2 id="运动健身">运动健身</h2>
+<p>今年运动状态保持的挺好，希望来年继续保持。</p>
+<p>首先是健身。这一年和健身搭子 <span class="citation"
+data-cites="昱总">@昱总</span>、<span class="citation"
+data-cites="奎佑">@奎佑</span> 相互监督，基本上能够保持每周 3-4
+次健身。不过，因为怕受伤，三大项还是只练卧推。卧推现在能够 80KG
+做组，动作可以做到比较标准的那种了。今年 8 月 3
+日，健身一周年，特地测了一下体脂。一整年下来，体脂从 17.4% 下降到了
+15.0%，骨骼肌增长
+2.6KG，效果非常明显，打球的队友们也说我明显维度变大了，希望 2025
+年继续坚持下来。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2169.jpg?x-oss-process=image/resize,w_480" /></p>
+<p>其次是跑步。这一年也是尽可能地每周跑一次十公里，中间因为旅游、游戏、出差等并没有做到每周都跑步。冬季也没有跑，外面的风实在太大。关于跑步，2025
+年也要继续保持，争取参加一次半马（北京马拉松中签真的太难了）。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2171.jpg?x-oss-process=image/resize,w_480" /></p>
+<p>最后是篮球。今年基本上每周都会打一次球。年中那会儿研究库里的投篮，学到了一段式投篮的精髓，现在投三分球基本上动作不会变形了，出手速度也变快了，命中率也提上来了。这里贴一张老司机
+<span class="citation" data-cites="碧峰">@碧峰</span>
+离职前的最后一场球局合影照。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2172.jpg?x-oss-process=image/resize,w_800" /></p>
+<h1 id="户外走一走">户外走一走</h1>
+<h2 id="春节">春节</h2>
+<p>今年春节，和媳妇一起回长兴过节，因为疫情缘故，也是结婚后第一次回家过年。同时也是自老弟军校毕业回军队后，第一次过年相聚，不知下次相聚春节又是何时。</p>
+<p>我们那儿的习俗，正月初一不会走亲戚。于是当天就在村子附近走走逛逛，一路发现周围的变化还是挺大的，记忆中很多村庄都消失了，取而代之的是非常大的综合物流园区、物流港口，也算给周边创造了不少就业岗位。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2174.jpg?x-oss-process=image/resize,w_800" /></p>
+<p>初二初三两天走亲戚，过年热闹的感觉真的挺好。对比前几年因为疫情，在北京过年，真的太凄凉了。紧凑的两天，饭也吃了，照也拍了，下一个目的地就是合肥。回合肥后，因为我听岳父岳母的合肥普通话很费劲，所以除了和媳妇聊天外，我大部分其他时间就是陪小侄女玩，万幸她还记得我这个姑父。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2175.jpg?x-oss-process=image/resize,w_480" /></p>
+<h2 id="外婆北京行">外婆北京行</h2>
+<p>去年，外婆在体检时发现了肺癌，还好是早期肺癌，及时做了手术。今年四月天气合适，外加外婆身体状态有所恢复，所以我妈准备带她来北京玩玩。老人家没来过北京，也算是了却一桩心愿吧。不到一周的时间，带外婆去了北京几大景点，颐和园、天坛、天安门、故宫、北大、长城、圆明园等等。另外，还带外婆尝试了各种菜系，毕竟北京的餐厅种类还是非常多的，有条件可以让老人家也尝尝鲜。唯一的遗憾是，没有带她参观到毛主席纪念堂。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2176.jpg?x-oss-process=image/resize,w_480" /></p>
+<h2 id="成渝九日游">成渝九日游</h2>
+<p>六月初，我请了 5 天年假，凑了一次 9
+天长假，和媳妇来了一次成渝九日游。</p>
+<p>重庆两天，在魁星楼体验了 8D
+城市的奇妙感觉，在嘉陵江边看到了千厮门和洪崖洞的巧妙组合，在朝天门见到了双江交汇的独特景观。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2177.jpg?x-oss-process=image/resize,w_480" /></p>
+<p>九寨沟景区，景区公交车在查洼沟、日则沟、树正沟各个景点之间不断载运游客，使得我们一天游玩下来也不会感到那么累。在九寨沟，每个季节都有不同的时令景观，真的如同人间仙境一般，非常值得去游玩。这里有个小插曲，因为浙江有几个城市对阿坝州有援建，所以我也有幸作为湖州群众体验了九寨沟的感恩赠票，免费参观了景区，这里小小地自豪一下。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2178.jpg?x-oss-process=image/resize,w_480" /></p>
+<p>九寨沟待了两天后，我们去了乐山。很可惜乐山大佛在维修栈道，所以我们没有去景区，而是在城市内逛吃。总体来讲，乐山的美食很不错，感觉比成都的要好吃，是一个生活节奏比较慢的城市，来度假的话很舒服。</p>
+<p>最后，就是在成都待了两天，参观了大熊猫繁育基地和三星堆博物馆。大熊猫很傲娇，温度超过
+26
+度就不会在室外了，所以以后去还得挑个合适的时间。三星堆博物馆真的很不错，无论是博物馆建筑本身，还是展厅布置、光影效果，亦或馆藏文物，都是非常精妙震撼的，绝对值得参观一次。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2179.jpg?x-oss-process=image/resize,w_480" /></p>
+<h2 id="世界人工智能大会">世界人工智能大会</h2>
+<p>六月休假回来没多久，又跟随公司出差上海，参加了世界人工智能大会。公司以猿力科技作为主体，作为展商参加了这次大会。我们海豚业务线也有展区，我和
+<span class="citation" data-cites="静远">@静远</span>
+负责海豚展区的设备调试。展会期间，我也参观了一下其他公司的展厅，大大小小近
+200
+家，挨个参观了一遍，比如：华为、BAT、字节、亚马逊、谷歌、特斯拉、宇树科技...整体来说，也是个不错的体验，实实在在见识到了科技的真实落地，比如：宇树科技的机器狗，现场的展示效果非常惊艳。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2183.jpg?x-oss-process=image/resize,w_800" /></p>
+<h2 id="大同周边游">大同周边游</h2>
+<p>十二月，我和媳妇利用周末去大同玩了一遭。去大同玩主要有两个原因，一是离北京近，二是黑神话悟空。第一天去了云冈石窟，数十个石窟中，就属昙曜五窟最为突出。雕刻、壁画精美绝伦，非常震撼，我想这应该算得上是中国古代石雕艺术的巅峰了吧。下午我们又去了华严寺，建筑很有特色，类似于游戏中的旧观音禅院，庙内佛祖、菩萨、星宿、天王等雕塑风格独特且极具年代感。在华严寺，我意外见到了游戏里黄眉住的大雄宝殿，牌匾一模一样。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG173.jpg?x-oss-process=image/resize,w_800" /></p>
+<p>第二天我们去了悬空寺和应县木塔。悬空寺在恒山景区，十二月的天气特别冷，零下二十度，手基本伸不出来，在悬空寺打卡拍照没多久就离开了。应县木塔景区内没有其他建筑，不过其本身就已足够传奇，中国建筑史上的一个标志性建筑，也是世界三大奇塔之一。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG174.jpg?x-oss-process=image/resize,w_480" /></p>
+<h2 id="博物馆">博物馆</h2>
+<p>今年在深度参观了四个博物馆，分别是中国共产党历史展览馆、中国工艺美术馆、中国国家博物馆、安徽美术馆。</p>
+<p>党史馆基本上就是中国近代史的实物陈列，结合之前看过蒋廷黻写的《中国近代史》，感触很深刻。从
+1840
+年开始，中国人民尝试了各种运动和制度试图拯救中国，从清朝末年的虎门销烟、太平天国、戊戌变法、义和团、洋务运动，到民国时期的五四运动、国共合作、北伐战争、抗日战争，最终只有架构于人民史观的中国共产党找到了民族复兴的道路。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2181.jpg?x-oss-process=image/resize,w_480" /></p>
+<p>工艺美术馆主要是展示了中国历史各个朝代的各种工艺品，包括服饰、玉器、瓷器、绘画、壁画、石雕等等。工艺美术馆中最为震撼的作品应该是象牙雕，极致繁琐的细节，不失精致的工艺，令人叹为观止。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG2180.jpg?x-oss-process=image/resize,w_480" /></p>
+<p>国家博物馆中的几个主展厅展示了中国历史各个朝代的文物，从古代中国到现代中国，即使是走马观花，也要一整天的时间。国家博物馆我来过很多次了，每次来必看古代中国，五千年的辉煌历史总是让人感受到无比伦比的史诗感。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG175.jpg?x-oss-process=image/resize,w_480" /></p>
+<p>安徽美术馆离我家只有一公里左右，但是因为各种原因没有去过。今年回家的时候顺便去看了下。美术馆的内饰设计很漂亮，主要还以美术作品为主，适合拍照打卡。</p>
+<p><img
+src="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/blog-images/WechatIMG177.jpg?x-oss-process=image/resize,w_480" /></p>
+<h1 id="我劝同志们多读书">「我劝同志们多读书」</h1>
+<p>毛主席说过：我劝同志们多读书，免得受知识分子的骗。2024 年我完整阅读了
+13 本书，这里按照时间顺序罗列一下：</p>
+<ul>
+<li>《数学之美》
+<ul>
+<li>吴军著，虽说是「数学」之美，但内容大多与计算机科学有关，与《计算之魂》有内容重叠，整体还是一本不错的书。不过没有初读《计算之魂》时那么惊艳。</li>
+</ul></li>
+<li>《浪潮之巅》
+<ul>
+<li>吴军著，科技/互联网从业者必看系列，讲述一系列知名公司的发展史，比如：AT&amp;T、IBM、硅谷、微软、Google、甲骨文、思科、雅虎、惠普、3M、GE...</li>
+</ul></li>
+<li>《中国近代史》
+<ul>
+<li>蒋廷黻著，中国近代史必看系列，讲述自 1840
+以来至抗日战争前夕近一百年的历史，主要介绍了无数对外战争的起因、发展、结果，各种不平等条约的签订，以及人民为对抗外部侵略者，争取民族独立和复兴而发起的各种救国运动。强烈推荐。</li>
+</ul></li>
+<li>《赢》
+<ul>
+<li>杰克韦尔奇著。主要是介绍了杰克韦尔奇对于其在通用电气公司期间在管理方面的理解和感悟。</li>
+</ul></li>
+<li>《Python 神经网络编程》
+<ul>
+<li>一本非常推荐的深度学习入门书籍，我阅读了两遍，写了两篇博客。
+<ul>
+<li><a
+href="https://chuquan.me/2024/07/21/neural-network-introduce/">初识人工神经网络（1）——基本原理</a></li>
+<li><a
+href="https://chuquan.me/2024/07/31/neural-network-implement/">初始人工神经网络（2）——代码实现</a></li>
+</ul></li>
+<li>可能是入门书籍的缘故，这本书侧重于用最简单的语句让读者理解神经网络。因此在专业术语的表述、介绍、体系方面稍显欠缺。</li>
+</ul></li>
+<li>《软件设计哲学》
+<ul>
+<li>一本软件设计经验总结的书，我看的是中文版，翻译不是很好。不过书中介绍的一些思想还是很独特的。比如：将信息论与软件开发相结合，什么时候应该暴露信息，什么时候应该隐藏信息；软件开发的二次设计思想等等，推荐阅读。</li>
+</ul></li>
+<li>《深度学习入门：基于 Python 的理论与实现》
+<ul>
+<li>一本非常推荐的深度学习入门书籍，我读了两遍，建议和《Python
+神经网络编程》结合一起看，弥补了后者的缺陷，但是内容比较多，理论稍微难一点。</li>
+</ul></li>
+<li>《深度学习进阶：自然语言处理》
+<ul>
+<li>如果你想系统性地学习
+GPT，这版书是你的入门首选，介绍了自然语言处理发展过程中的一些关键性技术。</li>
+<li>这本书我也读了两遍，并且总结性地写了几篇博客。
+<ul>
+<li><a
+href="https://chuquan.me/2024/10/15/nlp-word-representation/">自然语言处理中的单词含义表示</a></li>
+<li><a
+href="https://chuquan.me/2024/10/26/rnn-introduction/">循环神经网络</a></li>
+<li><a
+href="https://chuquan.me/2024/11/02/attention-introduction/">语言模型中的注意力机制</a></li>
+</ul></li>
+</ul></li>
+<li>《这就是 ChatGPT》
+<ul>
+<li>虽然是科普书籍，但是写得不够浅显易懂，写得不明不白。组织结构也不是特别清晰，需要有一定的基础才能够理解，不推荐。</li>
+</ul></li>
+<li>《GPT 图解》
+<ul>
+<li>类似于 Head First
+类型的书，与经典的《HTTP图解》等书有差距，不过代码示例写得不错。</li>
+</ul></li>
+<li>《FFmpeg 入门详解——音视频原理及应用》
+<ul>
+<li>废话多，重复内容多，让人抓不住重点。干活不够突出，技术推导不清晰。不过好歹介绍了一些基本概念。</li>
+</ul></li>
+<li>《红星照耀中国》
+<ul>
+<li>一本非常推荐的红色经典。1937 年出版，埃德加·斯诺著，介绍了在 1936 年
+6 月至 10
+月，西安事变之前几个月，作者在延安的所见所闻。包含了几位重要领导人的采访记录，关于他们自述的人生经历。另外还包含了大量的农民、士兵的采访记录，以及作者自己对于时局的看法。</li>
+<li>书的结尾，斯诺悲伤地写道：也许我是看到他们活着的最后一个外国人了。在他看来，这群理想主义者想要改变中国，真的太难了。没想到最后他们真的做到了。</li>
+</ul></li>
+<li>《Scrum 要素》
+<ul>
+<li>主要介绍 scrum
+的几个重要的概念和要素，以及各个要素的作用是什么，值得阅读。</li>
+</ul></li>
+</ul>
+<h1 id="一些感悟">一些感悟</h1>
+<p>2024 年，我感觉自己最大的变化就是认知水平有了明显地提升。</p>
+<p>在技术方面，能够结合知识储备和第一性原理，发现很多技术设计的基本出发点和共通点。在其他方面，对社会科学产生了比较大的兴趣，也开始思考不同规模的团队是如何管理，小到团队管理，企业管理，大到国家层面的内政管理、外交关系。主要也是意识到团队管理的重要性，虽然很多伟大的发现和发明确实是个别天才的成果，但是将这些成果转换成产品或服务时则更需要发挥团队的力量。</p>
+<h1 id="写在最后">写在最后</h1>
+<p>总体来说，2024
+年，我个人的收获和成长还是挺多的，希望来年继续保持！最后，祝大家 2025
+年元旦快乐！</p>
+]]></content>
+      <categories>
+        <category>生活</category>
+      </categories>
+      <tags>
+        <tag>年度总结</tag>
+      </tags>
+  </entry>
 </search>
