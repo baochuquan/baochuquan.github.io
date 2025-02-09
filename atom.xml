@@ -6,7 +6,7 @@
   <link href="http://chuquan.me/atom.xml" rel="self"/>
   
   <link href="http://chuquan.me/"/>
-  <updated>2025-01-09T13:57:03.087Z</updated>
+  <updated>2025-02-09T08:35:22.430Z</updated>
   <id>http://chuquan.me/</id>
   
   <author>
@@ -15,6 +15,27 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>看待问题的几种思考方式</title>
+    <link href="http://chuquan.me/2025/02/09/several-ways-of-thinking/"/>
+    <id>http://chuquan.me/2025/02/09/several-ways-of-thinking/</id>
+    <published>2025-02-09T08:34:22.000Z</published>
+    <updated>2025-02-09T08:35:22.430Z</updated>
+    
+    <content type="html"><![CDATA[<p>随着年龄和阅历的增长，自己看待问题的思考方式也逐步变得理性、全面，这里总结几种自己看待问题的思考方式。</p><span id="more"></span><h1 id="换位思考">换位思考</h1><p>换位思考，就是当面对一个情景或局面时，交换立场，重新思考。</p><p>换位思考特别适用于人际交往，举个例子，在处理上下级关系时，当自己想和领导抬杠时，换位思考一下，如果你是领导，遇到下属经常在公开场合和自己抬杠，你会怎么看？他在你的人才梯队中如何排序？晋升机会是否会优先考虑？</p><h1 id="递进思考">递进思考</h1><p>递进思考，就是当面对一个问题或现象时，层层递进，深入思考。</p><p>递进思考特别适用于追根溯源，《架构师应该知道的 37件事》中提到的「五问法」，本质上就是递进思考，多问几个为什么，五只不过是个泛数而已。</p><p>举个例子，如果汽车启动不了，你应该追问为什么找出根本原因：启动器无法点火，是因为电池没电；电池没电，是因为车灯一直亮着；车灯一直亮着，是因为警告车灯一直亮着的蜂鸣器没有发声；蜂鸣器没有发声，是因为一个电子设备出了问题。所以你应该修复电子设备而不是尝试接入引线来启动汽车。</p><h1 id="底线思维">底线思维</h1><p>底线思维，就是当面对一个事情时，设想其最差（或最好）的情况会是什么。</p><p>底线思维特别适用于决策、安抚。举个例子，很多人会焦虑，无外乎焦虑自己未来的职业发展、财务状况、身体健康。对于职业发展，最差会怎么样？最差几年内失业？失业时最差有多少积蓄可供生活开销？最差支持你多久另谋出路？通过底线思维思考，很多时候你会发现最差的情况也不过如此，焦虑的根本原因是虚荣心、攀比和贪婪。</p><h1 id="终局思维">终局思维</h1><p>终局思维，就是当面对一个事情时，设想其最终的情况会是什么。本质上就是用更大的视野去看待事情。</p><p>终局思维同样适用于决策。举个例子，新中国成立时，除了教员外，所有人都认为应该先发展轻工业，后发展重工业。教员则认为新中国的崛起必将引来帝国主义的嫉恨和封锁，甚至战争，彼时如果再发展重工业则为时已晚。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;随着年龄和阅历的增长，自己看待问题的思考方式也逐步变得理性、全面，这里总结几种自己看待问题的思考方式。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="沉思录" scheme="http://chuquan.me/categories/%E6%B2%89%E6%80%9D%E5%BD%95/"/>
+    
+    
+    <category term="思考" scheme="http://chuquan.me/tags/%E6%80%9D%E8%80%83/"/>
+    
+  </entry>
   
   <entry>
     <title>2024 年度总结</title>
@@ -567,36 +588,6 @@ href=&quot;http://chuquan.me/2024/03/23/foundation-of-computer-graphic-03/&quot;
     
     
     <category term="Indie Hacker" scheme="http://chuquan.me/tags/Indie-Hacker/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>计算机图形学基础（2）——变换</title>
-    <link href="http://chuquan.me/2024/01/18/foundation-of-computer-graphic-02/"/>
-    <id>http://chuquan.me/2024/01/18/foundation-of-computer-graphic-02/</id>
-    <published>2024-01-18T13:29:31.000Z</published>
-    <updated>2024-03-18T01:46:47.645Z</updated>
-    
-    <content type="html"><![CDATA[<p>上一篇<ahref="http://chuquan.me/2024/01/15/foundation-of-computer-graphic-01/">文章</a>我们介绍了计算机图形学中的线性代数基础，包括：点、向量、矩阵等。本文，我们将介绍向量和矩阵的进一步应用——变换。</p><span id="more"></span><h1 id="概述">概述</h1><p>计算机图形学中，我们可能会对图形进行各种变换（Transform），如：</p><ul><li>缩放（Scale）</li><li>平移（Transation）</li><li>旋转（Rotation）</li><li>切变（Shear）</li></ul><h1 id="d-变换">2D 变换</h1><p>首先，我们来介绍一下 2D变换，以便了解变换是如何通过矩阵变换来实现的。</p><h2 id="缩放变换">缩放变换</h2><p>对于缩放变换，它主要包含两种：等比例缩放、非等比缩放。</p><h3 id="等比例缩放">等比例缩放</h3><p><imgsrc="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-01.png?x-oss-process=image/resize,w_800" /></p><p>上图所示，为等比例缩放的示意图。根据等比例缩放的规则，我们可以根据缩放前<span class="math inline">\(x\)</span> 和 <spanclass="math inline">\(y\)</span> 的值，得到一组关系式，如下所示。</p><span class="math display">\[\begin{aligned}x&#39; =&amp; sx \\y&#39; =&amp; sy \\\end{aligned}\]</span><p>根据此关系式，我们可以进一步推导出缩放矩阵及关系式，如下所示。</p><span class="math display">\[\begin{aligned}\left(\begin{matrix}x&#39; \\y&#39;\end{matrix}\right)=\left(\begin{matrix}s &amp; 0 \\0 &amp; s \\\end{matrix}\right)\left(\begin{matrix}x \\y\end{matrix}\right)\end{aligned}\]</span><h3 id="非等比缩放">非等比缩放</h3><p><imgsrc="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-02.png?x-oss-process=image/resize,w_800" /></p><p>上图所示，为非等比缩放的示意图。根据非比缩放的规则，我们可以根据缩放前<span class="math inline">\(x\)</span> 和 <spanclass="math inline">\(y\)</span> 的值，得到另一组关系式，如下所示。</p><span class="math display">\[\begin{aligned}x&#39; =&amp; s_xx \\y&#39; =&amp; s_yy \\\end{aligned}\]</span><p>根据此关系式，我们可以进一步推导出缩放矩阵及关系式，如下所示。对比一下，非等比缩放与等比例缩放的关系式非常相似。</p><span class="math display">\[\begin{aligned}\left(\begin{matrix}x&#39; \\y&#39; \\\end{matrix}\right)=\left(\begin{matrix}s_x &amp; 0 \\0 &amp; s_y \\\end{matrix}\right)\left(\begin{matrix}x \\y \\\end{matrix}\right)\end{aligned}\]</span><h2 id="镜像变换">镜像变换</h2><p><imgsrc="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-03.png?x-oss-process=image/resize,w_800" /></p><p>上图所示，为镜像变换的示意图。我们可以根据原始的 <spanclass="math inline">\(x\)</span> 和 <spanclass="math inline">\(y\)</span> 的值，得到一组关系式，如下所示。</p><span class="math display">\[\begin{aligned}x&#39; =&amp; -x \\y&#39; =&amp; y \\\end{aligned}\]</span><p>根据此关系式，我们可以进一步推导出镜像矩阵及关系式，如下所示。本质上，镜像变换是一种特殊的缩放变换。</p><span class="math display">\[\begin{aligned}\left(\begin{matrix}x&#39; \\y&#39; \\\end{matrix}\right)=\left(\begin{matrix}-1 &amp; 0 \\0 &amp; 1 \\\end{matrix}\right)\left(\begin{matrix}x \\y\end{matrix}\right)\end{aligned}\]</span><h2 id="切变变换">切变变换</h2><p><imgsrc="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-04.png?x-oss-process=image/resize,w_800" /></p><p>上图所示，为切变变换的示意图。切变变换相对复杂一点，其 <spanclass="math inline">\(y\)</span> 坐标值与 <spanclass="math inline">\(x\)</span>坐标值成一个比例关系。不过，我们仍然可以根据原始的 <spanclass="math inline">\(x\)</span> 和 <spanclass="math inline">\(y\)</span> 的值，得到一组关系式，如下所示。</p><span class="math display">\[\begin{aligned}x&#39; =&amp; x + ay \\y&#39; =&amp; y \\\end{aligned}\]</span><p>根据此关系式，我们可以进一步推导出镜像矩阵及关系式，如下所示。本质上，镜像变换是一种特殊的缩放变换。</p><span class="math display">\[\begin{aligned}\left(\begin{matrix}x&#39; \\y&#39; \\\end{matrix}\right)=\left(\begin{matrix}1 &amp; a \\0 &amp; 1 \\\end{matrix}\right)\left(\begin{matrix}x \\y \\\end{matrix}\right)\end{aligned}\]</span><h2 id="旋转变换">旋转变换</h2><p><imgsrc="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-05.png?x-oss-process=image/resize,w_800" /></p><p>上图所示，为旋转变换的示意图。旋转变换的坐标推导需要借助三角函数，最终可得到如下一组关系式。</p><span class="math display">\[\begin{aligned}x&#39; = cos{\theta}x - sin{\theta}y \\y&#39; = sin{\theta}x + cos{\theta}y \\\end{aligned}\]</span><p>根据此关系式，我们可以进一步推导出旋转矩阵及关系式，如下所示。</p><span class="math display">\[\begin{aligned}\left(\begin{matrix}x&#39; \\y&#39; \\\end{matrix}\right)=\left(\begin{matrix}cos\theta &amp; -sin\theta \\sin\theta &amp; cos\theta \\\end{matrix}\right)\left(\begin{matrix}x \\y \\\end{matrix}\right)\end{aligned}\]</span><h2 id="平移变换">平移变换</h2><p>截止目前位置，所有的的变换都可以通过推导得出一个变换矩阵，以此矩阵乘以任意点（以矩阵表示），都可以得到转换后的点（以矩阵表示），符合线性变换。</p><p>下面，我们来看一下比较特殊的平移变换。</p><p><imgsrc="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-06.png?x-oss-process=image/resize,w_800" /></p><p>上图所示，为平移变换的示意图，同样，我们也可以可得到如下一组关系式。</p><span class="math display">\[\begin{aligned}x&#39; = x + t_x \\y&#39; = y + t_y \\\end{aligned}\]</span><p>但是，我们进一步推导，得到的关系式与之前的变换不同，它有额外的偏移量，不符合线性变换，如下所示。</p><span class="math display">\[\begin{aligned}\left(\begin{matrix}x&#39; \\y&#39; \\\end{matrix}\right)=\left(\begin{matrix}1 &amp; 0 \\0 &amp; 1 \\\end{matrix}\right)\left(\begin{matrix}x \\y \\\end{matrix}\right)+\left(\begin{matrix}t_x \\t_y \\\end{matrix}\right)\end{aligned}\]</span><p>我们总是希望能使用一个统一的关系式来描述各种变换，然而，平移变换打破了我们的美好预期。那么该如何解决呢？为此，我们引入了齐次坐标。</p><h1 id="齐次坐标">齐次坐标</h1><p>为了能够统一表示所有变换，我们引入了<strong>齐次坐标</strong>（HomogenousCoordinates）。这里的核心思想是为每一个点或向量添加一个额外的 <spanclass="math inline">\(w\)</span> 坐标。</p><span class="math display">\[\begin{aligned}2D 点的齐次坐标表示：\left(\begin{matrix}x \\y \\1\end{matrix}\right)\\\\2D 向量的齐次坐标表示：\left(\begin{matrix}x \\y \\0 \\\end{matrix}\right)\end{aligned}\]</span><p>此时，我们再来尝试推导平移变换矩阵以及其关系式，可以得到如下所示内容。很显然，原来关系式中的偏移量没有了。</p><span class="math display">\[\begin{aligned}\left(\begin{matrix}x&#39; \\y&#39; \\w&#39; \\\end{matrix}\right)=\left(\begin{matrix}1 &amp; 0 &amp; t_x \\0 &amp; 1 &amp; t_y \\0 &amp; 0 &amp; 1 \\\end{matrix}\right)\left(\begin{matrix}x \\y \\1 \\\end{matrix}\right)=\left(\begin{matrix}x+t_x \\y+t_y \\1 \\\end{matrix}\right)\end{aligned}\]</span><h2 id="仿射变换与线性变换">仿射变换与线性变换</h2><p>我们将线性变换和平移变换的组合，称为<strong>仿射变换</strong>（AffineTransform），如下所示。在未引入齐次坐标之前，我们推导出来的平移变换就是一种仿射变换。</p><span class="math display">\[\begin{aligned}\left(\begin{matrix}x&#39; \\y&#39; \\\end{matrix}\right)=\left(\begin{matrix}a &amp; b \\c &amp; d \\\end{matrix}\right)\left(\begin{matrix}x \\y \\\end{matrix}\right)+\left(\begin{matrix}t_x \\t_y \\\end{matrix}\right)\end{aligned}\]</span><p>当引入齐次坐标之后，所有的变换都可以统一使用线性变换来表示，如下所示。</p><span class="math display">\[\begin{aligned}\left(\begin{matrix}x&#39; \\y&#39; \\1 \\\end{matrix}\right)=\left(\begin{matrix}a &amp; b &amp; t_x \\c &amp; d &amp; t_y \\0 &amp; 0 &amp; 1 \\\end{matrix}\right)\left(\begin{matrix}x \\y \\1 \\\end{matrix}\right)\end{aligned}\]</span><p>如下所示，是引入齐次坐标后，缩放变换，旋转变换，平移变换所对应的变换矩阵。</p><span class="math display">\[\begin{aligned}缩放变换：&amp;S(s_x, s_y) =\left(\begin{matrix}s_x &amp; 0 &amp; 0 \\0 &amp; s_y &amp; 0 \\0 &amp; 0 &amp; 1 \\\end{matrix}\right)\\\\旋转变换：&amp;R(\alpha) =\left(\begin{matrix}cos\alpha &amp; -sin\alpha &amp; 0 \\sin\alpha &amp; cos\alpha &amp; 0 \\0 &amp; 0 &amp; 1 \\\end{matrix}\right)\\\\平移变换：&amp;T(t_x, t_y) =\left(\begin{matrix}1 &amp; 0 &amp; t_x \\0 &amp; 1 &amp; t_y \\0 &amp; 0 &amp; 1 \\\end{matrix}\right)\end{aligned}\]</span><h1 id="逆变换">逆变换</h1><p>我们将所有的反向变换都称为 <strong>逆变换</strong>（InverseTransform），比如：我们将从 A 平移到 B 称为平移变换，那么从 B 平移到 A则可称为逆变换，其他的缩放变换、旋转变换同样如此。</p><p>上一节，我们引入了齐次坐标后，所有的变换都可以转换成线性变换，其中以<span class="math inline">\(M\)</span>为变换矩阵。而这些变换的逆变换，同样可以使用线性变换来表示，并以 <spanclass="math inline">\(M\)</span> 的逆矩阵 <spanclass="math inline">\(M^{-1}\)</span> 为变换矩阵。</p><p><imgsrc="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-07.png?x-oss-process=image/resize,w_800" /></p><h1 id="组合变换">组合变换</h1><p>在真实情况下，我们遇到的变换大多数都是组合变换，也就是同时包含了缩放、旋转、平移等多种变换。</p><p>多种变换组合时，变换的顺序其实是非常重要的，我们以如下一个例子来进行介绍。</p><p><imgsrc="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-08.png?x-oss-process=image/resize,w_800" /></p><p>对于上面这种变换，如果我们先平移，再旋转，那么最终会变成如下所示的。这里的根本原因在于旋转变换时，仍然是以坐标原点为锚点进行旋转。</p><p><imgsrc="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-09.png?x-oss-process=image/resize,w_800" /></p><p>对此，正确的顺序应该是先旋转，后平移，这样才能达到预期的效果。</p><p><imgsrc="https://chuquan-public-r-001.oss-cn-shanghai.aliyuncs.com/sketch-images/transform-10.png?x-oss-process=image/resize,w_800" /></p><p>不同的顺序，矩阵变换的结果完全不同。前一篇文章我们提到过矩阵乘法不符合交换律，从这一点其实也能够解释这个现象。</p><p>在实际开发中，遇到这种类似的情况，我们一般都会先将目标平移至原点，然后进行各种其他变换，然后再通过逆变换平移回去。</p><h1 id="d-变换-1">3D 变换</h1><p>关于 3D 变换，本质上与 2D变换一样，只不过在矩阵表示上多了一个维度而已。</p><p>当我们引入齐次坐标之后，3D 的点和向量可以采用如下方式表示。</p><span class="math display">\[\begin{aligned}3D点的齐次坐标表示：&amp;\left(\begin{matrix}x \\y \\z \\1 \\\end{matrix}\right)\\\\3D向量的齐次坐标表示：&amp;\left(\begin{matrix}x \\y \\z \\0 \\\end{matrix}\right)\end{aligned}\]</span><p>与此对应，3D 变换的矩阵变换关系式为如下所示。</p><span class="math display">\[\begin{aligned}\left(\begin{matrix}x&#39; \\y&#39; \\z&#39; \\1 \\\end{matrix}\right)=\left(\begin{matrix}a &amp; b &amp; c &amp; t_x \\d &amp; e &amp; f &amp; t_y \\g &amp; h &amp; i &amp; t_z \\0 &amp; 0 &amp; 0 &amp;1 \\\end{matrix}\right)\left(\begin{matrix}x \\y \\z \\1 \\\end{matrix}\right)\end{aligned}\]</span><h2 id="缩放变换-1">缩放变换</h2><p>如下所示，为 3D 空间中的缩放变换的变换矩阵的定义。</p><span class="math display">\[\begin{aligned}S(s_x, s_y, s_z)=\left(\begin{matrix}s_x &amp; 0 &amp; 0 &amp; 0 \\0 &amp; s_y &amp; 0 &amp; 0 \\0 &amp; 0 &amp; s_z &amp; 0 \\0 &amp; 0 &amp; 0 &amp; 1 \\\end{matrix}\right)\end{aligned}\]</span><h2 id="平移变换-1">平移变换</h2><p>如下所示，为 3D 空间中的平移变换的变换矩阵的定义。</p><span class="math display">\[\begin{aligned}T(t_x, t_y, t_z)=\left(\begin{matrix}1 &amp; 0 &amp; 0 &amp; t_x \\0 &amp; 1 &amp; 0 &amp; t_y \\0 &amp; 0 &amp; 1 &amp; t_z \\0 &amp; 0 &amp; 0 &amp; 1 \\\end{matrix}\right)\end{aligned}\]</span><h2 id="旋转变换-1">旋转变换</h2><p>如下所示，为 3D空间中的旋转变换的变换矩阵的定义，沿着不同的轴旋转，变换矩阵的定义也有所不同。</p><span class="math display">\[\begin{aligned}R_x(\alpha)=\left(\begin{matrix}1 &amp; 0 &amp; 0 &amp; 0 \\0 &amp; cos\alpha &amp; -sin\alpha &amp; 0 \\0 &amp; sin\alpha &amp; cos\alpha &amp; 0 \\0 &amp; 0 &amp; 0 &amp; 1 \\\end{matrix}\right)\\\\R_y(\alpha)=\left(\begin{matrix}cos\alpha &amp; 0 &amp; sin\alpha &amp; 0 \\0 &amp; 1 &amp; 0 &amp; 0 \\-sin\alpha &amp; 0 &amp; cos\alpha &amp; 0 \\0 &amp; 0 &amp; 0 &amp; 1 \\\end{matrix}\right)\\\\R_z(\alpha)=\left(\begin{matrix}cos\alpha &amp; -sin\alpha &amp; 0 &amp; 0 \\sin\alpha &amp; cos\alpha &amp; 0 &amp; 0 \\0 &amp; 0 &amp; 1 &amp; 0 \\0 &amp; 0 &amp; 0 &amp; 1 \\\end{matrix}\right)\end{aligned}\]</span><h1 id="总结">总结</h1><p>本文我们简单梳理了一下缩放、旋转、平移几种变换对应的矩阵关系式。其中，平移变换比较特殊，为了能够统一关系式，我们引入了齐次坐标，在点、向量的矩阵表示中增加了一个维度。然后，我们介绍了一下在组合变换中变换顺序的重要性。最后，我们简单总结了3D 变换的矩阵关系式。</p><h1 id="参考">参考</h1><ol type="1"><li>《GAMES 101》</li><li>《计算机图形学入门：3D渲染指南》</li></ol>]]></content>
-    
-    
-    <summary type="html">&lt;p&gt;上一篇&lt;a
-href=&quot;http://chuquan.me/2024/01/15/foundation-of-computer-graphic-01/&quot;&gt;文章&lt;/a&gt;我们介绍了计算机图形学中的线性代数基础，包括：点、向量、矩阵等。本文，我们将介绍向量和矩阵的进一步应用——变换。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="图形学" scheme="http://chuquan.me/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/"/>
-    
-    
-    <category term="缩放变换" scheme="http://chuquan.me/tags/%E7%BC%A9%E6%94%BE%E5%8F%98%E6%8D%A2/"/>
-    
-    <category term="平移变换" scheme="http://chuquan.me/tags/%E5%B9%B3%E7%A7%BB%E5%8F%98%E6%8D%A2/"/>
-    
-    <category term="旋转变换" scheme="http://chuquan.me/tags/%E6%97%8B%E8%BD%AC%E5%8F%98%E6%8D%A2/"/>
-    
-    <category term="切变变换" scheme="http://chuquan.me/tags/%E5%88%87%E5%8F%98%E5%8F%98%E6%8D%A2/"/>
-    
-    <category term="仿射变换" scheme="http://chuquan.me/tags/%E4%BB%BF%E5%B0%84%E5%8F%98%E6%8D%A2/"/>
     
   </entry>
   
