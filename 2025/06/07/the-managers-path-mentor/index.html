@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chu.icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chu.icon">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chuquan.me","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="前段时间阅读了一本叫《技术为径》的书，作者是卡米尔·福涅尔，一位女性技术管理者。此书主要介绍了如何从工程师逐步进阶成为技术管理者，这里的技术管理者分为很多种层次，包括：技术导师、技术小组长、中层经理、职业经理人等。考虑到书的内容比较多，这里我分开记录一些读书笔记。本文先从技术导师开始。 技术导师 技术导师，即 Tech Mentor，其通常负责辅导校招生、实习生，在极少数情况下也负责指导社招新成员">
+<meta property="og:type" content="article">
+<meta property="og:title" content="读《技术为径》——技术导师">
+<meta property="og:url" content="http://chuquan.me/2025/06/07/the-managers-path-mentor/index.html">
+<meta property="og:site_name" content="楚权的世界">
+<meta property="og:description" content="前段时间阅读了一本叫《技术为径》的书，作者是卡米尔·福涅尔，一位女性技术管理者。此书主要介绍了如何从工程师逐步进阶成为技术管理者，这里的技术管理者分为很多种层次，包括：技术导师、技术小组长、中层经理、职业经理人等。考虑到书的内容比较多，这里我分开记录一些读书笔记。本文先从技术导师开始。 技术导师 技术导师，即 Tech Mentor，其通常负责辅导校招生、实习生，在极少数情况下也负责指导社招新成员">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-06-07T09:19:04.000Z">
+<meta property="article:modified_time" content="2025-06-07T09:20:23.970Z">
+<meta property="article:author" content="Bao Chuquan">
+<meta property="article:tag" content="Tech Mentor">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chuquan.me/2025/06/07/the-managers-path-mentor/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chuquan.me/2025/06/07/the-managers-path-mentor/","path":"2025/06/07/the-managers-path-mentor/","title":"读《技术为径》——技术导师"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>读《技术为径》——技术导师 | 楚权的世界</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?030cf08d5b27d756fa9aeecb1130fe13"></script>
+
+
+
+
+
+
+<link rel="dns-prefetch" href="https://vercel.chuquan.me">
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="楚权的世界" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="headband"></div>
+  <a href="https://github.com/baochuquan"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">楚权的世界</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Seek the wonder of life.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li><li class="menu-item menu-item-rss"><a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li><li class="menu-item menu-item-commonweal"><a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E5%AF%BC%E5%B8%88"><span class="nav-number">1.</span> <span class="nav-text">技术导师</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%8C%87%E5%AF%BC%E5%AE%9E%E4%B9%A0%E7%94%9F"><span class="nav-number"></span> <span class="nav-text">如何指导实习生</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%8C%87%E5%AF%BC%E6%AD%A3%E5%BC%8F%E5%91%98%E5%B7%A5"><span class="nav-number"></span> <span class="nav-text">如何指导正式员工</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number"></span> <span class="nav-text">总结</span></a></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Bao Chuquan"
+      src="/images/SlamDunk.png">
+  <p class="site-author-name" itemprop="name">Bao Chuquan</p>
+  <div class="site-description" itemprop="description">积累，沉淀，吸收，转换</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">155</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">384</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/baochuquan" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:baochuquan@gmail.com" title="E-Mail → mailto:baochuquan@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/baochuquan" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;baochuquan" rel="noopener me" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/Baochuquan" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;Baochuquan" rel="noopener me" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chuquan.me/2025/06/07/the-managers-path-mentor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/SlamDunk.png">
+      <meta itemprop="name" content="Bao Chuquan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="楚权的世界">
+      <meta itemprop="description" content="积累，沉淀，吸收，转换">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="读《技术为径》——技术导师 | 楚权的世界">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          读《技术为径》——技术导师
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-06-07 17:19:04 / 修改时间：17:20:23" itemprop="dateCreated datePublished" datetime="2025-06-07T17:19:04+08:00">2025-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E3%80%8A%E6%8A%80%E6%9C%AF%E4%B8%BA%E5%BE%84%E3%80%8B/" itemprop="url" rel="index"><span itemprop="name">《技术为径》</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Waline：</span>
+  
+    <a title="waline" href="/2025/06/07/the-managers-path-mentor/#waline" itemprop="discussionUrl">
+      <span class="post-comments-count waline-comment-count" data-path="/2025/06/07/the-managers-path-mentor/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>前段时间阅读了一本叫《技术为径》的书，作者是卡米尔·福涅尔，一位女性技术管理者。此书主要介绍了如何从工程师逐步进阶成为技术管理者，这里的技术管理者分为很多种层次，包括：技术导师、技术小组长、中层经理、职业经理人等。考虑到书的内容比较多，这里我分开记录一些读书笔记。本文先从技术导师开始。</p>
+<h2 id="技术导师">技术导师</h2>
+<p>技术导师，即 Tech
+Mentor，其通常负责辅导校招生、实习生，在极少数情况下也负责指导社招新成员，比如：阿里巴巴的「师兄」角色。</p>
+<h1 id="如何指导实习生">如何指导实习生</h1>
+<p>对于实习生而言，一段很棒的实习经历不仅可以促使他未来加入公司，也能够在提升公司作为雇主在其同学圈中的印象分。</p>
+<p>在实习生入职之前，技术导师要准备迎接入职。对此，要着手的事情很多，比如：了解入职时间，安排入职工位、工作环境、工作设备甚至内部账号等。很多工程师其实都不太有「眼力见」，很容易忽视这些细节。事实上，对于一个新员工而言，入职第一天完全被忽视是一种非常糟糕的体验。</p>
+<p>入职之后，指导实习生的工作应该围绕着具体的项目来进行。因此，技术导师要先确定一个难度适中的项目，如果没有合适的独立项目，也可以考虑从自己当前的工作中分离出一部分交给实习生完成。当确定了实习生的第一个项目后，技术导师应该和实习生一起对项目进行任务拆分，这样可以快速获得反馈信息，并随时回答实习生的问题。</p>
+<p>伴随着项目的进行，技术导师应该始终注意以下三项重点：</p>
+<ul>
+<li>认真倾听</li>
+<li>清晰沟通</li>
+<li>因材施教</li>
+</ul>
+<p>倾听是最基础、最重要的人事管理技能，也是同理心的一种体现。无论未来身处什么职位，懂得如何倾听都极为有用。大多数人都是不善于精准表达自己的想法的，因此认真倾听意味着要透过对方的表面语言，体会其真正的意图。当面对技术导师时，实习生在心理上会处于弱势，在表达或者提问时，可能会因为胆怯或紧张，而无法准确地描述。对此，技术导师的心理应该有所准备，对于实习生提出的问题或表述，可以以自己的理解进行，述，必要时可以通过白板画图，避免沿着错误的方向前进。</p>
+<p>沟通的重要性不言而喻。在指导实习生时，技术导师应该清晰地传达自己的期望。比如导师希望实习生在提问之前自己先进行一定的研究，那么就应该明确地跟他讲清楚。导师应该告诉实习生项目各个阶段的目标是什么？做到什么程度？学习什么知识？何时汇报进度？如果在这样清晰的指引下他还做不好，那么你也就明白了他的潜力了。</p>
+<p>导师的第三项重点是因材施教。导师应该了解实习生各个方面的能力，从而规划对他的后续指导，加强哪方面的能力。这就需要进一步深入沟通，作者建议至少每周沟通一次；如果有额外时间，也可以聊点工作以外的内容，增进彼此之间的了解。</p>
+<h1 id="如何指导正式员工">如何指导正式员工</h1>
+<p>指导正式员工是一项非常重要的工作，主要有以下这些目标：</p>
+<ul>
+<li>帮助新人尽快上手工作内容</li>
+<li>帮助新人尽快适应工作氛围</li>
+<li>帮助新人尽快构建人际圈子</li>
+</ul>
+<p>对于帮助新人上手工作内容，首先是新人文档。新人文档包含了各种工具的使用，环境的配置等。随着项目的迭代，文档内容可能与项目实际产生偏差，此时技术导师应该要求新人去更新文档。另外，也可以考虑
+<strong>结对编程</strong>，一个人作为驾驶员（编写代码），一个人作为导航员，两人每隔一段时间（比如
+40
+分钟）互换角色。在结对编程的配合中，新人可以更加深入地理解工作的整体和细节。不过，结对编程在国内公司极其少见，但是我还是觉得可以尝试尝试。</p>
+<p>对于帮助新人适应工作氛围，这主要涉及公司的规章制度、审批流程、工作流程、公司文化、常用术语、称呼方式等，当然还有很多小细节或者不成文的规定，这些都需要技术导师去以一个新人的视角去重新观察和理解。</p>
+<p>对于帮助新人构建人际圈子，应该带着新人认识团队成员，可以组合各种方式和手段，比如：到各个团队成员的工位介绍两人相互认识、将新人拉进各种成员群。带新人加入自己的人际关系圈，有助于他更快地上手工作，也有助于你进入他未来的人际圈子。毕竟今天你辅导的新人，未来可能是你的引荐人。</p>
+<p>指导过程也是一个以全新视角审视公司和团队的机会，导师应该重新思考此前习以为然的一切事务。</p>
+<h1 id="总结">总结</h1>
+<p>总而言之，导师应该保持关注一下几个要点：</p>
+<p>保持好奇心，保持思想开放。辅导工作是一个以全新视角观察自己工作，以及培育自己好奇心的机会。</p>
+<p>倾听并以顾及对方背景和立场的方式进行沟通。软件开发是一项团队活动，内部顺畅的沟通是一切成功的前提。</p>
+<p>构建人际关系网。任何人任何行业的职业发展归根到底取决于人际关系网络。职场圈子很小，善待对方，保持良好的关系。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpeg" alt="Bao Chuquan 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.png" alt="Bao Chuquan 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Tech-Mentor/" rel="tag"># Tech Mentor</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/02/09/several-ways-of-thinking/" rel="prev" title="看待问题的几种思考方式">
+                  <i class="fa fa-angle-left"></i> 看待问题的几种思考方式
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="waline"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2017 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">true</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  <div>
+     <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备16031766号-1</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"ams","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="waline" type="application/json">{"lang":"zh-cn","enable":true,"serverURL":"https://vercel.chuquan.me","cssUrl":"https://unpkg.com/@waline/client@v2/dist/waline.css","commentCount":true,"pageview":false,"placeholder":"(发表评论)","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"dark":"body.darkmode--activated","visitor":true,"comment_count":true,"requiredFields":["nick"],"libUrl":"//unpkg.com/@waline/client@v2/dist/waline.js","el":"#waline","comment":true,"path":"/2025/06/07/the-managers-path-mentor/"}</script>
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+<script>
+document.addEventListener('page:loaded', () => {
+  NexT.utils.loadComments(CONFIG.waline.el).then(() =>
+    NexT.utils.getScript(CONFIG.waline.libUrl, { condition: window.Waline })
+  ).then(() => 
+    Waline.init(Object.assign({}, CONFIG.waline,{ el: document.querySelector(CONFIG.waline.el) }))
+  );
+});
+</script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: false,
+  label: '🌓',
+  autoMatchOsTheme: false
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+if (window.darkmode && !window.darkmode.isActivated()) {
+  window.darkmode.toggle();
+  var toggleButtons = document.getElementsByClassName("darkmode-toggle");
+  if (toggleButtons && toggleButtons.length > 0) {
+    for (i = 0; i < toggleButtons.length; i++) {
+      toggleButtons[i].classList.add("darkmode-toggle--white");
+    }
+  }
+}
+</script>
+
+<script src="/live2dwlib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dwassets/tororo.model.json"},"display":{"position":"right","width":150,"height":300,"hOffset":-15,"vOffset":-15},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>
